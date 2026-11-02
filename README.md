@@ -11,6 +11,10 @@ driven by the game's own village export.
 3. Long-press the home screen > Widgets > Clash Timers.
 4. In Clash: Settings > More Settings > Data Export > Copy. Then tap **Sync** on the widget.
 
+Quicker: add the **Clash Sync** tile to Quick Settings (pull the shade down twice, then edit the
+buttons). After copying the export, pull down and tap the tile. It syncs over the game, so you
+never leave Clash.
+
 Android 12 or later.
 
 ## How it works
@@ -32,7 +36,8 @@ The export is a snapshot. Sync again after starting an upgrade, finishing one ea
 
 The export's `boosts` block gives seconds left on a builder boost and a pet boost, not which item
 caused it. Sync asks whether the builder boost is a Builder Potion (10x) or a Builder Bite (2x,
-community figure, unconfirmed). Pet boosts are treated as the Pet Potion (24x). Research Potions
+community figure, unconfirmed). It only asks for a new boost: re-syncing while the same boost runs
+reuses the earlier answer. Pet boosts are treated as the Pet Potion (24x). Research Potions
 aren't handled yet: the field name hasn't been seen in an export.
 
 ## What the export doesn't contain

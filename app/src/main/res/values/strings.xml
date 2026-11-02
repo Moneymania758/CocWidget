@@ -11,12 +11,14 @@
 
     <string name="sync_not_export">The clipboard doesn\'t hold a village export. Copy it in Clash first (Settings &gt; More Settings &gt; Data Export).</string>
     <string name="sync_done">Village synced</string>
+    <string name="tile_label">Clash Sync</string>
+    <string name="tile_never">Not synced yet</string>
     <string name="boost_title">Builder boost running</string>
     <string name="boost_message">The export doesn\'t say which boost is active. Which one did you use?</string>
     <string name="boost_potion">Potion (10x)</string>
     <string name="boost_bite">Bite (2x)</string>
 
-    <string name="main_steps">1. Long-press the home screen, tap Widgets and add Clash Timers.\n2. In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy.\n3. Tap Sync on the widget (or below).\n\nSync again whenever you start an upgrade or use a potion.</string>
+    <string name="main_steps">1. Long-press the home screen, tap Widgets and add Clash Timers.\n2. In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy.\n3. Tap Sync on the widget (or below).\n\nQuicker: add the Clash Sync tile to Quick Settings (pull down twice, then edit the buttons). Copy the export, pull down, tap the tile. You never leave the game.\n\nSync again whenever you start an upgrade or use a potion.</string>
     <string name="name_hint">Name shown on the widget</string>
     <string name="save_name">Save name</string>
     <string name="name_saved">Name saved</string>

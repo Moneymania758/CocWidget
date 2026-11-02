@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.ClipboardManager
 import android.widget.Toast
+import kotlin.math.abs
 
 // Invisible screen opened by the widget's Sync button. Android only lets the app with
 // input focus read the clipboard, so a widget can't read it directly.
@@ -24,7 +25,16 @@ class SyncActivity : Activity() {
             return
         }
 
-        if (village.builderBoost.seconds > 0) askBuilderBoost(text) else save(text)
+        if (village.builderBoost.seconds > 0 && !sameBoostAsLastSync(village)) askBuilderBoost(text) else save(text)
+    }
+
+    // A boost confirmed at the last sync ends at the same moment, so there's no need to ask again.
+    private fun sameBoostAsLastSync(village: Village): Boolean {
+        val previous = Store.village(this) ?: return false
+        if (previous.builderBoost.seconds <= 0) return false
+        val previousEnd = previous.boostEndMillis(previous.builderBoost)
+        val end = village.boostEndMillis(village.builderBoost)
+        return abs(previousEnd - end) < BOOST_MATCH_MS
     }
 
     // The export gives the builder boost's time left but not whether it's a Potion or a Bite.
@@ -49,5 +59,9 @@ class SyncActivity : Activity() {
         VillageWidget.requestRefresh(this)
         Toast.makeText(this, R.string.sync_done, Toast.LENGTH_SHORT).show()
         finish()
+    }
+
+    private companion object {
+        const val BOOST_MATCH_MS = 2 * 60_000L
     }
 }
