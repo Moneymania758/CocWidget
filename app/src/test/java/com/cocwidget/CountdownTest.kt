@@ -57,6 +57,19 @@ class CountdownTest {
     }
 
     @Test
+    fun refreshesWhenAHelperShiftEnds() {
+        val helped = TestData.upgrade(workSec = 1_000_000, helperSec = 90)
+        val village = TestData.villageOf(now, helped, helpers = Helpers(8, 12, 0))
+        assertEquals(now + 90_000, Countdown.nextRefresh(village, now))
+    }
+
+    @Test
+    fun refreshesWhenHelpersBecomeReady() {
+        val village = TestData.villageOf(now, TestData.upgrade(workSec = 1_000_000), helpers = Helpers(8, 12, 60))
+        assertEquals(now + 60_000, Countdown.nextRefresh(village, now))
+    }
+
+    @Test
     fun neverSchedulesSoonerThanASecond() {
         // Exported 9.8 s ago with 10 s of work, so it finishes in 200 ms.
         val village = TestData.villageOf(now - 9_800, TestData.upgrade(workSec = 10))

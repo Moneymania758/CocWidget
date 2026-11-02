@@ -85,6 +85,7 @@ object WidgetRenderer {
         }
         views.setTextViewText(R.id.footer, footer)
         views.setTextColor(R.id.footer, if (finishedSince > 0 || old) ORANGE else context.getColor(R.color.text_dim))
+        showHelpers(context, views, village, now)
 
         // Rows stay in a plain LinearLayout rather than a scrolling ListView: on One UI the
         // countdowns stop ticking inside a ListView. Sections fold instead, to make room.
@@ -95,6 +96,22 @@ object WidgetRenderer {
             addSection(context, views, village, now, Section.BUILDER_BASE, "BUILDER BASE", 0)
         }
         return views
+    }
+
+    // Ready is orange like an idle builder: a free shift goes to waste.
+    private fun showHelpers(context: Context, views: RemoteViews, village: Village, now: Long) {
+        val helpers = village.helpers
+        if (helpers.apprenticeLevel == 0 && helpers.assistantLevel == 0) return
+        views.setViewVisibility(R.id.helpers, View.VISIBLE)
+        val readyIn = village.helpersReadyMillis() - now
+        if (readyIn > 0) {
+            views.setChronometer(R.id.helpers_timer, SystemClock.elapsedRealtime() + readyIn, context.getString(R.string.helpers_ready_in), true)
+            views.setChronometerCountDown(R.id.helpers_timer, true)
+        } else {
+            views.setViewVisibility(R.id.helpers_timer, View.GONE)
+            views.setViewVisibility(R.id.helpers_ready, View.VISIBLE)
+            views.setTextColor(R.id.helpers_ready, ORANGE)
+        }
     }
 
     private fun addSection(
@@ -153,6 +170,7 @@ object WidgetRenderer {
         if (icon != null) row.setImageViewBitmap(R.id.icon, icon) else row.setImageViewResource(R.id.icon, R.drawable.ic_placeholder)
 
         val left = village.endMillis(upgrade) - now
+        row.setViewVisibility(R.id.helper, if (left > 0 && village.isHelped(upgrade, now)) View.VISIBLE else View.GONE)
         if (left <= 0) {
             row.setViewVisibility(R.id.clock, View.GONE)
             row.setViewVisibility(R.id.days, View.GONE)

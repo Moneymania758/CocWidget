@@ -12,7 +12,7 @@ Needs Android 12 or later. It is not available for iPhone.
    "Install unknown apps" for your browser or file manager and try again.
 
 To update, install the newer `.apk` the same way. Your synced village is kept. From 1.3 on, the
-widget shows **Update 1.4 ›** at the bottom when a new version is out. Tap it to go to the
+widget shows **Update 1.6 ›** (or whichever is newest) at the bottom when a new version is out. Tap it to go to the
 download.
 
 ## Set up (once)
@@ -62,6 +62,10 @@ than a discounted one could, so it's never halved.
   builder (or a free lab or pet house).
 - **+ Goblin** and the green **GOBLIN** tag mark the extra upgrade run by the event Goblin.
 - **×10 34:44** is a boost running and how long it has left. Timers already account for it.
+- The blue **HELPER** tag marks the upgrade your Builder's Apprentice or Lab Assistant is
+  working on. Timers already account for the hour they're working.
+- **Helpers ready in 19:56:32** at the bottom counts down to your helpers' next work day. It
+  turns orange as **Helpers ready** when you can give them a new job.
 - The **green bar** is how far through the upgrade you are.
 - The **timer** counts down live. **Done** means it has finished.
 - **▾** after a section title means it's open. **▸ 4** means it's folded, with 4 upgrades hidden.
@@ -86,9 +90,11 @@ shows shorter times than the game does. The widget's times are when the upgrades
 ## What it can't show
 
 The export doesn't include these, so the widget can't either: gold, elixir and dark elixir
-amounts, and Clan Capital Forge builders. Helper assignments (Apprentice, Lab Assistant) are in
-the export but not used yet, so an upgrade a helper is speeding up shows a slightly later finish
-than the real one.
+amounts, and Clan Capital Forge builders.
+
+If you've ticked "Keep assigned until upgrade is complete" for a helper, the widget counts only
+the hour they're working at your export, not the ones on later days. Sync after each new work day
+starts to pick up the next hour.
 
 ---
 
@@ -114,9 +120,14 @@ than the real one.
   unconfirmed), Research Potion 24x, Study Soup 4x, Pet Potion 24x. Work done during the boost
   runs at that rate and the rest at normal speed. A potion and a snack together add up in the
   game (27x for the lab); the app takes whichever one you confirm.
-- Helpers: `helpers[].helper_cooldown` is seconds to the daily reset, `helper_timer` on an
-  upgrade is the Lab Assistant's remaining working time on it, and `helper_recurrent` marks an
-  upgrade the Apprentice repeats on. Seen in a TH18 export; not used yet.
+- Helpers: `helpers[]` gives each helper's level and `helper_cooldown`, the seconds left in the
+  23-hour work day they share (missing when none is running). `helper_timer` on an upgrade is
+  the real seconds left of a helper's one-hour shift on it, and `helper_recurrent` marks "Keep
+  assigned". During a shift the timer runs at the boost's rate (or 1x) plus the helper's level:
+  the game's own text says potions don't affect helpers, and its data gives the Apprentice and
+  Lab Assistant a `boost_multiplier` equal to their level. A level 12 Assistant during a
+  Research Potion is 24 + 12 = 36x. Later shifts from "Keep assigned" aren't counted, because
+  whether they start by themselves at the reset isn't known yet.
 - Notifications: a separate wake-up alarm fires at the next finish time (the redraw alarm doesn't
   wake the phone). Upgrades that finished more than two hours ago, for example while the phone
   was off, stay quiet.
@@ -145,8 +156,8 @@ gradlew testDebugUnitTest
 ```
 
 Run before every release. The tests cover export parsing against two real exports, TH16 and
-TH18 (`app/src/test/resources/village_export*.json`, player tags replaced), potion maths, day
-rollover, notification decisions and version comparison. One test also fails if the widget
+TH18 (`app/src/test/resources/village_export*.json`, player tags replaced), potion and helper
+maths, day rollover, notification decisions and version comparison. One test also fails if the widget
 layouts gain a `ListView` or other collection view, where countdowns stop ticking on One UI.
 Widget rendering itself can only be checked on a phone.
 

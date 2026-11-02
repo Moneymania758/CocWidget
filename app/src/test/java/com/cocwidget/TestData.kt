@@ -27,6 +27,7 @@ object TestData {
         section: Section = Section.BUILDERS,
         name: String = "Cannon",
         extra: Boolean = false,
+        helperSec: Long = 0,
     ) = Upgrade(
         section = section,
         name = name,
@@ -36,12 +37,14 @@ object TestData {
         workSec = workSec,
         totalSec = workSec * 2,
         extra = extra,
+        helperSec = helperSec,
     )
 
     fun villageOf(
         exportedAtMillis: Long,
         vararg upgrades: Upgrade,
         builderBoost: Boost = Boost.NONE,
+        helpers: Helpers = Helpers.NONE,
     ) = Village(
         tag = "#TEST",
         exportedAtMillis = exportedAtMillis,
@@ -52,5 +55,6 @@ object TestData {
         builderBoost = builderBoost,
         labBoost = Boost.NONE,
         petBoost = Boost.NONE,
+        helpers = helpers,
     )
 }

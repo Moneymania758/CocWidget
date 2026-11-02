@@ -25,19 +25,60 @@ data class Upgrade(
     val totalSec: Long?,
     // Set on the slot run by the event Goblin builder or researcher.
     val extra: Boolean,
+    // Real seconds left at export of a helper's one-hour shift on this upgrade.
+    val helperSec: Long = 0,
+    // "Keep assigned until upgrade is complete" is ticked for a helper on this upgrade.
+    val helperRepeats: Boolean = false,
 )
 
 // A potion running for [seconds] more real seconds, making upgrades go [multiplier] times faster.
 class Boost(val seconds: Long, val multiplier: Int) {
-    fun realSecondsFor(work: Long): Long {
-        val boostedWork = seconds * multiplier
-        return if (work <= boostedWork) (work + multiplier - 1) / multiplier else seconds + (work - boostedWork)
-    }
-
-    fun workDoneIn(elapsed: Long): Long = multiplier * minOf(elapsed, seconds) + maxOf(0L, elapsed - seconds)
-
     companion object {
         val NONE = Boost(0, 1)
+    }
+}
+
+// The Builder's Apprentice and Lab Assistant levels, and the seconds left at export of the
+// 23-hour work day they share (0 when they are ready for a new job).
+class Helpers(val apprenticeLevel: Int, val assistantLevel: Int, val cooldownSec: Long) {
+    companion object {
+        val NONE = Helpers(0, 0, 0)
+    }
+}
+
+// How fast one upgrade's timer runs after the export. A boost multiplies normal speed, and a
+// helper on shift adds its level on top: the game says potions don't affect helpers, so a level
+// 12 Lab Assistant during a Research Potion runs research at 24 + 12 = 36x.
+class Pace(private val boost: Boost, private val helperSec: Long = 0, private val helperLevel: Int = 0) {
+    // The rate only changes when the boost or the shift ends.
+    private val changes = listOf(boost.seconds, if (helperLevel > 0) helperSec else 0L).filter { it > 0 }.sorted()
+
+    private fun rateAt(t: Long): Long =
+        (if (t < boost.seconds) boost.multiplier.toLong() else 1L) + (if (t < helperSec) helperLevel else 0)
+
+    fun realSecondsFor(work: Long): Long {
+        var t = 0L
+        var left = work
+        for (end in changes) {
+            if (end <= t) continue
+            val rate = rateAt(t)
+            if (left <= (end - t) * rate) return t + (left + rate - 1) / rate
+            left -= (end - t) * rate
+            t = end
+        }
+        return t + left
+    }
+
+    fun workDoneIn(elapsed: Long): Long {
+        var t = 0L
+        var done = 0L
+        for (end in changes) {
+            if (end <= t) continue
+            if (elapsed <= end) return done + rateAt(t) * (elapsed - t)
+            done += rateAt(t) * (end - t)
+            t = end
+        }
+        return done + (elapsed - t)
     }
 }
 
@@ -51,6 +92,7 @@ class Village(
     val builderBoost: Boost,
     val labBoost: Boost,
     val petBoost: Boost,
+    val helpers: Helpers,
 ) {
     fun boostFor(section: Section): Boost = when (section) {
         Section.BUILDERS -> builderBoost
@@ -59,18 +101,37 @@ class Village(
         else -> Boost.NONE
     }
 
+    // The Apprentice helps builders, the Assistant the lab. Nothing helps pets or the Builder Base.
+    fun helperLevelFor(section: Section): Int = when (section) {
+        Section.BUILDERS -> helpers.apprenticeLevel
+        Section.LAB -> helpers.assistantLevel
+        else -> 0
+    }
+
     fun boostEndMillis(boost: Boost): Long = exportedAtMillis + boost.seconds * 1000
 
+    fun helperShiftEndMillis(upgrade: Upgrade): Long = exportedAtMillis + upgrade.helperSec * 1000
+
+    fun helpersReadyMillis(): Long = exportedAtMillis + helpers.cooldownSec * 1000
+
+    // Only the shift running at export speeds the timer up. Whether a kept assignment starts
+    // again by itself when the work day resets isn't known, so later shifts aren't counted.
+    fun isHelped(upgrade: Upgrade, nowMillis: Long): Boolean =
+        helperLevelFor(upgrade.section) > 0 && (upgrade.helperRepeats || helperShiftEndMillis(upgrade) > nowMillis)
+
+    fun paceFor(upgrade: Upgrade): Pace =
+        Pace(boostFor(upgrade.section), upgrade.helperSec, helperLevelFor(upgrade.section))
+
     fun withUpgrades(upgrades: List<Upgrade>) =
-        Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, labBoost, petBoost)
+        Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, labBoost, petBoost, helpers)
 
     fun endMillis(upgrade: Upgrade): Long =
-        exportedAtMillis + boostFor(upgrade.section).realSecondsFor(upgrade.workSec) * 1000
+        exportedAtMillis + paceFor(upgrade).realSecondsFor(upgrade.workSec) * 1000
 
     fun progress(upgrade: Upgrade, nowMillis: Long): Float {
         val total = upgrade.totalSec ?: return 0f
         val elapsed = ((nowMillis - exportedAtMillis) / 1000).coerceAtLeast(0)
-        val left = (upgrade.workSec - boostFor(upgrade.section).workDoneIn(elapsed)).coerceAtLeast(0)
+        val left = (upgrade.workSec - paceFor(upgrade).workDoneIn(elapsed)).coerceAtLeast(0)
         return (1f - left.toFloat() / total).coerceIn(0f, 1f)
     }
 }
@@ -80,6 +141,8 @@ object VillageParser {
     private const val BUILDER_HUT = 1000015
     private const val BOB_HUT = 1000064
     private const val PET_HOUSE = 1000068
+    private const val BUILDERS_APPRENTICE = 93000000
+    private const val LAB_ASSISTANT = 93000001
 
     private val SECTIONS = mapOf(
         "buildings" to Section.BUILDERS,
@@ -122,6 +185,8 @@ object VillageParser {
         val huts = buildings.filter { it.optInt("data") == BUILDER_HUT }.sumOf { it.optInt("cnt", 1) }
         val bob = if (buildings.any { it.optInt("data") == BOB_HUT }) 1 else 0
         val boosts = root.optJSONObject("boosts")
+        val helpers = root.entries("helpers")
+        fun helperLevel(id: Int) = helpers.firstOrNull { it.optInt("data") == id }?.optInt("lvl") ?: 0
 
         return Village(
             tag = root.optString("tag"),
@@ -133,6 +198,12 @@ object VillageParser {
             builderBoost = Boost(boosts?.optLong("builder_boost") ?: 0, builderMultiplier),
             labBoost = Boost(boosts?.optLong("lab_boost") ?: 0, labMultiplier),
             petBoost = Boost(boosts?.optLong("pet_boost") ?: 0, PET_POTION_MULTIPLIER),
+            // Every helper carries the same cooldown. None means no work day is running.
+            helpers = Helpers(
+                apprenticeLevel = helperLevel(BUILDERS_APPRENTICE),
+                assistantLevel = helperLevel(LAB_ASSISTANT),
+                cooldownSec = helpers.maxOfOrNull { it.optLong("helper_cooldown") } ?: 0,
+            ),
         )
     }
 
@@ -181,6 +252,8 @@ object VillageParser {
             workSec = entry.optLong("timer"),
             totalSec = item?.timeToReach(toLevel),
             extra = entry.optBoolean("extra"),
+            helperSec = entry.optLong("helper_timer"),
+            helperRepeats = entry.optBoolean("helper_recurrent"),
         )
     }
 

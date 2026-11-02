@@ -89,4 +89,16 @@ class EventDiscountTest {
         val tracked = EventDiscount.track(before, emptyList(), emptySet(), after, eventOn = true)
         assertEquals(listOf(false, true), halved(after, tracked))
     }
+
+    @Test
+    fun aHelperShiftCountsWhenMatchingUpgrades() {
+        // Two of the same trap. Half an hour of a level 8 Apprentice (9x) takes the first from
+        // 20,000 s to 3,800 s, while the second goes from 6,000 s to 4,200 s at normal speed.
+        // Ignoring the helper would predict 18,200 s for the first and swap the two.
+        val helpers = Helpers(8, 0, 82_800)
+        val before = TestData.villageOf(t0, TestData.upgrade(20_000, helperSec = 3600), TestData.upgrade(6_000), helpers = helpers)
+        val after = TestData.villageOf(t0 + 1_800_000, TestData.upgrade(3_800, helperSec = 1800), TestData.upgrade(4_200), helpers = helpers)
+        val tracked = EventDiscount.track(before, listOf("helped", "plain"), emptySet(), after, eventOn = false)
+        assertEquals(listOf("helped", "plain"), tracked.ids)
+    }
 }

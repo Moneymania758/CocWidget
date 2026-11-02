@@ -72,7 +72,7 @@ object EventDiscount {
     private fun base(upgrade: Upgrade) = "${upgrade.section}|${upgrade.name}|${upgrade.toLevel}|${upgrade.extra}"
 
     private fun predictedWork(village: Village, upgrade: Upgrade, elapsedSec: Long) =
-        upgrade.workSec - village.boostFor(upgrade.section).workDoneIn(elapsedSec)
+        upgrade.workSec - village.paceFor(upgrade).workDoneIn(elapsedSec)
 
     // More time left than the discounted total means it can't have been started at a discount.
     private fun couldBeDiscounted(upgrade: Upgrade): Boolean {

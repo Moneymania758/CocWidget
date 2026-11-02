@@ -45,6 +45,20 @@
             android:visibility="gone" />
 
         <TextView
+            android:id="@+id/helper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/chip_helper"
+            android:fontFamily="sans-serif-black"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:text="@string/helper"
+            android:textColor="@color/helper"
+            android:textSize="9sp"
+            android:visibility="gone" />
+
+        <TextView
             android:id="@+id/name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

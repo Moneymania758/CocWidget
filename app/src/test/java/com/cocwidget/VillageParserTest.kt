@@ -20,6 +20,14 @@ class VillageParserTest {
     }
 
     @Test
+    fun helpersWithNoWorkDayRunningAreReady() {
+        assertEquals(3, village.helpers.apprenticeLevel)
+        assertEquals(2, village.helpers.assistantLevel)
+        assertEquals(village.exportedAtMillis, village.helpersReadyMillis())
+        assertTrue(village.upgrades.none { village.isHelped(it, village.exportedAtMillis) })
+    }
+
+    @Test
     fun countsBuilderHutsPlusBob() {
         // Five Builder's Huts across three levels, plus B.O.B's Hut.
         assertEquals(6, village.builders)

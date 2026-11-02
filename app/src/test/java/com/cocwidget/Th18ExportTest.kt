@@ -1,6 +1,7 @@
 package com.cocwidget
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -56,18 +57,47 @@ class Th18ExportTest {
     }
 
     @Test
-    fun researchPotionSpeedsUpTheLab() {
-        // 4,786 s of 24x covers the Goblin's 77,936 s of work: 77,936 / 24 rounded up.
+    fun readsHelpers() {
+        assertEquals(8, village.helpers.apprenticeLevel)
+        assertEquals(12, village.helpers.assistantLevel)
+        assertEquals(village.exportedAtMillis + 71_792_000L, village.helpersReadyMillis())
+    }
+
+    @Test
+    fun readsWhichUpgradesHelpersAreOn() {
+        assertEquals(3_063L, village.upgrades.single { it.name == "Goblin" }.helperSec)
+        assertEquals(listOf(20_392L), village.upgrades.filter { it.helperRepeats }.map { it.workSec })
+        // The Logger carries helper_timer 0: no shift running on it.
+        assertEquals(0L, village.upgrades.single { it.name == "Logger" }.helperSec)
+    }
+
+    @Test
+    fun helperChipShowsWhileTheShiftRunsOrTheAssignmentRepeats() {
         val goblin = village.upgrades.single { it.name == "Goblin" }
-        assertEquals(village.exportedAtMillis + 3_248_000L, village.endMillis(goblin))
+        val shiftEnd = village.exportedAtMillis + 3_063_000L
+        assertTrue(village.isHelped(goblin, shiftEnd - 1))
+        assertFalse(village.isHelped(goblin, shiftEnd))
+
+        val repeating = village.upgrades.single { it.helperRepeats }
+        assertTrue(village.isHelped(repeating, shiftEnd + 86_400_000L))
+        assertFalse(village.isHelped(village.upgrades.single { it.name == "Logger" }, village.exportedAtMillis))
+    }
+
+    @Test
+    fun researchPotionAndLabAssistantAddUp() {
+        // During the Assistant's 3,063 s shift research runs at 24 + 12 = 36x, which clears the
+        // Goblin's 77,936 s of work in 2,165 s. The potion alone would take 3,248 s.
+        val goblin = village.upgrades.single { it.name == "Goblin" }
+        assertEquals(village.exportedAtMillis + 2_165_000L, village.endMillis(goblin))
     }
 
     @Test
     fun studySoupIsSlower() {
-        // 4,786 s of 4x clears 19,144 s, the remaining 58,792 s run at normal speed.
+        // 3,063 s at 4 + 12 = 16x clears 49,008 s, the soup's last 1,723 s at 4x clear 6,892 s,
+        // and the remaining 22,036 s run at normal speed.
         val souped = TestData.th18Village(STUDY_SOUP_MULTIPLIER)
         val goblin = souped.upgrades.single { it.name == "Goblin" }
-        assertEquals(souped.exportedAtMillis + 63_578_000L, souped.endMillis(goblin))
+        assertEquals(souped.exportedAtMillis + 26_822_000L, souped.endMillis(goblin))
     }
 
     @Test

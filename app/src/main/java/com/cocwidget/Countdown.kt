@@ -16,18 +16,21 @@ object Countdown {
     }
 
     // When the widget must redraw next: a chronometer reaching zero (a day rolling over or an
-    // upgrade finishing), a boost ending, or the regular refresh, whichever comes first.
+    // upgrade finishing), a boost or helper shift ending, the helpers becoming ready, or the
+    // regular refresh, whichever comes first.
     fun nextRefresh(village: Village?, now: Long): Long {
         var next = now + MAX_REFRESH_MS
         if (village != null) {
+            val ends = mutableListOf(village.helpersReadyMillis())
             for (upgrade in village.upgrades) {
                 val left = village.endMillis(upgrade) - now
                 if (left > 0) next = minOf(next, now + split(left).restMs)
+                ends += village.helperShiftEndMillis(upgrade)
             }
             for (boost in listOf(village.builderBoost, village.labBoost, village.petBoost)) {
-                val end = village.boostEndMillis(boost)
-                if (end > now) next = minOf(next, end)
+                ends += village.boostEndMillis(boost)
             }
+            for (end in ends) if (end > now) next = minOf(next, end)
         }
         return maxOf(next, now + 1000)
     }
