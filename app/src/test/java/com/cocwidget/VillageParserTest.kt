@@ -105,8 +105,8 @@ class VillageParserTest {
     @Test
     fun rejectsTextThatIsNotAnExport() {
         val lookup: (Int) -> GameItem? = { TestData.gameData[it] }
-        assertNull(VillageParser.parse("hello", BUILDER_POTION_MULTIPLIER, lookup))
-        assertNull(VillageParser.parse("{}", BUILDER_POTION_MULTIPLIER, lookup))
-        assertNull(VillageParser.parse("{\"tag\":\"#X\"}", BUILDER_POTION_MULTIPLIER, lookup))
+        assertNull(VillageParser.parse("hello", BUILDER_POTION_MULTIPLIER, lookup = lookup))
+        assertNull(VillageParser.parse("{}", BUILDER_POTION_MULTIPLIER, lookup = lookup))
+        assertNull(VillageParser.parse("{\"tag\":\"#X\"}", BUILDER_POTION_MULTIPLIER, lookup = lookup))
     }
 }

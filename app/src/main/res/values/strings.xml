@@ -29,6 +29,9 @@
     <string name="boost_message">The export doesn\'t say which boost is active. Which one did you use?</string>
     <string name="boost_potion">Potion (10x)</string>
     <string name="boost_bite">Bite (2x)</string>
+    <string name="lab_boost_title">Lab boost running</string>
+    <string name="lab_boost_potion">Research Potion (24x)</string>
+    <string name="lab_boost_soup">Study Soup (4x)</string>
 
     <string name="main_steps">SET UP (ONCE)\n1. Add the widget: long-press the home screen, tap Widgets and drag Clash Timers on. Make it tall. If it doesn\'t all fit, tap a section title on the widget to fold it.\n2. Add the sync tile: pull the notification shade all the way down, tap edit (pencil, or ⋮ then Edit) and drag Clash Sync into your tiles.\n3. Settings &gt; Apps &gt; Clash Timers &gt; Battery &gt; Unrestricted, so the widget keeps updating.\n\nSYNC YOUR VILLAGE\n1. In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy.\n2. Pull down and tap Clash Sync. You stay in the game. (Or tap Sync on the widget, or the button below.)\n\nSync again whenever you start an upgrade, finish one early or use a potion. The widget only knows what was true at your last export.</string>
     <string name="event_switch">Event: 50% off upgrade times</string>

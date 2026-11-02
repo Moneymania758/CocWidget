@@ -24,7 +24,7 @@ object Countdown {
                 val left = village.endMillis(upgrade) - now
                 if (left > 0) next = minOf(next, now + split(left).restMs)
             }
-            for (boost in listOf(village.builderBoost, village.petBoost)) {
+            for (boost in listOf(village.builderBoost, village.labBoost, village.petBoost)) {
                 val end = village.boostEndMillis(boost)
                 if (end > now) next = minOf(next, end)
             }

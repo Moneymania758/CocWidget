@@ -9,6 +9,8 @@ const val BUILDER_POTION_MULTIPLIER = 10
 // Community figure, not confirmed by Supercell.
 const val BUILDER_BITE_MULTIPLIER = 2
 const val PET_POTION_MULTIPLIER = 24
+const val RESEARCH_POTION_MULTIPLIER = 24
+const val STUDY_SOUP_MULTIPLIER = 4
 
 enum class Section { BUILDERS, LAB, PETS, BUILDER_BASE }
 
@@ -47,10 +49,12 @@ class Village(
     val hasPetHouse: Boolean,
     val upgrades: List<Upgrade>,
     val builderBoost: Boost,
+    val labBoost: Boost,
     val petBoost: Boost,
 ) {
     fun boostFor(section: Section): Boost = when (section) {
         Section.BUILDERS -> builderBoost
+        Section.LAB -> labBoost
         Section.PETS -> petBoost
         else -> Boost.NONE
     }
@@ -58,7 +62,7 @@ class Village(
     fun boostEndMillis(boost: Boost): Long = exportedAtMillis + boost.seconds * 1000
 
     fun withUpgrades(upgrades: List<Upgrade>) =
-        Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, petBoost)
+        Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, labBoost, petBoost)
 
     fun endMillis(upgrade: Upgrade): Long =
         exportedAtMillis + boostFor(upgrade.section).realSecondsFor(upgrade.workSec) * 1000
@@ -91,11 +95,20 @@ object VillageParser {
         "units2" to Section.BUILDER_BASE,
     )
 
-    fun parse(context: Context, text: String, builderMultiplier: Int = BUILDER_POTION_MULTIPLIER): Village? =
-        parse(text, builderMultiplier) { GameData.get(context, it) }
+    fun parse(
+        context: Context,
+        text: String,
+        builderMultiplier: Int = BUILDER_POTION_MULTIPLIER,
+        labMultiplier: Int = RESEARCH_POTION_MULTIPLIER,
+    ): Village? = parse(text, builderMultiplier, labMultiplier) { GameData.get(context, it) }
 
     // Returns null when [text] isn't a Clash of Clans village export.
-    fun parse(text: String, builderMultiplier: Int, lookup: (Int) -> GameItem?): Village? {
+    fun parse(
+        text: String,
+        builderMultiplier: Int,
+        labMultiplier: Int = RESEARCH_POTION_MULTIPLIER,
+        lookup: (Int) -> GameItem?,
+    ): Village? {
         val root = try {
             JSONObject(text.trim())
         } catch (e: JSONException) {
@@ -118,6 +131,7 @@ object VillageParser {
             hasPetHouse = buildings.any { it.optInt("data") == PET_HOUSE },
             upgrades = upgrades,
             builderBoost = Boost(boosts?.optLong("builder_boost") ?: 0, builderMultiplier),
+            labBoost = Boost(boosts?.optLong("lab_boost") ?: 0, labMultiplier),
             petBoost = Boost(boosts?.optLong("pet_boost") ?: 0, PET_POTION_MULTIPLIER),
         )
     }

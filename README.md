@@ -39,8 +39,9 @@ download.
    (Or go to your home screen and tap **Sync** on the widget.)
 3. You'll see **Village synced**.
 
-If a builder potion or Builder Bite is running, it asks which one the first time it sees that
-boost. The export doesn't say which it is, and it changes how fast the timers run.
+If a builder boost (Potion or Bite) or a lab boost (Research Potion or Study Soup) is running, it
+asks which one the first time it sees that boost. The export doesn't say which it is, and it
+changes how fast the timers run.
 
 **Sync again whenever things change:** you start an upgrade, finish one early with gems or a
 book, or use a potion. The widget only knows what was true when you last copied the export.
@@ -85,8 +86,9 @@ shows shorter times than the game does. The widget's times are when the upgrades
 ## What it can't show
 
 The export doesn't include these, so the widget can't either: gold, elixir and dark elixir
-amounts, which helper (Apprentice, Lab Assistant) is assigned where, Clan Capital Forge builders,
-and Research Potions.
+amounts, and Clan Capital Forge builders. Helper assignments (Apprentice, Lab Assistant) are in
+the export but not used yet, so an upgrade a helper is speeding up shows a slightly later finish
+than the real one.
 
 ---
 
@@ -107,9 +109,14 @@ and Research Potions.
   Sections fold instead of scrolling. Whole days sit in a separate label because a Chronometer
   can't show them, and an alarm redraws the widget when a day rolls over, an upgrade finishes or
   a boost ends, and at least every 15 minutes.
-- Boosts: the export's `boosts` block gives seconds left on a builder and a pet boost. Builder
-  Potion is 10x, Builder Bite is taken as 2x (community figure, unconfirmed), Pet Potion 24x.
-  Work done during the boost runs at that rate and the rest at normal speed.
+- Boosts: the export's `boosts` block gives seconds left as `builder_boost`, `lab_boost` and
+  `pet_boost`. Builder Potion is 10x, Builder Bite is taken as 2x (community figure,
+  unconfirmed), Research Potion 24x, Study Soup 4x, Pet Potion 24x. Work done during the boost
+  runs at that rate and the rest at normal speed. A potion and a snack together add up in the
+  game (27x for the lab); the app takes whichever one you confirm.
+- Helpers: `helpers[].helper_cooldown` is seconds to the daily reset, `helper_timer` on an
+  upgrade is the Lab Assistant's remaining working time on it, and `helper_recurrent` marks an
+  upgrade the Apprentice repeats on. Seen in a TH18 export; not used yet.
 - Notifications: a separate wake-up alarm fires at the next finish time (the redraw alarm doesn't
   wake the phone). Upgrades that finished more than two hours ago, for example while the phone
   was off, stay quiet.
@@ -137,8 +144,8 @@ Gradle 9.6, which AGP 9.5 requires.
 gradlew testDebugUnitTest
 ```
 
-Run before every release. The tests cover export parsing against a real export
-(`app/src/test/resources/village_export.json`, player tag replaced), potion maths, day
+Run before every release. The tests cover export parsing against two real exports, TH16 and
+TH18 (`app/src/test/resources/village_export*.json`, player tags replaced), potion maths, day
 rollover, notification decisions and version comparison. One test also fails if the widget
 layouts gain a `ListView` or other collection view, where countdowns stop ticking on One UI.
 Widget rendering itself can only be checked on a phone.

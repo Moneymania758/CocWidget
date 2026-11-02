@@ -5,6 +5,7 @@ import android.content.Context
 object Store {
     private const val KEY_EXPORT = "export"
     private const val KEY_BUILDER_MULTIPLIER = "builder_multiplier"
+    private const val KEY_LAB_MULTIPLIER = "lab_multiplier"
     private const val KEY_NAME = "name"
     private const val KEY_COLLAPSED = "collapsed_sections"
     private const val KEY_LAST_UPDATE_CHECK = "last_update_check"
@@ -20,7 +21,7 @@ object Store {
     // Also matches upgrades to the last sync's, to spot new ones for the event discount.
     fun saveExport(context: Context, json: String) {
         val previous = rawVillage(context)
-        val current = VillageParser.parse(context, json, builderMultiplier(context))
+        val current = VillageParser.parse(context, json, builderMultiplier(context), labMultiplier(context))
         val tracked = current?.let {
             EventDiscount.track(previous, upgradeIds(context), discountedUpgrades(context), it, eventOn(context))
         }
@@ -38,7 +39,7 @@ object Store {
 
     private fun rawVillage(context: Context): Village? {
         val json = prefs(context).getString(KEY_EXPORT, null) ?: return null
-        return VillageParser.parse(context, json, builderMultiplier(context))
+        return VillageParser.parse(context, json, builderMultiplier(context), labMultiplier(context))
     }
 
     private fun upgradeIds(context: Context): List<String> =
@@ -58,6 +59,13 @@ object Store {
 
     fun setBuilderMultiplier(context: Context, multiplier: Int) {
         prefs(context).edit().putInt(KEY_BUILDER_MULTIPLIER, multiplier).apply()
+    }
+
+    fun labMultiplier(context: Context): Int =
+        prefs(context).getInt(KEY_LAB_MULTIPLIER, RESEARCH_POTION_MULTIPLIER)
+
+    fun setLabMultiplier(context: Context, multiplier: Int) {
+        prefs(context).edit().putInt(KEY_LAB_MULTIPLIER, multiplier).apply()
     }
 
     fun collapsedSections(context: Context): Set<String> =
