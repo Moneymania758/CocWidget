@@ -13,11 +13,13 @@ object UpdateChecker {
     const val RELEASES_PAGE = "https://github.com/Moneymania758/CocWidget/releases/latest"
     private const val LATEST_API = "https://api.github.com/repos/Moneymania758/CocWidget/releases/latest"
     private const val CHECK_INTERVAL_MS = 12 * 60 * 60_000L
+    // Opening the app is a deliberate look, so it checks again after only a minute.
+    const val OPEN_APP_INTERVAL_MS = 60_000L
 
     // Network call, so only call this off the main thread.
-    fun checkIfDue(context: Context) {
+    fun checkIfDue(context: Context, intervalMs: Long = CHECK_INTERVAL_MS) {
         val now = System.currentTimeMillis()
-        if (now - Store.lastUpdateCheck(context) < CHECK_INTERVAL_MS) return
+        if (now - Store.lastUpdateCheck(context) < intervalMs) return
         // Recorded before the request so a failing network doesn't retry on every refresh.
         Store.setLastUpdateCheck(context, now)
         try {

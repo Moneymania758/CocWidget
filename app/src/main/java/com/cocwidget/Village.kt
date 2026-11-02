@@ -11,7 +11,7 @@ const val PET_POTION_MULTIPLIER = 24
 
 enum class Section { BUILDERS, LAB, PETS, BUILDER_BASE }
 
-class Upgrade(
+data class Upgrade(
     val section: Section,
     val name: String,
     val kind: String,
@@ -55,6 +55,9 @@ class Village(
     }
 
     fun boostEndMillis(boost: Boost): Long = exportedAtMillis + boost.seconds * 1000
+
+    fun withUpgrades(upgrades: List<Upgrade>) =
+        Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, petBoost)
 
     fun endMillis(upgrade: Upgrade): Long =
         exportedAtMillis + boostFor(upgrade.section).realSecondsFor(upgrade.workSec) * 1000

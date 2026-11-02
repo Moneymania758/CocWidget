@@ -45,6 +45,16 @@ boost. The export doesn't say which it is, and it changes how fast the timers ru
 **Sync again whenever things change:** you start an upgrade, finish one early with gems or a
 book, or use a potion. The widget only knows what was true when you last copied the export.
 
+## During Hammer Jam (or any event that halves upgrade times)
+
+Open the app and turn on **Event: 50% off upgrade times** when the event starts, and turn it off
+when it ends. Upgrades you start while it's on then get the right progress bar. Without it,
+their bar starts half full, because the widget expects the normal upgrade time.
+
+Timers and notifications are right either way: they use the real time left from your export.
+Leaving the switch on by mistake does no harm, because a full-price upgrade has more time left
+than a discounted one could, so it's never halved.
+
 ## Reading the widget
 
 - **BUILDERS 6/6** is builders busy out of builders you have. An orange **idle** means a free
@@ -99,8 +109,13 @@ and Research Potions.
 - Notifications: a separate wake-up alarm fires at the next finish time (the redraw alarm doesn't
   wake the phone). Upgrades that finished more than two hours ago, for example while the phone
   was off, stay quiet.
-- Update check: at most every 12 hours, the app reads GitHub's `releases/latest`, which skips
-  pre-releases, and compares its tag with the installed `versionName`.
+- Update check: at most every 12 hours from the widget, or every minute when the app is opened,
+  the app reads GitHub's `releases/latest`, which skips pre-releases, and compares its tag with
+  the installed `versionName`.
+- Event discount: each upgrade gets an id that carries over between syncs, matched by predicting
+  its time left from the previous export (time left only ever goes down). Unmatched upgrades are
+  new, and with the switch on their progress bar total is halved, unless they have more time
+  left than half the total.
 - Progress bars use per-level upgrade times bundled in `app/src/main/assets/coc_data.json`.
 - Icons download from ClashKing's asset host on first sync and are cached.
 

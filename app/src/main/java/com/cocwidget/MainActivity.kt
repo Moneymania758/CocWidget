@@ -11,6 +11,7 @@ import android.text.format.DateUtils
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import java.text.DateFormat
@@ -34,6 +35,9 @@ class MainActivity : Activity() {
         findViewById<Button>(R.id.update).setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(UpdateChecker.RELEASES_PAGE)))
         }
+        val event = findViewById<Switch>(R.id.event)
+        event.isChecked = Store.eventOn(this)
+        event.setOnCheckedChangeListener { _, on -> Store.setEventOn(this, on) }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
@@ -56,7 +60,7 @@ class MainActivity : Activity() {
 
         showUpdate()
         thread {
-            UpdateChecker.checkIfDue(applicationContext)
+            UpdateChecker.checkIfDue(applicationContext, UpdateChecker.OPEN_APP_INTERVAL_MS)
             runOnUiThread { if (!isDestroyed) showUpdate() }
         }
     }

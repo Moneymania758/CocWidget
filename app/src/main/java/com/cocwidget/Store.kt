@@ -11,16 +11,46 @@ object Store {
     private const val KEY_LATEST_VERSION = "latest_version"
     private const val KEY_NOTIFIED = "notified_upgrades"
     private const val KEY_ASKED_NOTIFICATIONS = "asked_notifications"
+    private const val KEY_EVENT_ON = "event_discount_on"
+    private const val KEY_DISCOUNTED = "discounted_upgrades"
+    private const val KEY_UPGRADE_IDS = "upgrade_ids"
 
     private fun prefs(context: Context) = context.getSharedPreferences("village", Context.MODE_PRIVATE)
 
+    // Also matches upgrades to the last sync's, to spot new ones for the event discount.
     fun saveExport(context: Context, json: String) {
-        prefs(context).edit().putString(KEY_EXPORT, json).apply()
+        val previous = rawVillage(context)
+        val current = VillageParser.parse(context, json, builderMultiplier(context))
+        val tracked = current?.let {
+            EventDiscount.track(previous, upgradeIds(context), discountedUpgrades(context), it, eventOn(context))
+        }
+        prefs(context).edit()
+            .putString(KEY_EXPORT, json)
+            .putString(KEY_UPGRADE_IDS, tracked?.ids.orEmpty().joinToString("\n"))
+            .putStringSet(KEY_DISCOUNTED, tracked?.discounted.orEmpty())
+            .apply()
     }
 
     fun village(context: Context): Village? {
+        val village = rawVillage(context) ?: return null
+        return EventDiscount.apply(village, upgradeIds(context), discountedUpgrades(context))
+    }
+
+    private fun rawVillage(context: Context): Village? {
         val json = prefs(context).getString(KEY_EXPORT, null) ?: return null
         return VillageParser.parse(context, json, builderMultiplier(context))
+    }
+
+    private fun upgradeIds(context: Context): List<String> =
+        prefs(context).getString(KEY_UPGRADE_IDS, null)?.takeIf { it.isNotEmpty() }?.split("\n").orEmpty()
+
+    private fun discountedUpgrades(context: Context): Set<String> =
+        prefs(context).getStringSet(KEY_DISCOUNTED, emptySet()).orEmpty()
+
+    fun eventOn(context: Context): Boolean = prefs(context).getBoolean(KEY_EVENT_ON, false)
+
+    fun setEventOn(context: Context, on: Boolean) {
+        prefs(context).edit().putBoolean(KEY_EVENT_ON, on).apply()
     }
 
     fun builderMultiplier(context: Context): Int =
