@@ -38,6 +38,9 @@ object Store {
         return EventDiscount.apply(village, upgradeIds(context), discountedUpgrades(context))
     }
 
+    // The last synced export as copied from the game, for the planner.
+    fun exportJson(context: Context): String? = prefs(context).getString(KEY_EXPORT, null)
+
     private fun rawVillage(context: Context): Village? {
         val json = prefs(context).getString(KEY_EXPORT, null) ?: return null
         return VillageParser.parse(context, json, builderMultiplier(context), labMultiplier(context))

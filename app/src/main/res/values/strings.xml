@@ -49,6 +49,7 @@
     <string name="whats_new_title">WHAT\'S NEW</string>
     <string name="whats_new_card">New in %1$s</string>
     <string name="whats_new_got_it">Got it</string>
+    <string name="whats_new_1_8">• Time to max: tap it on the main screen to see how long your builders, lab and pets need to max your Town Hall, and what it all costs.</string>
     <string name="whats_new_1_7">• This What\'s new list, so you can see what each update adds.</string>
     <string name="whats_new_1_6">• Timers count your Builder\'s Apprentice and Lab Assistant while they\'re working. They add to a potion.\n• A blue HELPER tag marks the upgrade a helper is on.\n• The widget shows when your helpers are ready again.</string>
     <string name="whats_new_1_5">• Fixed: TH18 Guardians like the Logger were missing.\n• Lab timers account for a Research Potion or Study Soup.</string>
@@ -57,5 +58,32 @@
     <string name="whats_new_1_2">• Fixed: timers count down every second again.\n• Tap a section title on the widget to fold it.</string>
     <string name="whats_new_1_1">• Clash Sync tile in Quick Settings, so you can sync without leaving the game.\n• The Potion or Bite question only appears for a new boost.</string>
     <string name="whats_new_1_0">• First release.</string>
+    <string name="planner_open">Time to max</string>
+    <string name="planner_none">Sync your village first, then come back here.</string>
+    <string name="planner_title">Time to max TH%1$d</string>
+    <string name="planner_source">From your export at %1$s. Times are at normal speed, with no potions, helpers or Goblins.</string>
+    <string name="planner_event">The event switch is on, so upgrades not started yet are %1$d%% off.</string>
+    <plurals name="planner_builders">
+        <item quantity="one">Builders: about %1$s with %2$d builder</item>
+        <item quantity="other">Builders: about %1$s with %2$d builders</item>
+    </plurals>
+    <string name="planner_builders_detail">%1$s of builder work in all. That\'s if no builder is ever idle, so it\'s the soonest you could finish.</string>
+    <string name="planner_lab">Lab: %1$s</string>
+    <string name="planner_pets">Pets: %1$s</string>
+    <string name="planner_group">%1$s  %2$s   %3$d%%</string>
+    <string name="planner_group_done">Done</string>
+    <string name="planner_item">%1$s ×%2$d</string>
+    <string name="planner_item_levels">%1$s of %2$d</string>
+    <string name="planner_tap">Tap a group to see what\'s left in it.</string>
+    <string name="planner_notes">The %% is how much of the upgrade time is done (of the levels, for walls). Running upgrades count their time left, not their cost. Not counted yet: the Builder Base, Crafted Defences, equipment, supercharges, and the gear-ups some TH17+ merges need.</string>
+    <string name="group_defences">Defences</string>
+    <string name="group_traps">Traps</string>
+    <string name="group_army">Army</string>
+    <string name="group_resources">Resources</string>
+    <string name="group_walls">Walls</string>
+    <string name="group_heroes">Heroes</string>
+    <string name="group_guardians">Guardians</string>
+    <string name="group_lab">Lab</string>
+    <string name="group_pets">Pets</string>
     <string name="credit">Game data and icons from ClashKing (assets.clashk.ing).\n\nThis material is unofficial and is not endorsed by Supercell. For more information see Supercell\'s Fan Content Policy: www.supercell.com/fan-content-policy.</string>
 </resources>

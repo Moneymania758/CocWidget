@@ -51,8 +51,8 @@ class VillageParserTest {
 
     @Test
     fun goblinSlotsAreMarkedExtra() {
-        val extras = village.upgrades.filter { it.extra }.map { it.section to it.name }
-        assertEquals(listOf(Section.BUILDERS to "Bomb Tower", Section.LAB to "P.E.K.K.A"), extras)
+        val extras = village.upgrades.filter { it.extra }.map { it.section to it.name }.toSet()
+        assertEquals(setOf(Section.BUILDERS to "Bomb Tower", Section.LAB to "P.E.K.K.A"), extras)
     }
 
     // Buildings store the time to reach a level, everything else the time to leave one.

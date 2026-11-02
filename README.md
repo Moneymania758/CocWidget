@@ -12,10 +12,9 @@ Needs Android 12 or later. It is not available for iPhone.
    "Install unknown apps" for your browser or file manager and try again.
 
 To update, install the newer `.apk` the same way. Your synced village is kept. From 1.3 on, the
-widget shows **Update 1.6 ›** (or whichever is newest) at the bottom when a new version is out.
-From 1.7 on, opening the app after an update shows what it added, and **WHAT'S NEW** further down
-lists every version. Tap it to go to the
-download.
+widget shows **Update 1.8 ›** (or whichever is newest) at the bottom when a new version is out.
+Tap it to go to the download. From 1.7 on, opening the app after an update shows what it added,
+and **WHAT'S NEW** further down lists every version.
 
 ## Set up (once)
 
@@ -79,6 +78,25 @@ than a discounted one could, so it's never halved.
 The game shows upgrade times as if no potion were running, so while a boost is active the widget
 shows shorter times than the game does. The widget's times are when the upgrades really finish.
 
+## Time to max
+
+Open the app and tap **Time to max** to see what's left before everything your Town Hall allows
+is maxed. It uses your last sync, so sync first for an up-to-date answer.
+
+- **Builders** is the soonest your builders could finish it all, if none of them is ever idle.
+  It can't be shorter than the longest run of upgrades on one thing, such as a hero's levels.
+- **Lab** and **Pets** are the research and pet upgrades left, one after another.
+- Each group (Defences, Heroes, Walls and so on) shows how much is done, the time left and what
+  it costs. Tap a group to see each building or troop in it.
+- Times are at normal speed, without potions, helpers or the Goblin. An upgrade that's already
+  running counts the time it has left, and not its cost, which you've paid.
+- With the event switch on, upgrades you haven't started are counted at half time and half cost.
+- Buildings that merge (two Cannons into a Ricochet Cannon, for example) count as the merged
+  building. The copies still to be merged only need the level the merge asks for.
+
+Not counted yet: the Builder Base, Crafted Defences, hero equipment, supercharges, and the
+gear-ups some TH17 and TH18 merges need.
+
 ## If something's wrong
 
 - **"The clipboard doesn't hold a village export"**: copy the export in Clash again, then sync
@@ -141,6 +159,11 @@ starts to pick up the next hour.
   new, and with the switch on their progress bar total is halved, unless they have more time
   left than half the total.
 - Progress bars use per-level upgrade times bundled in `app/src/main/assets/coc_data.json`.
+- Planner: the same bundled data also holds per-level costs, each Town Hall's unlocks (how many
+  of each building it allows) and merge requirements. Missing copies count from level 1. When
+  buildings merge, the lowest copies are the ones merged, so they only need the merge level.
+  The builder estimate is the larger of the longest single item and total builder time divided
+  by builders.
 - Icons download from ClashKing's asset host on first sync and are cached.
 
 ### Building
@@ -159,7 +182,8 @@ gradlew testDebugUnitTest
 
 Run before every release. The tests cover export parsing against two real exports, TH16 and
 TH18 (`app/src/test/resources/village_export*.json`, player tags replaced), potion and helper
-maths, day rollover, notification decisions and version comparison. One test also fails if the widget
+maths, day rollover, notification decisions, version comparison and the time-to-max planner
+(checked against Clash Ninja's figures). One test also fails if the widget
 layouts gain a `ListView` or other collection view, where countdowns stop ticking on One UI.
 Widget rendering itself can only be checked on a phone.
 

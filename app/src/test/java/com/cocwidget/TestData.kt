@@ -11,9 +11,8 @@ object TestData {
 
     fun exportJson(): String = javaClass.getResource("/village_export.json")!!.readText()
 
-    // A TH18 export (trimmed, tag replaced) from a user whose Logger upgrade went missing. It has
-    // Guardians, helper fields, a lab boost and nested Crafting Station modules, none of which
-    // the TH16 export has.
+    // A TH18 export (tag replaced) from a user whose Logger upgrade went missing. It has
+    // Guardians, helper shifts, a lab boost and merges up to TH18, none of which the TH16 export has.
     fun th18ExportJson(): String = javaClass.getResource("/village_export_th18.json")!!.readText()
 
     fun village(builderMultiplier: Int = BUILDER_POTION_MULTIPLIER): Village =
@@ -21,6 +20,9 @@ object TestData {
 
     fun th18Village(labMultiplier: Int = RESEARCH_POTION_MULTIPLIER): Village =
         VillageParser.parse(th18ExportJson(), BUILDER_POTION_MULTIPLIER, labMultiplier) { gameData[it] }!!
+
+    fun plan(json: String = exportJson(), builders: Int = 6, eventPercent: Int = 0): Planner.Plan =
+        Planner.plan(json, gameData, builders, eventPercent)!!
 
     fun upgrade(
         workSec: Long,

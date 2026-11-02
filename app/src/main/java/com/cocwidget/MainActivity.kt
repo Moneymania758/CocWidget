@@ -32,6 +32,9 @@ class MainActivity : Activity() {
         findViewById<Button>(R.id.sync).setOnClickListener {
             startActivity(Intent(this, SyncActivity::class.java))
         }
+        findViewById<Button>(R.id.planner).setOnClickListener {
+            startActivity(Intent(this, PlannerActivity::class.java))
+        }
         findViewById<Button>(R.id.update).setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(UpdateChecker.RELEASES_PAGE)))
         }
