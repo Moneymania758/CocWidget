@@ -12,7 +12,9 @@ Needs Android 12 or later. It is not available for iPhone.
    "Install unknown apps" for your browser or file manager and try again.
 
 To update, install the newer `.apk` the same way. Your synced village is kept. From 1.3 on, the
-widget shows **Update 1.6 ›** (or whichever is newest) at the bottom when a new version is out. Tap it to go to the
+widget shows **Update 1.6 ›** (or whichever is newest) at the bottom when a new version is out.
+From 1.7 on, opening the app after an update shows what it added, and **WHAT'S NEW** further down
+lists every version. Tap it to go to the
 download.
 
 ## Set up (once)

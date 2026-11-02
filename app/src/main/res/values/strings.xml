@@ -45,5 +45,17 @@
     <string name="sync_now">Sync from clipboard</string>
     <string name="status_none">No export synced yet.</string>
     <string name="status_synced">Exported %1$s. Upgrades running: %2$d.</string>
+
+    <string name="whats_new_title">WHAT\'S NEW</string>
+    <string name="whats_new_card">New in %1$s</string>
+    <string name="whats_new_got_it">Got it</string>
+    <string name="whats_new_1_7">• This What\'s new list, so you can see what each update adds.</string>
+    <string name="whats_new_1_6">• Timers count your Builder\'s Apprentice and Lab Assistant while they\'re working. They add to a potion.\n• A blue HELPER tag marks the upgrade a helper is on.\n• The widget shows when your helpers are ready again.</string>
+    <string name="whats_new_1_5">• Fixed: TH18 Guardians like the Logger were missing.\n• Lab timers account for a Research Potion or Study Soup.</string>
+    <string name="whats_new_1_4">• Event switch for Hammer Jam, so upgrades started at half time get the right progress bar.\n• Opening the app checks for updates straight away.</string>
+    <string name="whats_new_1_3">• A notification when an upgrade finishes.\n• The Exported line turns orange when it\'s time to sync again.\n• The widget tells you when an update is out.</string>
+    <string name="whats_new_1_2">• Fixed: timers count down every second again.\n• Tap a section title on the widget to fold it.</string>
+    <string name="whats_new_1_1">• Clash Sync tile in Quick Settings, so you can sync without leaving the game.\n• The Potion or Bite question only appears for a new boost.</string>
+    <string name="whats_new_1_0">• First release.</string>
     <string name="credit">Game data and icons from ClashKing (assets.clashk.ing).\n\nThis material is unofficial and is not endorsed by Supercell. For more information see Supercell\'s Fan Content Policy: www.supercell.com/fan-content-policy.</string>
 </resources>

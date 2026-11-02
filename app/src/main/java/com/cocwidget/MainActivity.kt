@@ -39,6 +39,8 @@ class MainActivity : Activity() {
         event.isChecked = Store.eventOn(this)
         event.setOnCheckedChangeListener { _, on -> Store.setEventOn(this, on) }
 
+        showWhatsNew()
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -63,6 +65,24 @@ class MainActivity : Activity() {
             UpdateChecker.checkIfDue(applicationContext, UpdateChecker.OPEN_APP_INTERVAL_MS)
             runOnUiThread { if (!isDestroyed) showUpdate() }
         }
+    }
+
+    // A card at the top for the version just installed, and every version's notes further down.
+    private fun showWhatsNew() {
+        val installed = packageManager.getPackageInfo(packageName, 0).versionName.orEmpty()
+        val card = findViewById<View>(R.id.whats_new_card)
+        val latest = WhatsNew.RELEASES.first()
+        if (WhatsNew.showCard(installed, Store.whatsNewSeen(this), Store.hasExport(this))) {
+            card.visibility = View.VISIBLE
+            findViewById<TextView>(R.id.whats_new_card_title).text = getString(R.string.whats_new_card, latest.version)
+            findViewById<TextView>(R.id.whats_new_card_notes).setText(latest.notes)
+        }
+        findViewById<Button>(R.id.whats_new_got_it).setOnClickListener {
+            Store.setWhatsNewSeen(this, installed)
+            card.visibility = View.GONE
+        }
+        findViewById<TextView>(R.id.whats_new).text =
+            WhatsNew.RELEASES.joinToString("\n\n") { "${it.version}\n${getString(it.notes)}" }
     }
 
     private fun showUpdate() {

@@ -15,6 +15,7 @@ object Store {
     private const val KEY_EVENT_ON = "event_discount_on"
     private const val KEY_DISCOUNTED = "discounted_upgrades"
     private const val KEY_UPGRADE_IDS = "upgrade_ids"
+    private const val KEY_WHATS_NEW_SEEN = "whats_new_seen"
 
     private fun prefs(context: Context) = context.getSharedPreferences("village", Context.MODE_PRIVATE)
 
@@ -106,5 +107,14 @@ object Store {
 
     fun setDisplayName(context: Context, name: String) {
         prefs(context).edit().putString(KEY_NAME, name).apply()
+    }
+
+    fun hasExport(context: Context): Boolean = prefs(context).contains(KEY_EXPORT)
+
+    // The version whose What's new card was last dismissed.
+    fun whatsNewSeen(context: Context): String? = prefs(context).getString(KEY_WHATS_NEW_SEEN, null)
+
+    fun setWhatsNewSeen(context: Context, version: String) {
+        prefs(context).edit().putString(KEY_WHATS_NEW_SEEN, version).apply()
     }
 }

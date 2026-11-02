@@ -16,6 +16,36 @@
             android:text="@string/app_name"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large" />
 
+        <LinearLayout
+            android:id="@+id/whats_new_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/card"
+            android:orientation="vertical"
+            android:padding="14dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/whats_new_card_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/whats_new_card_notes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp" />
+
+            <Button
+                android:id="@+id/whats_new_got_it"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="@string/whats_new_got_it" />
+        </LinearLayout>
+
         <Button
             android:id="@+id/update"
             android:layout_width="match_parent"
@@ -70,6 +100,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/save_name" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/whats_new_title"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/whats_new"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="13sp" />
 
         <TextView
             android:layout_width="match_parent"
