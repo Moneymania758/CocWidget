@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="38dp"
+    android:paddingBottom="4dp">
+
+    <ProgressBar
+        android:id="@+id/bar"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:indeterminate="false"
+        android:max="1000"
+        android:maxHeight="34dp"
+        android:minHeight="34dp"
+        android:progressDrawable="@drawable/bar_progress" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="4dp"
+        android:paddingEnd="10dp">
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_placeholder" />
+
+        <TextView
+            android:id="@+id/goblin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/chip_goblin"
+            android:fontFamily="sans-serif-black"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:text="@string/goblin"
+            android:textColor="@color/goblin"
+            android:textSize="9sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-black"
+            android:maxLines="1"
+            android:shadowColor="@color/text_shadow"
+            android:shadowDy="2"
+            android:shadowRadius="1"
+            android:textColor="@color/text"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/clock"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginStart="6dp"
+            android:src="@drawable/ic_clock" />
+
+        <TextView
+            android:id="@+id/days"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:fontFamily="sans-serif-black"
+            android:shadowColor="@color/text_shadow"
+            android:shadowDy="2"
+            android:shadowRadius="1"
+            android:textColor="@color/text"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <Chronometer
+            android:id="@+id/timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:fontFamily="sans-serif-black"
+            android:shadowColor="@color/text_shadow"
+            android:shadowDy="2"
+            android:shadowRadius="1"
+            android:textColor="@color/text"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/done"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:fontFamily="sans-serif-black"
+            android:shadowColor="@color/text_shadow"
+            android:shadowDy="2"
+            android:shadowRadius="1"
+            android:text="@string/done"
+            android:textColor="@color/gold"
+            android:textSize="14sp"
+            android:visibility="gone" />
+    </LinearLayout>
+</FrameLayout>

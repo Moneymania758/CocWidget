@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Clash Timers</string>
+    <string name="widget_description">Builder, lab and pet timers from your village export</string>
+
+    <string name="sync">Sync</string>
+    <string name="goblin">GOBLIN</string>
+    <string name="done">Done</string>
+    <string name="empty_state">In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy. Then tap Sync.</string>
+    <string name="exported_at">Exported %1$s</string>
+
+    <string name="sync_not_export">The clipboard doesn\'t hold a village export. Copy it in Clash first (Settings &gt; More Settings &gt; Data Export).</string>
+    <string name="sync_done">Village synced</string>
+    <string name="boost_title">Builder boost running</string>
+    <string name="boost_message">The export doesn\'t say which boost is active. Which one did you use?</string>
+    <string name="boost_potion">Potion (10x)</string>
+    <string name="boost_bite">Bite (2x)</string>
+
+    <string name="main_steps">1. Long-press the home screen, tap Widgets and add Clash Timers.\n2. In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy.\n3. Tap Sync on the widget (or below).\n\nSync again whenever you start an upgrade or use a potion.</string>
+    <string name="name_hint">Name shown on the widget</string>
+    <string name="save_name">Save name</string>
+    <string name="name_saved">Name saved</string>
+    <string name="sync_now">Sync from clipboard</string>
+    <string name="status_none">No export synced yet.</string>
+    <string name="status_synced">Exported %1$s. Upgrades running: %2$d.</string>
+    <string name="credit">Game data and icons from ClashKing (assets.clashk.ing).\n\nThis material is unofficial and is not endorsed by Supercell. For more information see Supercell\'s Fan Content Policy: www.supercell.com/fan-content-policy.</string>
+</resources>
