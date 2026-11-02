@@ -12,9 +12,9 @@ Needs Android 12 or later. It is not available for iPhone.
    "Install unknown apps" for your browser or file manager and try again.
 
 To update, install the newer `.apk` the same way. Your synced village is kept. From 1.3 on, the
-widget shows **Update 1.8 ›** (or whichever is newest) at the bottom when a new version is out.
+widget shows **Update 1.9 ›** (or whichever is newest) at the bottom when a new version is out.
 Tap it to go to the download. From 1.7 on, opening the app after an update shows what it added,
-and **WHAT'S NEW** further down lists every version.
+and **What's new** further down lists every version.
 
 ## Set up (once)
 
@@ -31,7 +31,7 @@ and **WHAT'S NEW** further down lists every version.
    a notification each time an upgrade finishes, such as "Bomb Tower → 11 finished · A builder is
    free". Tap it to open Clash.
 5. **Optional: set your name.** Tap the name at the top of the widget to open the app, type the
-   name you want shown and tap **Save name**.
+   name you want shown under **Name on the widget** and tap **Save name**.
 
 ## Sync your village
 
@@ -87,7 +87,10 @@ is maxed. It uses your last sync, so sync first for an up-to-date answer.
   It can't be shorter than the longest run of upgrades on one thing, such as a hero's levels.
 - **Lab** and **Pets** are the research and pet upgrades left, one after another.
 - Each group (Defences, Heroes, Walls and so on) shows how much is done, the time left and what
-  it costs. Tap a group to see each building or troop in it.
+  it costs. Tap a group to see each building or troop in it, with its picture.
+- Under each one, chips show how many copies sit on each level: **Lv 2 ×3** means three of them
+  are on level 2. Maxed copies get a tick, and one being upgraded shows where it's going, such
+  as **Lv 10 → 11**. **Max 6** on the right is the highest level your Town Hall allows.
 - Times are at normal speed, without potions, helpers or the Goblin. An upgrade that's already
   running counts the time it has left, and not its cost, which you've paid.
 - With the event switch on, upgrades you haven't started are counted at half time and half cost.
@@ -96,6 +99,16 @@ is maxed. It uses your last sync, so sync first for an up-to-date answer.
 
 Not counted yet: the Builder Base, Crafted Defences, hero equipment, supercharges, and the
 gear-ups some TH17 and TH18 merges need.
+
+## Themes
+
+Open the app and pick a look under **Theme**:
+
+- **Widget**: brown and gold, like the widget.
+- **Clean**: dark grey with gold, the default.
+- **Game**: chunky buttons, thick bars and a game-style font.
+
+It only changes the app's own screens. The widget keeps its look.
 
 ## If something's wrong
 
@@ -159,6 +172,10 @@ starts to pick up the next hour.
   new, and with the switch on their progress bar total is halved, unless they have more time
   left than half the total.
 - Progress bars use per-level upgrade times bundled in `app/src/main/assets/coc_data.json`.
+- App screens (not the widget) are built in code by `Ui` in the chosen `Skin`, because the three
+  looks differ in borders, raised edges and fonts, not only colours. The Game look uses the Lilita
+  One font (SIL Open Font License 1.1, see `licenses/`). Planner pictures come from the same
+  ClashKing icon cache as the widget, fetched in the background when the planner opens.
 - Planner: the same bundled data also holds per-level costs, each Town Hall's unlocks (how many
   of each building it allows) and merge requirements. Missing copies count from level 1. When
   buildings merge, the lowest copies are the ones merged, so they only need the merge level.
@@ -214,6 +231,9 @@ node tools/build-coc-data.js
 
 Game data and icons from [ClashKing](https://github.com/ClashKingInc/ClashKingAssets)
 (`assets.clashk.ing`).
+
+The Game look's font is [Lilita One](https://fonts.google.com/specimen/Lilita+One) by Juan
+Montoreano, under the SIL Open Font License 1.1 ([licences/LilitaOne-OFL.txt](licenses/LilitaOne-OFL.txt)).
 
 This material is unofficial and is not endorsed by Supercell. For more information see Supercell's
 Fan Content Policy: www.supercell.com/fan-content-policy.

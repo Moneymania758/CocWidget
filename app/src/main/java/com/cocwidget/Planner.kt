@@ -24,11 +24,13 @@ object Planner {
     }
 
     // One building, trap, hero, troop, spell or pet type. [levels] holds each copy's current level,
-    // highest first, with 0 for one the Town Hall allows that isn't built yet.
+    // highest first, with 0 for one the Town Hall allows that isn't built yet. [running] holds the
+    // current levels of the copies being upgraded.
     class Item(
         val id: Int,
         val name: String,
         val levels: List<Int>,
+        val running: List<Int>,
         val maxLevel: Int,
         val seconds: Long,
         val costs: Map<String, Long>,
@@ -46,6 +48,8 @@ object Planner {
         // can't run side by side).
         val builderSeconds: Long,
         val longestSeconds: Long,
+        // Whose levels make up that longest stretch.
+        val longestName: String = "",
     ) {
         fun group(group: Group): GroupPlan? = groups.firstOrNull { it.group == group }
 
@@ -133,6 +137,7 @@ object Planner {
     ): Plan {
         var builderSeconds = 0L
         var longestSeconds = 0L
+        var longestName = ""
         val byGroup = HashMap<Group, MutableList<Item>>()
         val doneByGroup = HashMap<Group, LongArray>()
 
@@ -159,7 +164,10 @@ object Planner {
                 seconds += copySeconds
                 if (group.usesBuilders) {
                     builderSeconds += copySeconds
-                    longestSeconds = maxOf(longestSeconds, copySeconds)
+                    if (copySeconds > longestSeconds) {
+                        longestSeconds = copySeconds
+                        longestName = item.name
+                    }
                 }
 
                 if (group == Group.WALLS) {
@@ -176,6 +184,7 @@ object Planner {
                 id = id,
                 name = item.name,
                 levels = list.map { it.level }.sortedDescending(),
+                running = list.filter { it.timer > 0 }.map { it.level }.sorted(),
                 maxLevel = item.maxLevelAt(townHall),
                 seconds = seconds,
                 costs = if (cost > 0) mapOf(resource to cost) else emptyMap(),
@@ -195,6 +204,6 @@ object Planner {
                 done = if (done[1] > 0) done[0].toFloat() / done[1] else 1f,
             )
         }
-        return Plan(townHall, builders, groups, builderSeconds, longestSeconds)
+        return Plan(townHall, builders, groups, builderSeconds, longestSeconds, longestName)
     }
 }

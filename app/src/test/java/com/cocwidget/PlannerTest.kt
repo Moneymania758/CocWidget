@@ -43,6 +43,10 @@ class PlannerTest {
         // the longest stretch, so two builders can't beat them.
         val longest = heroes.items.maxOf { it.seconds }
         assertEquals(88 * day + 6 * 3_600, maxOf(longest, (heroes.seconds + 1) / 2))
+        // The screen names whose levels set the pace for all six builders.
+        val plan = TestData.plan(clashNinjaHeroState(), eventPercent = 50)
+        assertEquals("Minion Prince", plan.longestName)
+        assertEquals(88 * day + 6 * 3_600, plan.builderEstimateSeconds())
     }
 
     @Test
@@ -172,6 +176,7 @@ class PlannerTest {
         val tower = syntheticPlan(1, """{"data":1,"lvl":1,"timer":7},{"data":1,"lvl":2,"cnt":2}""").item("Tower")!!
         assertEquals(7L, tower.seconds)
         assertTrue(tower.costs.isEmpty())
+        assertEquals(listOf(1), tower.running)
     }
 
     @Test

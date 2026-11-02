@@ -27,15 +27,25 @@ object PlanFormat {
         else -> value.toString()
     }
 
-    fun costs(costs: Map<String, Long>): String = costs.entries
-        .sortedBy { RESOURCE_ORDER.indexOf(it.key).let { index -> if (index < 0) RESOURCE_ORDER.size else index } }
-        .joinToString(" · ") { "${it.key} ${amount(it.value)}" }
+    fun costs(costs: Map<String, Long>): String = ordered(costs).joinToString(" · ") { "${it.key} ${amount(it.value)}" }
 
-    // "13–14", or "14" when every copy is on the same level.
-    fun levels(levels: List<Int>): String {
-        val low = levels.minOrNull() ?: return ""
-        val high = levels.max()
-        return if (low == high) "$high" else "$low–$high"
+    fun ordered(costs: Map<String, Long>): List<Map.Entry<String, Long>> = costs.entries
+        .sortedBy { RESOURCE_ORDER.indexOf(it.key).let { index -> if (index < 0) RESOURCE_ORDER.size else index } }
+
+    // Copies on the same level, shown as one chip: "Lv 2 ×3". Running copies get their own chip.
+    class LevelChip(val level: Int, val count: Int, val running: Boolean, val maxed: Boolean)
+
+    // Lowest level first, so what's furthest behind reads first. [running] holds the levels of the
+    // copies being upgraded, which are also in [levels].
+    fun levelChips(levels: List<Int>, running: List<Int>, max: Int): List<LevelChip> {
+        val busy = running.groupingBy { it }.eachCount()
+        return levels.groupingBy { it }.eachCount().toSortedMap().flatMap { (level, count) ->
+            val upgrading = minOf(busy[level] ?: 0, count)
+            listOfNotNull(
+                LevelChip(level, count - upgrading, running = false, maxed = level >= max).takeIf { it.count > 0 },
+                LevelChip(level, upgrading, running = true, maxed = false).takeIf { it.count > 0 },
+            )
+        }
     }
 
     private fun decimal(value: Double) = String.format(Locale.ROOT, "%.2f", value).trimEnd('0').trimEnd('.')

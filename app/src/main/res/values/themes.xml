@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="@android:style/Theme.DeviceDefault.DayNight" />
+    <!-- The app's screens draw their own header in the chosen skin, so no action bar. -->
+    <style name="AppTheme" parent="@android:style/Theme.DeviceDefault.DayNight">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
     <style name="Translucent" parent="@android:style/Theme.Translucent.NoTitleBar" />
 </resources>

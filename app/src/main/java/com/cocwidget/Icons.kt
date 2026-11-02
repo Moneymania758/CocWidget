@@ -14,17 +14,32 @@ object Icons {
     private const val BASE_URL = "https://assets.clashk.ing/"
     private const val SIZE_PX = 96
 
-    fun load(context: Context, upgrade: Upgrade): Bitmap? {
-        val file = file(context, path(upgrade) ?: return null)
+    fun load(context: Context, upgrade: Upgrade): Bitmap? = load(context, path(upgrade))
+
+    fun load(context: Context, path: String?): Bitmap? {
+        val file = file(context, path ?: return null)
         return if (file.length() > 0) BitmapFactory.decodeFile(file.path) else null
     }
 
     fun fetchMissing(context: Context, upgrades: List<Upgrade>) {
-        for (path in upgrades.mapNotNull { path(it) }.distinct()) {
-            val file = file(context, path)
-            if (!file.exists()) download(path, file)
-        }
+        fetchPaths(context, upgrades.mapNotNull { path(it) })
     }
+
+    // Returns true when anything new was downloaded.
+    fun fetchPaths(context: Context, paths: List<String>): Boolean {
+        var fetched = false
+        for (path in paths.distinct()) {
+            val file = file(context, path)
+            if (!file.exists()) {
+                download(path, file)
+                fetched = true
+            }
+        }
+        return fetched
+    }
+
+    // The picture for a planner item at [level]: buildings and traps look different per level.
+    fun path(item: GameItem, level: Int): String? = path(item.name, item.kind, item.village, maxOf(1, level), item.defence)
 
     private fun download(path: String, file: File) {
         try {
@@ -57,11 +72,13 @@ object Icons {
     private fun file(context: Context, path: String) =
         File(File(context.filesDir, "icons"), path.replace('/', '_').removeSuffix(".webp") + ".png")
 
-    private fun path(upgrade: Upgrade): String? {
-        val name = clean(upgrade.name)
-        val village = if (upgrade.village == "builderBase") "builder-base" else "home-village"
-        val level = maxOf(1, upgrade.toLevel - 1)
-        return when (upgrade.kind) {
+    private fun path(upgrade: Upgrade): String? =
+        path(upgrade.name, upgrade.kind, upgrade.village, maxOf(1, upgrade.toLevel - 1), upgrade.defence)
+
+    private fun path(rawName: String, kind: String, rawVillage: String, level: Int, defence: String): String? {
+        val name = clean(rawName)
+        val village = if (rawVillage == "builderBase") "builder-base" else "home-village"
+        return when (kind) {
             "building" -> "buildings/$village/$name/level_$level.webp"
             "trap" -> "traps/$village/$name/level_$level.webp"
             "troop" -> "troops/$name/icon.webp"
@@ -70,7 +87,7 @@ object Icons {
             "pet" -> "pets/$name/icon.webp"
             "guardian" -> "guardians/$name/icon.webp"
             // Modules have no icon of their own, so they show their defence.
-            "module" -> "buildings/seasonal-defense/${clean(upgrade.defence)}/level_1.webp"
+            "module" -> "buildings/seasonal-defense/${clean(defence)}/level_1.webp"
             else -> null
         }
     }

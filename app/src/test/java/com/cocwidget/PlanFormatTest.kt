@@ -31,10 +31,26 @@ class PlanFormatTest {
         assertEquals("Gold 65.2M · Elixir 358.7M · Dark Elixir 2.79M", PlanFormat.costs(costs))
     }
 
+    private fun describe(chips: List<PlanFormat.LevelChip>) = chips.joinToString(" ") {
+        "${it.level}x${it.count}" + (if (it.running) "R" else "") + (if (it.maxed) "M" else "")
+    }
+
     @Test
-    fun levelRanges() {
-        assertEquals("13–14", PlanFormat.levels(listOf(14, 14, 13)))
-        assertEquals("14", PlanFormat.levels(listOf(14, 14)))
-        assertEquals("0–2", PlanFormat.levels(listOf(2, 0)))
+    fun levelChipsGroupCopiesOnTheSameLevelLowestFirst() {
+        // Five Builder's Huts at TH16: three on 2, one on 3, one on 4, max 6.
+        assertEquals("2x3 3x1 4x1", describe(PlanFormat.levelChips(listOf(4, 3, 2, 2, 2), emptyList(), 6)))
+    }
+
+    @Test
+    fun levelChipsMarkMaxedAndRunningCopies() {
+        // Two Bomb Towers: one maxed at 11, one on 10 upgrading to 11.
+        assertEquals("10x1R 11x1M", describe(PlanFormat.levelChips(listOf(11, 10), listOf(10), 11)))
+        // A running copy on a level that other copies also sit on gets its own chip.
+        assertEquals("16x3 16x1R 17x2M", describe(PlanFormat.levelChips(listOf(17, 17, 16, 16, 16, 16), listOf(16), 17)))
+    }
+
+    @Test
+    fun levelChipsShowUnbuiltCopies() {
+        assertEquals("0x2 3x1", describe(PlanFormat.levelChips(listOf(3, 0, 0), emptyList(), 5)))
     }
 }

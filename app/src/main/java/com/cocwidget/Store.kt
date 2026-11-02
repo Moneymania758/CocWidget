@@ -16,6 +16,7 @@ object Store {
     private const val KEY_DISCOUNTED = "discounted_upgrades"
     private const val KEY_UPGRADE_IDS = "upgrade_ids"
     private const val KEY_WHATS_NEW_SEEN = "whats_new_seen"
+    private const val KEY_SKIN = "skin"
 
     private fun prefs(context: Context) = context.getSharedPreferences("village", Context.MODE_PRIVATE)
 
@@ -119,5 +120,12 @@ object Store {
 
     fun setWhatsNewSeen(context: Context, version: String) {
         prefs(context).edit().putString(KEY_WHATS_NEW_SEEN, version).apply()
+    }
+
+    // The app's chosen look, by Skin key.
+    fun skin(context: Context): String? = prefs(context).getString(KEY_SKIN, null)
+
+    fun setSkin(context: Context, key: String) {
+        prefs(context).edit().putString(KEY_SKIN, key).apply()
     }
 }

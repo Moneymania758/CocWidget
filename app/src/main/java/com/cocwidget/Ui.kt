@@ -1,0 +1,221 @@
+package com.cocwidget
+
+import android.app.Activity
+import android.content.res.ColorStateList
+import android.graphics.Typeface
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.RippleDrawable
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewOutlineProvider
+import android.view.WindowInsetsController
+import android.view.accessibility.AccessibilityNodeInfo
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import kotlin.math.roundToInt
+
+// Builds the app's screens in the chosen skin. Views are made in code because the three skins
+// differ in borders, drops and fonts, not only colours.
+class Ui(private val activity: Activity, val skin: Skin) {
+    private val density = activity.resources.displayMetrics.density
+    val headingFace: Typeface = skin.headingFont?.let { activity.resources.getFont(it) } ?: Typeface.DEFAULT_BOLD
+
+    fun dp(value: Float): Int = (value * density).roundToInt()
+    fun dp(value: Int): Int = dp(value.toFloat())
+
+    // Every skin is dark, so the system bar icons stay light whatever the phone's own theme.
+    fun applyWindow(root: View) {
+        root.setBackgroundColor(skin.bg)
+        val window = activity.window
+        window.decorView.setBackgroundColor(skin.bg)
+        @Suppress("DEPRECATION")
+        window.statusBarColor = skin.bg
+        @Suppress("DEPRECATION")
+        window.navigationBarColor = skin.bg
+        window.insetsController?.setSystemBarsAppearance(
+            0,
+            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+        )
+    }
+
+    fun text(value: CharSequence, sizeSp: Float = 14f, colour: Int = skin.text, bold: Boolean = false) = TextView(activity).apply {
+        text = value
+        textSize = sizeSp
+        setTextColor(colour)
+        if (bold) typeface = Typeface.DEFAULT_BOLD
+        setLineSpacing(0f, 1.15f)
+    }
+
+    // Titles and big numbers: the Game skin's display font with a dark drop under the letters.
+    fun heading(value: CharSequence, sizeSp: Float, colour: Int = skin.text) = text(value, sizeSp, colour).apply {
+        typeface = headingFace
+        if (skin.headingShadow != 0) setShadowLayer(0.01f, 0f, dp(2).toFloat(), skin.headingShadow)
+    }
+
+    fun rounded(fill: Int, radiusDp: Float, stroke: Int = 0, strokeDp: Float = 0f) = GradientDrawable().apply {
+        setColor(fill)
+        cornerRadius = dp(radiusDp).toFloat()
+        if (stroke != 0 && strokeDp > 0) setStroke(dp(strokeDp), stroke)
+    }
+
+    // A face over a solid drop, with a dark shade along its bottom edge and a light line along
+    // its top, so it looks raised. Used by the Game skin.
+    private fun raised(face: Int, radiusDp: Float, shade: Int, shadeDp: Int, highlight: Int): Drawable {
+        val border = dp(skin.borderDp)
+        val drop = dp(3)
+        val layers = mutableListOf<Drawable>(rounded(skin.drop, radiusDp), rounded(face, radiusDp - skin.borderDp))
+        if (shade != 0) layers += rounded(shade, radiusDp - skin.borderDp)
+        layers += rounded(highlight, 1f)
+        return LayerDrawable(layers.toTypedArray()).apply {
+            setLayerInset(1, border, border, border, border + drop)
+            var top = 2
+            if (shade != 0) {
+                setLayerGravity(2, Gravity.BOTTOM or Gravity.FILL_HORIZONTAL)
+                setLayerHeight(2, dp(shadeDp))
+                setLayerInset(2, border, 0, border, border + drop)
+                top = 3
+            }
+            setLayerGravity(top, Gravity.TOP or Gravity.FILL_HORIZONTAL)
+            setLayerHeight(top, dp(2))
+            setLayerInset(top, dp(radiusDp / 2), border, dp(radiusDp / 2), 0)
+        }
+    }
+
+    private val raisedDrop get() = if (skin.drop != 0) dp(3) else 0
+
+    fun card(padding: Int = 16) = LinearLayout(activity).apply {
+        orientation = LinearLayout.VERTICAL
+        background = if (skin.drop != 0) {
+            raised(skin.card, skin.radiusDp, 0, 0, 0x1AFFFFFF)
+        } else {
+            rounded(skin.card, skin.radiusDp, skin.border, skin.borderDp)
+        }
+        setPadding(dp(padding), dp(padding), dp(padding), dp(padding) + raisedDrop)
+    }
+
+    // A tappable row or tile that screen readers announce as a button.
+    fun pressable(view: View, radiusDp: Float, onClick: () -> Unit) {
+        view.isClickable = true
+        view.isFocusable = true
+        view.foreground = RippleDrawable(ColorStateList.valueOf(0x33FFFFFF), null, rounded(0xFFFFFFFF.toInt(), radiusDp))
+        view.setOnClickListener { onClick() }
+        view.accessibilityDelegate = object : View.AccessibilityDelegate() {
+            override fun onInitializeAccessibilityNodeInfo(host: View, info: AccessibilityNodeInfo) {
+                super.onInitializeAccessibilityNodeInfo(host, info)
+                info.className = Button::class.java.name
+            }
+        }
+    }
+
+    fun button(label: CharSequence, icon: Int?, primary: Boolean, onClick: () -> Unit): LinearLayout {
+        val fill = if (primary) skin.primaryBg else skin.secondaryBg
+        val colour = if (primary) skin.primaryText else skin.secondaryText
+        val shade = if (primary) skin.primaryShade else skin.secondaryShade
+        return LinearLayout(activity).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            minimumHeight = dp(52) + raisedDrop
+            background = when {
+                skin.drop != 0 -> raised(fill, 12f, shade, 4, if (primary) 0x38FFFFFF else 0x59FFFFFF)
+                !primary && skin.secondaryOutline != 0 -> rounded(0, 12f, skin.secondaryOutline, 1.5f)
+                else -> rounded(fill, 12f)
+            }
+            setPadding(dp(12), 0, dp(12), raisedDrop)
+            if (icon != null) {
+                addView(ImageView(activity).apply {
+                    setImageResource(icon)
+                    imageTintList = ColorStateList.valueOf(colour)
+                }, LinearLayout.LayoutParams(dp(20), dp(20)).apply { marginEnd = dp(8) })
+            }
+            val size = if (skin.headingFont != null) 18f else 15f
+            addView(heading(label, size, colour).apply {
+                if (skin.headingFont == null) typeface = Typeface.DEFAULT_BOLD
+                if (primary && skin.primaryShade != 0) setShadowLayer(0.01f, 0f, dp(2).toFloat(), skin.primaryShade) else setShadowLayer(0f, 0f, 0f, 0)
+            })
+            pressable(this, 12f, onClick)
+        }
+    }
+
+    fun chip(value: CharSequence, background: Int = skin.chip, colour: Int = skin.text, icon: Int? = null) = text(value, 13f, colour).apply {
+        this.background = rounded(background, 8f)
+        setPadding(dp(9), dp(4), dp(9), dp(4))
+        if (icon != null) {
+            val drawable = activity.getDrawable(icon)!!.mutate().apply {
+                setTint(colour)
+                setBounds(0, 0, dp(12), dp(12))
+            }
+            setCompoundDrawablesRelative(drawable, null, null, null)
+            compoundDrawablePadding = dp(4)
+        }
+    }
+
+    // A chip with the resource's icons and the amount: "Gold or Elixir" shows both icons.
+    fun costChip(resource: String, amount: String) = LinearLayout(activity).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        background = rounded(skin.chip, 8f)
+        setPadding(dp(8), dp(4), dp(9), dp(4))
+        contentDescription = "$resource $amount"
+        for (name in resource.split(" or ")) {
+            val icon = when (name) {
+                "Gold" -> R.drawable.ic_res_gold
+                "Elixir" -> R.drawable.ic_res_elixir
+                "Dark Elixir" -> R.drawable.ic_res_dark
+                else -> null
+            }
+            if (icon != null) {
+                addView(ImageView(activity).apply { setImageResource(icon) }, LinearLayout.LayoutParams(dp(13), dp(13)).apply { marginEnd = dp(4) })
+            } else {
+                addView(text("$name ", 13f))
+            }
+        }
+        addView(text(amount, 13f).apply { importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO })
+    }
+
+    // A progress bar in the skin: gold while there's work left, green when done.
+    fun bar(fraction: Float) = LinearLayout(activity).apply {
+        orientation = LinearLayout.HORIZONTAL
+        background = rounded(skin.track, skin.barDp / 2)
+        outlineProvider = ViewOutlineProvider.BACKGROUND
+        clipToOutline = true
+        val done = fraction >= 1f
+        val share = fraction.coerceIn(0f, 1f)
+        addView(View(activity).apply {
+            background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, if (done) skin.greenBar else skin.goldBar).apply {
+                cornerRadius = dp(skin.barDp / 2).toFloat()
+            }
+        }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, share))
+        addView(View(activity), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f - share))
+        layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(skin.barDp))
+    }
+
+    fun divider() = View(activity).apply {
+        setBackgroundColor(skin.divider)
+        layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1))
+    }
+
+    fun icon(resource: Int, colour: Int, sizeDp: Int) = ImageView(activity).apply {
+        setImageResource(resource)
+        imageTintList = ColorStateList.valueOf(colour)
+        layoutParams = LinearLayout.LayoutParams(dp(sizeDp), dp(sizeDp))
+    }
+
+    fun flow(gapDp: Int = 6) = FlowLayout(activity, dp(gapDp), dp(gapDp))
+
+    fun matchWidth(top: Int = 0) = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+        topMargin = dp(top)
+    }
+
+    fun wrap(top: Int = 0) = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+        topMargin = dp(top)
+    }
+
+    fun weighted(start: Int = 0) = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
+        marginStart = dp(start)
+    }
+}
