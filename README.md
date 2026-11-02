@@ -11,7 +11,9 @@ Needs Android 12 or later. It is not available for iPhone.
 2. Open the downloaded file and tap **Install**. If your phone blocks it, allow
    "Install unknown apps" for your browser or file manager and try again.
 
-To update, install the newer `.apk` the same way. Your synced village is kept.
+To update, install the newer `.apk` the same way. Your synced village is kept. From 1.3 on, the
+widget shows **Update 1.4 ›** at the bottom when a new version is out. Tap it to go to the
+download.
 
 ## Set up (once)
 
@@ -24,7 +26,10 @@ To update, install the newer `.apk` the same way. Your synced village is kept.
 3. **Stop the phone pausing it.** Open your phone's Settings > Apps > Clash Timers > Battery and
    choose **Unrestricted** (on some phones: "Don't optimise" or "No restrictions"). Without this
    the widget can be slow to update.
-4. **Optional: set your name.** Tap the name at the top of the widget to open the app, type the
+4. **Allow notifications** when asked (on your first sync, or when you open the app). You'll get
+   a notification each time an upgrade finishes, such as "Bomb Tower → 11 finished · A builder is
+   free". Tap it to open Clash.
+5. **Optional: set your name.** Tap the name at the top of the widget to open the app, type the
    name you want shown and tap **Save name**.
 
 ## Sync your village
@@ -50,7 +55,9 @@ book, or use a potion. The widget only knows what was true when you last copied 
 - The **timer** counts down live. **Done** means it has finished.
 - **▾** after a section title means it's open. **▸ 4** means it's folded, with 4 upgrades hidden.
   Tap the title to switch.
-- **Exported 13:44** at the bottom is when you last copied the export.
+- **Exported 13:44** at the bottom is when you last copied the export. It turns **orange** when
+  an upgrade has finished since then, or the export is over a day old. That's your cue to sync
+  again, because you've probably started something new that the widget can't see yet.
 
 The game shows upgrade times as if no potion were running, so while a boost is active the widget
 shows shorter times than the game does. The widget's times are when the upgrades really finish.
@@ -61,7 +68,9 @@ shows shorter times than the game does. The widget's times are when the upgrades
   straight away. Some phones clear the clipboard after about an hour.
 - **A timer looks wrong**: sync again. The widget can't see upgrades started, sped up or
   finished since your last export.
-- **The widget is slow to update**: check the battery setting in Set up, step 3.
+- **The widget is slow to update, or notifications arrive late**: check the battery setting in
+  Set up, step 3.
+- **No notifications**: Settings > Apps > Clash Timers > Notifications, and switch them on.
 
 ## What it can't show
 
@@ -87,6 +96,11 @@ and Research Potions.
 - Boosts: the export's `boosts` block gives seconds left on a builder and a pet boost. Builder
   Potion is 10x, Builder Bite is taken as 2x (community figure, unconfirmed), Pet Potion 24x.
   Work done during the boost runs at that rate and the rest at normal speed.
+- Notifications: a separate wake-up alarm fires at the next finish time (the redraw alarm doesn't
+  wake the phone). Upgrades that finished more than two hours ago, for example while the phone
+  was off, stay quiet.
+- Update check: at most every 12 hours, the app reads GitHub's `releases/latest`, which skips
+  pre-releases, and compares its tag with the installed `versionName`.
 - Progress bars use per-level upgrade times bundled in `app/src/main/assets/coc_data.json`.
 - Icons download from ClashKing's asset host on first sync and are cached.
 
@@ -97,6 +111,33 @@ Gradle 9.6, which AGP 9.5 requires.
 
 - Android Studio: File > Open > this folder, plug the phone in with USB debugging on, Run.
 - Command line: `gradlew assembleDebug`, then install `app/build/outputs/apk/debug/app-debug.apk`.
+
+### Tests
+
+```
+gradlew testDebugUnitTest
+```
+
+Run before every release. The tests cover export parsing against a real export
+(`app/src/test/resources/village_export.json`, player tag replaced), potion maths, day
+rollover, notification decisions and version comparison. One test also fails if the widget
+layouts gain a `ListView` or other collection view, where countdowns stop ticking on One UI.
+Widget rendering itself can only be checked on a phone.
+
+### Release signing
+
+Releases are built with `gradlew assembleRelease` and signed by a key that is not in this repo.
+Gradle reads it from `keystore.properties` in the repo root (gitignored):
+
+```
+storeFile=C:/path/to/clash-timers.jks
+storePassword=...
+keyAlias=clash-timers
+keyPassword=...
+```
+
+Every release must be signed with this same key, or phones refuse to install it over the
+previous version and people have to uninstall first. Losing the key means that for everyone.
 
 ### Refreshing game data
 

@@ -87,8 +87,11 @@ object VillageParser {
         "units2" to Section.BUILDER_BASE,
     )
 
+    fun parse(context: Context, text: String, builderMultiplier: Int = BUILDER_POTION_MULTIPLIER): Village? =
+        parse(text, builderMultiplier) { GameData.get(context, it) }
+
     // Returns null when [text] isn't a Clash of Clans village export.
-    fun parse(context: Context, text: String, builderMultiplier: Int = BUILDER_POTION_MULTIPLIER): Village? {
+    fun parse(text: String, builderMultiplier: Int, lookup: (Int) -> GameItem?): Village? {
         val root = try {
             JSONObject(text.trim())
         } catch (e: JSONException) {
@@ -97,7 +100,7 @@ object VillageParser {
         if (!root.has("tag") || !root.has("timestamp")) return null
 
         val upgrades = SECTIONS.flatMap { (key, section) ->
-            root.entries(key).filter { it.optLong("timer") > 0 }.map { toUpgrade(context, section, it) }
+            root.entries(key).filter { it.optLong("timer") > 0 }.map { toUpgrade(lookup, section, it) }
         }
         val buildings = root.entries("buildings")
         val huts = buildings.filter { it.optInt("data") == BUILDER_HUT }.sumOf { it.optInt("cnt", 1) }
@@ -116,9 +119,9 @@ object VillageParser {
         )
     }
 
-    private fun toUpgrade(context: Context, section: Section, entry: JSONObject): Upgrade {
+    private fun toUpgrade(lookup: (Int) -> GameItem?, section: Section, entry: JSONObject): Upgrade {
         val id = entry.optInt("data")
-        val item = GameData.get(context, id)
+        val item = lookup(id)
         val toLevel = entry.optInt("lvl") + 1
         return Upgrade(
             section = section,

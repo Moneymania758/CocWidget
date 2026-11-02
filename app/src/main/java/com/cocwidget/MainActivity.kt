@@ -1,14 +1,20 @@
 package com.cocwidget
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.text.format.DateUtils
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import java.text.DateFormat
+import kotlin.concurrent.thread
 
 class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,6 +31,15 @@ class MainActivity : Activity() {
         findViewById<Button>(R.id.sync).setOnClickListener {
             startActivity(Intent(this, SyncActivity::class.java))
         }
+        findViewById<Button>(R.id.update).setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(UpdateChecker.RELEASES_PAGE)))
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), NOTIFICATION_REQUEST)
+        }
     }
 
     override fun onResume() {
@@ -38,5 +53,22 @@ class MainActivity : Activity() {
             val running = village.upgrades.count { village.endMillis(it) > now }
             getString(R.string.status_synced, exported, running)
         }
+
+        showUpdate()
+        thread {
+            UpdateChecker.checkIfDue(applicationContext)
+            runOnUiThread { if (!isDestroyed) showUpdate() }
+        }
+    }
+
+    private fun showUpdate() {
+        val button = findViewById<Button>(R.id.update)
+        val update = UpdateChecker.availableUpdate(this)
+        button.visibility = if (update != null) View.VISIBLE else View.GONE
+        if (update != null) button.text = getString(R.string.update_available_long, update)
+    }
+
+    private companion object {
+        const val NOTIFICATION_REQUEST = 1
     }
 }

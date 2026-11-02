@@ -7,6 +7,12 @@
         android:name="android.permission.SCHEDULE_EXACT_ALARM"
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Lets a notification tap open the game. -->
+    <queries>
+        <package android:name="com.supercell.clashofclans" />
+    </queries>
 
     <application
         android:allowBackup="false"
@@ -27,7 +33,6 @@
             android:name=".SyncActivity"
             android:excludeFromRecents="true"
             android:exported="false"
-            android:noHistory="true"
             android:taskAffinity=""
             android:theme="@style/Translucent" />
 

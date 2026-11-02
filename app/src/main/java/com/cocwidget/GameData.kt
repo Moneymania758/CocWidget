@@ -18,6 +18,10 @@ object GameData {
     private fun load(context: Context): Map<Int, GameItem> {
         items?.let { return it }
         val text = context.assets.open("coc_data.json").bufferedReader().use { it.readText() }
+        return parse(text).also { items = it }
+    }
+
+    fun parse(text: String): Map<Int, GameItem> {
         val root = JSONObject(text)
         val map = HashMap<Int, GameItem>(root.length())
         for (key in root.keys()) {
@@ -30,7 +34,6 @@ object GameData {
                 times = IntArray(times.length()) { times.optInt(it) },
             )
         }
-        items = map
         return map
     }
 }

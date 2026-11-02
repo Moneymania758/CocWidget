@@ -7,6 +7,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.SystemClock
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -18,26 +19,33 @@ import android.widget.RemoteViews
 import java.text.DateFormat
 
 object WidgetRenderer {
-    private const val DAY_MS = 86_400_000L
-    private const val MAX_REFRESH_MS = 15 * 60_000L
+    private const val REFRESH_REQUEST = 0
+    private const val FINISH_REQUEST = 1
     private val GREEN = Color.parseColor("#8EE04A")
     private val ORANGE = Color.parseColor("#FFA640")
     private val DIM = Color.parseColor("#B8A894")
 
     fun update(context: Context) {
+        // Notifications work without a widget on the home screen, so they come first.
+        val village = Store.village(context)
+        val checkedAt = System.currentTimeMillis()
+        village?.let { Notifier.notifyFinished(context, it, checkedAt) }
+        scheduleNextFinish(context, village, checkedAt)
+
         val manager = AppWidgetManager.getInstance(context)
         val component = ComponentName(context, VillageWidget::class.java)
         if (manager.getAppWidgetIds(component).isEmpty()) return
 
-        val village = Store.village(context)
+        UpdateChecker.checkIfDue(context)
         village?.let { Icons.fetchMissing(context, it.upgrades) }
         val now = System.currentTimeMillis()
         manager.updateAppWidget(component, build(context, village, now))
-        scheduleNext(context, nextRefresh(village, now))
+        scheduleNext(context, Countdown.nextRefresh(village, now))
     }
 
+    // Only the redraw alarm. The finish alarm keeps notifications coming without a widget.
     fun cancel(context: Context) {
-        context.getSystemService(AlarmManager::class.java).cancel(refreshIntent(context))
+        context.getSystemService(AlarmManager::class.java).cancel(refreshIntent(context, REFRESH_REQUEST))
     }
 
     private fun build(context: Context, village: Village?, now: Long): RemoteViews {
@@ -45,6 +53,14 @@ object WidgetRenderer {
         views.setOnClickPendingIntent(R.id.sync, activityIntent(context, SyncActivity::class.java, 0))
         views.setOnClickPendingIntent(R.id.title, activityIntent(context, MainActivity::class.java, 1))
         views.removeAllViews(R.id.rows)
+
+        val update = UpdateChecker.availableUpdate(context)
+        views.setViewVisibility(R.id.update, if (update != null) View.VISIBLE else View.GONE)
+        if (update != null) {
+            views.setTextViewText(R.id.update, context.getString(R.string.update_available, update))
+            val open = Intent(Intent.ACTION_VIEW, Uri.parse(UpdateChecker.RELEASES_PAGE))
+            views.setOnClickPendingIntent(R.id.update, PendingIntent.getActivity(context, 3, open, PendingIntent.FLAG_IMMUTABLE))
+        }
 
         if (village == null) {
             views.setTextViewText(R.id.title, context.getString(R.string.app_name))
@@ -59,7 +75,16 @@ object WidgetRenderer {
         views.setTextViewText(R.id.title, Store.displayName(context) ?: village.tag)
         views.setTextViewText(R.id.town_hall, if (village.townHall > 0) "TH${village.townHall}" else "")
         val exported = DateUtils.formatSameDayTime(village.exportedAtMillis, now, DateFormat.MEDIUM, DateFormat.SHORT)
-        views.setTextViewText(R.id.footer, context.getString(R.string.exported_at, exported))
+        // A finished upgrade usually means a new one has started in the game that the export can't show.
+        val finishedSince = village.upgrades.count { village.endMillis(it) <= now }
+        val old = now - village.exportedAtMillis > Countdown.DAY_MS
+        val footer = when {
+            finishedSince > 0 -> context.getString(R.string.exported_finished_since, exported, finishedSince)
+            old -> context.getString(R.string.exported_out_of_date, exported)
+            else -> context.getString(R.string.exported_at, exported)
+        }
+        views.setTextViewText(R.id.footer, footer)
+        views.setTextColor(R.id.footer, if (finishedSince > 0 || old) ORANGE else context.getColor(R.color.text_dim))
 
         // Rows stay in a plain LinearLayout rather than a scrolling ListView: on One UI the
         // countdowns stop ticking inside a ListView. Sections fold instead, to make room.
@@ -136,46 +161,44 @@ object WidgetRenderer {
             return row
         }
 
-        // Chronometer can't show days, so whole days go in a separate label and the
-        // chronometer counts down the rest. A refresh is scheduled for when it reaches zero.
-        val days = (left - 1) / DAY_MS
-        val rest = left - days * DAY_MS
-        row.setTextViewText(R.id.days, "${days}d")
-        row.setViewVisibility(R.id.days, if (days > 0) View.VISIBLE else View.GONE)
-        row.setChronometer(R.id.timer, SystemClock.elapsedRealtime() + rest, null, true)
+        // A refresh is scheduled for when the chronometer reaches zero (Countdown.nextRefresh).
+        val split = Countdown.split(left)
+        row.setTextViewText(R.id.days, "${split.days}d")
+        row.setViewVisibility(R.id.days, if (split.days > 0) View.VISIBLE else View.GONE)
+        row.setChronometer(R.id.timer, SystemClock.elapsedRealtime() + split.restMs, null, true)
         row.setChronometerCountDown(R.id.timer, true)
         row.setViewVisibility(R.id.done, View.GONE)
         return row
     }
 
-    private fun nextRefresh(village: Village?, now: Long): Long {
-        var next = now + MAX_REFRESH_MS
-        if (village != null) {
-            for (upgrade in village.upgrades) {
-                val left = village.endMillis(upgrade) - now
-                if (left > 0) next = minOf(next, now + left - (left - 1) / DAY_MS * DAY_MS)
-            }
-            for (boost in listOf(village.builderBoost, village.petBoost)) {
-                val end = village.boostEndMillis(boost)
-                if (end > now) next = minOf(next, end)
-            }
-        }
-        return maxOf(next, now + 1000)
-    }
-
+    // Redraws don't wake the phone. A sleeping screen doesn't need fresh numbers.
     private fun scheduleNext(context: Context, at: Long) {
+        setAlarm(context, AlarmManager.RTC, at, refreshIntent(context, REFRESH_REQUEST))
+    }
+
+    // Wakes the phone when the next upgrade finishes, so its notification arrives on time.
+    private fun scheduleNextFinish(context: Context, village: Village?, now: Long) {
+        val intent = refreshIntent(context, FINISH_REQUEST)
+        val next = village?.upgrades?.map { village.endMillis(it) }?.filter { it > now }?.minOrNull()
+        if (next == null) {
+            context.getSystemService(AlarmManager::class.java).cancel(intent)
+            return
+        }
+        setAlarm(context, AlarmManager.RTC_WAKEUP, next, intent)
+    }
+
+    private fun setAlarm(context: Context, type: Int, at: Long, intent: PendingIntent) {
         val alarms = context.getSystemService(AlarmManager::class.java)
-        val intent = refreshIntent(context)
         if (alarms.canScheduleExactAlarms()) {
-            alarms.setExactAndAllowWhileIdle(AlarmManager.RTC, at, intent)
+            alarms.setExactAndAllowWhileIdle(type, at, intent)
         } else {
-            alarms.setAndAllowWhileIdle(AlarmManager.RTC, at, intent)
+            alarms.setAndAllowWhileIdle(type, at, intent)
         }
     }
 
-    private fun refreshIntent(context: Context): PendingIntent = PendingIntent.getBroadcast(
+    private fun refreshIntent(context: Context, requestCode: Int): PendingIntent = PendingIntent.getBroadcast(
         context,
-        0,
+        requestCode,
         Intent(context, VillageWidget::class.java).setAction(VillageWidget.ACTION_REFRESH),
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )

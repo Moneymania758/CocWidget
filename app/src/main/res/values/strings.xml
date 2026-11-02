@@ -8,6 +8,18 @@
     <string name="done">Done</string>
     <string name="empty_state">In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy. Then tap Sync.</string>
     <string name="exported_at">Exported %1$s</string>
+    <string name="exported_finished_since">Exported %1$s · %2$d finished since, sync again</string>
+    <string name="exported_out_of_date">Exported %1$s · out of date, sync again</string>
+    <string name="update_available">Update %1$s ›</string>
+    <string name="update_available_long">Update %1$s available. Tap to download</string>
+
+    <string name="channel_finished">Upgrade finished</string>
+    <string name="notify_finished_title">%1$s → %2$d finished</string>
+    <string name="notify_builder_free">A builder is free</string>
+    <string name="notify_goblin_free">The Goblin is free</string>
+    <string name="notify_lab_free">The lab is free</string>
+    <string name="notify_pet_house_free">The Pet House is free</string>
+    <string name="notify_builder_base">Builder Base upgrade done</string>
 
     <string name="sync_not_export">The clipboard doesn\'t hold a village export. Copy it in Clash first (Settings &gt; More Settings &gt; Data Export).</string>
     <string name="sync_done">Village synced</string>

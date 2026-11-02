@@ -1,8 +1,11 @@
 package com.cocwidget
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ClipboardManager
+import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
 import kotlin.math.abs
 
@@ -58,10 +61,27 @@ class SyncActivity : Activity() {
         Store.saveExport(this, json)
         VillageWidget.requestRefresh(this)
         Toast.makeText(this, R.string.sync_done, Toast.LENGTH_SHORT).show()
+        // Most people only ever sync and never open the app, so ask here, once.
+        if (shouldAskForNotifications()) {
+            Store.setAskedNotifications(this)
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), NOTIFICATION_REQUEST)
+        } else {
+            finish()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         finish()
     }
 
+    private fun shouldAskForNotifications() =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            !Store.askedNotifications(this) &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+
     private companion object {
         const val BOOST_MATCH_MS = 2 * 60_000L
+        const val NOTIFICATION_REQUEST = 1
     }
 }
