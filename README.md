@@ -16,7 +16,9 @@ To update, install the newer `.apk` the same way. Your synced village is kept.
 ## Set up (once)
 
 1. **Add the widget.** Long-press an empty spot on your home screen, tap **Widgets**, find
-   **Clash Timers** and drag it onto the screen. Resize it as tall as you like. The list scrolls.
+   **Clash Timers** and drag it onto the screen. Make it as tall as you can. If it still doesn't
+   all fit, tap a section title (for example **BUILDER BASE**) to fold that section to one line.
+   Tap it again to open it.
 2. **Add the sync tile (recommended).** Pull the notification shade all the way down, tap the
    edit button (a pencil, or ⋮ then Edit), and drag **Clash Sync** into your active tiles.
 3. **Stop the phone pausing it.** Open your phone's Settings > Apps > Clash Timers > Battery and
@@ -46,6 +48,8 @@ book, or use a potion. The widget only knows what was true when you last copied 
 - **×10 34:44** is a boost running and how long it has left. Timers already account for it.
 - The **green bar** is how far through the upgrade you are.
 - The **timer** counts down live. **Done** means it has finished.
+- **▾** after a section title means it's open. **▸ 4** means it's folded, with 4 upgrades hidden.
+  Tap the title to switch.
 - **Exported 13:44** at the bottom is when you last copied the export.
 
 The game shows upgrade times as if no potion were running, so while a boost is active the widget
@@ -75,7 +79,9 @@ and Research Potions.
   read it. The widget button and the Quick Settings tile both open that screen.
 - Every upgrade with a `timer` in the export becomes a row. `timer` is seconds left at the
   export's `timestamp`, `lvl` is the current level, `extra: true` is the Goblin's slot.
-- Timers are Android `Chronometer`s. Whole days sit in a separate label because a Chronometer
+- Timers are Android `Chronometer`s. Rows are added to a plain `LinearLayout`, not a scrolling
+  `ListView`: on One UI, Chronometers inside a widget `ListView` stop ticking between redraws.
+  Sections fold instead of scrolling. Whole days sit in a separate label because a Chronometer
   can't show them, and an alarm redraws the widget when a day rolls over, an upgrade finishes or
   a boost ends, and at least every 15 minutes.
 - Boosts: the export's `boosts` block gives seconds left on a builder and a pet boost. Builder

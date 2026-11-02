@@ -22,6 +22,7 @@ object WidgetRenderer {
     private const val MAX_REFRESH_MS = 15 * 60_000L
     private val GREEN = Color.parseColor("#8EE04A")
     private val ORANGE = Color.parseColor("#FFA640")
+    private val DIM = Color.parseColor("#B8A894")
 
     fun update(context: Context) {
         val manager = AppWidgetManager.getInstance(context)
@@ -43,43 +44,37 @@ object WidgetRenderer {
         val views = RemoteViews(context.packageName, R.layout.widget)
         views.setOnClickPendingIntent(R.id.sync, activityIntent(context, SyncActivity::class.java, 0))
         views.setOnClickPendingIntent(R.id.title, activityIntent(context, MainActivity::class.java, 1))
-        views.setEmptyView(R.id.list, R.id.empty)
+        views.removeAllViews(R.id.rows)
 
         if (village == null) {
             views.setTextViewText(R.id.title, context.getString(R.string.app_name))
             views.setTextViewText(R.id.town_hall, "")
+            views.setViewVisibility(R.id.empty, View.VISIBLE)
             views.setViewVisibility(R.id.footer, View.GONE)
-            views.setRemoteAdapter(R.id.list, listItems(emptyList()))
             return views
         }
 
+        views.setViewVisibility(R.id.empty, View.GONE)
         views.setViewVisibility(R.id.footer, View.VISIBLE)
         views.setTextViewText(R.id.title, Store.displayName(context) ?: village.tag)
         views.setTextViewText(R.id.town_hall, if (village.townHall > 0) "TH${village.townHall}" else "")
         val exported = DateUtils.formatSameDayTime(village.exportedAtMillis, now, DateFormat.MEDIUM, DateFormat.SHORT)
         views.setTextViewText(R.id.footer, context.getString(R.string.exported_at, exported))
 
-        val items = mutableListOf<RemoteViews>()
-        addSection(context, items, village, now, Section.BUILDERS, "BUILDERS", village.builders)
-        addSection(context, items, village, now, Section.LAB, "LAB", 1)
-        if (village.hasPetHouse) addSection(context, items, village, now, Section.PETS, "PETS", 1)
+        // Rows stay in a plain LinearLayout rather than a scrolling ListView: on One UI the
+        // countdowns stop ticking inside a ListView. Sections fold instead, to make room.
+        addSection(context, views, village, now, Section.BUILDERS, "BUILDERS", village.builders)
+        addSection(context, views, village, now, Section.LAB, "LAB", 1)
+        if (village.hasPetHouse) addSection(context, views, village, now, Section.PETS, "PETS", 1)
         if (village.upgrades.any { it.section == Section.BUILDER_BASE }) {
-            addSection(context, items, village, now, Section.BUILDER_BASE, "BUILDER BASE", 0)
+            addSection(context, views, village, now, Section.BUILDER_BASE, "BUILDER BASE", 0)
         }
-        views.setRemoteAdapter(R.id.list, listItems(items))
         return views
-    }
-
-    // Rows go in a ListView because only collection views scroll inside a widget.
-    private fun listItems(items: List<RemoteViews>): RemoteViews.RemoteCollectionItems {
-        val builder = RemoteViews.RemoteCollectionItems.Builder().setViewTypeCount(2)
-        items.forEachIndexed { index, item -> builder.addItem(index.toLong(), item) }
-        return builder.build()
     }
 
     private fun addSection(
         context: Context,
-        items: MutableList<RemoteViews>,
+        views: RemoteViews,
         village: Village,
         now: Long,
         section: Section,
@@ -100,9 +95,13 @@ object WidgetRenderer {
             val text = if (section == Section.BUILDERS) "  $idle idle" else "  idle"
             label.append(text, ForegroundColorSpan(ORANGE), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
+        val collapsed = section.name in Store.collapsedSections(context)
+        val marker = if (collapsed) "  ▸ ${upgrades.size}" else "  ▾"
+        label.append(marker, ForegroundColorSpan(DIM), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         val header = RemoteViews(context.packageName, R.layout.widget_section)
         header.setTextViewText(R.id.label, label)
+        header.setOnClickPendingIntent(R.id.section, toggleIntent(context, section))
         val boost = village.boostFor(section)
         val boostLeft = village.boostEndMillis(boost) - now
         if (boost.seconds > 0 && boostLeft > 0) {
@@ -112,8 +111,9 @@ object WidgetRenderer {
         } else {
             header.setViewVisibility(R.id.badge, View.GONE)
         }
-        items += header
-        for (upgrade in upgrades) items += row(context, village, upgrade, now)
+        views.addView(R.id.rows, header)
+        if (collapsed) return
+        for (upgrade in upgrades) views.addView(R.id.rows, row(context, village, upgrade, now))
     }
 
     private fun row(context: Context, village: Village, upgrade: Upgrade, now: Long): RemoteViews {
@@ -177,6 +177,16 @@ object WidgetRenderer {
         context,
         0,
         Intent(context, VillageWidget::class.java).setAction(VillageWidget.ACTION_REFRESH),
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+    )
+
+    // One request code per section, so each header's intent keeps its own extra.
+    private fun toggleIntent(context: Context, section: Section): PendingIntent = PendingIntent.getBroadcast(
+        context,
+        100 + section.ordinal,
+        Intent(context, VillageWidget::class.java)
+            .setAction(VillageWidget.ACTION_TOGGLE_SECTION)
+            .putExtra(VillageWidget.EXTRA_SECTION, section.name),
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
 
