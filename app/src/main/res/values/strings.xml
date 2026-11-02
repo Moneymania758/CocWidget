@@ -49,6 +49,7 @@
     <string name="whats_new_title">WHAT\'S NEW</string>
     <string name="whats_new_card">New in %1$s</string>
     <string name="whats_new_got_it">Got it</string>
+    <string name="whats_new_1_8_1">• Fixed: crafted defence upgrades showed a number and a blank icon instead of their name and picture.</string>
     <string name="whats_new_1_8">• Time to max: tap it on the main screen to see how long your builders, lab and pets need to max your Town Hall, and what it all costs.</string>
     <string name="whats_new_1_7">• This What\'s new list, so you can see what each update adds.</string>
     <string name="whats_new_1_6">• Timers count your Builder\'s Apprentice and Lab Assistant while they\'re working. They add to a potion.\n• A blue HELPER tag marks the upgrade a helper is on.\n• The widget shows when your helpers are ready again.</string>
