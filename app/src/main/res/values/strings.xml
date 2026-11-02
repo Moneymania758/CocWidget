@@ -18,7 +18,7 @@
     <string name="boost_potion">Potion (10x)</string>
     <string name="boost_bite">Bite (2x)</string>
 
-    <string name="main_steps">1. Long-press the home screen, tap Widgets and add Clash Timers.\n2. In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy.\n3. Tap Sync on the widget (or below).\n\nQuicker: add the Clash Sync tile to Quick Settings (pull down twice, then edit the buttons). Copy the export, pull down, tap the tile. You never leave the game.\n\nSync again whenever you start an upgrade or use a potion.</string>
+    <string name="main_steps">SET UP (ONCE)\n1. Add the widget: long-press the home screen, tap Widgets and drag Clash Timers on.\n2. Add the sync tile: pull the notification shade all the way down, tap edit (pencil, or ⋮ then Edit) and drag Clash Sync into your tiles.\n3. Settings &gt; Apps &gt; Clash Timers &gt; Battery &gt; Unrestricted, so the widget keeps updating.\n\nSYNC YOUR VILLAGE\n1. In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy.\n2. Pull down and tap Clash Sync. You stay in the game. (Or tap Sync on the widget, or the button below.)\n\nSync again whenever you start an upgrade, finish one early or use a potion. The widget only knows what was true at your last export.</string>
     <string name="name_hint">Name shown on the widget</string>
     <string name="save_name">Save name</string>
     <string name="name_saved">Name saved</string>
