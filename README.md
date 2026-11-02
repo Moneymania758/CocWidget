@@ -96,8 +96,12 @@ and Research Potions.
 
 - Sync reads the clipboard from a tiny invisible screen, because Android only lets the focused app
   read it. The widget button and the Quick Settings tile both open that screen.
-- Every upgrade with a `timer` in the export becomes a row. `timer` is seconds left at the
-  export's `timestamp`, `lvl` is the current level, `extra: true` is the Goblin's slot.
+- Every entry with a `timer` anywhere in the export becomes a row. `timer` is seconds left at the
+  export's `timestamp`, `lvl` is the current level, `extra: true` is the Goblin's slot. Known
+  sections (`buildings`, `units`, `heroes`, `pets`, the `2` Builder Base variants and so on) map
+  to their widget section. Anything in a section the parser doesn't know, or nested inside a
+  building, is placed by the game data's kind: troops and spells to Lab, pets to Pets, the rest
+  to Builders. Guardians (TH18) were missed before this.
 - Timers are Android `Chronometer`s. Rows are added to a plain `LinearLayout`, not a scrolling
   `ListView`: on One UI, Chronometers inside a widget `ListView` stop ticking between redraws.
   Sections fold instead of scrolling. Whole days sit in a separate label because a Chronometer

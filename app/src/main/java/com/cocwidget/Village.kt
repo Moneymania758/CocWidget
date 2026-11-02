@@ -1,6 +1,7 @@
 package com.cocwidget
 
 import android.content.Context
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -76,7 +77,7 @@ object VillageParser {
     private const val BOB_HUT = 1000064
     private const val PET_HOUSE = 1000068
 
-    private val SECTIONS = listOf(
+    private val SECTIONS = mapOf(
         "buildings" to Section.BUILDERS,
         "traps" to Section.BUILDERS,
         "heroes" to Section.BUILDERS,
@@ -102,9 +103,8 @@ object VillageParser {
         }
         if (!root.has("tag") || !root.has("timestamp")) return null
 
-        val upgrades = SECTIONS.flatMap { (key, section) ->
-            root.entries(key).filter { it.optLong("timer") > 0 }.map { toUpgrade(lookup, section, it) }
-        }
+        val upgrades = mutableListOf<Upgrade>()
+        for (key in root.keys()) collectTimed(root.opt(key), key, 1, lookup, upgrades)
         val buildings = root.entries("buildings")
         val huts = buildings.filter { it.optInt("data") == BUILDER_HUT }.sumOf { it.optInt("cnt", 1) }
         val bob = if (buildings.any { it.optInt("data") == BOB_HUT }) 1 else 0
@@ -122,9 +122,41 @@ object VillageParser {
         )
     }
 
-    private fun toUpgrade(lookup: (Int) -> GameItem?, section: Section, entry: JSONObject): Upgrade {
+    // Walks the whole export for running upgrades, so a section added by a game update (Guardians
+    // arrived with TH18) or an entry nested inside a building still shows without a parser change.
+    private fun collectTimed(
+        node: Any?,
+        topKey: String,
+        depth: Int,
+        lookup: (Int) -> GameItem?,
+        found: MutableList<Upgrade>,
+    ) {
+        when (node) {
+            is JSONArray -> for (i in 0 until node.length()) collectTimed(node.opt(i), topKey, depth, lookup, found)
+            is JSONObject -> {
+                if (node.has("data") && node.optLong("timer") > 0) {
+                    val item = lookup(node.optInt("data"))
+                    found += toUpgrade(item, sectionFor(topKey, depth, item), node)
+                }
+                for (key in node.keys()) collectTimed(node.opt(key), topKey, depth + 1, lookup, found)
+            }
+        }
+    }
+
+    // Known sections map directly. Anything else is placed by what the game data says it is,
+    // with the export's "2" suffix marking the Builder Base.
+    private fun sectionFor(topKey: String, depth: Int, item: GameItem?): Section {
+        if (depth == 1) SECTIONS[topKey]?.let { return it }
+        return when {
+            topKey.endsWith("2") -> Section.BUILDER_BASE
+            item?.kind == "troop" || item?.kind == "spell" -> Section.LAB
+            item?.kind == "pet" -> Section.PETS
+            else -> Section.BUILDERS
+        }
+    }
+
+    private fun toUpgrade(item: GameItem?, section: Section, entry: JSONObject): Upgrade {
         val id = entry.optInt("data")
-        val item = lookup(id)
         val toLevel = entry.optInt("lvl") + 1
         return Upgrade(
             section = section,
