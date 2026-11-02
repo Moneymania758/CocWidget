@@ -23,6 +23,8 @@ class GameItem(
     val merge: Merge? = null,
     // Town Hall only: unlocks[n - 1] is what level n adds, as id to quantity.
     val unlocks: List<Map<Int, Int>> = emptyList(),
+    // Crafted defence modules only: the defence the module belongs to.
+    val defence: String = "",
 ) {
     // Seconds to upgrade to [level], or null when the bundled data doesn't know it.
     fun timeToReach(level: Int): Long? = times.getOrNull(level - 1)?.takeIf { it > 0 }?.toLong()
@@ -67,6 +69,7 @@ object GameData {
                 group = entry.optString("g"),
                 merge = entry.optJSONObject("m")?.let(::merge),
                 unlocks = entry.optJSONArray("u")?.let(::unlocks).orEmpty(),
+                defence = entry.optString("d"),
             )
         }
         return map

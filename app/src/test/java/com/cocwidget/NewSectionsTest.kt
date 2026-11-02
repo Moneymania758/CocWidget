@@ -50,6 +50,9 @@ class NewSectionsTest {
         }
         val module = village.upgrades.single { it.workSec == 3_600L }
         assertEquals(Section.BUILDERS, module.section)
+        assertEquals("Hot Candle Hitpoints", module.name)
+        assertEquals("Hot Candle", module.defence)
+        assertEquals(28_800L, module.totalSec)
         assertEquals(3, module.toLevel)
         assertEquals(15, village.upgrades.size)
     }

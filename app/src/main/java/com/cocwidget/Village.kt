@@ -29,6 +29,8 @@ data class Upgrade(
     val helperSec: Long = 0,
     // "Keep assigned until upgrade is complete" is ticked for a helper on this upgrade.
     val helperRepeats: Boolean = false,
+    // Crafted defence modules only: the defence the module belongs to.
+    val defence: String = "",
 )
 
 // A potion running for [seconds] more real seconds, making upgrades go [multiplier] times faster.
@@ -254,6 +256,7 @@ object VillageParser {
             extra = entry.optBoolean("extra"),
             helperSec = entry.optLong("helper_timer"),
             helperRepeats = entry.optBoolean("helper_recurrent"),
+            defence = item?.defence.orEmpty(),
         )
     }
 
