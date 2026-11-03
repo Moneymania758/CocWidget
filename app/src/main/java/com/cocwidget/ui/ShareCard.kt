@@ -35,24 +35,38 @@ class ShareCard(private val activity: Activity, private val ui: Ui, private val 
         ExportProvider.file(activity).writeText(export)
         val uri = ExportProvider.uri(activity)
         val device = Contact.device(version, Build.VERSION.RELEASE, Build.MANUFACTURER, Build.MODEL)
-        val send = Intent(Intent.ACTION_SEND).apply {
+        val subject = Contact.exportSubject(Store.village(activity, tag)?.townHall)
+        val body = Contact.exportBody(device, Store.builderMultiplier(activity, tag), Store.labMultiplier(activity, tag), Store.eventOn(activity), export)
+        val attached = Intent(Intent.ACTION_SEND).apply {
             type = ExportProvider.MIME_TYPE
             putExtra(Intent.EXTRA_EMAIL, arrayOf(Contact.EMAIL))
-            putExtra(Intent.EXTRA_SUBJECT, Contact.exportSubject(Store.village(activity, tag)?.townHall))
-            putExtra(
-                Intent.EXTRA_TEXT,
-                Contact.exportBody(device, Store.builderMultiplier(activity, tag), Store.labMultiplier(activity, tag), Store.eventOn(activity), export),
-            )
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, body)
             putExtra(Intent.EXTRA_STREAM, uri)
             clipData = ClipData.newRawUri(null, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            // Only email apps answer this, so no other app is offered.
-            selector = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
+        }
+        val targets = emailApps().map { Intent(attached).setPackage(it) }.filter { it.resolveActivity(activity.packageManager) != null }
+        val open = when (targets.size) {
+            // No email app takes an attachment like this, so send the pasted copy only.
+            0 -> Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:${Contact.EMAIL}"))
+                .putExtra(Intent.EXTRA_SUBJECT, subject)
+                .putExtra(Intent.EXTRA_TEXT, body)
+            1 -> targets.single()
+            else -> Intent.createChooser(targets.first(), activity.getString(R.string.share_title))
+                .putExtra(Intent.EXTRA_INITIAL_INTENTS, targets.drop(1).toTypedArray())
         }
         try {
-            activity.startActivity(send)
+            activity.startActivity(open)
         } catch (_: ActivityNotFoundException) {
             Toast.makeText(activity, R.string.help_no_app, Toast.LENGTH_SHORT).show()
         }
     }
+
+    // Each app is asked by name, so no other kind of app is offered. A mailto: selector on the
+    // email itself found no app on a Galaxy S24 Ultra.
+    private fun emailApps() = activity.packageManager
+        .queryIntentActivities(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")), 0)
+        .map { it.activityInfo.packageName }
+        .distinct()
 }
