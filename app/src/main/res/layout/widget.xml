@@ -57,6 +57,32 @@
             android:textSize="14sp" />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/views"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/view_home"
+            style="@style/WidgetViewButton"
+            android:text="@string/view_home" />
+
+        <TextView
+            android:id="@+id/view_builder_base"
+            style="@style/WidgetViewButton"
+            android:layout_marginStart="6dp"
+            android:text="@string/view_builder_base" />
+
+        <TextView
+            android:id="@+id/view_all"
+            style="@style/WidgetViewButton"
+            android:layout_marginStart="6dp"
+            android:text="@string/view_all" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/empty"
         android:layout_width="match_parent"
@@ -110,8 +136,7 @@
             android:id="@+id/update"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-black"
-            android:textColor="@color/gold"
+            android:textColor="@color/text_dim"
             android:textSize="11sp"
             android:visibility="gone" />
 

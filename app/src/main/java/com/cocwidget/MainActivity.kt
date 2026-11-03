@@ -167,6 +167,9 @@ class MainActivity : Activity() {
                 startActivity(Intent(this@MainActivity, PlannerActivity::class.java))
             }, ui.weighted(10))
         }, ui.matchWidth(14))
+        addView(ui.button(getString(R.string.bedtime_open), R.drawable.ic_clock_line, primary = false) {
+            startActivity(Intent(this@MainActivity, BedtimeActivity::class.java))
+        }, ui.matchWidth(10))
     }
 
     // One chip per account, plus one saying how to add another.

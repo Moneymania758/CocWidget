@@ -19,6 +19,7 @@ const KINDS = {
   heroes: 'hero',
   pets: 'pet',
   guardians: 'guardian',
+  equipment: 'equipment',
 };
 
 // Planner groups for home village items. Anything without one (the Town Hall itself, the Crafting
@@ -39,9 +40,19 @@ const MISSING_LEVELS = {
 };
 const CRAFTING_STATION = 1000097;
 const TOWN_HALL = 1000001;
-const OTHER_GROUPS = { traps: 'traps', heroes: 'heroes', pets: 'pets', guardians: 'guardians' };
+const OTHER_GROUPS = { traps: 'traps', heroes: 'heroes', pets: 'pets', guardians: 'guardians', equipment: 'equipment' };
+// Hero equipment is paid for in ore, several kinds per level.
+const ORES = { shiny_ore: 'Shiny Ore', glowy_ore: 'Glowy Ore', starry_ore: 'Starry Ore' };
 // Super, seasonal and event troops never appear in an export, so they need no group to be skipped.
 const LAB_CATEGORIES = new Set(['troops', 'spells']);
+// Levels that also need a building upgraded far enough: research needs the Laboratory, pets the
+// Pet House and heroes the Hero Hall.
+const REQUIRED_BUILDINGS = {
+  required_lab_level: 1000007,
+  required_pet_house_level: 1000068,
+  required_hero_tavern_level: 1000071,
+  required_blacksmith_level: 1000070,
+};
 
 function groupFor(category, entry) {
   if ((entry.village || 'home') !== 'home') return '';
@@ -58,12 +69,35 @@ function itemFor(entry, kind, group = '') {
   const times = [];
   const costs = [];
   const townHalls = [];
+  // b is the building a level also needs, and q[n - 1] its level for level n, stored on level n.
+  const needs = [];
+  // Equipment only: ores[n - 1] is the ore to reach level n, stored on level n - 1 like troops.
+  const ores = [];
+  let building;
   let merge;
+  let supercharge;
   for (const level of entry.levels || []) {
+    if (typeof level.upgrade_cost === 'object') ores[level.level] = level.upgrade_cost;
+    // Extra stages on a building's final level, open only at the highest Town Hall.
+    if (level.supercharge) {
+      const stages = level.supercharge.levels;
+      supercharge = {
+        l: level.level,
+        r: level.supercharge.upgrade_resource,
+        t: stages.map(stage => stage.build_time),
+        c: stages.map(stage => stage.build_cost),
+      };
+    }
+    for (const [key, id] of Object.entries(REQUIRED_BUILDINGS)) {
+      if (key in level) {
+        building = id;
+        needs[level.level - 1] = level[key];
+      }
+    }
     if ('build_time' in level) {
       times[level.level - 1] = level.build_time;
       costs[level.level - 1] = level.build_cost;
-    } else if ('upgrade_time' in level) {
+    } else if ('upgrade_time' in level && typeof level.upgrade_cost !== 'object') {
       times[level.level] = level.upgrade_time;
       costs[level.level] = level.upgrade_cost;
     }
@@ -85,6 +119,21 @@ function itemFor(entry, kind, group = '') {
   if (alt) item.a = alt.alt_upgrade_resource;
   if (group) item.g = group;
   if (merge) item.m = merge;
+  if (building) {
+    item.b = building;
+    item.q = Array.from(needs, q => q ?? 0);
+  }
+  if (supercharge) item.s = supercharge;
+  // c holds the first ore, x the others: { "Glowy Ore": [...], "Starry Ore": [...] }.
+  if (ores.length) {
+    const [first, ...rest] = Object.keys(ORES);
+    item.r = ORES[first];
+    item.c = Array.from(ores, cost => cost?.[first] ?? 0);
+    for (const key of rest) {
+      const costs = Array.from(ores, cost => cost?.[key] ?? 0);
+      if (costs.some(c => c > 0)) (item.x ??= {})[ORES[key]] = costs;
+    }
+  }
   return item;
 }
 
@@ -108,6 +157,13 @@ async function main() {
   }
   // Crafted defences are upgraded one module at a time, and the export names the module. d is the
   // defence it belongs to, which is what the icon shows.
+  // Exports list equipment the player doesn't own at level 1. The Blacksmith unlocks common
+  // pieces, but epics come from events, so o is the hero a piece belongs to and e marks an epic.
+  for (const entry of data.equipment || []) {
+    const hero = (data.heroes || []).find(h => h.name === entry.hero);
+    if (hero) out[entry._id].o = hero._id;
+    if (entry.rarity === 'Epic') out[entry._id].e = 1;
+  }
   const station = (data.buildings || []).find(entry => entry._id === CRAFTING_STATION);
   for (const defence of station?.seasonal_defenses || []) {
     for (const module of defence.modules || []) {

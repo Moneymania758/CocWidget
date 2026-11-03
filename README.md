@@ -12,7 +12,7 @@ Needs Android 12 or later. It is not available for iPhone.
    "Install unknown apps" for your browser or file manager and try again.
 
 To update, install the newer `.apk` the same way. Your synced village is kept. From 1.3 on, the
-widget shows **Update 2.0 ›** (or whichever is newest) at the bottom when a new version is out.
+widget shows **Update 2.1 ›** (or whichever is newest) at the bottom when a new version is out.
 Tap it to go to the download. From 1.7 on, opening the app after an update shows what it added,
 and **What's new** further down lists every version.
 
@@ -87,6 +87,12 @@ than a discounted one could, so it's never halved.
 - The **timer** counts down live. **Done** means it has finished.
 - **▾** after a section title means it's open. **▸ 4** means it's folded, with 4 upgrades hidden.
   Tap the title to switch.
+- **HOME**, **BUILDER BASE** and **ALL** under the title fold several sections in one tap: HOME
+  shows builders, lab and pets, BUILDER BASE shows only the Builder Base, and ALL opens
+  everything. The one in use has a gold outline. They only appear while something is upgrading
+  on the Builder Base.
+- **Update 2.1 ›** in small grey text at the bottom means a new version is out. Tap it to
+  download.
 - **Exported 13:44** at the bottom is when you last copied the export. It turns **orange** when
   an upgrade has finished since then, or the export is over a day old. That's your cue to sync
   again, because you've probably started something new that the widget can't see yet.
@@ -113,8 +119,31 @@ is maxed. It uses your last sync, so sync first for an up-to-date answer.
 - Buildings that merge (two Cannons into a Ricochet Cannon, for example) count as the merged
   building. The copies still to be merged only need the level the merge asks for.
 
-Not counted yet: the Builder Base, Crafted Defences, hero equipment, supercharges, and the
-gear-ups some TH17 and TH18 merges need.
+- At the highest Town Hall (TH18 now), buildings on their final level also count the
+  supercharges left, shown as a chip such as **+2 supercharges**. Supercharges only open at the
+  highest Town Hall, so below it they aren't counted.
+- **Hero equipment** lists the Shiny, Glowy and Starry Ore left to max each piece. Equipment
+  upgrades are instant, so it adds no time, and events don't discount it. The export lists
+  pieces you don't own at level 1. Common pieces come from the Blacksmith, so those count once
+  your Blacksmith and the hero are there. Epic pieces at level 1 are left out, since the app
+  can't tell whether you own them, and the screen says how many.
+
+Not counted yet: the Builder Base, Crafted Defences, and the gear-ups some TH17 and TH18 merges
+need.
+
+## Bedtime planner
+
+Open the app and tap **Bedtime planner** to see which upgrade to start so it finishes while
+you're awake, and no builder sits idle overnight.
+
+- Set when you sleep at the top (11pm to 7am to begin with). Tap a time to change it.
+- **Builders**, **Lab** and **Pets** each say when they're next free. If that's while you're
+  asleep, the planner works from when you wake up.
+- Below that are the upgrades you could start, soonest finish first, with how long each takes,
+  when it would be done and what it costs. Ones that would finish while you're asleep are left
+  out and just counted.
+- Like Time to max, it works from your last sync at normal speed, without potions, helpers or the
+  Goblin. It only lists levels your Lab, Pet House and Hero Hall are high enough for.
 
 ## Themes
 

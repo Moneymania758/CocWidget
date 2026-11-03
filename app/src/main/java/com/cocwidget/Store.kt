@@ -18,6 +18,8 @@ object Store {
     private const val KEY_EVENT_ON = "event_discount_on"
     private const val KEY_WHATS_NEW_SEEN = "whats_new_seen"
     private const val KEY_SKIN = "skin"
+    private const val KEY_BEDTIME = "bedtime_minute"
+    private const val KEY_WAKE = "wake_minute"
 
     // Per account. Up to 1.9.1 these sat in the app-wide file, for the only account.
     private const val KEY_EXPORT = "export"
@@ -191,6 +193,10 @@ object Store {
         account(context, tag).edit().putStringSet(KEY_COLLAPSED, collapsed).apply()
     }
 
+    fun setCollapsedSections(context: Context, tag: String, sections: Set<String>) {
+        account(context, tag).edit().putStringSet(KEY_COLLAPSED, sections).apply()
+    }
+
     fun lastUpdateCheck(context: Context): Long = prefs(context).getLong(KEY_LAST_UPDATE_CHECK, 0)
 
     fun setLastUpdateCheck(context: Context, millis: Long) {
@@ -238,5 +244,15 @@ object Store {
 
     fun setSkin(context: Context, key: String) {
         prefs(context).edit().putString(KEY_SKIN, key).apply()
+    }
+
+    // The same for every account: it's the player who sleeps. 23:00 to 07:00 until changed.
+    fun sleep(context: Context) = Bedtime.Sleep(
+        prefs(context).getInt(KEY_BEDTIME, 23 * 60),
+        prefs(context).getInt(KEY_WAKE, 7 * 60),
+    )
+
+    fun setSleep(context: Context, sleep: Bedtime.Sleep) {
+        prefs(context).edit().putInt(KEY_BEDTIME, sleep.bedMinute).putInt(KEY_WAKE, sleep.wakeMinute).apply()
     }
 }

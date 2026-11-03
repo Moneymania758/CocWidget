@@ -71,9 +71,11 @@ class PlannerTest {
         assertEquals(2, plan.item("Wizard Tower")!!.levels.size)
         assertTrue(plan.groups.flatMap { it.items }.none { 0 in it.levels })
 
+        // Every defence is on its highest level, so all that's left is supercharges.
         val defences = plan.group(Group.DEFENCES)!!
-        assertEquals(0L, defences.seconds)
-        assertEquals(1f, defences.done)
+        assertTrue(defences.items.all { item -> item.levels.all { it == item.maxLevel } })
+        assertTrue(defences.seconds > 0)
+        assertTrue(defences.items.filter { it.seconds > 0 }.all { it.supercharges > 0 })
     }
 
     @Test

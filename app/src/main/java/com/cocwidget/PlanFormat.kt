@@ -5,7 +5,7 @@ import java.util.Locale
 // Text for the planner screen, kept free of Android types so unit tests can run it.
 object PlanFormat {
     // Resources in the order the planner lists them.
-    private val RESOURCE_ORDER = listOf("Gold", "Elixir", "Dark Elixir", "Gold or Elixir")
+    private val RESOURCE_ORDER = listOf("Gold", "Elixir", "Dark Elixir", "Gold or Elixir", "Shiny Ore", "Glowy Ore", "Starry Ore")
 
     // "88d 6h", "6h 30m" or "45m": the two largest units, rounded down.
     fun duration(seconds: Long): String {

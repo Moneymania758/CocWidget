@@ -4,6 +4,10 @@ import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
 
+// Extra stages on a building's final [level], open only at the highest Town Hall. Stage n takes
+// times[n - 1] seconds and costs[n - 1] of [resource].
+class Supercharge(val level: Int, val resource: String, val times: IntArray, val costs: IntArray)
+
 // A building merged from others from [level] on. [sources] lists each building used up, as
 // (id, level it must have reached).
 class Merge(val level: Int, val sources: List<Pair<Int, Int>>)
@@ -25,7 +29,26 @@ class GameItem(
     val unlocks: List<Map<Int, Int>> = emptyList(),
     // Crafted defence modules only: the defence the module belongs to.
     val defence: String = "",
+    // The building whose level some levels also need (the Lab for research), or 0 for none.
+    val requires: Int = 0,
+    private val requiredLevels: IntArray = IntArray(0),
+    // Other resources a level also costs, such as Glowy Ore for equipment.
+    private val extraCosts: Map<String, IntArray> = emptyMap(),
+    val supercharge: Supercharge? = null,
+    // Equipment only: the hero it belongs to, and whether it's an epic (from events, not the
+    // Blacksmith).
+    val hero: Int = 0,
+    val epic: Boolean = false,
 ) {
+    // [resource] first, then the others a level costs, leaving out ones it doesn't need.
+    fun costsToReach(level: Int): Map<String, Long> = buildMap {
+        costToReach(level).takeIf { it > 0 }?.let { put(resource, it) }
+        for ((name, costs) in extraCosts) costs.getOrNull(level - 1)?.takeIf { it > 0 }?.let { put(name, it.toLong()) }
+    }
+
+    // The level of [requires] that [level] needs, 0 when it needs none.
+    fun requiredLevelFor(level: Int): Int = requiredLevels.getOrNull(level - 1) ?: 0
+
     // Seconds to upgrade to [level], or null when the bundled data doesn't know it.
     fun timeToReach(level: Int): Long? = times.getOrNull(level - 1)?.takeIf { it > 0 }?.toLong()
 
@@ -33,6 +56,8 @@ class GameItem(
     fun secondsToReach(level: Int): Long = times.getOrNull(level - 1)?.toLong() ?: 0
 
     fun costToReach(level: Int): Long = costs.getOrNull(level - 1)?.toLong() ?: 0
+
+    val levelCount: Int get() = townHalls.size
 
     // The highest level [townHall] allows.
     fun maxLevelAt(townHall: Int): Int = townHalls.indices.lastOrNull { townHalls[it] <= townHall }?.plus(1) ?: 0
@@ -70,6 +95,14 @@ object GameData {
                 merge = entry.optJSONObject("m")?.let(::merge),
                 unlocks = entry.optJSONArray("u")?.let(::unlocks).orEmpty(),
                 defence = entry.optString("d"),
+                requires = entry.optInt("b"),
+                requiredLevels = entry.optJSONArray("q").toIntArray(),
+                extraCosts = entry.optJSONObject("x")?.let { x -> x.keys().asSequence().associateWith { x.getJSONArray(it).toIntArray() } }.orEmpty(),
+                supercharge = entry.optJSONObject("s")?.let {
+                    Supercharge(it.getInt("l"), it.getString("r"), it.getJSONArray("t").toIntArray(), it.getJSONArray("c").toIntArray())
+                },
+                hero = entry.optInt("o"),
+                epic = entry.optInt("e") == 1,
             )
         }
         return map

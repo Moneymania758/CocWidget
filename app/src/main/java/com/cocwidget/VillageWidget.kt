@@ -16,6 +16,12 @@ class VillageWidget : AppWidgetProvider() {
                 if (tag != null && section != null) Store.toggleSection(context, tag, section)
                 refreshAsync(context)
             }
+            ACTION_SET_VIEW -> {
+                val tag = intent.getStringExtra(EXTRA_ACCOUNT)
+                val view = WidgetView.entries.firstOrNull { it.name == intent.getStringExtra(EXTRA_VIEW) }
+                if (tag != null && view != null) Store.setCollapsedSections(context, tag, view.folded.map { it.name }.toSet())
+                refreshAsync(context)
+            }
             else -> super.onReceive(context, intent)
         }
     }
@@ -48,7 +54,9 @@ class VillageWidget : AppWidgetProvider() {
     companion object {
         const val ACTION_REFRESH = "com.cocwidget.action.REFRESH"
         const val ACTION_TOGGLE_SECTION = "com.cocwidget.action.TOGGLE_SECTION"
+        const val ACTION_SET_VIEW = "com.cocwidget.action.SET_VIEW"
         const val EXTRA_SECTION = "section"
+        const val EXTRA_VIEW = "view"
         const val EXTRA_ACCOUNT = "account"
 
         fun requestRefresh(context: Context) {

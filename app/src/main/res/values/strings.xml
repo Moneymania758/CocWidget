@@ -14,6 +14,9 @@
     <string name="exported_finished_since">Exported %1$s · %2$d finished since, sync again</string>
     <string name="exported_out_of_date">Exported %1$s · out of date, sync again</string>
     <string name="update_available">Update %1$s ›</string>
+    <string name="view_home">HOME</string>
+    <string name="view_builder_base">BUILDER BASE</string>
+    <string name="view_all">ALL</string>
     <string name="update_available_long">Update %1$s available. Tap to download</string>
 
     <string name="channel_finished">Upgrade finished</string>
@@ -81,6 +84,7 @@
 
     <string name="whats_new_card">New in %1$s</string>
     <string name="whats_new_got_it">Got it</string>
+    <string name="whats_new_2_1">• Bedtime planner: see which upgrade to start so it finishes while you\'re awake, for builders, the lab and pets.\n• Home, Builder Base and All buttons on the widget fold its sections in one tap.\n• Time to max counts supercharges at TH18 and the ore left to max your hero equipment.\n• The widget\'s update notice is quieter.</string>
     <string name="whats_new_2_0">• More than one account: sync each village and it\'s added by itself. Switch between them with the chips at the top, and pick which one each widget shows.\n• Get help: report a problem, email the developer or join the Discord straight from the main screen.</string>
     <string name="whats_new_1_9_1">• The Builder Base shows when your Clock Tower is running, and its timers speed up to match.
 • Fixed: the Builder Base Reinforcement Camp had no picture and no progress bar.</string>
@@ -118,8 +122,33 @@
     <string name="chip_running_count">Lv %1$d → %2$d ×%3$d</string>
     <string name="chip_unbuilt">Not built</string>
     <string name="chip_unbuilt_count">Not built ×%1$d</string>
+    <plurals name="chip_supercharges">
+        <item quantity="one">+%1$d supercharge</item>
+        <item quantity="other">+%1$d supercharges</item>
+    </plurals>
     <string name="planner_tap">Tap a group to see what\'s left in it.</string>
-    <string name="planner_notes">The %% is how much of the upgrade time is done (of the levels, for walls). Running upgrades count their time left, not their cost. Not counted yet: the Builder Base, Crafted Defences, equipment, supercharges, and the gear-ups some TH17+ merges need.</string>
+    <string name="planner_notes">The %% is how much of the upgrade time is done (of the levels, for walls and equipment). Running upgrades count their time left, not their cost. At the highest Town Hall, buildings on their final level also count the supercharges left. Equipment is the ore to max each piece. Not counted yet: the Builder Base, Crafted Defences, and the gear-ups some TH17+ merges need.</string>
+    <string name="bedtime_open">Bedtime planner</string>
+    <string name="bedtime_sleep">You sleep from</string>
+    <string name="bedtime_to">to</string>
+    <string name="bedtime_bed">Bedtime %1$s. Tap to change</string>
+    <string name="bedtime_wake">Wake-up %1$s. Tap to change</string>
+    <string name="bedtime_explain">Start one of these when a slot frees up and it finishes while you\'re awake, so nothing sits idle overnight.</string>
+    <string name="bedtime_builders">Builders</string>
+    <string name="bedtime_free_now">Free now</string>
+    <string name="bedtime_free_at">Next one free at %1$s</string>
+    <string name="bedtime_free_asleep">Free at %1$s while you\'re asleep, so this starts when you wake at %2$s</string>
+    <string name="bedtime_nothing_left">Nothing left to start for this Town Hall.</string>
+    <string name="bedtime_none_awake">Everything left would finish while you\'re asleep. Try changing your hours.</string>
+    <string name="bedtime_step">%1$s → %2$d</string>
+    <string name="bedtime_supercharge">%1$s supercharge %2$d</string>
+    <string name="bedtime_done_at">Done %1$s</string>
+    <string name="bedtime_show_all">Show all %1$d</string>
+    <plurals name="bedtime_asleep_count">
+        <item quantity="one">%1$d more would finish while you\'re asleep.</item>
+        <item quantity="other">%1$d more would finish while you\'re asleep.</item>
+    </plurals>
+    <string name="bedtime_notes">Normal speed, without potions, helpers or Goblins. Only levels your Lab, Pet House and Hero Hall allow are listed.</string>
     <string name="group_defences">Defences</string>
     <string name="group_traps">Traps</string>
     <string name="group_army">Army</string>
@@ -129,5 +158,10 @@
     <string name="group_guardians">Guardians</string>
     <string name="group_lab">Lab</string>
     <string name="group_pets">Pets</string>
+    <string name="group_equipment">Hero equipment</string>
+    <plurals name="planner_unknown_epics">
+        <item quantity="one">%1$d epic equipment piece at level 1 isn\'t counted: the export lists pieces you don\'t own at level 1, so it can\'t tell.</item>
+        <item quantity="other">%1$d epic equipment pieces at level 1 aren\'t counted: the export lists pieces you don\'t own at level 1, so it can\'t tell.</item>
+    </plurals>
     <string name="credit">Game data and icons from ClashKing (assets.clashk.ing).\n\nThis material is unofficial and is not endorsed by Supercell. For more information see Supercell\'s Fan Content Policy: www.supercell.com/fan-content-policy.</string>
 </resources>

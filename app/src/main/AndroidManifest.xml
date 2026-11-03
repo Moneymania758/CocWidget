@@ -35,6 +35,11 @@
             android:label="@string/planner_open" />
 
         <activity
+            android:name=".BedtimeActivity"
+            android:exported="false"
+            android:label="@string/bedtime_open" />
+
+        <activity
             android:name=".WidgetConfigActivity"
             android:excludeFromRecents="true"
             android:exported="true"

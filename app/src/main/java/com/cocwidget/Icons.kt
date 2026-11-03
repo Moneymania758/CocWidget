@@ -95,6 +95,7 @@ object Icons {
             "hero" -> "heroes/$name/icon.webp"
             "pet" -> "pets/$name/icon.webp"
             "guardian" -> "guardians/$name/icon.webp"
+            "equipment" -> "equipment/$name.webp"
             // Modules have no icon of their own, so they show their defence.
             "module" -> "buildings/seasonal-defense/${clean(defence)}/level_1.webp"
             else -> null

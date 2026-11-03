@@ -97,13 +97,32 @@ object WidgetRenderer {
         // Rows stay in a plain LinearLayout rather than a scrolling ListView: on One UI the
         // countdowns stop ticking inside a ListView. Sections fold instead, to make room.
         val shown = Shown(widgetId, tag, village, now)
+        val sections = buildSet {
+            add(Section.BUILDERS)
+            add(Section.LAB)
+            if (village.hasPetHouse) add(Section.PETS)
+            if (village.upgrades.any { it.section == Section.BUILDER_BASE }) add(Section.BUILDER_BASE)
+        }
+        showViews(context, views, shown, sections)
         addSection(context, views, shown, Section.BUILDERS, "BUILDERS", village.builders)
         addSection(context, views, shown, Section.LAB, "LAB", 1)
-        if (village.hasPetHouse) addSection(context, views, shown, Section.PETS, "PETS", 1)
-        if (village.upgrades.any { it.section == Section.BUILDER_BASE }) {
-            addSection(context, views, shown, Section.BUILDER_BASE, "BUILDER BASE", 0)
-        }
+        if (Section.PETS in sections) addSection(context, views, shown, Section.PETS, "PETS", 1)
+        if (Section.BUILDER_BASE in sections) addSection(context, views, shown, Section.BUILDER_BASE, "BUILDER BASE", 0)
         return views
+    }
+
+    // Without the Builder Base on the widget, Home and All would be the same, so no buttons.
+    private fun showViews(context: Context, views: RemoteViews, shown: Shown, sections: Set<Section>) {
+        if (Section.BUILDER_BASE !in sections) return
+        views.setViewVisibility(R.id.views, View.VISIBLE)
+        val current = WidgetView.matching(Store.collapsedSections(context, shown.tag), sections)
+        val buttons = mapOf(WidgetView.HOME to R.id.view_home, WidgetView.BUILDER_BASE to R.id.view_builder_base, WidgetView.ALL to R.id.view_all)
+        for ((view, id) in buttons) {
+            val on = view == current
+            views.setInt(id, "setBackgroundResource", if (on) R.drawable.chip_view_on else R.drawable.chip_view)
+            views.setTextColor(id, context.getColor(if (on) R.color.gold else R.color.text_dim))
+            views.setOnClickPendingIntent(id, viewIntent(context, shown, view))
+        }
     }
 
     // Ready is orange like an idle builder: a free shift goes to waste.
@@ -242,6 +261,17 @@ object WidgetRenderer {
             .setData(Uri.parse("cocwidget://toggle/${shown.widgetId}/${section.name}"))
             .putExtra(VillageWidget.EXTRA_ACCOUNT, shown.tag)
             .putExtra(VillageWidget.EXTRA_SECTION, section.name),
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+    )
+
+    private fun viewIntent(context: Context, shown: Shown, view: WidgetView): PendingIntent = PendingIntent.getBroadcast(
+        context,
+        200 + view.ordinal,
+        Intent(context, VillageWidget::class.java)
+            .setAction(VillageWidget.ACTION_SET_VIEW)
+            .setData(Uri.parse("cocwidget://view/${shown.widgetId}/${view.name}"))
+            .putExtra(VillageWidget.EXTRA_ACCOUNT, shown.tag)
+            .putExtra(VillageWidget.EXTRA_VIEW, view.name),
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
 

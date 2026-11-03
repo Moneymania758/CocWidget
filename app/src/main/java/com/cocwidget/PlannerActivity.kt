@@ -1,7 +1,6 @@
 package com.cocwidget
 
 import android.app.Activity
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.Gravity
@@ -11,15 +10,13 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import com.cocwidget.Planner.Group
 import java.text.DateFormat
-import kotlin.concurrent.thread
 
 // Time and resources left to max the current Town Hall, like Clash Ninja's "Remaining" panel.
 class PlannerActivity : Activity() {
     private val open = mutableSetOf<Group>()
     private lateinit var content: LinearLayout
     private lateinit var ui: Ui
-    // Each item's picture, filled in once the icons have downloaded.
-    private val pictures = mutableMapOf<String, MutableList<ImageView>>()
+    private val pictures = Pictures(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,8 +56,10 @@ class PlannerActivity : Activity() {
                 addGroup(this, group, items)
             }
         }, ui.matchWidth(8))
-        content.addView(ui.text(getString(R.string.planner_notes), 12f, ui.skin.dim), ui.matchWidth(16).apply { marginStart = ui.dp(4) })
-        loadPictures()
+        var notes = getString(R.string.planner_notes)
+        if (plan.unknownEpics > 0) notes += " " + resources.getQuantityString(R.plurals.planner_unknown_epics, plan.unknownEpics, plan.unknownEpics)
+        content.addView(ui.text(notes, 12f, ui.skin.dim), ui.matchWidth(16).apply { marginStart = ui.dp(4) })
+        pictures.load()
     }
 
     private fun header(townHall: Int?) = LinearLayout(this).apply {
@@ -164,7 +163,7 @@ class PlannerActivity : Activity() {
             scaleType = ImageView.ScaleType.FIT_CENTER
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
-        game?.let { Icons.path(it, item.levels.maxOrNull() ?: 1) }?.let { pictures.getOrPut(it) { mutableListOf() } += picture }
+        pictures.add(game?.let { Icons.path(it, item.levels.maxOrNull() ?: 1) }, picture)
         addView(picture, LinearLayout.LayoutParams(ui.dp(40), ui.dp(40)))
 
         addView(LinearLayout(this@PlannerActivity).apply {
@@ -181,6 +180,9 @@ class PlannerActivity : Activity() {
             })
             addView(ui.flow().apply {
                 for (chip in PlanFormat.levelChips(item.levels, item.running, item.maxLevel)) addView(levelChip(chip))
+                if (item.supercharges > 0) {
+                    addView(ui.chip(resources.getQuantityString(R.plurals.chip_supercharges, item.supercharges, item.supercharges), ui.skin.runningBg, ui.skin.runningText))
+                }
             }, ui.matchWidth(8))
             val time = PlanFormat.duration(item.seconds).takeIf { item.seconds > 0 }
             if (item.costs.isEmpty() && time != null) {
@@ -212,22 +214,6 @@ class PlannerActivity : Activity() {
         )
     }
 
-    // Pictures already cached show straight away. Missing ones download in the background, and
-    // the rows fill in when they arrive.
-    private fun loadPictures() {
-        val wanted = pictures.toMap()
-        thread {
-            fun decode() = wanted.keys.mapNotNull { path -> Icons.load(this, path)?.let { path to it } }.toMap()
-            post(decode(), wanted)
-            if (Icons.fetchPaths(applicationContext, wanted.keys.toList())) post(decode(), wanted)
-        }
-    }
-
-    private fun post(bitmaps: Map<String, Bitmap>, views: Map<String, List<ImageView>>) = runOnUiThread {
-        if (isDestroyed) return@runOnUiThread
-        for ((path, bitmap) in bitmaps) views[path]?.forEach { it.setImageBitmap(bitmap) }
-    }
-
     private fun titleOf(group: Group): Int = when (group) {
         Group.DEFENCES -> R.string.group_defences
         Group.TRAPS -> R.string.group_traps
@@ -238,5 +224,6 @@ class PlannerActivity : Activity() {
         Group.GUARDIANS -> R.string.group_guardians
         Group.LAB -> R.string.group_lab
         Group.PETS -> R.string.group_pets
+        Group.EQUIPMENT -> R.string.group_equipment
     }
 }
