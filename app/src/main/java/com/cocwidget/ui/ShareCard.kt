@@ -23,8 +23,7 @@ class ShareCard(private val activity: Activity, private val ui: Ui, private val 
         return ui.card().apply {
             addView(ui.heading(activity.getString(R.string.share_title), 16f, ui.skin.accent))
             addView(ui.text(activity.getString(R.string.share_detail), 14f, ui.skin.dim), ui.matchWidth(6))
-            val label = activity.getString(R.string.share_button, Store.label(activity, tag))
-            addView(ui.button(label, null, primary = false) { email(tag, json) }, ui.matchWidth(14))
+            addView(ui.button(activity.getString(R.string.share_button), null, primary = false) { email(tag, json) }, ui.matchWidth(14))
         }
     }
 
