@@ -78,6 +78,7 @@ object WidgetRenderer {
         views.setOnClickPendingIntent(R.id.next_root, openAppIntent(context, widgetId, tag))
         views.setViewVisibility(R.id.days, View.GONE)
         views.setViewVisibility(R.id.timer, View.GONE)
+        views.setViewVisibility(R.id.goblin, View.GONE)
         if (tag == null || village == null) {
             views.setViewVisibility(R.id.icon, View.GONE)
             views.setTextViewText(R.id.name, context.getString(R.string.app_name))
@@ -96,6 +97,8 @@ object WidgetRenderer {
             val icon = Icons.load(context, next)
             if (icon != null) views.setImageViewBitmap(R.id.icon, icon) else views.setImageViewResource(R.id.icon, R.drawable.ic_placeholder)
             views.setTextViewText(R.id.name, upgradeName(next))
+            // Without the tag, a Goblin upgrade above "Lab idle" reads like a contradiction.
+            views.setViewVisibility(R.id.goblin, if (next.extra) View.VISIBLE else View.GONE)
             // A refresh is scheduled for when the chronometer reaches zero (Countdown.nextRefresh).
             val split = Countdown.split(village.endMillis(next) - now)
             views.setTextViewText(R.id.days, "${split.days}d")

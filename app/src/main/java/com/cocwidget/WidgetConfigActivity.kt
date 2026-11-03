@@ -31,7 +31,9 @@ class WidgetConfigActivity : Activity() {
         val current = Store.widgetAccount(this, widgetId)
         AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
             .setTitle(R.string.widget_pick_title)
-            .setSingleChoiceItems(accounts.map { Store.label(this, it) }.toTypedArray(), accounts.indexOf(current)) { _, which ->
+            .setSingleChoiceItems(accounts.map { Store.label(this, it) }.toTypedArray(), accounts.indexOf(current)) { dialog, which ->
+                // Closing the screen with the dialog still up leaks its window.
+                dialog.dismiss()
                 pick(accounts[which])
             }
             .setOnCancelListener { finish() }
