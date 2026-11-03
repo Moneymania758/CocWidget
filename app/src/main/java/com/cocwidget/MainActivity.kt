@@ -16,6 +16,7 @@ import com.cocwidget.store.UpdateChecker
 import com.cocwidget.ui.HelpCard
 import com.cocwidget.ui.Screen
 import com.cocwidget.ui.SettingsCard
+import com.cocwidget.ui.ShareCard
 import com.cocwidget.ui.TimeText
 import com.cocwidget.ui.WhatsNew
 import kotlin.concurrent.thread
@@ -67,6 +68,7 @@ class MainActivity : Screen() {
         content.addView(villageCard(), ui.matchWidth(16))
         content.addView(SettingsCard(this, ui, open, ::show).build(), ui.matchWidth(16))
         content.addView(HelpCard(this, ui, installedVersion()).build(), ui.matchWidth(16))
+        ShareCard(this, ui, installedVersion()).build()?.let { content.addView(it, ui.matchWidth(16)) }
         addNote(getString(R.string.footer))
     }
 

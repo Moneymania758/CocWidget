@@ -44,6 +44,8 @@ object Store {
     // An export without a tag can't be told apart from another, so all of them share this one.
     private const val UNKNOWN_TAG = "?"
 
+    internal const val SHARED_TAG = "#SHARED"
+
     private fun prefs(context: Context): SharedPreferences =
         context.getSharedPreferences("village", Context.MODE_PRIVATE).also { global ->
             migrate(global) { tag -> account(context, tag) }
@@ -58,6 +60,13 @@ object Store {
         JSONObject(json).optString("tag").ifEmpty { UNKNOWN_TAG }
     } catch (e: JSONException) {
         UNKNOWN_TAG
+    }
+
+    // The export as copied from the game with the player tag swapped out everywhere it appears,
+    // for sending to the developer.
+    internal fun withoutTag(json: String): String {
+        val tag = tagOf(json)
+        return if (tag == UNKNOWN_TAG) json else json.replace(tag, SHARED_TAG)
     }
 
     // Moves the single account kept by 1.9.1 and earlier into its own file. The account's file

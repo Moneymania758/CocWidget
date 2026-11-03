@@ -62,6 +62,12 @@
             android:taskAffinity=""
             android:theme="@style/Translucent" />
 
+        <provider
+            android:name=".ExportProvider"
+            android:authorities="${applicationId}.export"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
         <service
             android:name=".SyncTileService"
             android:exported="true"

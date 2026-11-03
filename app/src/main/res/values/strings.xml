@@ -97,6 +97,10 @@
     <string name="help_discord">Join the Discord</string>
     <string name="help_discord_detail">Updates, questions and chat with other players.</string>
     <string name="help_no_app">No app on this phone can open that.</string>
+    <string name="share_title">Share your export</string>
+    <string name="share_detail">Send us your village export to help us fix bugs and keep up with game updates. Your player tag is taken out first. Your app version and phone are included. It may be kept as test data in the app\'s public code, so only send it if you\'re happy with that. Nothing is sent until you press send.</string>
+    <string name="share_button">Share export for %1$s</string>
+    <string name="share_subject">Clash Timers export</string>
 
     <string name="whats_new_card">New in %1$s</string>
     <string name="whats_new_got_it">Got it</string>

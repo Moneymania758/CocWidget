@@ -24,4 +24,4 @@ body:
       required: true
   - type: markdown
     attributes:
-      value: Please don't paste your whole village export. It holds your player tag. If it's needed, I'll ask.
+      value: Please don't paste your whole village export here. It holds your player tag. If it's needed, I'll ask you to send it with Share your export on the app's main screen, which takes the tag out.
