@@ -65,6 +65,11 @@ object WidgetRenderer {
         views.setOnClickPendingIntent(R.id.sync, activityIntent(context, SyncActivity::class.java, 0))
         views.setOnClickPendingIntent(R.id.title, openAppIntent(context, widgetId, tag))
         views.removeAllViews(R.id.rows)
+        // The launcher applies an update on top of the views already on screen, so anything not
+        // set here keeps its state from the last update, even one for another account. Lines
+        // shown only sometimes start hidden on every update.
+        views.setViewVisibility(R.id.helpers, View.GONE)
+        views.setViewVisibility(R.id.views, View.GONE)
 
         val update = UpdateChecker.availableUpdate(context)
         views.setViewVisibility(R.id.update, if (update != null) View.VISIBLE else View.GONE)
@@ -136,12 +141,12 @@ object WidgetRenderer {
         if (helpers.apprenticeLevel == 0 && helpers.assistantLevel == 0) return
         views.setViewVisibility(R.id.helpers, View.VISIBLE)
         val readyIn = village.helpersReadyMillis() - now
+        views.setViewVisibility(R.id.helpers_timer, if (readyIn > 0) View.VISIBLE else View.GONE)
+        views.setViewVisibility(R.id.helpers_ready, if (readyIn > 0) View.GONE else View.VISIBLE)
         if (readyIn > 0) {
             views.setChronometer(R.id.helpers_timer, SystemClock.elapsedRealtime() + readyIn, context.getString(R.string.helpers_ready_in), true)
             views.setChronometerCountDown(R.id.helpers_timer, true)
         } else {
-            views.setViewVisibility(R.id.helpers_timer, View.GONE)
-            views.setViewVisibility(R.id.helpers_ready, View.VISIBLE)
             views.setTextColor(R.id.helpers_ready, context.getColor(R.color.idle))
         }
     }
