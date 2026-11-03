@@ -1,11 +1,31 @@
 package com.cocwidget.ui
 
+import com.cocwidget.TestData
+import com.cocwidget.store.Store
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ContactTest {
+    @Test
+    fun exportEmailCarriesTheDetailsAndNoTag() {
+        val json = TestData.exportJson()
+        val body = Contact.exportBody("Clash Timers 2.5, Android 15, Pixel 8", 10, 24, true, Store.withoutTag(json))
+        assertTrue("Clash Timers 2.5, Android 15, Pixel 8" in body)
+        assertTrue("Builder boost set to 10x" in body)
+        assertTrue("Lab boost set to 24x" in body)
+        assertTrue("Hammer Jam switch on" in body)
+        assertTrue(body.endsWith(Store.withoutTag(json)))
+        assertFalse(Store.tagOf(json) in body)
+    }
+
+    @Test
+    fun exportSubjectNamesTheTownHallWhenKnown() {
+        assertEquals("Clash Timers export: Town Hall 16", Contact.exportSubject(16))
+        assertEquals("Clash Timers export", Contact.exportSubject(null))
+    }
+
     @Test
     fun deviceAddsTheMakerOnlyWhenTheModelLacksIt() {
         assertEquals("Clash Timers 2.0, Android 15, Samsung SM-S918B", Contact.device("2.0", "15", "samsung", "SM-S918B"))

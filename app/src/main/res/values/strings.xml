@@ -98,9 +98,8 @@
     <string name="help_discord_detail">Updates, questions and chat with other players.</string>
     <string name="help_no_app">No app on this phone can open that.</string>
     <string name="share_title">Share your export</string>
-    <string name="share_detail">Send us your village export to help us fix bugs and keep up with game updates. Your player tag is taken out first. Your app version and phone are included. It\'s kept private and only used for testing. Nothing is sent until you press send.</string>
-    <string name="share_button">Share export for %1$s</string>
-    <string name="share_subject">Clash Timers export</string>
+    <string name="share_detail">Help us fix bugs and keep up with game updates. Tap below and your email app opens with everything filled in, so you just press send. Your player tag is taken out first. Your app version, phone and boost and Hammer Jam settings are included. It\'s kept private and only used for testing.</string>
+    <string name="share_button">Email export for %1$s</string>
 
     <string name="whats_new_card">New in %1$s</string>
     <string name="whats_new_got_it">Got it</string>

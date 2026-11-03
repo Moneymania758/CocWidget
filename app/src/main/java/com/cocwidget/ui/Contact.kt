@@ -23,6 +23,15 @@ object Contact {
     fun emailUri(device: String) =
         "mailto:$EMAIL?subject=${encode("Clash Timers problem")}&body=${encode("\n\n$device")}"
 
+    fun exportSubject(townHall: Int?) =
+        if (townHall == null) "Clash Timers export" else "Clash Timers export: Town Hall $townHall"
+
+    // What the export can't say for itself, then the export. [export] must already have the
+    // player tag taken out, and the account's name stays out for the same reason.
+    fun exportBody(device: String, builderBoost: Int, labBoost: Int, hammerJam: Boolean, export: String) =
+        "Here's my village export.\n\n$device\nBuilder boost set to ${builderBoost}x\n" +
+            "Lab boost set to ${labBoost}x\nHammer Jam switch ${if (hammerJam) "on" else "off"}\n\n$export"
+
     // URLEncoder writes a space as +, which mail apps show as a plus sign. %20 works everywhere.
     private fun encode(text: String) = URLEncoder.encode(text, "UTF-8").replace("+", "%20")
 }

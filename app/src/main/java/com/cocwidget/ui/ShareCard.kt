@@ -1,17 +1,20 @@
 package com.cocwidget.ui
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.view.View
+import android.widget.Toast
 import com.cocwidget.ExportProvider
 import com.cocwidget.R
 import com.cocwidget.store.Store
 
-// The main screen's way to send the selected account's export to the developer, so bugs and game
-// updates can be checked against real villages. Attached rather than pasted, because a mail app
-// may wrap or change a long message. Hidden until there's an export to send.
+// The main screen's way to email the selected account's export to the developer, so bugs and game
+// updates can be checked against real villages. The email opens ready to send. Hidden until
+// there's an export to send.
 class ShareCard(private val activity: Activity, private val ui: Ui, private val version: String) {
     fun build(): View? {
         val tag = Store.selected(activity) ?: return null
@@ -21,23 +24,35 @@ class ShareCard(private val activity: Activity, private val ui: Ui, private val 
             addView(ui.heading(activity.getString(R.string.share_title), 16f, ui.skin.accent))
             addView(ui.text(activity.getString(R.string.share_detail), 14f, ui.skin.dim), ui.matchWidth(6))
             val label = activity.getString(R.string.share_button, Store.label(activity, tag))
-            addView(ui.button(label, null, primary = false) { share(json) }, ui.matchWidth(14))
+            addView(ui.button(label, null, primary = false) { email(tag, json) }, ui.matchWidth(14))
         }
     }
 
-    private fun share(json: String) {
-        ExportProvider.file(activity).writeText(Store.withoutTag(json))
+    // The export goes in twice. The attachment stays exact if a mail app wraps the text, and the
+    // text still arrives if a mail app drops the attachment.
+    private fun email(tag: String, json: String) {
+        val export = Store.withoutTag(json)
+        ExportProvider.file(activity).writeText(export)
         val uri = ExportProvider.uri(activity)
+        val device = Contact.device(version, Build.VERSION.RELEASE, Build.MANUFACTURER, Build.MODEL)
         val send = Intent(Intent.ACTION_SEND).apply {
             type = ExportProvider.MIME_TYPE
             putExtra(Intent.EXTRA_EMAIL, arrayOf(Contact.EMAIL))
-            putExtra(Intent.EXTRA_SUBJECT, activity.getString(R.string.share_subject))
-            putExtra(Intent.EXTRA_TEXT, Contact.device(version, Build.VERSION.RELEASE, Build.MANUFACTURER, Build.MODEL))
+            putExtra(Intent.EXTRA_SUBJECT, Contact.exportSubject(Store.village(activity, tag)?.townHall))
+            putExtra(
+                Intent.EXTRA_TEXT,
+                Contact.exportBody(device, Store.builderMultiplier(activity, tag), Store.labMultiplier(activity, tag), Store.eventOn(activity), export),
+            )
             putExtra(Intent.EXTRA_STREAM, uri)
-            // The share sheet passes the right to read the file on only if it's set this way.
             clipData = ClipData.newRawUri(null, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            // Only email apps answer this, so no other app is offered.
+            selector = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
         }
-        activity.startActivity(Intent.createChooser(send, activity.getString(R.string.share_title)))
+        try {
+            activity.startActivity(send)
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(activity, R.string.help_no_app, Toast.LENGTH_SHORT).show()
+        }
     }
 }

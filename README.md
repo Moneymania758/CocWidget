@@ -190,9 +190,9 @@ account). Or [report it here](https://github.com/Moneymania758/CocWidget/issues/
 No GitHub account? Email **clashtimers@proton.me**, or tap **Email the developer** in the app,
 which fills in your version and phone the same way.
 
-Want to help test against more villages? Tap **Share your export** on the main screen. It
-attaches the selected account's export to an email or message for you to send, with your player
-tag taken out. It's kept private and only used for testing.
+Want to help test against more villages? Use **Share your export** on the main screen. Your email
+app opens with the selected account's export and details filled in, so you just press send. Your player
+tag is taken out first. It's kept private and only used for testing.
 
 For updates, questions and chat with other players, join the
 [Clash Timers Discord](https://discord.gg/XZ6bA7wCbr).
