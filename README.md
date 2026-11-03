@@ -145,6 +145,19 @@ you're awake, and no builder sits idle overnight.
 - Like Time to max, it works from your last sync at normal speed, without potions, helpers or the
   Goblin. It only lists levels your Lab, Pet House and Hero Hall are high enough for.
 
+## Potions
+
+Open the app and tap **Potions** to see whether now is a good time for a Builder Potion, Builder
+Bite, Research Potion, Study Soup or Pet Potion. Each lasts an hour and speeds up every slot it
+covers, so it's fully used when every slot stays busy for the whole hour.
+
+- **Use it now** means nothing goes to waste. **Mostly used** means at least three quarters of
+  the possible saving. **Better to wait** means a lot would be wasted.
+- It says why: an idle builder (start something first), or an upgrade that would finish partway
+  through the hour, leaving its slot idle unless you start something new straight away.
+- If a boost is already running, it says how long is left instead.
+- It works from your last sync, so sync first. Helpers and the event Goblin aren't counted.
+
 ## Themes
 
 Open the app and pick a look under **Theme**:

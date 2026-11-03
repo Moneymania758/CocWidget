@@ -4,6 +4,7 @@ import android.content.Context
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import kotlin.math.abs
 
 object VillageParser {
     private val SECTIONS = mapOf(
@@ -41,6 +42,8 @@ object VillageParser {
         val huts = buildings.filter { it.optInt("data") == Ids.BUILDER_HUT }.sumOf { it.optInt("cnt", 1) }
         val bob = if (buildings.any { it.optInt("data") == Ids.BOB_HUT }) 1 else 0
         val boosts = root.optJSONObject("boosts")
+        val labSec = boosts?.optLong("lab_boost") ?: 0
+        val petSec = boosts?.optLong("pet_boost") ?: 0
         val helpers = root.entries("helpers")
         fun helperLevel(id: Int) = helpers.firstOrNull { it.optInt("data") == id }?.optInt("lvl") ?: 0
 
@@ -52,8 +55,8 @@ object VillageParser {
             hasPetHouse = buildings.any { it.optInt("data") == Ids.PET_HOUSE },
             upgrades = upgrades,
             builderBoost = Boost(boosts?.optLong("builder_boost") ?: 0, builderMultiplier),
-            labBoost = Boost(boosts?.optLong("lab_boost") ?: 0, labMultiplier),
-            petBoost = Boost(boosts?.optLong("pet_boost") ?: 0, PET_POTION_MULTIPLIER),
+            labBoost = Boost(labSec, labMultiplier),
+            petBoost = Boost(petSec, petMultiplier(labMultiplier, labSec, petSec)),
             // Every helper carries the same cooldown. None means no work day is running.
             helpers = Helpers(
                 apprenticeLevel = helperLevel(Ids.BUILDERS_APPRENTICE),
@@ -65,6 +68,19 @@ object VillageParser {
             clockTowerBoost = Boost(boosts?.optLong("clocktower_boost") ?: 0, CLOCK_TOWER_MULTIPLIER),
         )
     }
+
+    // Study Soup speeds up the Pet House as well as the lab (ClashKing's description of it). A pet
+    // boost ending with a Soup's lab boost is taken to be the same Soup, at its speed. Unchecked
+    // against an export: if the game doesn't set the pet boost for a Soup, this never applies.
+    internal fun petMultiplier(labMultiplier: Int, labSec: Long, petSec: Long): Int =
+        if (labMultiplier == STUDY_SOUP_MULTIPLIER && petSec > 0 && abs(petSec - labSec) <= SAME_BOOST_SEC) {
+            STUDY_SOUP_MULTIPLIER
+        } else {
+            PET_POTION_MULTIPLIER
+        }
+
+    // Two boosts ending this close together come from the same item.
+    private const val SAME_BOOST_SEC = 120L
 
     // The export's top level, or null when [text] isn't a Clash of Clans village export.
     internal fun root(text: String): JSONObject? {

@@ -159,6 +159,9 @@ class MainActivity : Screen() {
         addView(ui.button(getString(R.string.bedtime_open), R.drawable.ic_clock_line, primary = false) {
             startActivity(Intent(this@MainActivity, BedtimeActivity::class.java))
         }, ui.matchWidth(10))
+        addView(ui.button(getString(R.string.potions_open), R.drawable.ic_clock_line, primary = false) {
+            startActivity(Intent(this@MainActivity, PotionsActivity::class.java))
+        }, ui.matchWidth(10))
     }
 
     // One chip per account, plus one saying how to add another.

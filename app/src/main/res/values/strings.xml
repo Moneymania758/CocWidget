@@ -84,6 +84,7 @@
 
     <string name="whats_new_card">New in %1$s</string>
     <string name="whats_new_got_it">Got it</string>
+    <string name="whats_new_2_2">• Potions: see whether now is a good time for a Builder, Research or Pet potion, and how much time it would save.\n• Fixed: during a Study Soup, pet upgrades could count down far too fast.</string>
     <string name="whats_new_2_1">• Bedtime planner: see which upgrade to start so it finishes while you\'re awake, for builders, the lab and pets.\n• Home, Builder Base and All buttons on the widget fold its sections in one tap.\n• Time to max counts supercharges at TH18 and the ore left to max your hero equipment.\n• The widget\'s update notice is quieter.</string>
     <string name="whats_new_2_0">• More than one account: sync each village and it\'s added by itself. Switch between them with the chips at the top, and pick which one each widget shows.\n• Get help: report a problem, email the developer or join the Discord straight from the main screen.</string>
     <string name="whats_new_1_9_1">• The Builder Base shows when your Clock Tower is running, and its timers speed up to match.
@@ -148,6 +149,26 @@
         <item quantity="one">%1$d more would finish while you\'re asleep.</item>
         <item quantity="other">%1$d more would finish while you\'re asleep.</item>
     </plurals>
+    <string name="potions_open">Potions</string>
+    <string name="potions_explain">Is now a good time for a potion? Each one lasts an hour and speeds up every slot it covers. It\'s fully used when every slot stays busy for the whole hour.</string>
+    <string name="potion_builder">Builder Potion (%1$dx)</string>
+    <string name="potion_bite">Builder Bite (%1$dx)</string>
+    <string name="potion_research">Research Potion (%1$dx)</string>
+    <string name="potion_soup">Study Soup (%1$dx)</string>
+    <string name="potion_pet">Pet Potion (%1$dx)</string>
+    <string name="potions_now">Use it now</string>
+    <string name="potions_mostly">Mostly used</string>
+    <string name="potions_wait">Better to wait</string>
+    <string name="potions_saves">Saves %1$s of a possible %2$s</string>
+    <string name="potions_running">A boost is already running, %1$s left. Check again when it ends.</string>
+    <string name="potions_finishing">%1$s would finish after %2$s, and its slot then sits idle unless you start something new.</string>
+    <plurals name="potions_idle_builders">
+        <item quantity="one">%1$d builder is idle. Start an upgrade first.</item>
+        <item quantity="other">%1$d builders are idle. Start upgrades first.</item>
+    </plurals>
+    <string name="potions_idle_lab">The lab is idle. Start research first.</string>
+    <string name="potions_idle_pets">The Pet House is idle. Start a pet upgrade first.</string>
+    <string name="potions_notes">Worked out from your last sync, so sync first. Helpers and the event Goblin aren\'t counted.</string>
     <string name="bedtime_notes">Normal speed, without potions, helpers or Goblins. Only levels your Lab, Pet House and Hero Hall allow are listed.</string>
     <string name="group_defences">Defences</string>
     <string name="group_traps">Traps</string>
