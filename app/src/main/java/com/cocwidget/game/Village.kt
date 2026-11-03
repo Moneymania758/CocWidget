@@ -19,6 +19,9 @@ data class Upgrade(
     val helperRepeats: Boolean = false,
     // Crafted defence modules only: the defence the module belongs to.
     val defence: String = "",
+    // The supercharge stage being worked on, or 0 for a level upgrade. [toLevel] is then the
+    // building's final level, the one it stays on.
+    val supercharge: Int = 0,
 )
 
 class Village(
@@ -33,6 +36,8 @@ class Village(
     val petBoost: Boost,
     val helpers: Helpers,
     val clockTowerBoost: Boost = Boost.NONE,
+    // Builder Base unlocked, whether or not anything is upgrading there.
+    val hasBuilderBase: Boolean = false,
 ) {
     fun boostFor(section: Section): Boost = when (section) {
         Section.BUILDERS -> builderBoost
@@ -63,7 +68,7 @@ class Village(
         Pace(boostFor(upgrade.section), upgrade.helperSec, helperLevelFor(upgrade.section))
 
     fun withUpgrades(upgrades: List<Upgrade>) =
-        Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, labBoost, petBoost, helpers, clockTowerBoost)
+        Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, labBoost, petBoost, helpers, clockTowerBoost, hasBuilderBase)
 
     fun endMillis(upgrade: Upgrade): Long =
         exportedAtMillis + paceFor(upgrade).realSecondsFor(upgrade.workSec) * 1000

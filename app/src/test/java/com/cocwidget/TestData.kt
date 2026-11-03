@@ -26,6 +26,13 @@ object TestData {
     // Guardians, helper shifts, a lab boost and merges up to TH18, none of which the TH16 export has.
     fun th18ExportJson(): String = javaClass.getResource("/village_export_th18.json")!!.readText()
 
+    // A TH18 export (tag replaced) from a friend with seven supercharges running and a maxed
+    // Builder Base with nothing upgrading.
+    fun superchargingExportJson(): String = javaClass.getResource("/village_export_th18_supercharging.json")!!.readText()
+
+    fun superchargingVillage(): Village =
+        VillageParser.parse(superchargingExportJson(), BUILDER_POTION_MULTIPLIER) { gameData[it] }!!
+
     fun village(builderMultiplier: Int = BUILDER_POTION_MULTIPLIER): Village =
         VillageParser.parse(exportJson(), builderMultiplier) { gameData[it] }!!
 

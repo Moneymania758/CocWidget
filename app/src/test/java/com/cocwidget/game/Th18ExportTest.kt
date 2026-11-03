@@ -1,6 +1,7 @@
 package com.cocwidget.game
 
 import com.cocwidget.TestData
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -14,6 +15,23 @@ class Th18ExportTest {
         assertEquals("#TEST0001", village.tag)
         assertEquals(18, village.townHall)
         assertTrue(village.hasPetHouse)
+    }
+
+    // A maxed Builder Base runs nothing, but the widget still shows it so its view buttons appear.
+    @Test
+    fun builderBaseWithNothingRunningIsStillThere() {
+        assertTrue(village.upgrades.none { it.section == Section.BUILDER_BASE })
+        assertTrue(village.hasBuilderBase)
+    }
+
+    @Test
+    fun noBuilderBaseBeforeTheBoatIsFixed() {
+        val root = JSONObject(TestData.th18ExportJson())
+        root.remove("buildings2")
+        val village = VillageParser.parse(root.toString(), BUILDER_POTION_MULTIPLIER) { TestData.gameData[it] }!!
+        assertFalse(village.hasBuilderBase)
+        assertFalse(village.withUpgrades(emptyList()).hasBuilderBase)
+        assertTrue(TestData.th18Village().withUpgrades(emptyList()).hasBuilderBase)
     }
 
     @Test

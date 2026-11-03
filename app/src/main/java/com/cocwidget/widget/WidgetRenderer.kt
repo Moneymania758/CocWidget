@@ -106,7 +106,7 @@ object WidgetRenderer {
             add(Section.BUILDERS)
             add(Section.LAB)
             if (village.hasPetHouse) add(Section.PETS)
-            if (village.upgrades.any { it.section == Section.BUILDER_BASE }) add(Section.BUILDER_BASE)
+            if (village.hasBuilderBase || village.upgrades.any { it.section == Section.BUILDER_BASE }) add(Section.BUILDER_BASE)
         }
         showViews(context, views, shown, sections)
         addSection(context, views, shown, Section.BUILDERS, "BUILDERS", village.builders)
@@ -168,7 +168,8 @@ object WidgetRenderer {
         if (running.any { it.extra }) {
             label.append(" + Goblin", ForegroundColorSpan(context.getColor(R.color.goblin)), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
-        val idle = slots - busy
+        // The Builder Base has no slot count, so it reads idle only when nothing runs there.
+        val idle = if (section == Section.BUILDER_BASE && running.isEmpty()) 1 else slots - busy
         if (idle > 0) {
             val text = if (section == Section.BUILDERS) "  $idle idle" else "  idle"
             label.append(text, ForegroundColorSpan(context.getColor(R.color.idle)), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -197,7 +198,7 @@ object WidgetRenderer {
     private fun row(context: Context, village: Village, upgrade: Upgrade, now: Long): RemoteViews {
         val row = RemoteViews(context.packageName, R.layout.widget_row)
         val name = SpannableStringBuilder(upgrade.name)
-            .append("  → ${upgrade.toLevel}", RelativeSizeSpan(0.85f), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            .append(if (upgrade.supercharge > 0) "  ⚡${upgrade.supercharge}" else "  → ${upgrade.toLevel}", RelativeSizeSpan(0.85f), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         row.setTextViewText(R.id.name, name)
         row.setViewVisibility(R.id.goblin, if (upgrade.extra) View.VISIBLE else View.GONE)
         row.setProgressBar(R.id.bar, 1000, (village.progress(upgrade, now) * 1000).toInt(), false)

@@ -21,6 +21,7 @@
 
     <string name="channel_finished">Upgrade finished</string>
     <string name="notify_finished_title">%1$s → %2$d finished</string>
+    <string name="notify_supercharge_finished_title">%1$s supercharge %2$d finished</string>
     <string name="notify_builder_free">A builder is free</string>
     <string name="notify_goblin_free">The Goblin is free</string>
     <string name="notify_lab_free">The lab is free</string>
@@ -62,6 +63,7 @@
     <string name="status_town_hall">%1$s · TH%2$d</string>
     <string name="status_exported">Exported</string>
     <string name="next_finish">%1$s → %2$d</string>
+    <string name="next_finish_supercharge">%1$s supercharge %2$d</string>
     <string name="version_line">Version %1$s</string>
     <string name="theme_label">Theme</string>
     <string name="skin_widget">Widget</string>
@@ -84,6 +86,7 @@
 
     <string name="whats_new_card">New in %1$s</string>
     <string name="whats_new_got_it">Got it</string>
+    <string name="whats_new_2_3">• Running supercharges show the stage being worked on, with a progress bar, instead of a level that doesn\'t exist.\n• The widget\'s Home, Builder Base and All buttons now show whenever you have a Builder Base, even with nothing upgrading there.</string>
     <string name="whats_new_2_2">• Potions: see whether now is a good time for a Builder, Research or Pet potion, and how much time it would save.\n• Fixed: during a Study Soup, pet upgrades could count down far too fast.</string>
     <string name="whats_new_2_1">• Bedtime planner: see which upgrade to start so it finishes while you\'re awake, for builders, the lab and pets.\n• Home, Builder Base and All buttons on the widget fold its sections in one tap.\n• Time to max counts supercharges at TH18 and the ore left to max your hero equipment.\n• The widget\'s update notice is quieter.</string>
     <string name="whats_new_2_0">• More than one account: sync each village and it\'s added by itself. Switch between them with the chips at the top, and pick which one each widget shows.\n• Get help: report a problem, email the developer or join the Discord straight from the main screen.</string>

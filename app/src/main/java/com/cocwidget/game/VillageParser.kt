@@ -66,6 +66,7 @@ object VillageParser {
             // The Clock Tower speeds up building and research on the Builder Base. Its 22-hour
             // cooldown starts when the boost ends, so clocktower_cooldown includes the boost.
             clockTowerBoost = Boost(boosts?.optLong("clocktower_boost") ?: 0, CLOCK_TOWER_MULTIPLIER),
+            hasBuilderBase = root.entries("buildings2").isNotEmpty(),
         )
     }
 
@@ -127,7 +128,12 @@ object VillageParser {
 
     private fun toUpgrade(item: GameItem?, section: Section, entry: JSONObject): Upgrade {
         val id = entry.optInt("data")
-        val toLevel = entry.optInt("lvl") + 1
+        val level = entry.optInt("lvl")
+        // A building on its final level can only be supercharging. The export's supercharge is
+        // the stages done, so the one running is the next.
+        val charge = item?.supercharge?.takeIf { level >= it.level }
+        val stage = if (charge != null) entry.optInt("supercharge") + 1 else 0
+        val toLevel = if (charge != null) level else level + 1
         return Upgrade(
             section = section,
             name = item?.name ?: "#$id",
@@ -135,11 +141,12 @@ object VillageParser {
             village = item?.village.orEmpty(),
             toLevel = toLevel,
             workSec = entry.optLong("timer"),
-            totalSec = item?.timeToReach(toLevel),
+            totalSec = if (charge != null) charge.times.getOrNull(stage - 1)?.toLong() else item?.timeToReach(toLevel),
             extra = entry.optBoolean("extra"),
             helperSec = entry.optLong("helper_timer"),
             helperRepeats = entry.optBoolean("helper_recurrent"),
             defence = item?.defence.orEmpty(),
+            supercharge = stage,
         )
     }
 

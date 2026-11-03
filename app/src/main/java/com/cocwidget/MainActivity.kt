@@ -142,7 +142,12 @@ class MainActivity : Screen() {
                     background = ui.rounded(ui.skin.chip, 10f)
                     setPadding(ui.dp(12), ui.dp(10), ui.dp(12), ui.dp(10))
                     addView(android.view.View(this@MainActivity).apply { background = ui.rounded(ui.skin.green, 4f) }, LinearLayout.LayoutParams(ui.dp(8), ui.dp(8)))
-                    addView(ui.text(getString(R.string.next_finish, next.name, next.toLevel), 14f), ui.weighted(10))
+                    val step = if (next.supercharge > 0) {
+                        getString(R.string.next_finish_supercharge, next.name, next.supercharge)
+                    } else {
+                        getString(R.string.next_finish, next.name, next.toLevel)
+                    }
+                    addView(ui.text(step, 14f), ui.weighted(10))
                     addView(ui.text(PlanFormat.duration((village.endMillis(next) - now) / 1000), 14f, ui.skin.green, bold = true))
                 }, ui.matchWidth(14))
             }

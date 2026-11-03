@@ -47,7 +47,11 @@ object Notifier {
     }
 
     private fun build(context: Context, upgrade: Upgrade, end: Long, account: String?): Notification {
-        val title = context.getString(R.string.notify_finished_title, upgrade.name, upgrade.toLevel)
+        val title = if (upgrade.supercharge > 0) {
+            context.getString(R.string.notify_supercharge_finished_title, upgrade.name, upgrade.supercharge)
+        } else {
+            context.getString(R.string.notify_finished_title, upgrade.name, upgrade.toLevel)
+        }
         val text = context.getString(
             when {
                 upgrade.section == Section.BUILDER_BASE -> R.string.notify_builder_base

@@ -69,7 +69,7 @@ object EventDiscount {
         return village.withUpgrades(upgrades)
     }
 
-    private fun base(upgrade: Upgrade) = "${upgrade.section}|${upgrade.name}|${upgrade.toLevel}|${upgrade.extra}"
+    private fun base(upgrade: Upgrade) = "${upgrade.section}|${upgrade.name}|${upgrade.toLevel}|${upgrade.supercharge}|${upgrade.extra}"
 
     private fun predictedWork(village: Village, upgrade: Upgrade, elapsedSec: Long) =
         upgrade.workSec - village.paceFor(upgrade).workDoneIn(elapsedSec)

@@ -84,7 +84,7 @@ object Icons {
         bundled ?: context.assets.list("icons").orEmpty().toSet().also { bundled = it }
 
     private fun path(upgrade: Upgrade): String? =
-        path(upgrade.name, upgrade.kind, upgrade.village, maxOf(1, upgrade.toLevel - 1), upgrade.defence)
+        path(upgrade.name, upgrade.kind, upgrade.village, if (upgrade.supercharge > 0) upgrade.toLevel else maxOf(1, upgrade.toLevel - 1), upgrade.defence)
 
     private fun path(rawName: String, kind: String, rawVillage: String, level: Int, defence: String): String? {
         val name = clean(rawName)
