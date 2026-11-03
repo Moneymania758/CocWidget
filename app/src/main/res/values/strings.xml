@@ -32,6 +32,20 @@
     <string name="sync_done">Village synced</string>
     <string name="sync_done_account">%1$s synced</string>
     <string name="widget_pick_title">Show which account?</string>
+    <string name="next_widget_label">Next to finish</string>
+    <string name="next_widget_description">The next upgrade to finish, and any idle builders, lab or pets</string>
+    <string name="next_no_village">Sync a village to start</string>
+    <string name="next_nothing">Nothing upgrading</string>
+    <string name="next_lab_idle">Lab idle</string>
+    <string name="next_pets_idle">Pets idle</string>
+    <plurals name="next_builders_idle">
+        <item quantity="one">%d builder idle</item>
+        <item quantity="other">%d builders idle</item>
+    </plurals>
+    <plurals name="next_all_busy">
+        <item quantity="one">%d builder busy</item>
+        <item quantity="other">All %d builders busy</item>
+    </plurals>
     <string name="account_add">+ Add account</string>
     <string name="account_add_title">Add an account</string>
     <string name="account_add_steps">Switch to the other account in Clash, then export and sync it as usual (Settings &gt; More Settings &gt; Data Export &gt; Copy, then Sync). It\'s added by itself, with its own timers and notifications.\n\nTo see it on your home screen, add another Clash Timers widget and pick the account. On some phones you can also long-press a widget and tap Settings to switch it.</string>
@@ -49,7 +63,7 @@
     <string name="lab_boost_potion">Research Potion (24x)</string>
     <string name="lab_boost_soup">Study Soup (4x)</string>
 
-    <string name="main_steps">SET UP (ONCE)\n1. Add the widget: long-press the home screen, tap Widgets and drag Clash Timers on. Make it tall. If it doesn\'t all fit, tap a section title on the widget to fold it.\n2. Add the sync tile: pull the notification shade all the way down, tap edit (pencil, or ⋮ then Edit) and drag Clash Sync into your tiles.\n3. Settings &gt; Apps &gt; Clash Timers &gt; Battery &gt; Unrestricted, so the widget keeps updating.\n\nSYNC YOUR VILLAGE\n1. In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy.\n2. Pull down and tap Clash Sync. You stay in the game. (Or tap Sync on the widget, or the button below.)\n\nSync again whenever you start an upgrade, finish one early or use a potion. The widget only knows what was true at your last export.\n\nMORE THAN ONE ACCOUNT\nExport and sync each account the same way. Each one is added by itself. When you add a widget, you pick which account it shows.</string>
+    <string name="main_steps">SET UP (ONCE)\n1. Add the widget: long-press the home screen, tap Widgets and drag Clash Timers on. Make it tall. If it doesn\'t all fit, tap a section title on the widget to fold it. There\'s also a small Next to finish widget showing only the next upgrade.\n2. Add the sync tile: pull the notification shade all the way down, tap edit (pencil, or ⋮ then Edit) and drag Clash Sync into your tiles.\n3. Settings &gt; Apps &gt; Clash Timers &gt; Battery &gt; Unrestricted, so the widget keeps updating.\n\nSYNC YOUR VILLAGE\n1. In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy.\n2. Pull down and tap Clash Sync. You stay in the game. (Or tap Sync on the widget, or the button below.)\n\nSync again whenever you start an upgrade, finish one early or use a potion. The widget only knows what was true at your last export.\n\nMORE THAN ONE ACCOUNT\nExport and sync each account the same way. Each one is added by itself. When you add a widget, you pick which account it shows.</string>
     <string name="event_switch">Event: 50% off upgrade times</string>
     <string name="event_explain">Turn on while Hammer Jam (or another event that halves upgrade times) is running, and off when it ends. Upgrades you start while it\'s on then get the right progress bar. Timers and notifications are right either way.</string>
     <string name="name_hint">Name shown on the widget</string>

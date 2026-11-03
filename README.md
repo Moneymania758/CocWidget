@@ -21,7 +21,8 @@ and **What's new** further down lists every version.
 1. **Add the widget.** Long-press an empty spot on your home screen, tap **Widgets**, find
    **Clash Timers** and drag it onto the screen. Make it as tall as you can. If it still doesn't
    all fit, tap a section title (for example **BUILDER BASE**) to fold that section to one line.
-   Tap it again to open it.
+   Tap it again to open it. For just the next upgrade to finish, there's also a small
+   one-line widget called **Next to finish**.
 2. **Add the sync tile (recommended).** Pull the notification shade all the way down, tap the
    edit button (a pencil, or ⋮ then Edit), and drag **Clash Sync** into your active tiles.
 3. **Stop the phone pausing it.** Open your phone's Settings > Apps > Clash Timers > Battery and
@@ -89,13 +90,17 @@ than a discounted one could, so it's never halved.
   Tap the title to switch.
 - **HOME**, **BUILDER BASE** and **ALL** under the title fold several sections in one tap: HOME
   shows builders, lab and pets, BUILDER BASE shows only the Builder Base, and ALL opens
-  everything. The one in use has a gold outline. They only appear while something is upgrading
-  on the Builder Base.
+  everything. The one in use has a gold outline. They appear whenever you have a Builder Base.
 - **Update 2.1 ›** in small grey text at the bottom means a new version is out. Tap it to
   download.
 - **Exported 13:44** at the bottom is when you last copied the export. It turns **orange** when
   an upgrade has finished since then, or the export is over a day old. That's your cue to sync
   again, because you've probably started something new that the widget can't see yet.
+
+The small **Next to finish** widget shows the one upgrade that finishes first, from any section,
+with its countdown. Under it, in orange, anything idle (**2 builders idle · Lab idle**), or in
+gold **All 6 builders busy** when nothing is. The Builder Base never counts as idle there. Tap it
+to open the app.
 
 The game shows upgrade times as if no potion were running, so while a boost is active the widget
 shows shorter times than the game does. The widget's times are when the upgrades really finish.

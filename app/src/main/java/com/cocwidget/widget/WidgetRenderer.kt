@@ -15,6 +15,7 @@ import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.widget.RemoteViews
 import com.cocwidget.MainActivity
+import com.cocwidget.NextWidget
 import com.cocwidget.R
 import com.cocwidget.SyncActivity
 import com.cocwidget.VillageWidget
@@ -43,21 +44,80 @@ object WidgetRenderer {
 
         val manager = AppWidgetManager.getInstance(context)
         val widgetIds = manager.getAppWidgetIds(ComponentName(context, VillageWidget::class.java))
-        if (widgetIds.isEmpty()) return
+        val nextIds = manager.getAppWidgetIds(ComponentName(context, NextWidget::class.java))
+        if (widgetIds.isEmpty() && nextIds.isEmpty()) return
 
         UpdateChecker.checkIfDue(context)
-        val shown = widgetIds.associateWith { Store.widgetAccount(context, it) }
+        val shown = (widgetIds + nextIds).associateWith { Store.widgetAccount(context, it) }
         for (tag in shown.values.filterNotNull().distinct()) villages[tag]?.let { Icons.fetchMissing(context, it.upgrades) }
         val now = System.currentTimeMillis()
-        for ((widgetId, tag) in shown) {
+        for (widgetId in widgetIds) {
+            val tag = shown[widgetId]
             manager.updateAppWidget(widgetId, build(context, widgetId, tag, tag?.let(villages::get), now))
+        }
+        for (widgetId in nextIds) {
+            val tag = shown[widgetId]
+            manager.updateAppWidget(widgetId, buildNext(context, widgetId, tag, tag?.let(villages::get), now))
         }
         scheduleNext(context, shown.values.distinct().minOf { Countdown.nextRefresh(it?.let(villages::get), now) })
     }
 
-    // Only the redraw alarm. The finish alarm keeps notifications coming without a widget.
+    // Only the redraw alarm, and only once neither kind of widget is left. The finish alarm
+    // keeps notifications coming without a widget.
     fun cancel(context: Context) {
+        val manager = AppWidgetManager.getInstance(context)
+        val left = listOf(VillageWidget::class.java, NextWidget::class.java).sumOf { manager.getAppWidgetIds(ComponentName(context, it)).size }
+        if (left > 0) return
         context.getSystemService(AlarmManager::class.java).cancel(refreshIntent(context, REFRESH_REQUEST))
+    }
+
+    // The small widget: the next upgrade to finish, and what's idle. Every view is set on every
+    // update, as the launcher applies it on top of the last one.
+    private fun buildNext(context: Context, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {
+        val views = RemoteViews(context.packageName, R.layout.widget_next)
+        views.setOnClickPendingIntent(R.id.next_root, openAppIntent(context, widgetId, tag))
+        views.setViewVisibility(R.id.days, View.GONE)
+        views.setViewVisibility(R.id.timer, View.GONE)
+        if (tag == null || village == null) {
+            views.setViewVisibility(R.id.icon, View.GONE)
+            views.setTextViewText(R.id.name, context.getString(R.string.app_name))
+            views.setTextViewText(R.id.status, context.getString(R.string.next_no_village))
+            views.setTextColor(R.id.status, context.getColor(R.color.text_dim))
+            return views
+        }
+
+        val summary = NextFinish.of(village, now)
+        val next = summary.next
+        if (next == null) {
+            views.setViewVisibility(R.id.icon, View.GONE)
+            views.setTextViewText(R.id.name, context.getString(R.string.next_nothing))
+        } else {
+            views.setViewVisibility(R.id.icon, View.VISIBLE)
+            val icon = Icons.load(context, next)
+            if (icon != null) views.setImageViewBitmap(R.id.icon, icon) else views.setImageViewResource(R.id.icon, R.drawable.ic_placeholder)
+            views.setTextViewText(R.id.name, upgradeName(next))
+            // A refresh is scheduled for when the chronometer reaches zero (Countdown.nextRefresh).
+            val split = Countdown.split(village.endMillis(next) - now)
+            views.setTextViewText(R.id.days, "${split.days}d")
+            views.setViewVisibility(R.id.days, if (split.days > 0) View.VISIBLE else View.GONE)
+            views.setChronometer(R.id.timer, SystemClock.elapsedRealtime() + split.restMs, null, true)
+            views.setChronometerCountDown(R.id.timer, true)
+            views.setViewVisibility(R.id.timer, View.VISIBLE)
+        }
+
+        // Anything idle comes first, in orange like the big widget's idle builders.
+        val status = if (summary.anyIdle) {
+            buildList {
+                if (summary.idleBuilders > 0) add(context.resources.getQuantityString(R.plurals.next_builders_idle, summary.idleBuilders, summary.idleBuilders))
+                if (summary.labIdle) add(context.getString(R.string.next_lab_idle))
+                if (summary.petsIdle) add(context.getString(R.string.next_pets_idle))
+            }.joinToString(" · ")
+        } else {
+            context.resources.getQuantityString(R.plurals.next_all_busy, summary.builders, summary.builders)
+        }
+        views.setTextViewText(R.id.status, status)
+        views.setTextColor(R.id.status, context.getColor(if (summary.anyIdle) R.color.idle else R.color.gold))
+        return views
     }
 
     private fun build(context: Context, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {
@@ -202,9 +262,7 @@ object WidgetRenderer {
 
     private fun row(context: Context, village: Village, upgrade: Upgrade, now: Long): RemoteViews {
         val row = RemoteViews(context.packageName, R.layout.widget_row)
-        val name = SpannableStringBuilder(upgrade.name)
-            .append(if (upgrade.supercharge > 0) "  ⚡${upgrade.supercharge}" else "  → ${upgrade.toLevel}", RelativeSizeSpan(0.85f), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        row.setTextViewText(R.id.name, name)
+        row.setTextViewText(R.id.name, upgradeName(upgrade))
         row.setViewVisibility(R.id.goblin, if (upgrade.extra) View.VISIBLE else View.GONE)
         row.setProgressBar(R.id.bar, 1000, (village.progress(upgrade, now) * 1000).toInt(), false)
 
@@ -230,6 +288,10 @@ object WidgetRenderer {
         row.setViewVisibility(R.id.done, View.GONE)
         return row
     }
+
+    // "Cannon → 12", or "X-Bow ⚡2" for a supercharge (the row ellipsizes, so the stage stays short).
+    private fun upgradeName(upgrade: Upgrade): CharSequence = SpannableStringBuilder(upgrade.name)
+        .append(if (upgrade.supercharge > 0) "  ⚡${upgrade.supercharge}" else "  → ${upgrade.toLevel}", RelativeSizeSpan(0.85f), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
     // Redraws don't wake the phone. A sleeping screen doesn't need fresh numbers.
     private fun scheduleNext(context: Context, at: Long) {
