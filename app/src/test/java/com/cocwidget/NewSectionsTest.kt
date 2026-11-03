@@ -56,4 +56,14 @@ class NewSectionsTest {
         assertEquals(3, module.toLevel)
         assertEquals(15, village.upgrades.size)
     }
+
+    @Test
+    fun theSecondReinforcementCampHasABuildTime() {
+        // ClashKing lists no levels for it, so the build script fills them in.
+        val village = parse { it.getJSONArray("buildings2").put(timed(1000049, 0, 274_417)) }
+        val camp = village.upgrades.single { it.name == "Reinforcement Camp" }
+        assertEquals(Section.BUILDER_BASE, camp.section)
+        assertEquals(1, camp.toLevel)
+        assertEquals(864_000L, camp.totalSec)
+    }
 }

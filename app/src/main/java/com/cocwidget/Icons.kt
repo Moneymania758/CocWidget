@@ -9,15 +9,21 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 
-// Icons come from ClashKing's asset host and are cached on disk, shrunk to widget size.
+// Icons come from ClashKing's asset host and are cached on disk, shrunk to widget size. The few
+// ClashKing doesn't have are bundled in assets/icons, named as the cache names them.
 object Icons {
     private const val BASE_URL = "https://assets.clashk.ing/"
     private const val SIZE_PX = 96
 
+    @Volatile
+    private var bundled: Set<String>? = null
+
     fun load(context: Context, upgrade: Upgrade): Bitmap? = load(context, path(upgrade))
 
     fun load(context: Context, path: String?): Bitmap? {
-        val file = file(context, path ?: return null)
+        val name = fileName(path ?: return null)
+        if (name in bundled(context)) return context.assets.open("icons/$name").use { BitmapFactory.decodeStream(it) }
+        val file = File(File(context.filesDir, "icons"), name)
         return if (file.length() > 0) BitmapFactory.decodeFile(file.path) else null
     }
 
@@ -29,8 +35,9 @@ object Icons {
     fun fetchPaths(context: Context, paths: List<String>): Boolean {
         var fetched = false
         for (path in paths.distinct()) {
-            val file = file(context, path)
-            if (!file.exists()) {
+            val name = fileName(path)
+            val file = File(File(context.filesDir, "icons"), name)
+            if (name !in bundled(context) && !file.exists()) {
                 download(path, file)
                 fetched = true
             }
@@ -69,8 +76,10 @@ object Icons {
         }
     }
 
-    private fun file(context: Context, path: String) =
-        File(File(context.filesDir, "icons"), path.replace('/', '_').removeSuffix(".webp") + ".png")
+    fun fileName(path: String) = path.replace('/', '_').removeSuffix(".webp") + ".png"
+
+    private fun bundled(context: Context): Set<String> =
+        bundled ?: context.assets.list("icons").orEmpty().toSet().also { bundled = it }
 
     private fun path(upgrade: Upgrade): String? =
         path(upgrade.name, upgrade.kind, upgrade.village, maxOf(1, upgrade.toLevel - 1), upgrade.defence)

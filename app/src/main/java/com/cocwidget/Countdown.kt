@@ -27,7 +27,7 @@ object Countdown {
                 if (left > 0) next = minOf(next, now + split(left).restMs)
                 ends += village.helperShiftEndMillis(upgrade)
             }
-            for (boost in listOf(village.builderBoost, village.labBoost, village.petBoost)) {
+            for (boost in listOf(village.builderBoost, village.labBoost, village.petBoost, village.clockTowerBoost)) {
                 ends += village.boostEndMillis(boost)
             }
             for (end in ends) if (end > now) next = minOf(next, end)

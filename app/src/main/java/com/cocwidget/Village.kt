@@ -11,6 +11,8 @@ const val BUILDER_BITE_MULTIPLIER = 2
 const val PET_POTION_MULTIPLIER = 24
 const val RESEARCH_POTION_MULTIPLIER = 24
 const val STUDY_SOUP_MULTIPLIER = 4
+// Supercell's Builder Base news, March 2020.
+const val CLOCK_TOWER_MULTIPLIER = 10
 
 enum class Section { BUILDERS, LAB, PETS, BUILDER_BASE }
 
@@ -95,12 +97,13 @@ class Village(
     val labBoost: Boost,
     val petBoost: Boost,
     val helpers: Helpers,
+    val clockTowerBoost: Boost = Boost.NONE,
 ) {
     fun boostFor(section: Section): Boost = when (section) {
         Section.BUILDERS -> builderBoost
         Section.LAB -> labBoost
         Section.PETS -> petBoost
-        else -> Boost.NONE
+        Section.BUILDER_BASE -> clockTowerBoost
     }
 
     // The Apprentice helps builders, the Assistant the lab. Nothing helps pets or the Builder Base.
@@ -125,7 +128,7 @@ class Village(
         Pace(boostFor(upgrade.section), upgrade.helperSec, helperLevelFor(upgrade.section))
 
     fun withUpgrades(upgrades: List<Upgrade>) =
-        Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, labBoost, petBoost, helpers)
+        Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, labBoost, petBoost, helpers, clockTowerBoost)
 
     fun endMillis(upgrade: Upgrade): Long =
         exportedAtMillis + paceFor(upgrade).realSecondsFor(upgrade.workSec) * 1000
@@ -206,6 +209,9 @@ object VillageParser {
                 assistantLevel = helperLevel(LAB_ASSISTANT),
                 cooldownSec = helpers.maxOfOrNull { it.optLong("helper_cooldown") } ?: 0,
             ),
+            // The Clock Tower speeds up building and research on the Builder Base. Its 22-hour
+            // cooldown starts when the boost ends, so clocktower_cooldown includes the boost.
+            clockTowerBoost = Boost(boosts?.optLong("clocktower_boost") ?: 0, CLOCK_TOWER_MULTIPLIER),
         )
     }
 

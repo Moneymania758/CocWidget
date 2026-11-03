@@ -32,6 +32,11 @@ const BUILDING_GROUPS = {
   Helper: 'resources',
   Wall: 'walls',
 };
+// Levels ClashKing lists none for, from the Clash of Clans wiki. Reinforcement Camps can't be
+// upgraded: level 1 is building the second camp (the first comes with Builder Hall 6).
+const MISSING_LEVELS = {
+  1000049: { t: [864000], c: [4000000], h: [9] },
+};
 const CRAFTING_STATION = 1000097;
 const TOWN_HALL = 1000001;
 const OTHER_GROUPS = { traps: 'traps', heroes: 'heroes', pets: 'pets', guardians: 'guardians' };
@@ -93,6 +98,7 @@ async function main() {
   for (const [category, kind] of Object.entries(KINDS)) {
     for (const entry of data[category] || []) {
       const item = itemFor(entry, kind, groupFor(category, entry));
+      if (item.t.length === 0 && MISSING_LEVELS[entry._id]) Object.assign(item, MISSING_LEVELS[entry._id]);
       // The Town Hall lists what each of its levels adds: u[n - 1] is [[id, quantity], ...].
       if (category === 'buildings' && entry._id === TOWN_HALL) {
         item.u = entry.levels.map(level => (level.unlocks || []).map(u => [u._id, u.quantity]));

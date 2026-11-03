@@ -64,6 +64,8 @@
 
     <string name="whats_new_card">New in %1$s</string>
     <string name="whats_new_got_it">Got it</string>
+    <string name="whats_new_1_9_1">• The Builder Base shows when your Clock Tower is running, and its timers speed up to match.
+• Fixed: the Builder Base Reinforcement Camp had no picture and no progress bar.</string>
     <string name="whats_new_1_9">• Three looks for the app: Widget, Clean and Game. Pick one under Theme.\n• Time to max shows how many of each building are on each level, ticks the maxed ones, and shows their pictures.\n• A tidier main screen: your village at the top, set-up steps folded away.</string>
     <string name="whats_new_1_8_1">• Fixed: crafted defence upgrades showed a number and a blank icon instead of their name and picture.</string>
     <string name="whats_new_1_8">• Time to max: tap it on the main screen to see how long your builders, lab and pets need to max your Town Hall, and what it all costs.</string>
