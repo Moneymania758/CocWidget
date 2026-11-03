@@ -244,6 +244,23 @@ starts to pick up the next hour.
   synced. Up to 1.9.1 the single account lived in `village`. It's moved on first use after the
   update (`Store.migrate`, tested in `AccountsTest`).
 
+### Code layout
+
+Under `app/src/main/java/com/cocwidget/`, with tests in matching folders:
+
+| Package | What's in it |
+|---|---|
+| `com.cocwidget` | Everything named in the manifest: activities, the widget, the Quick Settings tile |
+| `game` | The export parser, village model, boost and helper pace, bundled game data, event discount |
+| `plan` | The time-to-max planner, bedtime planner and their text formatting |
+| `store` | Saved accounts and settings, the icon cache, the update check |
+| `widget` | Widget drawing, its quick views, countdown refresh times, finish notifications |
+| `ui` | The in-code view toolkit, themes, shared screen base, main screen cards, contact details |
+
+Manifest classes stay in `com.cocwidget`. Android remembers placed widgets, Quick Settings tiles
+and launcher icons by class name, so moving one would remove it from people's phones on update.
+`game` and `plan` hold no Android views and are where most tests point.
+
 ### Building
 
 Needs JDK 17 or later and the Android SDK (Android Studio bundles both). Built with AGP 9.5 and

@@ -1,5 +1,16 @@
 package com.cocwidget
 
+import com.cocwidget.game.BUILDER_POTION_MULTIPLIER
+import com.cocwidget.game.Boost
+import com.cocwidget.game.GameData
+import com.cocwidget.game.GameItem
+import com.cocwidget.game.Helpers
+import com.cocwidget.game.RESEARCH_POTION_MULTIPLIER
+import com.cocwidget.game.Section
+import com.cocwidget.game.Upgrade
+import com.cocwidget.game.Village
+import com.cocwidget.game.VillageParser
+import com.cocwidget.plan.Planner
 import java.io.File
 
 // A real village export (player tag replaced) and the bundled game data, shared by the tests.

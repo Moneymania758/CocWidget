@@ -6,8 +6,8 @@ import android.content.Intent
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import android.text.format.DateUtils
-import java.text.DateFormat
+import com.cocwidget.store.Store
+import com.cocwidget.ui.TimeText
 
 // Quick Settings tile, so syncing works from the notification shade without leaving the game.
 class SyncTileService : TileService() {
@@ -19,10 +19,7 @@ class SyncTileService : TileService() {
         tile.subtitle = if (village == null) {
             getString(R.string.tile_never)
         } else {
-            val exported = DateUtils.formatSameDayTime(
-                village.exportedAtMillis, System.currentTimeMillis(), DateFormat.MEDIUM, DateFormat.SHORT,
-            )
-            getString(R.string.exported_at, exported)
+            getString(R.string.exported_at, TimeText.exported(village.exportedAtMillis, System.currentTimeMillis()))
         }
         tile.updateTile()
     }

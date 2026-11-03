@@ -8,6 +8,14 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.widget.Toast
+import com.cocwidget.game.BUILDER_BITE_MULTIPLIER
+import com.cocwidget.game.BUILDER_POTION_MULTIPLIER
+import com.cocwidget.game.Boost
+import com.cocwidget.game.RESEARCH_POTION_MULTIPLIER
+import com.cocwidget.game.STUDY_SOUP_MULTIPLIER
+import com.cocwidget.game.Village
+import com.cocwidget.game.VillageParser
+import com.cocwidget.store.Store
 import kotlin.math.abs
 
 // Invisible screen opened by the widget's Sync button. Android only lets the app with

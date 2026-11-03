@@ -1,15 +1,21 @@
 package com.cocwidget
 
-import android.app.Activity
 import android.app.TimePickerDialog
-import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.Gravity
-import android.view.View
-import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ScrollView
-import com.cocwidget.Planner.Group
+import com.cocwidget.game.GameData
+import com.cocwidget.game.GameItem
+import com.cocwidget.game.Section
+import com.cocwidget.game.Village
+import com.cocwidget.plan.Bedtime
+import com.cocwidget.plan.PlanFormat
+import com.cocwidget.plan.Planner
+import com.cocwidget.plan.Planner.Group
+import com.cocwidget.store.Icons
+import com.cocwidget.store.Store
+import com.cocwidget.ui.Pictures
+import com.cocwidget.ui.Screen
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -17,43 +23,26 @@ import java.time.format.FormatStyle
 
 // What to start when a builder, the lab or the pet house frees up, so it finishes while you're
 // awake rather than overnight.
-class BedtimeActivity : Activity() {
-    private lateinit var content: LinearLayout
-    private lateinit var ui: Ui
+class BedtimeActivity : Screen() {
     private val pictures = Pictures(this)
     // Queues showing every option, not just the first few.
     private val expanded = mutableSetOf<Section>()
 
     private class Queue(val section: Section, val title: Int, val slots: Int, val groups: Set<Group>)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_screen)
-        content = findViewById(R.id.content)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        show()
-    }
-
-    private fun show() {
-        ui = Ui(this, Skin.current(this))
-        ui.applyWindow(findViewById<ScrollView>(R.id.scroll))
-        content.removeAllViews()
+    override fun build() {
         pictures.clear()
-        content.addView(header())
+        content.addView(backHeader(R.string.bedtime_open))
 
-        val tag = Store.selected(this)
-        val village = tag?.let { Store.village(this, it) }
-        val json = tag?.let { Store.exportJson(this, it) }
+        val current = Store.current(this)
         val items = GameData.all(this)
-        val eventPercent = if (Store.eventOn(this)) EventDiscount.PERCENT else 0
-        val steps = json?.let { Planner.nextSteps(it, items, eventPercent) }
-        if (village == null || steps == null) {
-            content.addView(ui.card().apply { addView(ui.text(getString(R.string.planner_none), 15f)) }, ui.matchWidth(16))
+        val eventPercent = Store.eventPercent(this)
+        val steps = current?.let { Planner.nextSteps(it.json, items, eventPercent) }
+        if (current == null || steps == null) {
+            addNothingSynced()
             return
         }
+        val village = current.village
 
         val sleep = Store.sleep(this)
         content.addView(sleepCard(sleep), ui.matchWidth(16))
@@ -68,20 +57,8 @@ class BedtimeActivity : Activity() {
         }
         var notes = getString(R.string.bedtime_notes)
         if (eventPercent > 0) notes += " " + getString(R.string.planner_event, eventPercent)
-        content.addView(ui.text(notes, 12f, ui.skin.dim), ui.matchWidth(16).apply { marginStart = ui.dp(4) })
+        addNote(notes)
         pictures.load()
-    }
-
-    private fun header() = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        addView(LinearLayout(this@BedtimeActivity).apply {
-            gravity = Gravity.CENTER
-            contentDescription = getString(R.string.back)
-            addView(ui.icon(R.drawable.ic_back, ui.skin.text, 22))
-            ui.pressable(this, 22f) { finish() }
-        }, LinearLayout.LayoutParams(ui.dp(44), ui.dp(44)))
-        addView(ui.heading(getString(R.string.bedtime_open), 22f, ui.skin.title), ui.weighted(4))
     }
 
     private fun sleepCard(sleep: Bedtime.Sleep) = ui.card().apply {
@@ -178,12 +155,7 @@ class BedtimeActivity : Activity() {
         setPadding(ui.dp(16), ui.dp(10), ui.dp(16), ui.dp(10))
         val step = option.step
 
-        val picture = ImageView(this@BedtimeActivity).apply {
-            background = ui.rounded(ui.skin.chip, 8f)
-            setPadding(ui.dp(3), ui.dp(3), ui.dp(3), ui.dp(3))
-            scaleType = ImageView.ScaleType.FIT_CENTER
-            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
+        val picture = ui.picture()
         pictures.add(game?.let { Icons.path(it, step.toLevel) }, picture)
         addView(picture, LinearLayout.LayoutParams(ui.dp(36), ui.dp(36)))
 

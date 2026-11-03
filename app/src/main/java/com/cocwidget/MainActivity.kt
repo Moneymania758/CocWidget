@@ -1,38 +1,31 @@
 package com.cocwidget
 
 import android.Manifest
-import android.app.Activity
 import android.app.AlertDialog
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.text.InputType
-import android.text.format.DateUtils
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.Switch
-import android.widget.Toast
-import java.text.DateFormat
+import com.cocwidget.plan.PlanFormat
+import com.cocwidget.store.Store
+import com.cocwidget.store.UpdateChecker
+import com.cocwidget.ui.HelpCard
+import com.cocwidget.ui.Screen
+import com.cocwidget.ui.SettingsCard
+import com.cocwidget.ui.TimeText
+import com.cocwidget.ui.WhatsNew
 import kotlin.concurrent.thread
 
-class MainActivity : Activity() {
-    private lateinit var content: LinearLayout
-    private lateinit var ui: Ui
+class MainActivity : Screen() {
     // Folded sections the person opened, kept while the screen is rebuilt.
     private val open = mutableSetOf<Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_screen)
-        content = findViewById(R.id.content)
         // Not after a rotation, so a chip picked since isn't undone.
         if (savedInstanceState == null) openAccount(intent)
 
@@ -55,7 +48,6 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
-        show()
         // Redraw only when an update turns up, so a name being typed isn't wiped.
         val before = UpdateChecker.availableUpdate(this)
         thread {
@@ -64,10 +56,7 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun show() {
-        ui = Ui(this, Skin.current(this))
-        ui.applyWindow(findViewById<ScrollView>(R.id.scroll))
-        content.removeAllViews()
+    override fun build() {
         content.addView(header())
         UpdateChecker.availableUpdate(this)?.let { version ->
             content.addView(ui.button(getString(R.string.update_available_long, version), null, primary = true) {
@@ -76,9 +65,9 @@ class MainActivity : Activity() {
         }
         whatsNewCard()?.let { content.addView(it, ui.matchWidth(16)) }
         content.addView(villageCard(), ui.matchWidth(16))
-        content.addView(settingsCard(), ui.matchWidth(16))
-        content.addView(helpCard(), ui.matchWidth(16))
-        content.addView(ui.text(getString(R.string.footer), 12f, ui.skin.dim), ui.matchWidth(16).apply { marginStart = ui.dp(4) })
+        content.addView(SettingsCard(this, ui, open, ::show).build(), ui.matchWidth(16))
+        content.addView(HelpCard(this, ui, installedVersion()).build(), ui.matchWidth(16))
+        addNote(getString(R.string.footer))
     }
 
     private fun header() = LinearLayout(this).apply {
@@ -129,7 +118,7 @@ class MainActivity : Activity() {
             addView(ui.text(getString(R.string.empty_state), 14f, ui.skin.dim), ui.matchWidth(6))
         } else {
             val running = village.upgrades.filter { village.endMillis(it) > now }
-            val exported = DateUtils.formatSameDayTime(village.exportedAtMillis, now, DateFormat.MEDIUM, DateFormat.SHORT)
+            val exported = TimeText.exported(village.exportedAtMillis, now)
             addView(LinearLayout(this@MainActivity).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.BOTTOM
@@ -198,190 +187,6 @@ class MainActivity : Activity() {
                     .show()
             }
         })
-    }
-
-    private fun settingsCard(): View = ui.card(0).apply {
-        addView(themePicker())
-        addView(ui.divider())
-        addView(eventRow())
-        val tag = Store.selected(this@MainActivity)
-        if (tag != null) {
-            addView(ui.divider())
-            addView(nameRow(tag))
-            addView(ui.divider())
-            addView(removeRow(tag))
-        }
-        addView(ui.divider())
-        addView(fold(R.string.fold_setup, getString(R.string.main_steps)))
-        addView(ui.divider())
-        val notes = WhatsNew.RELEASES.joinToString("\n\n") { "${it.version}\n${getString(it.notes)}" }
-        addView(fold(R.string.fold_whats_new, notes))
-        addView(ui.divider())
-        addView(fold(R.string.fold_about, getString(R.string.credit) + "\n\n" + getString(R.string.font_credit)))
-    }
-
-    private fun row() = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-        setPadding(ui.dp(16), ui.dp(14), ui.dp(16), ui.dp(14))
-    }
-
-    private fun themePicker() = row().apply {
-        addView(ui.text(getString(R.string.theme_label), 15f))
-        addView(LinearLayout(this@MainActivity).apply {
-            orientation = LinearLayout.HORIZONTAL
-            for ((index, skin) in Skin.ALL.withIndex()) {
-                val chosen = skin.key == ui.skin.key
-                addView(LinearLayout(this@MainActivity).apply {
-                    orientation = LinearLayout.VERTICAL
-                    gravity = Gravity.CENTER_HORIZONTAL
-                    minimumHeight = ui.dp(64)
-                    background = ui.rounded(ui.skin.chip, 10f, if (chosen) ui.skin.accent else ui.skin.divider, if (chosen) 2f else 1f)
-                    setPadding(ui.dp(8), ui.dp(8), ui.dp(8), ui.dp(8))
-                    isSelected = chosen
-                    addView(LinearLayout(this@MainActivity).apply {
-                        orientation = LinearLayout.HORIZONTAL
-                        background = ui.rounded(0, 5f)
-                        outlineProvider = android.view.ViewOutlineProvider.BACKGROUND
-                        clipToOutline = true
-                        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                        for (colour in skin.swatch) {
-                            addView(View(this@MainActivity).apply { setBackgroundColor(colour) }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f))
-                        }
-                    }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ui.dp(18)))
-                    addView(ui.text(getString(skin.label), 13f).apply { gravity = Gravity.CENTER }, ui.matchWidth(6))
-                    ui.pressable(this, 10f) {
-                        Store.setSkin(this@MainActivity, skin.key)
-                        show()
-                    }
-                }, ui.weighted(if (index == 0) 0 else 8))
-            }
-        }, ui.matchWidth(10))
-    }
-
-    private fun eventRow() = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        setPadding(ui.dp(16), ui.dp(14), ui.dp(12), ui.dp(14))
-        addView(LinearLayout(this@MainActivity).apply {
-            orientation = LinearLayout.VERTICAL
-            addView(ui.text(getString(R.string.event_switch), 15f))
-            addView(ui.text(getString(R.string.event_explain), 13f, ui.skin.dim), ui.matchWidth(3))
-        }, ui.weighted())
-        addView(Switch(this@MainActivity).apply {
-            contentDescription = getString(R.string.event_switch)
-            isChecked = Store.eventOn(this@MainActivity)
-            val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
-            thumbTintList = ColorStateList(states, intArrayOf(ui.skin.accent, ui.skin.dim))
-            trackTintList = ColorStateList(states, intArrayOf(ui.skin.accent, ui.skin.divider))
-            setOnCheckedChangeListener { _, on -> Store.setEventOn(this@MainActivity, on) }
-        }, ui.wrap().apply { marginStart = ui.dp(12) })
-    }
-
-    private fun nameRow(tag: String) = row().apply {
-        addView(ui.text(getString(R.string.name_title), 15f))
-        val name = EditText(this@MainActivity).apply {
-            setText(Store.displayName(this@MainActivity, tag))
-            hint = getString(R.string.name_hint)
-            setTextColor(ui.skin.text)
-            setHintTextColor(ui.skin.dim)
-            backgroundTintList = ColorStateList.valueOf(ui.skin.dim)
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PERSON_NAME
-            importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
-        }
-        addView(LinearLayout(this@MainActivity).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            addView(name, ui.weighted())
-            addView(ui.button(getString(R.string.save_name), null, primary = false) {
-                Store.setDisplayName(this@MainActivity, tag, name.text.toString().trim())
-                VillageWidget.requestRefresh(this@MainActivity)
-                Toast.makeText(this@MainActivity, R.string.name_saved, Toast.LENGTH_SHORT).show()
-                show()
-            }, ui.wrap().apply { marginStart = ui.dp(10) })
-        }, ui.matchWidth(4))
-    }
-
-    // Asks first: the export is gone until it's synced again.
-    private fun removeRow(tag: String) = row().apply {
-        minimumHeight = ui.dp(52)
-        gravity = Gravity.CENTER_VERTICAL
-        addView(ui.text(getString(R.string.account_remove), 15f))
-        ui.pressable(this, 0f) {
-            AlertDialog.Builder(this@MainActivity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                .setTitle(getString(R.string.account_remove_title, Store.label(this@MainActivity, tag)))
-                .setMessage(R.string.account_remove_message)
-                .setPositiveButton(R.string.account_remove_confirm) { _, _ ->
-                    Store.removeAccount(this@MainActivity, tag)
-                    VillageWidget.requestRefresh(this@MainActivity)
-                    show()
-                }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
-        }
-    }
-
-    private fun helpCard(): View = ui.card(0).apply {
-        addView(ui.heading(getString(R.string.help_title), 16f, ui.skin.accent).apply {
-            setPadding(ui.dp(16), ui.dp(14), ui.dp(16), ui.dp(4))
-        })
-        val device = Contact.device(installedVersion(), Build.VERSION.RELEASE, Build.MANUFACTURER, Build.MODEL)
-        addView(linkRow(R.string.help_report, R.string.help_report_detail) {
-            open(Intent(Intent.ACTION_VIEW, Uri.parse(Contact.issueUrl(device))))
-        })
-        if (Contact.EMAIL.isNotEmpty()) {
-            addView(ui.divider())
-            addView(linkRow(R.string.help_email, R.string.help_email_detail) {
-                open(Intent(Intent.ACTION_SENDTO, Uri.parse(Contact.emailUri(device))))
-            })
-        }
-        if (Contact.DISCORD.isNotEmpty()) {
-            addView(ui.divider())
-            addView(linkRow(R.string.help_discord, R.string.help_discord_detail) {
-                open(Intent(Intent.ACTION_VIEW, Uri.parse(Contact.DISCORD)))
-            })
-        }
-    }
-
-    private fun linkRow(title: Int, detail: Int, onClick: () -> Unit) = row().apply {
-        minimumHeight = ui.dp(52)
-        addView(ui.text(getString(title), 15f))
-        addView(ui.text(getString(detail), 13f, ui.skin.dim), ui.matchWidth(3))
-        ui.pressable(this, 0f, onClick)
-    }
-
-    // A phone with no email app (or no browser) would otherwise crash here.
-    private fun open(intent: Intent) {
-        try {
-            startActivity(intent)
-        } catch (_: ActivityNotFoundException) {
-            Toast.makeText(this, R.string.help_no_app, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // A row that opens to show [body] underneath, and closes again.
-    private fun fold(title: Int, body: String) = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-        val chevron = ui.icon(R.drawable.ic_chevron, ui.skin.dim, 18)
-        val text = ui.text(body, 14f, ui.skin.dim).apply { setPadding(ui.dp(16), 0, ui.dp(16), ui.dp(16)) }
-        fun refresh() {
-            val isOpen = title in open
-            chevron.rotation = if (isOpen) 90f else 0f
-            text.visibility = if (isOpen) View.VISIBLE else View.GONE
-        }
-        addView(LinearLayout(this@MainActivity).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            minimumHeight = ui.dp(52)
-            setPadding(ui.dp(16), 0, ui.dp(16), 0)
-            addView(ui.text(getString(title), 15f), ui.weighted())
-            addView(chevron)
-            ui.pressable(this, 0f) {
-                if (!open.remove(title)) open += title
-                refresh()
-            }
-        })
-        addView(text)
-        refresh()
     }
 
     companion object {

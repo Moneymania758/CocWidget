@@ -4,6 +4,9 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
+import com.cocwidget.store.Store
+import com.cocwidget.widget.WidgetRenderer
+import com.cocwidget.widget.WidgetView
 import kotlin.concurrent.thread
 
 class VillageWidget : AppWidgetProvider() {

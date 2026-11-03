@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
+import com.cocwidget.store.Store
 
 // Invisible screen the launcher opens when a widget is placed, and from the widget's settings
 // later, to pick which account the widget shows. With one account or none there's nothing to

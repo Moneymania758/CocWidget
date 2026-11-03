@@ -1,55 +1,42 @@
 package com.cocwidget
 
-import android.app.Activity
-import android.os.Bundle
-import android.text.format.DateUtils
 import android.view.Gravity
 import android.view.View
-import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ScrollView
-import com.cocwidget.Planner.Group
-import java.text.DateFormat
+import com.cocwidget.game.GameData
+import com.cocwidget.game.GameItem
+import com.cocwidget.plan.PlanFormat
+import com.cocwidget.plan.Planner
+import com.cocwidget.plan.Planner.Group
+import com.cocwidget.store.Icons
+import com.cocwidget.store.Store
+import com.cocwidget.ui.Pictures
+import com.cocwidget.ui.Screen
+import com.cocwidget.ui.TimeText
 
 // Time and resources left to max the current Town Hall, like Clash Ninja's "Remaining" panel.
-class PlannerActivity : Activity() {
+class PlannerActivity : Screen() {
     private val open = mutableSetOf<Group>()
-    private lateinit var content: LinearLayout
-    private lateinit var ui: Ui
     private val pictures = Pictures(this)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_screen)
-        content = findViewById(R.id.content)
-    }
-
-    // Recalculated on every visit, so a sync made meanwhile shows.
-    override fun onResume() {
-        super.onResume()
-        show()
-    }
-
-    private fun show() {
-        ui = Ui(this, Skin.current(this))
-        ui.applyWindow(findViewById<ScrollView>(R.id.scroll))
-        content.removeAllViews()
+    override fun build() {
         pictures.clear()
-
-        val tag = Store.selected(this)
-        val village = tag?.let { Store.village(this, it) }
-        val json = tag?.let { Store.exportJson(this, it) }
+        val current = Store.current(this)
         val items = GameData.all(this)
-        val eventPercent = if (Store.eventOn(this)) EventDiscount.PERCENT else 0
-        val plan = if (village != null && json != null) Planner.plan(json, items, village.builders, eventPercent) else null
+        val eventPercent = Store.eventPercent(this)
+        val plan = current?.let { Planner.plan(it.json, items, it.village.builders, eventPercent) }
 
-        content.addView(header(plan?.townHall))
-        if (village == null || plan == null) {
-            content.addView(ui.card().apply { addView(ui.text(getString(R.string.planner_none), 15f)) }, ui.matchWidth(16))
+        content.addView(backHeader(R.string.planner_open).apply {
+            if (plan != null) {
+                addView(ui.chip(getString(R.string.town_hall_chip, plan.townHall), colour = ui.skin.accent).apply { setTypeface(typeface, android.graphics.Typeface.BOLD) })
+            }
+        })
+        if (current == null || plan == null) {
+            addNothingSynced()
             return
         }
-        content.addView(summary(plan, village.exportedAtMillis, eventPercent), ui.matchWidth(16))
-        content.addView(ui.text(getString(R.string.planner_tap), 13f, ui.skin.dim), ui.matchWidth(16).apply { marginStart = ui.dp(4) })
+        content.addView(summary(plan, current.village.exportedAtMillis, eventPercent), ui.matchWidth(16))
+        addNote(getString(R.string.planner_tap), 13f)
         content.addView(ui.card(0).apply {
             for ((index, group) in plan.groups.withIndex()) {
                 if (index > 0) addView(ui.divider())
@@ -58,23 +45,8 @@ class PlannerActivity : Activity() {
         }, ui.matchWidth(8))
         var notes = getString(R.string.planner_notes)
         if (plan.unknownEpics > 0) notes += " " + resources.getQuantityString(R.plurals.planner_unknown_epics, plan.unknownEpics, plan.unknownEpics)
-        content.addView(ui.text(notes, 12f, ui.skin.dim), ui.matchWidth(16).apply { marginStart = ui.dp(4) })
+        addNote(notes)
         pictures.load()
-    }
-
-    private fun header(townHall: Int?) = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        addView(LinearLayout(this@PlannerActivity).apply {
-            gravity = Gravity.CENTER
-            contentDescription = getString(R.string.back)
-            addView(ui.icon(R.drawable.ic_back, ui.skin.text, 22))
-            ui.pressable(this, 22f) { finish() }
-        }, LinearLayout.LayoutParams(ui.dp(44), ui.dp(44)))
-        addView(ui.heading(getString(R.string.planner_open), 22f, ui.skin.title), ui.weighted(4))
-        if (townHall != null) {
-            addView(ui.chip(getString(R.string.town_hall_chip, townHall), colour = ui.skin.accent).apply { setTypeface(typeface, android.graphics.Typeface.BOLD) })
-        }
     }
 
     private fun summary(plan: Planner.Plan, exportedAt: Long, eventPercent: Int) = ui.card().apply {
@@ -104,7 +76,7 @@ class PlannerActivity : Activity() {
             }, ui.matchWidth(14))
         }
 
-        val exported = DateUtils.formatSameDayTime(exportedAt, System.currentTimeMillis(), DateFormat.MEDIUM, DateFormat.SHORT)
+        val exported = TimeText.exported(exportedAt, System.currentTimeMillis())
         addView(ui.text(getString(R.string.planner_source, exported), 12f, ui.skin.dim), ui.matchWidth(14))
         if (eventPercent > 0) addView(ui.text(getString(R.string.planner_event, eventPercent), 12f, ui.skin.dim), ui.matchWidth(2))
     }
@@ -157,12 +129,7 @@ class PlannerActivity : Activity() {
         orientation = LinearLayout.HORIZONTAL
         setPadding(0, ui.dp(12), 0, ui.dp(12))
 
-        val picture = ImageView(this@PlannerActivity).apply {
-            background = ui.rounded(ui.skin.chip, 8f)
-            setPadding(ui.dp(3), ui.dp(3), ui.dp(3), ui.dp(3))
-            scaleType = ImageView.ScaleType.FIT_CENTER
-            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
+        val picture = ui.picture()
         pictures.add(game?.let { Icons.path(it, item.levels.maxOrNull() ?: 1) }, picture)
         addView(picture, LinearLayout.LayoutParams(ui.dp(40), ui.dp(40)))
 
