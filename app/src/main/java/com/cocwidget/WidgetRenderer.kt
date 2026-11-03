@@ -27,20 +27,27 @@ object WidgetRenderer {
 
     fun update(context: Context) {
         // Notifications work without a widget on the home screen, so they come first.
-        val village = Store.village(context)
+        val accounts = Store.accounts(context)
+        val villages = accounts.mapNotNull { tag -> Store.village(context, tag)?.let { tag to it } }.toMap()
         val checkedAt = System.currentTimeMillis()
-        village?.let { Notifier.notifyFinished(context, it, checkedAt) }
-        scheduleNextFinish(context, village, checkedAt)
+        for ((tag, village) in villages) {
+            val label = if (accounts.size > 1) Store.label(context, tag) else null
+            Notifier.notifyFinished(context, tag, village, checkedAt, label)
+        }
+        scheduleNextFinish(context, villages.values, checkedAt)
 
         val manager = AppWidgetManager.getInstance(context)
-        val component = ComponentName(context, VillageWidget::class.java)
-        if (manager.getAppWidgetIds(component).isEmpty()) return
+        val widgetIds = manager.getAppWidgetIds(ComponentName(context, VillageWidget::class.java))
+        if (widgetIds.isEmpty()) return
 
         UpdateChecker.checkIfDue(context)
-        village?.let { Icons.fetchMissing(context, it.upgrades) }
+        val shown = widgetIds.associateWith { Store.widgetAccount(context, it) }
+        for (tag in shown.values.filterNotNull().distinct()) villages[tag]?.let { Icons.fetchMissing(context, it.upgrades) }
         val now = System.currentTimeMillis()
-        manager.updateAppWidget(component, build(context, village, now))
-        scheduleNext(context, Countdown.nextRefresh(village, now))
+        for ((widgetId, tag) in shown) {
+            manager.updateAppWidget(widgetId, build(context, widgetId, tag, tag?.let(villages::get), now))
+        }
+        scheduleNext(context, shown.values.distinct().minOf { Countdown.nextRefresh(it?.let(villages::get), now) })
     }
 
     // Only the redraw alarm. The finish alarm keeps notifications coming without a widget.
@@ -48,10 +55,10 @@ object WidgetRenderer {
         context.getSystemService(AlarmManager::class.java).cancel(refreshIntent(context, REFRESH_REQUEST))
     }
 
-    private fun build(context: Context, village: Village?, now: Long): RemoteViews {
+    private fun build(context: Context, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget)
         views.setOnClickPendingIntent(R.id.sync, activityIntent(context, SyncActivity::class.java, 0))
-        views.setOnClickPendingIntent(R.id.title, activityIntent(context, MainActivity::class.java, 1))
+        views.setOnClickPendingIntent(R.id.title, openAppIntent(context, widgetId, tag))
         views.removeAllViews(R.id.rows)
 
         val update = UpdateChecker.availableUpdate(context)
@@ -62,7 +69,7 @@ object WidgetRenderer {
             views.setOnClickPendingIntent(R.id.update, PendingIntent.getActivity(context, 3, open, PendingIntent.FLAG_IMMUTABLE))
         }
 
-        if (village == null) {
+        if (tag == null || village == null) {
             views.setTextViewText(R.id.title, context.getString(R.string.app_name))
             views.setTextViewText(R.id.town_hall, "")
             views.setViewVisibility(R.id.empty, View.VISIBLE)
@@ -72,7 +79,7 @@ object WidgetRenderer {
 
         views.setViewVisibility(R.id.empty, View.GONE)
         views.setViewVisibility(R.id.footer, View.VISIBLE)
-        views.setTextViewText(R.id.title, Store.displayName(context) ?: village.tag)
+        views.setTextViewText(R.id.title, Store.label(context, tag))
         views.setTextViewText(R.id.town_hall, if (village.townHall > 0) "TH${village.townHall}" else "")
         val exported = DateUtils.formatSameDayTime(village.exportedAtMillis, now, DateFormat.MEDIUM, DateFormat.SHORT)
         // A finished upgrade usually means a new one has started in the game that the export can't show.
@@ -89,11 +96,12 @@ object WidgetRenderer {
 
         // Rows stay in a plain LinearLayout rather than a scrolling ListView: on One UI the
         // countdowns stop ticking inside a ListView. Sections fold instead, to make room.
-        addSection(context, views, village, now, Section.BUILDERS, "BUILDERS", village.builders)
-        addSection(context, views, village, now, Section.LAB, "LAB", 1)
-        if (village.hasPetHouse) addSection(context, views, village, now, Section.PETS, "PETS", 1)
+        val shown = Shown(widgetId, tag, village, now)
+        addSection(context, views, shown, Section.BUILDERS, "BUILDERS", village.builders)
+        addSection(context, views, shown, Section.LAB, "LAB", 1)
+        if (village.hasPetHouse) addSection(context, views, shown, Section.PETS, "PETS", 1)
         if (village.upgrades.any { it.section == Section.BUILDER_BASE }) {
-            addSection(context, views, village, now, Section.BUILDER_BASE, "BUILDER BASE", 0)
+            addSection(context, views, shown, Section.BUILDER_BASE, "BUILDER BASE", 0)
         }
         return views
     }
@@ -114,15 +122,19 @@ object WidgetRenderer {
         }
     }
 
+    // What one widget is drawing.
+    private class Shown(val widgetId: Int, val tag: String, val village: Village, val now: Long)
+
     private fun addSection(
         context: Context,
         views: RemoteViews,
-        village: Village,
-        now: Long,
+        shown: Shown,
         section: Section,
         title: String,
         slots: Int,
     ) {
+        val village = shown.village
+        val now = shown.now
         val upgrades = village.upgrades.filter { it.section == section }.sortedBy { village.endMillis(it) }
         val running = upgrades.filter { village.endMillis(it) > now }
         val busy = running.count { !it.extra }
@@ -137,13 +149,13 @@ object WidgetRenderer {
             val text = if (section == Section.BUILDERS) "  $idle idle" else "  idle"
             label.append(text, ForegroundColorSpan(ORANGE), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
-        val collapsed = section.name in Store.collapsedSections(context)
+        val collapsed = section.name in Store.collapsedSections(context, shown.tag)
         val marker = if (collapsed) "  ▸ ${upgrades.size}" else "  ▾"
         label.append(marker, ForegroundColorSpan(DIM), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         val header = RemoteViews(context.packageName, R.layout.widget_section)
         header.setTextViewText(R.id.label, label)
-        header.setOnClickPendingIntent(R.id.section, toggleIntent(context, section))
+        header.setOnClickPendingIntent(R.id.section, toggleIntent(context, shown, section))
         val boost = village.boostFor(section)
         val boostLeft = village.boostEndMillis(boost) - now
         if (boost.seconds > 0 && boostLeft > 0) {
@@ -195,9 +207,9 @@ object WidgetRenderer {
     }
 
     // Wakes the phone when the next upgrade finishes, so its notification arrives on time.
-    private fun scheduleNextFinish(context: Context, village: Village?, now: Long) {
+    private fun scheduleNextFinish(context: Context, villages: Collection<Village>, now: Long) {
         val intent = refreshIntent(context, FINISH_REQUEST)
-        val next = village?.upgrades?.map { village.endMillis(it) }?.filter { it > now }?.minOrNull()
+        val next = villages.flatMap { village -> village.upgrades.map { village.endMillis(it) } }.filter { it > now }.minOrNull()
         if (next == null) {
             context.getSystemService(AlarmManager::class.java).cancel(intent)
             return
@@ -221,13 +233,26 @@ object WidgetRenderer {
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
 
-    // One request code per section, so each header's intent keeps its own extra.
-    private fun toggleIntent(context: Context, section: Section): PendingIntent = PendingIntent.getBroadcast(
+    // The data Uri is unique per widget and section, so each header's intent keeps its own extras.
+    private fun toggleIntent(context: Context, shown: Shown, section: Section): PendingIntent = PendingIntent.getBroadcast(
         context,
         100 + section.ordinal,
         Intent(context, VillageWidget::class.java)
             .setAction(VillageWidget.ACTION_TOGGLE_SECTION)
+            .setData(Uri.parse("cocwidget://toggle/${shown.widgetId}/${section.name}"))
+            .putExtra(VillageWidget.EXTRA_ACCOUNT, shown.tag)
             .putExtra(VillageWidget.EXTRA_SECTION, section.name),
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+    )
+
+    // Opens the app on the widget's account. A data Uri per widget keeps each widget's extra.
+    private fun openAppIntent(context: Context, widgetId: Int, tag: String?): PendingIntent = PendingIntent.getActivity(
+        context,
+        1,
+        Intent(context, MainActivity::class.java)
+            .setData(Uri.parse("cocwidget://open/$widgetId"))
+            .putExtra(MainActivity.EXTRA_ACCOUNT, tag)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
 

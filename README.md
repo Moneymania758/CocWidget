@@ -31,7 +31,8 @@ and **What's new** further down lists every version.
    a notification each time an upgrade finishes, such as "Bomb Tower → 11 finished · A builder is
    free". Tap it to open Clash.
 5. **Optional: set your name.** Tap the name at the top of the widget to open the app, type the
-   name you want shown under **Name on the widget** and tap **Save name**.
+   name you want shown under **Name on the widget** and tap **Save name**. Each account has its
+   own name.
 
 ## Sync your village
 
@@ -46,6 +47,21 @@ changes how fast the timers run.
 
 **Sync again whenever things change:** you start an upgrade, finish one early with gems or a
 book, or use a potion. The widget only knows what was true when you last copied the export.
+
+## More than one account
+
+Export and sync each account the same way: switch account in Clash, copy its Data Export, tap
+**Clash Sync**. The app reads the player tag in the export, so each account is added by itself,
+with its own timers, boost answers and notifications. Once there's more than one, sync says
+which account it was, such as **Main synced** (or the tag, until you name it).
+
+- **Widgets:** add one widget per account. When you place a widget it asks which account to
+  show (only if you have more than one). On some phones you can long-press a widget and tap
+  **Settings** to switch it later.
+- **In the app:** tap an account's chip at the top of the main screen to see it. Time to max,
+  the name and **Remove this account** all follow the chip you picked. Tapping a widget's name
+  opens the app on that widget's account.
+- **Notifications** carry the account's name when you have more than one.
 
 ## During Hammer Jam (or any event that halves upgrade times)
 
@@ -182,6 +198,12 @@ starts to pick up the next hour.
   The builder estimate is the larger of the longest single item and total builder time divided
   by builders.
 - Icons download from ClashKing's asset host on first sync and are cached.
+- Accounts: each export is filed under its `tag` in its own preferences file
+  (`account_<tag>`), holding the export, boost answers, name, folded sections and notification
+  record. Theme, event switch and update check stay app-wide in `village`. Each widget's account
+  is stored by widget id, and a widget with none (or a removed one) shows the first account
+  synced. Up to 1.9.1 the single account lived in `village`. It's moved on first use after the
+  update (`Store.migrate`, tested in `AccountsTest`).
 
 ### Building
 

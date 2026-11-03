@@ -11,7 +11,9 @@ class VillageWidget : AppWidgetProvider() {
         when (intent.action) {
             ACTION_REFRESH, Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED -> refreshAsync(context)
             ACTION_TOGGLE_SECTION -> {
-                intent.getStringExtra(EXTRA_SECTION)?.let { Store.toggleSection(context, it) }
+                val tag = intent.getStringExtra(EXTRA_ACCOUNT)
+                val section = intent.getStringExtra(EXTRA_SECTION)
+                if (tag != null && section != null) Store.toggleSection(context, tag, section)
                 refreshAsync(context)
             }
             else -> super.onReceive(context, intent)
@@ -20,6 +22,10 @@ class VillageWidget : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         refreshAsync(context)
+    }
+
+    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        Store.forgetWidgets(context, appWidgetIds)
     }
 
     override fun onDisabled(context: Context) {
@@ -43,6 +49,7 @@ class VillageWidget : AppWidgetProvider() {
         const val ACTION_REFRESH = "com.cocwidget.action.REFRESH"
         const val ACTION_TOGGLE_SECTION = "com.cocwidget.action.TOGGLE_SECTION"
         const val EXTRA_SECTION = "section"
+        const val EXTRA_ACCOUNT = "account"
 
         fun requestRefresh(context: Context) {
             context.sendBroadcast(Intent(context, VillageWidget::class.java).setAction(ACTION_REFRESH))

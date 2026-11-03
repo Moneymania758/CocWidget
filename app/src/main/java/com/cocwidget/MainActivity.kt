@@ -2,6 +2,7 @@ package com.cocwidget
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -31,12 +32,24 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_screen)
         content = findViewById(R.id.content)
+        // Not after a rotation, so a chip picked since isn't undone.
+        if (savedInstanceState == null) openAccount(intent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), NOTIFICATION_REQUEST)
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        openAccount(intent)
+    }
+
+    // A widget's title opens the app on that widget's account.
+    private fun openAccount(intent: Intent) {
+        intent.getStringExtra(EXTRA_ACCOUNT)?.let { Store.setSelected(this, it) }
     }
 
     override fun onResume() {
@@ -104,8 +117,11 @@ class MainActivity : Activity() {
     }
 
     private fun villageCard(): View = ui.card().apply {
-        val village = Store.village(this@MainActivity)
+        val accounts = Store.accounts(this@MainActivity)
+        val tag = Store.selected(this@MainActivity)
+        val village = tag?.let { Store.village(this@MainActivity, it) }
         val now = System.currentTimeMillis()
+        if (accounts.isNotEmpty()) addView(accountChips(accounts, tag), ui.matchWidth().apply { bottomMargin = ui.dp(14) })
         if (village == null) {
             addView(ui.heading(getString(R.string.status_none), 18f))
             addView(ui.text(getString(R.string.empty_state), 14f, ui.skin.dim), ui.matchWidth(6))
@@ -151,12 +167,45 @@ class MainActivity : Activity() {
         }, ui.matchWidth(14))
     }
 
+    // One chip per account, plus one saying how to add another.
+    private fun accountChips(accounts: List<String>, selected: String?) = ui.flow(8).apply {
+        for (tag in accounts) {
+            val chosen = tag == selected
+            val colours = if (chosen) ui.skin.primaryBg to ui.skin.primaryText else ui.skin.chip to ui.skin.text
+            addView(ui.chip(Store.label(this@MainActivity, tag), colours.first, colours.second).apply {
+                minHeight = ui.dp(36)
+                gravity = Gravity.CENTER_VERTICAL
+                isSelected = chosen
+                ui.pressable(this, 8f) {
+                    Store.setSelected(this@MainActivity, tag)
+                    show()
+                }
+            })
+        }
+        addView(ui.chip(getString(R.string.account_add), colour = ui.skin.dim).apply {
+            minHeight = ui.dp(36)
+            gravity = Gravity.CENTER_VERTICAL
+            ui.pressable(this, 8f) {
+                AlertDialog.Builder(this@MainActivity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                    .setTitle(R.string.account_add_title)
+                    .setMessage(R.string.account_add_steps)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+            }
+        })
+    }
+
     private fun settingsCard(): View = ui.card(0).apply {
         addView(themePicker())
         addView(ui.divider())
         addView(eventRow())
-        addView(ui.divider())
-        addView(nameRow())
+        val tag = Store.selected(this@MainActivity)
+        if (tag != null) {
+            addView(ui.divider())
+            addView(nameRow(tag))
+            addView(ui.divider())
+            addView(removeRow(tag))
+        }
         addView(ui.divider())
         addView(fold(R.string.fold_setup, getString(R.string.main_steps)))
         addView(ui.divider())
@@ -223,10 +272,10 @@ class MainActivity : Activity() {
         }, ui.wrap().apply { marginStart = ui.dp(12) })
     }
 
-    private fun nameRow() = row().apply {
+    private fun nameRow(tag: String) = row().apply {
         addView(ui.text(getString(R.string.name_title), 15f))
         val name = EditText(this@MainActivity).apply {
-            setText(Store.displayName(this@MainActivity))
+            setText(Store.displayName(this@MainActivity, tag))
             hint = getString(R.string.name_hint)
             setTextColor(ui.skin.text)
             setHintTextColor(ui.skin.dim)
@@ -239,11 +288,31 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER_VERTICAL
             addView(name, ui.weighted())
             addView(ui.button(getString(R.string.save_name), null, primary = false) {
-                Store.setDisplayName(this@MainActivity, name.text.toString().trim())
+                Store.setDisplayName(this@MainActivity, tag, name.text.toString().trim())
                 VillageWidget.requestRefresh(this@MainActivity)
                 Toast.makeText(this@MainActivity, R.string.name_saved, Toast.LENGTH_SHORT).show()
+                show()
             }, ui.wrap().apply { marginStart = ui.dp(10) })
         }, ui.matchWidth(4))
+    }
+
+    // Asks first: the export is gone until it's synced again.
+    private fun removeRow(tag: String) = row().apply {
+        minimumHeight = ui.dp(52)
+        gravity = Gravity.CENTER_VERTICAL
+        addView(ui.text(getString(R.string.account_remove), 15f))
+        ui.pressable(this, 0f) {
+            AlertDialog.Builder(this@MainActivity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle(getString(R.string.account_remove_title, Store.label(this@MainActivity, tag)))
+                .setMessage(R.string.account_remove_message)
+                .setPositiveButton(R.string.account_remove_confirm) { _, _ ->
+                    Store.removeAccount(this@MainActivity, tag)
+                    VillageWidget.requestRefresh(this@MainActivity)
+                    show()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
     }
 
     // A row that opens to show [body] underneath, and closes again.
@@ -272,7 +341,8 @@ class MainActivity : Activity() {
         refresh()
     }
 
-    private companion object {
-        const val NOTIFICATION_REQUEST = 1
+    companion object {
+        const val EXTRA_ACCOUNT = "account"
+        private const val NOTIFICATION_REQUEST = 1
     }
 }

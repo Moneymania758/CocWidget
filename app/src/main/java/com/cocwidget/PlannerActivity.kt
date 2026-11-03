@@ -39,8 +39,9 @@ class PlannerActivity : Activity() {
         content.removeAllViews()
         pictures.clear()
 
-        val village = Store.village(this)
-        val json = Store.exportJson(this)
+        val tag = Store.selected(this)
+        val village = tag?.let { Store.village(this, it) }
+        val json = tag?.let { Store.exportJson(this, it) }
         val items = GameData.all(this)
         val eventPercent = if (Store.eventOn(this)) EventDiscount.PERCENT else 0
         val plan = if (village != null && json != null) Planner.plan(json, items, village.builders, eventPercent) else null

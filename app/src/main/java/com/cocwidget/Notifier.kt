@@ -13,17 +13,18 @@ object Notifier {
     // Anything that finished longer ago than this (phone off, app just installed) stays quiet.
     private const val MAX_LATENESS_MS = 2 * 60 * 60_000L
 
-    // Posts one notification for each upgrade that has finished since the last check.
-    fun notifyFinished(context: Context, village: Village, now: Long) {
-        val decision = decide(village, Store.notifiedUpgrades(context), now)
+    // Posts one notification for each upgrade that has finished since the last check. [account]
+    // names the village when there's more than one.
+    fun notifyFinished(context: Context, tag: String, village: Village, now: Long, account: String?) {
+        val decision = decide(village, Store.notifiedUpgrades(context, tag), now)
         if (decision.toNotify.isNotEmpty()) {
             val manager = context.getSystemService(NotificationManager::class.java)
             createChannel(context, manager)
             for ((key, upgrade) in decision.toNotify) {
-                manager.notify(key.hashCode(), build(context, upgrade, village.endMillis(upgrade)))
+                manager.notify("$tag:$key".hashCode(), build(context, upgrade, village.endMillis(upgrade), account))
             }
         }
-        Store.setNotifiedUpgrades(context, decision.notified)
+        Store.setNotifiedUpgrades(context, tag, decision.notified)
     }
 
     class Decision(val toNotify: List<Pair<String, Upgrade>>, val notified: Set<String>)
@@ -39,7 +40,7 @@ object Notifier {
         return Decision(toNotify.toList(), (notified intersect current.keys) + finished.keys)
     }
 
-    private fun build(context: Context, upgrade: Upgrade, end: Long): Notification {
+    private fun build(context: Context, upgrade: Upgrade, end: Long, account: String?): Notification {
         val title = context.getString(R.string.notify_finished_title, upgrade.name, upgrade.toLevel)
         val text = context.getString(
             when {
@@ -57,6 +58,7 @@ object Notifier {
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(text)
+            .setSubText(account)
             .setWhen(end)
             .setShowWhen(true)
             .setContentIntent(tap)

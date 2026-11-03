@@ -14,7 +14,7 @@ class SyncTileService : TileService() {
     override fun onStartListening() {
         super.onStartListening()
         val tile = qsTile ?: return
-        val village = Store.village(this)
+        val village = Store.selected(this)?.let { Store.village(this, it) }
         tile.state = Tile.STATE_INACTIVE
         tile.subtitle = if (village == null) {
             getString(R.string.tile_never)
