@@ -3,6 +3,7 @@ package com.cocwidget
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -76,6 +77,7 @@ class MainActivity : Activity() {
         whatsNewCard()?.let { content.addView(it, ui.matchWidth(16)) }
         content.addView(villageCard(), ui.matchWidth(16))
         content.addView(settingsCard(), ui.matchWidth(16))
+        content.addView(helpCard(), ui.matchWidth(16))
         content.addView(ui.text(getString(R.string.footer), 12f, ui.skin.dim), ui.matchWidth(16).apply { marginStart = ui.dp(4) })
     }
 
@@ -312,6 +314,44 @@ class MainActivity : Activity() {
                 }
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
+        }
+    }
+
+    private fun helpCard(): View = ui.card(0).apply {
+        addView(ui.heading(getString(R.string.help_title), 16f, ui.skin.accent).apply {
+            setPadding(ui.dp(16), ui.dp(14), ui.dp(16), ui.dp(4))
+        })
+        val device = Contact.device(installedVersion(), Build.VERSION.RELEASE, Build.MANUFACTURER, Build.MODEL)
+        addView(linkRow(R.string.help_report, R.string.help_report_detail) {
+            open(Intent(Intent.ACTION_VIEW, Uri.parse(Contact.issueUrl(device))))
+        })
+        if (Contact.EMAIL.isNotEmpty()) {
+            addView(ui.divider())
+            addView(linkRow(R.string.help_email, R.string.help_email_detail) {
+                open(Intent(Intent.ACTION_SENDTO, Uri.parse(Contact.emailUri(device))))
+            })
+        }
+        if (Contact.DISCORD.isNotEmpty()) {
+            addView(ui.divider())
+            addView(linkRow(R.string.help_discord, R.string.help_discord_detail) {
+                open(Intent(Intent.ACTION_VIEW, Uri.parse(Contact.DISCORD)))
+            })
+        }
+    }
+
+    private fun linkRow(title: Int, detail: Int, onClick: () -> Unit) = row().apply {
+        minimumHeight = ui.dp(52)
+        addView(ui.text(getString(title), 15f))
+        addView(ui.text(getString(detail), 13f, ui.skin.dim), ui.matchWidth(3))
+        ui.pressable(this, 0f, onClick)
+    }
+
+    // A phone with no email app (or no browser) would otherwise crash here.
+    private fun open(intent: Intent) {
+        try {
+            startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(this, R.string.help_no_app, Toast.LENGTH_SHORT).show()
         }
     }
 

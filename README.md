@@ -12,7 +12,7 @@ Needs Android 12 or later. It is not available for iPhone.
    "Install unknown apps" for your browser or file manager and try again.
 
 To update, install the newer `.apk` the same way. Your synced village is kept. From 1.3 on, the
-widget shows **Update 1.9 ›** (or whichever is newest) at the bottom when a new version is out.
+widget shows **Update 2.0 ›** (or whichever is newest) at the bottom when a new version is out.
 Tap it to go to the download. From 1.7 on, opening the app after an update shows what it added,
 and **What's new** further down lists every version.
 
@@ -135,6 +135,16 @@ It only changes the app's own screens. The widget keeps its look.
 - **The widget is slow to update, or notifications arrive late**: check the battery setting in
   Set up, step 3.
 - **No notifications**: Settings > Apps > Clash Timers > Notifications, and switch them on.
+
+Still stuck? Tap **Report a problem** under **Get help** on the app's main screen. It opens a
+short form on GitHub with your app version and phone already filled in (you need a free GitHub
+account). Or [report it here](https://github.com/Moneymania758/CocWidget/issues/new?template=bug.yml).
+
+No GitHub account? Email **clashtimers@proton.me**, or tap **Email the developer** in the app,
+which fills in your version and phone the same way.
+
+For updates, questions and chat with other players, join the
+[Clash Timers Discord](https://discord.gg/XZ6bA7wCbr).
 
 ## What it can't show
 

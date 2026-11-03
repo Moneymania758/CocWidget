@@ -1,0 +1,27 @@
+name: Report a problem
+description: Something in Clash Timers is wrong or doesn't work.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What went wrong?
+      description: What you saw, and what you expected instead. Screenshots help a lot. Drag them into this box.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How did it happen?
+      description: What you tapped or did just before. Leave it empty if you're not sure.
+  - type: input
+    id: device
+    attributes:
+      label: App version and phone
+      description: Filled in for you when you report from the app. Otherwise, the version is at the top of the app's main screen.
+      placeholder: Clash Timers 2.0, Android 15, Pixel 8
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: Please don't paste your whole village export. It holds your player tag. If it's needed, I'll ask.

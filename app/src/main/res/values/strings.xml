@@ -70,9 +70,18 @@
     <string name="fold_about">About and credits</string>
     <string name="font_credit">Game theme font: Lilita One by Juan Montoreano, under the SIL Open Font License 1.1.</string>
     <string name="footer">Unofficial. Not endorsed by Supercell.</string>
+    <string name="help_title">Get help</string>
+    <string name="help_report">Report a problem</string>
+    <string name="help_report_detail">On GitHub. Needs a free GitHub account. Your app version and phone are filled in for you.</string>
+    <string name="help_email">Email the developer</string>
+    <string name="help_email_detail">No account needed.</string>
+    <string name="help_discord">Join the Discord</string>
+    <string name="help_discord_detail">Updates, questions and chat with other players.</string>
+    <string name="help_no_app">No app on this phone can open that.</string>
 
     <string name="whats_new_card">New in %1$s</string>
     <string name="whats_new_got_it">Got it</string>
+    <string name="whats_new_2_0">• More than one account: sync each village and it\'s added by itself. Switch between them with the chips at the top, and pick which one each widget shows.\n• Get help: report a problem, email the developer or join the Discord straight from the main screen.</string>
     <string name="whats_new_1_9_1">• The Builder Base shows when your Clock Tower is running, and its timers speed up to match.
 • Fixed: the Builder Base Reinforcement Camp had no picture and no progress bar.</string>
     <string name="whats_new_1_9">• Three looks for the app: Widget, Clean and Game. Pick one under Theme.\n• Time to max shows how many of each building are on each level, ticks the maxed ones, and shows their pictures.\n• A tidier main screen: your village at the top, set-up steps folded away.</string>
