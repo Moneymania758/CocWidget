@@ -192,7 +192,7 @@ which fills in your version and phone the same way.
 
 Want to help test against more villages? Tap **Share your export** on the main screen. It
 attaches the selected account's export to an email or message for you to send, with your player
-tag taken out. It may be kept as test data in this public code.
+tag taken out. It's kept private and only used for testing.
 
 For updates, questions and chat with other players, join the
 [Clash Timers Discord](https://discord.gg/XZ6bA7wCbr).
