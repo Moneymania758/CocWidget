@@ -29,6 +29,9 @@ class UnitTraits(
     val targets: String,
 )
 
+// How many of a defence a Town Hall allows, and the highest level it allows them.
+class PerTownHall(val townHall: Int, val count: Int, val cap: Int)
+
 // Something a unit makes, like a Ruin Witch's Ruin Knights. Its charts follow the unit's levels.
 class SubUnit(
     val name: String,
@@ -38,13 +41,15 @@ class SubUnit(
     val traits: UnitTraits?,
     val charts: List<UnitChart>,
     val stats: List<UnitStat>,
+    // Part of the unit rather than something it makes, like a defence's supercharges.
+    val partOfUnit: Boolean,
 )
 
 class GuideUnit(
     val id: Int,
     val name: String,
     val kind: String,
-    // Which list it's in: elixir, dark, super, siege or spell.
+    // Which list it's in: elixir, dark, super, siege, spell, defence or trap.
     val group: String,
     val townHall: Int,
     val info: String,
@@ -54,7 +59,7 @@ class GuideUnit(
     val stats: List<UnitStat>,
     val subs: List<SubUnit>,
     val traits: UnitTraits,
-    // Spells have no movement, so these are false for them.
+    // Spells and defences don't move, so this and flying are false for them.
     val isTroop: Boolean,
     val flying: Boolean,
     val hitsAir: Boolean,
@@ -71,6 +76,8 @@ class GuideUnit(
     val resource: String,
     val costs: LongArray,
     val times: LongArray,
+    // Defences and traps only. Each entry is a Town Hall where the count or cap changes.
+    val perTownHall: List<PerTownHall>,
 ) {
     // The position of the highest level [townHall] allows, or -1 if it hasn't opened yet.
     fun capIndex(townHall: Int): Int = townHalls.indexOfLast { it <= townHall }
@@ -106,7 +113,7 @@ object GuideUnits {
                 stats = stats(entry.optJSONArray("stats")),
                 subs = objects(entry.optJSONArray("subs")).map(::subUnit),
                 traits = traits(entry, "as", "tt"),
-                isTroop = entry.has("rg"),
+                isTroop = entry.getString("k") in setOf("troop", "super", "siege"),
                 flying = entry.optInt("f") == 1,
                 hitsAir = entry.optInt("a") == 1,
                 hitsGround = entry.optInt("gr") == 1,
@@ -120,6 +127,7 @@ object GuideUnits {
                 resource = entry.optString("r"),
                 costs = longs(entry.optJSONArray("c")),
                 times = longs(entry.optJSONArray("tm")),
+                perTownHall = objects(entry.optJSONArray("pt")).map { PerTownHall(it.getInt("h"), it.getInt("n"), it.getInt("l")) },
             )
         }
         return map
@@ -133,6 +141,7 @@ object GuideUnits {
         traits = json.optJSONObject("facts")?.let { traits(it, "as", "tt") },
         charts = charts(json.optJSONArray("charts")),
         stats = stats(json.optJSONArray("stats")),
+        partOfUnit = json.optInt("plain") == 1,
     )
 
     private fun traits(json: JSONObject, attack: String, targets: String) = UnitTraits(

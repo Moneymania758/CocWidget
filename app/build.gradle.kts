@@ -56,6 +56,9 @@ android {
 // Some tests read these files straight from disk. Without declaring them, Gradle treats the
 // tests as up to date after a layout or game data change and silently skips them.
 tasks.withType<Test>().configureEach {
+    // The screen tests open hundreds of real pages, more than the default 512 MB holds.
+    maxHeapSize = "2g"
+
     // Screens start icon downloads and update checks in the background. In a test they'd be slow and
     // flaky, and a half-written icon can reach a later test. A dead proxy makes them fail at once, as
     // they do offline. Only Robolectric's first download of its Android runtime gets through.

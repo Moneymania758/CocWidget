@@ -4,18 +4,21 @@ import com.cocwidget.guide.GuideUnits
 import com.cocwidget.ui.GuideScreen
 
 // Every troop, siege machine and spell, in the order they open.
-class GuideArmyActivity : GuideScreen() {
+open class GuideArmyActivity : GuideScreen() {
+    protected open val title = R.string.guide_army
+    protected open val intro = R.string.guide_army_intro
+    protected open val groups = listOf(
+        "elixir" to R.string.guide_group_elixir,
+        "dark" to R.string.guide_group_dark,
+        "super" to R.string.guide_group_super,
+        "siege" to R.string.guide_group_siege,
+        "spell" to R.string.guide_group_spell,
+    )
+
     override fun buildGuide() {
-        content.addView(backHeader(R.string.guide_army))
-        addNote(getString(R.string.guide_army_intro), 13f)
+        content.addView(backHeader(title))
+        addNote(getString(intro), 13f)
         val units = GuideUnits.load(this).values.sortedWith(compareBy({ it.townHall }, { it.name }))
-        val groups = listOf(
-            "elixir" to R.string.guide_group_elixir,
-            "dark" to R.string.guide_group_dark,
-            "super" to R.string.guide_group_super,
-            "siege" to R.string.guide_group_siege,
-            "spell" to R.string.guide_group_spell,
-        )
         for ((group, title) in groups) {
             content.addView(ui.card().apply {
                 addView(sectionTitle(getString(title)))
@@ -30,4 +33,14 @@ class GuideArmyActivity : GuideScreen() {
             }, ui.matchWidth(14))
         }
     }
+}
+
+// Every defence and trap, in the same way.
+class GuideDefencesActivity : GuideArmyActivity() {
+    override val title = R.string.guide_defences
+    override val intro = R.string.guide_defences_intro
+    override val groups = listOf(
+        "defence" to R.string.guide_group_defences,
+        "trap" to R.string.guide_group_traps,
+    )
 }

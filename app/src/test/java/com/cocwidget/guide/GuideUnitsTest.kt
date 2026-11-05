@@ -100,7 +100,8 @@ class GuideUnitsTest {
     // Super Yeti showed "None" at levels the other source doesn't list.
     @Test
     fun perHitIsThereAtEveryLevel() {
-        for (entry in units.values) {
+        // A Builder's Hut really does have no attack at its first levels, so this is for the army.
+        for (entry in units.values.filter { it.group !in setOf("defence", "trap") }) {
             val perHit = entry.charts.firstOrNull { it.title == "Damage per hit" } ?: continue
             assertFalse(entry.name, perHit.series.first().values.contains(null))
         }
@@ -132,6 +133,76 @@ class GuideUnitsTest {
         val slammer = unit("Stone Slammer")
         assertEquals(listOf("Outer", "Inner"), chart(slammer.charts, "Damage when destroyed").series.map { it.name })
         assertFalse(slammer.stats.any { it.name.startsWith("Damage when destroyed") })
+    }
+
+    // Every defence and trap the game lists, apart from the Crafting Station, which has no levels.
+    @Test
+    fun everyDefenceAndTrapHasAPage() {
+        val items = TestData.gameData.values
+        val expected = items.filter { it.kind == "trap" && it.village == "home" }.map { it.name }.toSet()
+        assertEquals(expected, units.values.filter { it.group == "trap" }.map { it.name }.toSet())
+        for (name in listOf("Cannon", "X-Bow", "Inferno Tower", "Eagle Artillery", "Monolith", "Multi-Archer Tower", "Ricochet Cannon", "Firespitter", "Revenge Tower", "Super Wizard Tower", "Spell Tower", "Air Sweeper", "Builder's Hut")) {
+            assertEquals(name, "defence", unit(name).group)
+        }
+        assertFalse(units.values.any { it.name == "Crafting Station" })
+    }
+
+    @Test
+    fun defenceValuesAreRight() {
+        assertEquals(2250.0, last(chart(unit("Cannon").charts, "Health")))
+        assertEquals(160.0, last(chart(unit("Cannon").charts, "Damage per second")))
+        assertEquals(1400.0, last(chart(unit("Giga Bomb").charts, "Trap damage")))
+        assertEquals(5100.0, last(chart(unit("Inferno Tower").charts, "Health")))
+        assertEquals(10, unit("Inferno Tower").townHall)
+        assertEquals(26_500_000L, unit("Inferno Tower").costs.last())
+    }
+
+    // The two sources mean different things by its damage, and the peak is what matters when attacking.
+    @Test
+    fun theInfernoTowerShowsItsPeakAndItsMultiTargetDamage() {
+        val damage = chart(unit("Inferno Tower").charts, "Damage per second")
+        assertEquals(3300.0, damage.series.first { it.name == "Single, at its peak" }.values.last())
+        assertEquals(155.0, damage.series.first { it.name == "Multi-target" }.values.last())
+    }
+
+    @Test
+    fun aTownHallsCountAndCapFollowTheGame() {
+        val tesla = unit("Multi-Archer Tower").perTownHall
+        assertEquals(listOf(16, 17, 18), tesla.map { it.townHall })
+        assertEquals(listOf(2, 3, 3), tesla.map { it.count })
+        for (entry in units.values) {
+            for (row in entry.perTownHall) assertTrue(entry.name, row.cap in 1..entry.levels.size && row.count > 0)
+            if (entry.group == "defence" || entry.group == "trap") assertTrue(entry.name, entry.perTownHall.isNotEmpty())
+        }
+    }
+
+    @Test
+    fun defencesSayWhatMakesThemDifferent() {
+        val stats = { name: String -> unit(name).stats.associate { it.name to it.value } }
+        assertEquals("200 housing deployed", stats("Eagle Artillery")["Wakes up after"])
+        assertEquals("7 tiles", stats("Eagle Artillery")["Can't hit closer than"])
+        assertTrue(stats("Multi-Archer Tower").getValue("Merged from").contains("Archer Tower level 21"))
+        assertTrue(stats("X-Bow").getValue("Air and ground mode").contains("11.5 tiles range"))
+        assertTrue(stats("Cannon").getValue("Gear up").contains("needs level 7"))
+        assertEquals("From level 1: +60% damage, lasts 18s, recharges in 70s", stats("Spell Tower")["Rage"])
+    }
+
+    @Test
+    fun superchargesBelongToTheDefence() {
+        val charge = unit("X-Bow").subs.single()
+        assertEquals("Supercharges", charge.name)
+        assertTrue(charge.partOfUnit)
+        assertEquals(2, charge.stats.size)
+        assertTrue(charge.stats.first().value.contains("+10 damage per second"))
+        assertTrue(unit("Cannon").subs.isEmpty())
+    }
+
+    @Test
+    fun onlyTroopsMove() {
+        assertFalse(unit("Cannon").isTroop)
+        assertFalse(unit("Lightning Spell").isTroop)
+        assertTrue(unit("Dragon").isTroop)
+        assertTrue(unit("Battle Blimp").isTroop)
     }
 
     @Test

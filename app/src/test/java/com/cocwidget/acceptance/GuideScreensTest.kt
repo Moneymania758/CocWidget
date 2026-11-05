@@ -3,6 +3,7 @@ package com.cocwidget.acceptance
 import android.view.MotionEvent
 import com.cocwidget.GuideActivity
 import com.cocwidget.GuideArmyActivity
+import com.cocwidget.GuideDefencesActivity
 import com.cocwidget.GuideHeroesActivity
 import com.cocwidget.GuidePairingsActivity
 import com.cocwidget.GuidePetsActivity
@@ -66,12 +67,14 @@ class GuideScreensTest {
         for (skin in skins) {
             Store.setSkin(app, skin.key)
             for (unit in units.values) {
-                val page = Screens.open<GuideUnitActivity> { putExtra(GuideScreen.EXTRA_ID, unit.id) }
-                val root = Screens.root(page)
+                val intent = android.content.Intent(app, GuideUnitActivity::class.java).putExtra(GuideScreen.EXTRA_ID, unit.id)
+                val controller = org.robolectric.Robolectric.buildActivity(GuideUnitActivity::class.java, intent).setup()
+                val root = Screens.root(controller.get())
                 val where = "${unit.name} in ${skin.key}"
                 assertTrue(where, Screens.texts(root).contains(unit.name))
                 val expected = unit.charts.size + unit.subs.sumOf { it.charts.size }
                 assertEquals(where, expected, Screens.views<LevelChart>(root).size)
+                controller.pause().stop().destroy()
             }
         }
     }
@@ -105,12 +108,49 @@ class GuideScreensTest {
     @Test
     fun everyChipInTheTroopsAndSpellsListOpensItsPage() {
         val screen = Screens.open<GuideArmyActivity>()
-        for (unit in units.values) {
+        for (unit in units.values.filter { it.group !in setOf("defence", "trap") }) {
             val chip = Screens.tappable(Screens.root(screen), unit.name)
             assertNotNull(unit.name, chip)
             chip!!.performClick()
             assertEquals(unit.name, unit.id, shadowOf(screen).nextStartedActivity.getIntExtra(GuideScreen.EXTRA_ID, 0))
         }
+    }
+
+    @Test
+    fun everyChipInTheDefencesListOpensItsPage() {
+        val screen = Screens.open<GuideDefencesActivity>()
+        val defences = units.values.filter { it.group == "defence" || it.group == "trap" }
+        assertTrue(defences.size > 25)
+        for (unit in defences) {
+            val chip = Screens.tappable(Screens.root(screen), unit.name)
+            assertNotNull(unit.name, chip)
+            chip!!.performClick()
+            assertEquals(unit.name, unit.id, shadowOf(screen).nextStartedActivity.getIntExtra(GuideScreen.EXTRA_ID, 0))
+        }
+    }
+
+    @Test
+    fun aNewDefenceOnATownHallPageOpensItsPage() {
+        val screen = Screens.open<GuideTownHallActivity> { putExtra(GuideScreen.EXTRA_TOWN_HALL, 10) }
+        Screens.tappable(Screens.root(screen), "Inferno Tower ×2")!!.performClick()
+        assertEquals(unitId("Inferno Tower"), shadowOf(screen).nextStartedActivity.getIntExtra(GuideScreen.EXTRA_ID, 0))
+    }
+
+    @Test
+    fun aDefencePageShowsWhatAnAttackerNeeds() {
+        val texts = Screens.texts(Screens.root(openUnit("Multi-Archer Tower")))
+        assertTrue(texts.contains("How many, and how high"))
+        assertTrue(texts.any { it.startsWith("TH16: 2 × Lv ") })
+        assertTrue(texts.contains("Supercharges"))
+        assertFalse(texts.contains("From the Multi-Archer Tower"))
+        assertFalse(texts.contains("Walks"))
+    }
+
+    @Test
+    fun aSyncedVillageShowsYourDefenceLevel() {
+        syncTh16()
+        val texts = Screens.texts(Screens.root(openUnit("Cannon")))
+        assertTrue(texts.toString(), texts.any { it.startsWith("You: level ") && it.endsWith(" at TH16") })
     }
 
     @Test

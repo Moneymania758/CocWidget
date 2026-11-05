@@ -58,6 +58,7 @@ class GuideUnitActivity : GuideScreen() {
         content.addView(backHeader(unit.name))
         content.addView(aboutCard(unit, owned, cap), ui.matchWidth(12))
         linkCard(unit)?.let { content.addView(it, ui.matchWidth(10)) }
+        perTownHallCard(unit)?.let { content.addView(it, ui.matchWidth(10)) }
         content.addView(selectedCard(unit), ui.matchWidth(14))
         for (chart in unit.charts) content.addView(chartCard(unit, chart, reach, mine), ui.matchWidth(10))
         for (sub in unit.subs) addSubUnit(unit, sub, reach, mine)
@@ -103,8 +104,8 @@ class GuideUnitActivity : GuideScreen() {
 
     private fun traitChips(traits: UnitTraits, unit: GuideUnit?) = buildList {
         if (traits.housing > 0) add(getString(R.string.guide_housing, traits.housing))
-        if (unit != null && unit.isTroop) {
-            add(getString(if (unit.flying) R.string.guide_flying else R.string.guide_ground))
+        if (unit != null) {
+            if (unit.isTroop) add(getString(if (unit.flying) R.string.guide_flying else R.string.guide_ground))
             when {
                 unit.hitsAir && unit.hitsGround -> add(getString(R.string.guide_hits_both))
                 unit.hitsAir -> add(getString(R.string.guide_hits_air))
@@ -118,6 +119,22 @@ class GuideUnitActivity : GuideScreen() {
         if (traits.damageType.isNotEmpty()) add(getString(R.string.guide_damage_type, traits.damageType))
         if (unit != null && unit.preferredTarget.isNotEmpty()) add(getString(R.string.guide_prefers, unit.preferredTarget))
         if (unit != null && unit.ability.isNotEmpty()) add(unit.ability)
+    }
+
+    // How many a Town Hall allows and how high they go, for a defence or trap.
+    private fun perTownHallCard(unit: GuideUnit): View? {
+        if (unit.perTownHall.isEmpty()) return null
+        // The last entry at or below the player's Town Hall is the one that applies to them.
+        val mine = unit.perTownHall.lastOrNull { it.townHall <= myTownHall }
+        return ui.card().apply {
+            addView(ui.heading(getString(R.string.guide_by_town_hall), 15f))
+            addView(ui.flow(4).apply {
+                for (entry in unit.perTownHall) {
+                    val colours = if (entry === mine) ui.skin.primaryBg to ui.skin.primaryText else ui.skin.chip to ui.skin.text
+                    addView(ui.chip(getString(R.string.guide_by_town_hall_chip, entry.townHall, entry.count, unit.levels[entry.cap - 1]), colours.first, colours.second))
+                }
+            }, ui.matchWidth(8))
+        }
     }
 
     // From a Super Troop to its base troop and the other way, with what boosting one takes.
@@ -228,7 +245,7 @@ class GuideUnitActivity : GuideScreen() {
                 addView(LinearLayout(this@GuideUnitActivity).apply {
                     orientation = LinearLayout.VERTICAL
                     addView(ui.heading(sub.name, 17f))
-                    addView(ui.text(getString(R.string.guide_comes_from, unit.name), 13f, ui.skin.dim), ui.matchWidth(1))
+                    if (!sub.partOfUnit) addView(ui.text(getString(R.string.guide_comes_from, unit.name), 13f, ui.skin.dim), ui.matchWidth(1))
                 }, ui.weighted(10))
             })
             if (sub.info.isNotEmpty()) addView(ui.text(sub.info, 13f, ui.skin.dim), ui.matchWidth(8))
@@ -260,8 +277,9 @@ class GuideUnitActivity : GuideScreen() {
                     addView(cell(unit.townHalls[index].toString(), ui.skin.text, false))
                     for (chart in columns) addView(cell(display(chart.series.first().values[index], chart), ui.skin.text, false))
                     if (unit.costs.isNotEmpty()) {
-                        addView(cell(if (index == 0) getString(R.string.guide_no_value) else NumberFormat.getIntegerInstance().format(unit.costs[index]), ui.skin.text, false))
-                        addView(cell(if (index == 0) getString(R.string.guide_no_value) else PlanFormat.duration(unit.times[index]), ui.skin.text, false))
+                        // A troop's first level comes free, while a defence's first level is built.
+                        addView(cell(if (unit.costs[index] == 0L) getString(R.string.guide_no_value) else NumberFormat.getIntegerInstance().format(unit.costs[index]), ui.skin.text, false))
+                        addView(cell(if (unit.times[index] == 0L) getString(R.string.guide_no_value) else PlanFormat.duration(unit.times[index]), ui.skin.text, false))
                     }
                     ui.pressable(this, 4f) { select(index) }
                 }

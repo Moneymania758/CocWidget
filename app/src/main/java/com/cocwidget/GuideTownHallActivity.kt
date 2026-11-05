@@ -6,6 +6,7 @@ import android.widget.ScrollView
 import com.cocwidget.game.Ids
 import com.cocwidget.guide.Fighter
 import com.cocwidget.guide.Guide
+import com.cocwidget.guide.GuideUnits
 import com.cocwidget.guide.Strategy
 import com.cocwidget.plan.PlanFormat
 import com.cocwidget.ui.GuideScreen
@@ -69,9 +70,13 @@ class GuideTownHallActivity : GuideScreen() {
         val additions = Guide.additions(townHall, items)
         // Super Troops all open together at TH11, and only as boosts of troops already listed.
         val units = guide.unitsOpeningAt(townHall).filter { it.kind != "super" }
+        val pages = GuideUnits.load(this@GuideTownHallActivity).values.associate { it.name to it.id }
         addView(ui.flow().apply {
             for (addition in additions.filter { it.first }) {
-                addView(namedChip(addition.item, withQuantity(addition.item.name, addition.quantity)))
+                val label = withQuantity(addition.item.name, addition.quantity)
+                // Defences and traps have their own pages. Other buildings don't.
+                val page = pages[addition.item.name]
+                addView(if (page != null) unitChip(page, label) else namedChip(addition.item, label))
             }
             for (unit in units) addView(unitChip(unit.id, unit.name))
         }, ui.matchWidth(8))

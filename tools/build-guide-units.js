@@ -121,11 +121,52 @@ const TOP_STATS = [
   ['radius', 'Radius', ' tiles'], ['spellDuration', 'Lasts', 's'], ['shotsPerBurst', 'Shots per burst', ''], ['timeBetweenBursts', 'Between bursts', 's'],
 ];
 
+// Defences and traps. Their fields differ from troops', so they have their own list of charts.
+const DEFENCE_CHARTS = [
+  { title: 'Damage per second', series: [
+    ['stats.normal.dps', 'Normal'], ['stats.gearedUpBurst.dps', 'Burst'], ['stats.gearedUpFastAttack.dps', 'Fast attack'],
+    ['stats.fastAttack.dps', 'Fast attack'], ['stats.multiTarget.dps', 'Multi-target'], ['stats.normal.dpsAfter1p5s', 'After 1.5s'],
+    ['stats.stage1.dps', 'Stage 1'], ['stats.stage2.dps', 'Stage 2'], ['stats.stage3.dps', 'Stage 3'],
+  ] },
+  { title: 'Damage per hit', series: [
+    ['stats.normal.damagePerShot', 'Normal'], ['stats.normal.damagePerHit', 'Normal'], ['stats.normal.damagePerShotMin', 'At least'],
+    ['stats.gearedUpBurst.damagePerShot', 'Burst'], ['stats.gearedUpFastAttack.damagePerShot', 'Fast attack'],
+    ['stats.fastAttack.damagePerShot', 'Fast attack'], ['stats.multiTarget.damagePerShot', 'Multi-target'],
+    ['stats.stage1.damagePerShot', 'Stage 1'], ['stats.stage2.damagePerShot', 'Stage 2'], ['stats.stage3.damagePerShot', 'Stage 3'],
+  ] },
+  { title: 'Chain damage per hit', series: [
+    ['stats.normal.secondaryChainDamagePerShot', 'Next target'], ['stats.stage2.secondaryChainDamagePerShot', 'Stage 2'],
+    ['stats.stage3.secondaryChainDamagePerShot', 'Stage 3'], ['stats.stage3.tertiaryChainDamagePerShot', 'Stage 3, third target'],
+  ] },
+  { title: 'Splash damage', series: [['stats.normal.splashDamageMax', 'At most'], ['stats.normal.splashDamageMin', 'At least']] },
+  { title: 'Shockwave damage per hit', series: [['stats.normal.shockwaveDamagePerHit', 'Shockwave']] },
+  { title: 'Trap damage', series: [['damage', 'Damage']] },
+  { title: 'Damage when destroyed', series: [['deathDamage', 'When destroyed']] },
+  { title: 'Bonus damage', unit: '%', series: [['stats.normal.bonusDamagePercent', 'Bonus']] },
+  { title: 'Targets at once', series: [['stats.multiTarget.numberOfTargets', 'Targets']] },
+  { title: 'Push strength', series: [['stats.normal.pushStrength', 'Push']] },
+  { title: 'Repairs per second', series: [['stats.builder.repairPerSecond', 'Repairs']] },
+  { title: 'Repairs per hit', series: [['stats.builder.repairPerHit', 'Repairs']] },
+  { title: 'Health', series: [['hp', 'Health']] },
+  { title: 'Launches this much housing', series: [['springCapacity', 'Housing']] },
+  { title: 'Skeletons spawned', series: [['spawnedUnits', 'Skeletons']] },
+  { title: "Skeletons' level", series: [['skeletonLevel', 'Level']] },
+  { title: 'Damage radius', unit: ' tiles', series: [['damageRadius', 'Radius']] },
+  { title: 'Lasts', unit: 's', series: [['duration', 'Lasts']] },
+];
+const DEFENCE_NOT_STATS = new Set([
+  'level', 'hitpoints', 'buildCost', 'townHallRequired', 'xpGained', 'stats.normal.dpsInitial',
+]);
+const MODE_NAMES = {
+  gearedUpBurst: 'Burst mode', gearedUpFastAttack: 'Fast attack mode', fastAttack: 'Fast attack mode', multiTarget: 'Multi-target mode',
+  airAndGround: 'Air and ground mode', stage1: 'Stage 1', stage2: 'Stage 2', stage3: 'Stage 3',
+};
+
 const cleanInfo = text => (text || '').replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
 
 function flatten(object, prefix = '', out = {}) {
   for (const [key, value] of Object.entries(object || {})) {
-    if (key === 'images' || key === 'researchTime') continue;
+    if (key === 'images' || key === 'researchTime' || key === 'buildTime') continue;
     if (value && typeof value === 'object' && !Array.isArray(value)) flatten(value, `${prefix}${key}.`, out);
     else if (typeof value === 'number') out[prefix + key] = value;
   }
@@ -151,6 +192,13 @@ function chartsAndStats(defs, rows) {
       // Both sources can have the same figure under one label, and that's one line, not two.
       if (series.some(s => s.n === label && values.every((v, i) => v === null || s.v[i] === null || s.v[i] === v))) continue;
       series.push({ key, n: label, v: values });
+    }
+    for (let i = series.length - 1; i > 0; i--) {
+      const same = series.findIndex(s => s !== series[i] && JSON.stringify(s.v) === JSON.stringify(series[i].v));
+      if (same >= 0 && same < i) {
+        series[same].n = `${series[same].n} and ${series[i].n}`;
+        series.splice(i, 1);
+      }
     }
     if (!series.length) continue;
     const varies = s => rows.length > 1 && new Set(s.v.filter(v => v !== null)).size > 1;
@@ -343,11 +391,176 @@ function build(data, npm) {
   return out;
 }
 
+const moneyText = (cost, resource) => {
+  const short = cost >= 1e6 ? `${round(cost / 1e6)}M` : cost >= 1e3 ? `${round(cost / 1e3)}K` : `${cost}`;
+  return `${short} ${resource}`;
+};
+
+const timeText = total => {
+  const days = Math.floor(total / 86400), hours = Math.floor((total % 86400) / 3600), minutes = Math.floor((total % 3600) / 60);
+  if (days) return hours ? `${days}d ${hours}h` : `${days}d`;
+  if (hours) return minutes ? `${hours}h ${minutes}m` : `${hours}h`;
+  return minutes ? `${minutes}m` : `${total}s`;
+};
+
+const tiles = value => (value === 1 ? '1 tile' : `${value} tiles`);
+
+// One mode a defence can switch to, in a few words.
+function modeText(mode) {
+  return [
+    typeof mode.range === 'number' ? `${tiles(mode.range)} range` : '',
+    typeof mode.attackSpeed === 'number' ? `hits every ${mode.attackSpeed}s` : '',
+    mode.numberOfTargets ? `${mode.numberOfTargets} targets` : '',
+  ].filter(Boolean).join(', ');
+}
+
+// The Spell Tower's modes are its spells, each opened by a level.
+function spellText(mode) {
+  return [
+    mode.damageIncrease ? `+${mode.damageIncrease}% damage` : '',
+    mode.maxDps ? `up to ${mode.maxDps} damage per second` : '',
+    mode.troopDamagePercent ? `${mode.troopDamagePercent}% to troops` : '',
+    mode.spellDuration ? `lasts ${mode.spellDuration}s` : '',
+    mode.rechargeTime ? `recharges in ${mode.rechargeTime}s` : '',
+  ].filter(Boolean).join(', ');
+}
+
+function defenceFacts(npm, entry) {
+  const stats = [];
+  const add = (name, value) => { if (value !== undefined && value !== null && value !== '') stats.push({ n: name, v: `${value}` }); };
+  add('Size', npm.size);
+  const normal = npm.modes?.normal || {};
+  if (normal.minRange) add('Can\'t hit closer than', tiles(normal.minRange));
+  if (normal.triggerRange) add('Pops up at', tiles(normal.triggerRange));
+  if (normal.activationHousingSpace) add('Wakes up after', `${normal.activationHousingSpace} housing deployed`);
+  if (normal.shotsPerBurst) add('Shots per burst', normal.shotsPerBurst);
+  if (normal.timeBetweenBursts) add('Between bursts', `${normal.timeBetweenBursts}s`);
+  if (normal.numberOfTargets) add('Targets at once', normal.numberOfTargets);
+  if (normal.maxChainTargets) add('Chains to', `${normal.maxChainTargets} targets`);
+  if (normal.chainRange) add('Chain range', tiles(normal.chainRange));
+  if (normal.splashRadius) add('Splash radius', tiles(normal.splashRadius));
+  add('Special', npm.specialAbility);
+  if (npm.triggerRadius) add('Triggers within', tiles(npm.triggerRadius));
+  if (npm.damageRadius) add('Damage radius', tiles(npm.damageRadius));
+  if (npm.triggerHousingSpace) add('Needs a troop of', `${npm.triggerHousingSpace} housing`);
+  add('Prefers', npm.favoriteTarget);
+  for (const [key, mode] of Object.entries(npm.modes || {})) {
+    if (key === 'normal') continue;
+    if (MODE_NAMES[key]) add(MODE_NAMES[key], modeText(mode));
+    else {
+      const name = key[0].toUpperCase() + key.slice(1);
+      const opens = (npm.levels || []).find(level => level.unlocksSpell?.startsWith(name))?.level;
+      add(name, `${opens ? `From level ${opens}: ` : ''}${spellText(mode)}`);
+    }
+  }
+  if (npm.gearUp) {
+    const gear = npm.gearUp;
+    const needs = gear.requiresBuilderBuilding ? `, needs level ${gear.requiresLevel} and a ${gear.requiresBuilderBuilding}` : '';
+    add('Gear up', `${moneyText(gear.cost, gear.costResource)}, ${timeText(seconds(gear.time))}${needs}`);
+  }
+  const merge = entry.levels.find(level => level.merge_requirement)?.merge_requirement;
+  if (merge) {
+    const groups = {};
+    for (const part of merge) {
+      const key = `${part.name} level ${part.level}${part.geared_up ? ', geared up' : ''}`;
+      groups[key] = (groups[key] || 0) + 1;
+    }
+    add('Merged from', Object.entries(groups).map(([key, count]) => `${count} × ${key}`).join(', '));
+  }
+  return stats;
+}
+
+// Every home village defence and trap, level by level. Both sources agreed on health and damage when
+// this was written, except that ClashKing gives the Inferno Tower's starting damage and the other
+// source its peak, which is the figure worth charting.
+function buildDefences(data, root) {
+  const read = dir => fs.readdirSync(path.join(root, 'data', 'home', dir)).map(file => JSON.parse(fs.readFileSync(path.join(root, 'data', 'home', dir, file), 'utf8')));
+  const known = new Set([...DEFENCE_NOT_STATS, ...usedKeys(DEFENCE_CHARTS)]);
+  const out = [];
+  for (const npm of [...read('defenses'), ...read('traps')]) {
+    const isTrap = npm.category === 'trap';
+    const entry = (isTrap ? data.traps : data.buildings).find(b => b.name === npm.name && (b.village || 'home') === 'home');
+    // No levels to chart: it's a home for seasonal defences, whose modules change every season.
+    if (!entry || !entry.levels?.length) continue;
+    const npmLevels = Object.fromEntries((npm.levels || []).filter(level => !level.supercharge).map(level => [level.level, flatten(level)]));
+    const rows = entry.levels.map(level => {
+      const row = { ...(npmLevels[level.level] || {}) };
+      for (const key of Object.keys(row)) {
+        if (!known.has(key)) throw new Error(`No label for ${npm.name}'s level field ${key}`);
+      }
+      if (isTrap) {
+        if (!row.damage) delete row.damage;
+      } else {
+        row.hp = level.hitpoints;
+        if (row['stats.normal.dps'] === undefined && level.dps > 0) row['stats.normal.dps'] = level.dps;
+      }
+      return row;
+    });
+    const { charts, stats } = chartsAndStats(DEFENCE_CHARTS.map(def => (npm.name === 'Inferno Tower' && def.title === 'Damage per second'
+      ? { ...def, series: def.series.map(([key, label]) => [key, { 'stats.normal.dps': 'Single, at its peak', 'stats.normal.dpsAfter1p5s': 'Single, after 1.5s' }[key] || label]) }
+      : def)), rows);
+    const counts = (npm.availablePerTownHall || []).filter(t => t.count > 0);
+    const unlock = counts[0]?.townHallLevel ?? entry.levels[0].required_townhall;
+    const townHalls = entry.levels.map((level, index) => (index === 0 ? unlock : Math.max(unlock, level.required_townhall ?? unlock)));
+    const perTownHall = [];
+    for (const { townHallLevel: th, count } of counts) {
+      const cap = entry.levels.filter((_, index) => townHalls[index] <= th).length;
+      const last = perTownHall[perTownHall.length - 1];
+      if (!last || last.n !== count || last.l !== cap) perTownHall.push({ h: th, n: count, l: cap });
+    }
+    const unit = {
+      id: entry._id,
+      n: npm.name,
+      k: isTrap ? 'trap' : 'defence',
+      g: isTrap ? 'trap' : 'defence',
+      h: unlock,
+      i: cleanInfo(entry.info || npm.description),
+      lv: entry.levels.map(level => level.level),
+      th: townHalls,
+      charts,
+      stats: [...defenceFacts(npm, entry), ...stats],
+      pt: perTownHall,
+      r: entry.upgrade_resource || npm.levels?.[0]?.buildCostResource || '',
+      c: entry.levels.map(level => level.build_cost || 0),
+      tm: entry.levels.map(level => level.build_time || 0),
+    };
+    const normal = npm.modes?.normal;
+    if (normal?.range) unit.rg = normal.range;
+    if (normal?.attackSpeed) unit.as = normal.attackSpeed;
+    const damageType = normal?.damageType || npm.damageType;
+    if (damageType && damageType !== 'none') unit.dt = damageType;
+    const air = isTrap ? entry.air_trigger : entry.is_air_targeting;
+    const ground = isTrap ? entry.ground_trigger : entry.is_ground_targeting;
+    if (air) unit.a = 1;
+    if (ground) unit.gr = 1;
+    const charge = entry.levels[entry.levels.length - 1].supercharge;
+    if (charge?.levels?.length) {
+      unit.subs = [{
+        n: 'Supercharges',
+        plain: 1,
+        note: 'For a defence at its final level, at the top Town Hall.',
+        stats: charge.levels.map(stage => ({
+          n: `Stage ${stage.level}`,
+          v: [
+            stage.dps_buff ? `+${stage.dps_buff} damage per second` : '',
+            stage.hitpoints_buff ? `+${stage.hitpoints_buff} health` : '',
+            moneyText(stage.build_cost, charge.upgrade_resource),
+            timeText(stage.build_time),
+          ].filter(Boolean).join(', '),
+        })),
+      }];
+    }
+    out.push(unit);
+  }
+  return out;
+}
+
 const [staticPath, npmPath] = process.argv.slice(2);
 if (!staticPath || !npmPath) {
   console.error('Usage: node tools/build-guide-units.js path/to/static_data.json path/to/clash-of-clans-data/package');
   process.exit(1);
 }
-const units = build(JSON.parse(fs.readFileSync(staticPath, 'utf8')), readNpm(npmPath));
+const staticData = JSON.parse(fs.readFileSync(staticPath, 'utf8'));
+const units = [...build(staticData, readNpm(npmPath)), ...buildDefences(staticData, npmPath)];
 fs.writeFileSync(OUTPUT, JSON.stringify(units));
 console.log(`Wrote ${units.length} units to ${OUTPUT}`);

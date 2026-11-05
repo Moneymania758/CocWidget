@@ -75,6 +75,11 @@
             android:label="@string/guide_army" />
 
         <activity
+            android:name=".GuideDefencesActivity"
+            android:exported="false"
+            android:label="@string/guide_defences" />
+
+        <activity
             android:name=".GuideUnitActivity"
             android:exported="false"
             android:label="@string/guide_army" />

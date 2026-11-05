@@ -172,6 +172,8 @@ The Guide button on the main screen works with or without a synced village.
   damage and health grow by level, its abilities and what it summons, such as the Ruin Witch's Ruin Knights.
   Tap or drag along a chart to pick a level. With a synced village, a ring marks your level and grey is out of
   reach at your Town Hall.
+- **Defences and traps**: tap one from a Town Hall's new list, or browse them all, for the same level charts, how many
+  each Town Hall allows, range, modes, merges and supercharges.
 - **Heroes and Pets**: how each one moves and hits, what it unlocks at, its stats, and good pairings.
 - **Best pets for each hero**: picks with reasons, and a set for your Town Hall that uses each pet
   once. A pet can only go with one hero at a time.
