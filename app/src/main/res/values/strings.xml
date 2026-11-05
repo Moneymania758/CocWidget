@@ -265,4 +265,6 @@
     <string name="guide_avoid">Avoid %1$s: %2$s</string>
     <string name="guide_first_pick">%1$s (first pick)</string>
     <string name="guide_from_town_hall">From TH%1$d</string>
+    <string name="guide_picks_note">Picks from community guides, last checked %1$s.</string>
+    <string name="guide_gear_from">Common pieces come from the Blacksmith, epics from events or the Trader.</string>
 </resources>

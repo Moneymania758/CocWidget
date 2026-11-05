@@ -16,7 +16,7 @@ class GuideHeroesActivity : GuideScreen() {
         if (single != null) {
             content.addView(ui.button(getString(R.string.guide_pairings), null, primary = false) { open(GuidePairingsActivity::class.java) }, ui.matchWidth(14))
         }
-        addNote(getString(R.string.guide_opinion, guide.content.checked))
+        addNote(getString(R.string.guide_picks_note, guide.content.checked))
     }
 
     private fun heroCard(hero: Fighter) = ui.card().apply {
@@ -58,6 +58,7 @@ class GuideHeroesActivity : GuideScreen() {
                 for (pick in guideFor.picks) addView(namedChip(itemNamed(guide.facts.pets, pick.pet), pick.pet))
             }, ui.matchWidth(4))
             addView(ui.text(getString(R.string.guide_gear), 13f, bold = true), ui.matchWidth(12))
+            addView(ui.text(getString(R.string.guide_gear_from), 13f, ui.skin.dim), ui.matchWidth(2))
             addView(ui.flow().apply {
                 for (piece in guideFor.gear) {
                     val gear = guide.facts.equipment.firstOrNull { it.name == piece }

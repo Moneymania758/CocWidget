@@ -1,98 +1,308 @@
 {
   "checked": "5 November 2026",
   "sources": {
-    "B": { "name": "Blueprint CoC", "date": "Oct 2026", "url": "https://blueprintcoc.com/blogs/coc-attack-strategies/best-clash-of-clans-army" },
-    "T": { "name": "Trophy Coach", "date": "Oct 2026", "url": "https://trophycoach.com/clash-of-clans/guides/war-attack-strategies-2026" },
-    "S": { "name": "Skycoach", "date": "Jul 2026", "url": "https://skycoach.gg/blog/clash-of-clans/articles/best-attack-strategies-for-every-town-hall" },
-    "E": { "name": "EZ Arena", "date": "Mar 2026", "url": "https://www.ezarena.com/blog/best-attack-strategies-for-every-town-hall-2026/" },
-    "W": { "name": "1337wiki", "date": "Oct 2026", "url": "https://clash-of-clans.1337wiki.com/attack-strategies/" },
-    "D": { "name": "Base Drop, TH18 armies", "date": "May 2026", "url": "https://cocbasedrop.com/blog/best-th18-attack-strategy-2026-war-cwl" },
-    "P": { "name": "Base Drop, pets", "date": "Oct 2026", "url": "https://cocbasedrop.com/blog/best-pets-every-hero-coc-2026-tier-list" },
-    "A": { "name": "AllClash", "date": "Mar 2026", "url": "https://www.allclash.com/best-hero-pet-combinations-in-clash-of-clans/" },
-    "G": { "name": "GameRant", "date": "Feb 2026", "url": "https://gamerant.com/clash-of-clans-best-hero-pet-combos-tier-list/" },
-    "C": { "name": "Supercell balance post", "date": "Oct 2026", "url": "https://supercell.com/en/games/clashofclans/blog/news/balance-changes-incoming-october-2026/" }
+    "B": {
+      "name": "Blueprint CoC",
+      "date": "Oct 2026",
+      "url": "https://blueprintcoc.com/blogs/coc-attack-strategies/best-clash-of-clans-army"
+    },
+    "T": {
+      "name": "Trophy Coach",
+      "date": "Oct 2026",
+      "url": "https://trophycoach.com/clash-of-clans/guides/war-attack-strategies-2026"
+    },
+    "S": {
+      "name": "Skycoach",
+      "date": "Jul 2026",
+      "url": "https://skycoach.gg/blog/clash-of-clans/articles/best-attack-strategies-for-every-town-hall"
+    },
+    "E": {
+      "name": "EZ Arena",
+      "date": "Mar 2026",
+      "url": "https://www.ezarena.com/blog/best-attack-strategies-for-every-town-hall-2026/"
+    },
+    "W": {
+      "name": "1337wiki",
+      "date": "Oct 2026",
+      "url": "https://clash-of-clans.1337wiki.com/attack-strategies/"
+    },
+    "D": {
+      "name": "Base Drop, TH18 armies",
+      "date": "May 2026",
+      "url": "https://cocbasedrop.com/blog/best-th18-attack-strategy-2026-war-cwl"
+    },
+    "P": {
+      "name": "Base Drop, pets",
+      "date": "Oct 2026",
+      "url": "https://cocbasedrop.com/blog/best-pets-every-hero-coc-2026-tier-list"
+    },
+    "A": {
+      "name": "AllClash",
+      "date": "Mar 2026",
+      "url": "https://www.allclash.com/best-hero-pet-combinations-in-clash-of-clans/"
+    },
+    "G": {
+      "name": "GameRant",
+      "date": "Feb 2026",
+      "url": "https://gamerant.com/clash-of-clans-best-hero-pet-combos-tier-list/"
+    },
+    "C": {
+      "name": "Supercell balance post",
+      "date": "Oct 2026",
+      "url": "https://supercell.com/en/games/clashofclans/blog/news/balance-changes-incoming-october-2026/"
+    },
+    "N": {
+      "name": "Clash Ninja",
+      "date": "Apr 2026",
+      "url": "https://www.clash.ninja/guides/which-pet-should-you-pair-with-your-heroes"
+    }
   },
   "heroes": [
     {
       "hero": "Archer Queen",
       "role": "Long range damage. Fragile, so she needs healing or protection on a long walk.",
-      "gear": ["Giant Arrow", "Action Figure", "Healer Puppet", "Frozen Arrow", "Magic Mirror"],
-      "split": "Guides split by plan. Unicorn is the pick for Queen Charge, while TH18 war armies mostly run Frosty.",
-      "picks": [
-        { "pet": "Unicorn", "why": "Heals her through a long Queen Charge." },
-        { "pet": "Frosty", "why": "Slows the defences shooting at her." },
-        { "pet": "Phoenix", "why": "A backup that survives one big burst." },
-        { "pet": "Sneezy", "why": "Boogers draw fire away from her." }
+      "gear": [
+        "Giant Arrow",
+        "Action Figure",
+        "Healer Puppet",
+        "Frozen Arrow",
+        "Magic Mirror"
       ],
-      "avoid": []
+      "split": "Guides split by plan. Unicorn is the pick for Queen Charge, while TH18 war armies mostly run Frosty. GameRant and one TH18 army use Sneezy, but Clash Ninja warns it exposes her to Air Defenses.",
+      "picks": [
+        {
+          "pet": "Unicorn",
+          "why": "Heals her through a long Queen Charge."
+        },
+        {
+          "pet": "Frosty",
+          "why": "Slows the defences shooting at her."
+        },
+        {
+          "pet": "Mighty Yak",
+          "why": "Clash Ninja calls it a powerful combination: it breaks the walls that would block her."
+        },
+        {
+          "pet": "Phoenix",
+          "why": "A backup that survives one big burst."
+        }
+      ],
+      "avoid": [
+        {
+          "pet": "Spirit Fox",
+          "why": "Her range is longer than its 4.5 tiles, so it runs ahead of her (Clash Ninja)."
+        }
+      ]
     },
     {
       "hero": "Grand Warden",
       "role": "Support. His ability protects the army from big hits, and he can walk or fly over walls.",
-      "gear": ["Eternal Tome", "Rage Gem", "Life Gem", "Fireball"],
+      "gear": [
+        "Eternal Tome",
+        "Rage Gem",
+        "Life Gem",
+        "Fireball"
+      ],
       "split": "Sneezy leads at TH17 and up. AllClash still prefers Electro Owl in air mode and Poison Lizard in ground mode.",
       "picks": [
-        { "pet": "Sneezy", "why": "Boogers soak up hits meant for him." },
-        { "pet": "Electro Owl", "why": "Long range suits air mode. The usual pick below TH17." },
-        { "pet": "Poison Lizard", "why": "The usual pick for ground mode." }
+        {
+          "pet": "Sneezy",
+          "why": "Boogers soak up hits meant for him. Clash Ninja says air mode only."
+        },
+        {
+          "pet": "Electro Owl",
+          "why": "Long range suits air mode. The usual pick below TH17."
+        },
+        {
+          "pet": "Poison Lizard",
+          "why": "The usual pick for ground mode."
+        },
+        {
+          "pet": "Angry Jelly",
+          "why": "Strong for Warden Walks and Fireball."
+        },
+        {
+          "pet": "Frosty",
+          "why": "Stays protected behind the troops."
+        }
       ],
-      "avoid": []
+      "avoid": [
+        {
+          "pet": "Phoenix",
+          "why": "He's rarely in danger, so its revive is mostly wasted (Clash Ninja)."
+        },
+        {
+          "pet": "Spirit Fox",
+          "why": "His range is longer than its 4.5 tiles (Clash Ninja)."
+        }
+      ]
     },
     {
       "hero": "Royal Champion",
       "role": "Dives over walls and hits defences alone, so staying alive decides how far she gets.",
-      "gear": ["Electro Boots", "Rocket Spear", "Seeking Shield"],
-      "split": "The most disputed hero. AllClash calls Diggy the best pairing in the game, GameRant picks Spirit Fox, and Base Drop picks Phoenix.",
-      "picks": [
-        { "pet": "Spirit Fox", "why": "Invisibility lets her dive defences and reset Infernos." },
-        { "pet": "Phoenix", "why": "She goes deep alone, so a second life pays off." },
-        { "pet": "Diggy", "why": "Its targeting is built to work with her." },
-        { "pet": "Unicorn", "why": "Healing, before the better pets unlock." }
+      "gear": [
+        "Electro Boots",
+        "Rocket Spear",
+        "Seeking Shield"
       ],
-      "avoid": []
+      "split": "The most disputed hero. AllClash calls Diggy the best pairing in the game, GameRant picks Spirit Fox, Base Drop picks Phoenix, and Clash Ninja backs L.A.S.S.I, Diggy and Spirit Fox.",
+      "picks": [
+        {
+          "pet": "Spirit Fox",
+          "why": "Invisibility lets her dive defences and reset Infernos."
+        },
+        {
+          "pet": "Phoenix",
+          "why": "She goes deep alone, so a second life pays off."
+        },
+        {
+          "pet": "Diggy",
+          "why": "Stuns the defences she goes for."
+        },
+        {
+          "pet": "L.A.S.S.I",
+          "why": "Clash Ninja calls it a strong combination: it can get ahead of her and tank."
+        },
+        {
+          "pet": "Unicorn",
+          "why": "Healing, before the better pets unlock."
+        }
+      ],
+      "avoid": [
+        {
+          "pet": "Angry Jelly",
+          "why": "She already goes for defences, so it adds nothing (Clash Ninja)."
+        },
+        {
+          "pet": "Greedy Raven",
+          "why": "It leads her into Air Defenses (Clash Ninja)."
+        }
+      ]
     },
     {
       "hero": "Dragon Duke",
       "role": "Tanky flying hero. He gets stronger when separated from friendly flying units.",
-      "gear": ["Electro Fangs", "Fire Heart", "Flame Blower", "Rocket Backpack"],
+      "gear": [
+        "Electro Fangs",
+        "Fire Heart",
+        "Flame Blower",
+        "Rocket Backpack"
+      ],
       "split": "Angry Jelly leads for clearing defences. 1337wiki's Duke Charge armies use Spirit Fox.",
       "picks": [
-        { "pet": "Angry Jelly", "why": "Keeps him attacking defences." },
-        { "pet": "Spirit Fox", "why": "Invisibility on a Duke Charge." },
-        { "pet": "Phoenix", "why": "Extra survival." }
+        {
+          "pet": "Angry Jelly",
+          "why": "Keeps him attacking defences."
+        },
+        {
+          "pet": "Spirit Fox",
+          "why": "Invisibility on a Duke Charge."
+        },
+        {
+          "pet": "Phoenix",
+          "why": "Extra survival."
+        },
+        {
+          "pet": "Electro Owl",
+          "why": "Hangs back, so defences rarely target it."
+        }
       ],
       "avoid": [
-        { "pet": "Sneezy", "why": "AllClash says the Boogers stop his enrage. It fits his game text, but we haven't tested it." }
+        {
+          "pet": "Sneezy",
+          "why": "AllClash and Clash Ninja both say its Boogers stop his enrage."
+        },
+        {
+          "pet": "L.A.S.S.I",
+          "why": "A ground pet can't keep up with a flying hero. Clash Ninja says the same of Unicorn and Frosty."
+        }
       ]
     },
     {
       "hero": "Barbarian King",
       "role": "Tough melee tank. Good for taking down a corner and making a funnel.",
-      "gear": ["Spiky Ball", "Snake Bracelet", "Giant Gauntlet", "Rage Vial", "Earthquake Boots"],
-      "split": "Frosty and Phoenix both have support. Base Drop picks Spirit Fox first instead.",
-      "picks": [
-        { "pet": "Frosty", "why": "Slows the defences wearing him down." },
-        { "pet": "Phoenix", "why": "A second chance to finish a compartment." },
-        { "pet": "Spirit Fox", "why": "Invisibility through the first ring of defences." },
-        { "pet": "Mighty Yak", "why": "Opens compartments up close. Good from TH14." }
+      "gear": [
+        "Spiky Ball",
+        "Snake Bracelet",
+        "Giant Gauntlet",
+        "Rage Vial",
+        "Earthquake Boots"
       ],
-      "avoid": []
+      "split": "Most guides favour Frosty or Phoenix. Base Drop picks Spirit Fox first instead.",
+      "picks": [
+        {
+          "pet": "Frosty",
+          "why": "Slows the defences wearing him down."
+        },
+        {
+          "pet": "Phoenix",
+          "why": "A second chance to finish a compartment."
+        },
+        {
+          "pet": "Spirit Fox",
+          "why": "Invisibility through the first ring of defences."
+        },
+        {
+          "pet": "Angry Jelly",
+          "why": "Clears defences early on."
+        },
+        {
+          "pet": "Mighty Yak",
+          "why": "Opens walls and compartments up close."
+        }
+      ],
+      "avoid": [
+        {
+          "pet": "L.A.S.S.I",
+          "why": "It runs ahead and dies (Clash Ninja)."
+        },
+        {
+          "pet": "Electro Owl",
+          "why": "His short range leaves it exposed to Air Defenses (Clash Ninja)."
+        },
+        {
+          "pet": "Sneezy",
+          "why": "It gets exposed to Air Defenses (Clash Ninja)."
+        }
+      ]
     },
     {
       "hero": "Minion Prince",
       "role": "Flying damage dealer that can stay with an air army.",
-      "gear": ["Dark Orb", "Meteor Staff", "Portal Pendant"],
-      "split": "AllClash and GameRant pick Angry Jelly. Base Drop picks Electro Owl.",
-      "picks": [
-        { "pet": "Angry Jelly", "why": "Lets him charge with an air army and clear defences." },
-        { "pet": "Phoenix", "why": "A fallback for survival." },
-        { "pet": "Electro Owl", "why": "Works with air attacks, before Angry Jelly unlocks." }
+      "gear": [
+        "Dark Orb",
+        "Meteor Staff",
+        "Portal Pendant"
       ],
-      "avoid": []
+      "split": "AllClash and GameRant pick Angry Jelly. Base Drop picks Electro Owl, and Clash Ninja rates both.",
+      "picks": [
+        {
+          "pet": "Angry Jelly",
+          "why": "Lets him charge with an air army and clear defences."
+        },
+        {
+          "pet": "Phoenix",
+          "why": "A fallback for survival."
+        },
+        {
+          "pet": "Electro Owl",
+          "why": "Matches his ranged attack. The pick before Angry Jelly unlocks."
+        },
+        {
+          "pet": "Diggy",
+          "why": "Stuns defences while it digs."
+        }
+      ],
+      "avoid": [
+        {
+          "pet": "L.A.S.S.I",
+          "why": "Close range, and a poor fit for a flying hero (Clash Ninja)."
+        }
+      ]
     }
   ],
   "pets": {
-    "L.A.S.S.I": "A niche pick. So fast that defences often shoot her before the hero.",
+    "L.A.S.S.I": "Best on the Royal Champion, where it can get ahead and tank. On the King it runs ahead and dies.",
     "Electro Owl": "Long range support. The early favourite for the Warden.",
     "Mighty Yak": "Opens compartments for a King going in close.",
     "Unicorn": "Healing. The classic Queen Charge partner.",
@@ -102,7 +312,7 @@
     "Phoenix": "Saves a hero from one big hit. Best on heroes that dive alone.",
     "Spirit Fox": "Invisibility on a hero that needs to get deep.",
     "Angry Jelly": "Turns the hero onto defences. Top pick for Dragon Duke and Minion Prince.",
-    "Sneezy": "Boogers take hits for the hero. Great on the Warden, but avoid on Dragon Duke.",
+    "Sneezy": "Boogers take hits for the hero. Best on a Warden in air mode. Avoid on the King, Queen and Dragon Duke.",
     "Greedy Raven": "A farming pet that hits resource buildings. Swap it out for war, unless your plan needs its storage damage."
   },
   "townHalls": [
@@ -114,9 +324,21 @@
           "name": "Giants and Archers",
           "level": "easy",
           "about": "Giants soak up the hits while Archers do the damage. Wall Breakers open a way in.",
-          "steps": ["Send Giants first, at the defences.", "Use Wall Breakers to reach the Mortar early.", "Spread Archers behind the Giants, and use the last ones to clean up."],
-          "army": ["Giant", "Archer", "Wall Breaker"],
-          "sources": ["S", "E", "W"]
+          "steps": [
+            "Send Giants first, at the defences.",
+            "Use Wall Breakers to reach the Mortar early.",
+            "Spread Archers behind the Giants, and use the last ones to clean up."
+          ],
+          "army": [
+            "Giant",
+            "Archer",
+            "Wall Breaker"
+          ],
+          "sources": [
+            "S",
+            "E",
+            "W"
+          ]
         }
       ]
     },
@@ -128,9 +350,20 @@
           "name": "Balloons and Archers",
           "level": "easy",
           "about": "Balloons go straight for defences, and most bases here have little to stop them.",
-          "steps": ["Clear the Air Defense and Archer Towers first, as they are the Balloons' main threat.", "Send the Balloons together.", "Finish with Archers."],
-          "army": ["Balloon", "Archer"],
-          "sources": ["S", "E", "W"]
+          "steps": [
+            "Clear the Air Defense and Archer Towers first, as they are the Balloons' main threat.",
+            "Send the Balloons together.",
+            "Finish with Archers."
+          ],
+          "army": [
+            "Balloon",
+            "Archer"
+          ],
+          "sources": [
+            "S",
+            "E",
+            "W"
+          ]
         }
       ]
     },
@@ -142,9 +375,23 @@
           "name": "Giants, Wizards and Balloons",
           "level": "easy",
           "about": "A ground push takes out the Air Defense, then Balloons finish from the other side.",
-          "steps": ["Push Giants and Wizards towards the Air Defense.", "Break walls with Wall Breakers.", "Send Balloons from the opposite side once it falls."],
-          "army": ["Giant", "Wizard", "Balloon", "Wall Breaker", "Lightning Spell"],
-          "sources": ["S", "E", "W"]
+          "steps": [
+            "Push Giants and Wizards towards the Air Defense.",
+            "Break walls with Wall Breakers.",
+            "Send Balloons from the opposite side once it falls."
+          ],
+          "army": [
+            "Giant",
+            "Wizard",
+            "Balloon",
+            "Wall Breaker",
+            "Lightning Spell"
+          ],
+          "sources": [
+            "S",
+            "E",
+            "W"
+          ]
         }
       ]
     },
@@ -156,9 +403,23 @@
           "name": "Giant and Wizard push",
           "level": "easy",
           "about": "A full ground push with Healing Spells. Skycoach warns that air is inconsistent at this level.",
-          "steps": ["Lead with Giants.", "Follow with Wizards and open walls with Wall Breakers.", "Drop Healing Spells on the push when it comes under fire."],
-          "army": ["Giant", "Wizard", "Wall Breaker", "Archer", "Healing Spell"],
-          "sources": ["S", "E", "W"]
+          "steps": [
+            "Lead with Giants.",
+            "Follow with Wizards and open walls with Wall Breakers.",
+            "Drop Healing Spells on the push when it comes under fire."
+          ],
+          "army": [
+            "Giant",
+            "Wizard",
+            "Wall Breaker",
+            "Archer",
+            "Healing Spell"
+          ],
+          "sources": [
+            "S",
+            "E",
+            "W"
+          ]
         }
       ]
     },
@@ -169,19 +430,46 @@
         {
           "name": "Mass Dragons",
           "level": "easy",
-          "about": "The most forgiving war army at this level. Air defences are still few and weak.",
-          "steps": ["Snipe an Air Defense with Lightning first.", "Deploy from behind the Air Sweeper, in a spread line.", "Rage the Dragons when they reach the core."],
-          "army": ["Dragon", "Balloon", "Lightning Spell", "Rage Spell"],
-          "heroes": [{ "hero": "Barbarian King" }],
-          "sources": ["S", "E", "W", "T"]
+          "about": "The most forgiving war army at this level. Air Defenses are still few and weak.",
+          "steps": [
+            "Snipe an Air Defense with Lightning first.",
+            "Deploy from behind the Air Sweeper, in a spread line.",
+            "Rage the Dragons when they reach the core."
+          ],
+          "army": [
+            "Dragon",
+            "Balloon",
+            "Lightning Spell",
+            "Rage Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Barbarian King"
+            }
+          ],
+          "sources": [
+            "S",
+            "E",
+            "W",
+            "T"
+          ]
         },
         {
           "name": "Mass Hog Riders",
           "level": "medium",
           "about": "A ground option that jumps walls. Traps matter more than with Dragons.",
-          "steps": ["Pull out or clear Clan Castle troops first.", "Send Hog Riders together.", "Heal them where splash and traps hit."],
-          "army": ["Hog Rider", "Healing Spell"],
-          "sources": ["W"]
+          "steps": [
+            "Pull out or clear Clan Castle troops first.",
+            "Send Hog Riders together.",
+            "Heal them where splash and traps hit."
+          ],
+          "army": [
+            "Hog Rider",
+            "Healing Spell"
+          ],
+          "sources": [
+            "W"
+          ]
         }
       ]
     },
@@ -193,26 +481,66 @@
           "name": "Mass Dragons",
           "level": "easy",
           "about": "Still a strong beginner army here, and it needs no new skills.",
-          "steps": ["Take out an Air Defense with Lightning.", "Deploy in a spread line.", "Rage the core."],
-          "army": ["Dragon", "Balloon", "Lightning Spell", "Rage Spell"],
-          "sources": ["T"]
+          "steps": [
+            "Take out an Air Defense with Lightning.",
+            "Deploy in a spread line.",
+            "Rage the core."
+          ],
+          "army": [
+            "Dragon",
+            "Balloon",
+            "Lightning Spell",
+            "Rage Spell"
+          ],
+          "sources": [
+            "T"
+          ]
         },
         {
           "name": "GoHo",
           "level": "medium",
           "about": "Golems, Hog Riders and Wizards. Teaches timing and spell placement.",
-          "steps": ["Golem tanks one side while Wizards clear a funnel.", "Send Hog Riders through the gap.", "Heal the Hogs where defences overlap."],
-          "army": ["Golem", "Hog Rider", "Valkyrie", "Wizard", "Wall Breaker", "Healing Spell"],
-          "heroes": [{ "hero": "Archer Queen" }],
-          "sources": ["S", "W"]
+          "steps": [
+            "Golem tanks one side while Wizards clear a funnel.",
+            "Send Hog Riders through the gap.",
+            "Heal the Hogs where defences overlap."
+          ],
+          "army": [
+            "Golem",
+            "Hog Rider",
+            "Valkyrie",
+            "Wizard",
+            "Wall Breaker",
+            "Healing Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Archer Queen"
+            }
+          ],
+          "sources": [
+            "S",
+            "W"
+          ]
         },
         {
           "name": "Golem and Valkyrie push",
           "level": "medium",
           "about": "A structured ground push that pays off against strong cores.",
-          "steps": ["Golems take the hits.", "Open the core with Wall Breakers.", "Send Valkyries in, with Rage on arrival."],
-          "army": ["Golem", "Valkyrie", "Wall Breaker", "Rage Spell"],
-          "sources": ["E"]
+          "steps": [
+            "Golems take the hits.",
+            "Open the core with Wall Breakers.",
+            "Send Valkyries in, with Rage on arrival."
+          ],
+          "army": [
+            "Golem",
+            "Valkyrie",
+            "Wall Breaker",
+            "Rage Spell"
+          ],
+          "sources": [
+            "E"
+          ]
         }
       ]
     },
@@ -224,25 +552,63 @@
           "name": "Witch Slap",
           "level": "easy",
           "about": "Golems in front and Witches behind. It wins by pressure more than precision.",
-          "steps": ["Golems first, to take the fire.", "Open a path with Wall Breakers or Jump.", "Deploy Witches behind them, then Rage, Freeze and Heal as needed."],
-          "army": ["Golem", "Witch", "Wall Breaker", "Jump Spell", "Rage Spell", "Freeze Spell", "Healing Spell"],
-          "sources": ["S", "E", "W", "B"]
+          "steps": [
+            "Golems first, to take the fire.",
+            "Open a path with Wall Breakers or Jump.",
+            "Deploy Witches behind them, then Rage, Freeze and Heal as needed."
+          ],
+          "army": [
+            "Golem",
+            "Witch",
+            "Wall Breaker",
+            "Jump Spell",
+            "Rage Spell",
+            "Freeze Spell",
+            "Healing Spell"
+          ],
+          "sources": [
+            "S",
+            "E",
+            "W",
+            "B"
+          ]
         },
         {
           "name": "Zap Dragons",
           "level": "easy",
           "about": "Spells clear the Air Defenses, then the Dragons have an easy run.",
-          "steps": ["Earthquake and Lightning an Air Defense.", "Use heroes on what's left of the air defences.", "Deploy the Dragons."],
-          "army": ["Dragon", "Lightning Spell", "Earthquake Spell"],
-          "sources": ["B"]
+          "steps": [
+            "Earthquake and Lightning an Air Defense.",
+            "Use heroes on the remaining Air Defenses.",
+            "Deploy the Dragons."
+          ],
+          "army": [
+            "Dragon",
+            "Lightning Spell",
+            "Earthquake Spell"
+          ],
+          "sources": [
+            "B"
+          ]
         },
         {
           "name": "Zap Lalo",
           "level": "hard",
           "about": "Lava Hounds tank for Balloons. Strong, but needs precise timing.",
-          "steps": ["Zap an Air Defense with Lightning.", "Send the King and Queen at high value defences.", "Lava Hounds first, Balloons close behind."],
-          "army": ["Lava Hound", "Balloon", "Lightning Spell", "Rage Spell"],
-          "sources": ["B"]
+          "steps": [
+            "Zap an Air Defense with Lightning.",
+            "Send the King and Queen at high-value defences.",
+            "Lava Hounds first, Balloons close behind."
+          ],
+          "army": [
+            "Lava Hound",
+            "Balloon",
+            "Lightning Spell",
+            "Rage Spell"
+          ],
+          "sources": [
+            "B"
+          ]
         }
       ]
     },
@@ -254,27 +620,77 @@
           "name": "Zap Dragons",
           "level": "easy",
           "about": "Remove the Air Defenses before the Dragons deploy. Low risk.",
-          "steps": ["Lightning and Earthquake the Air Defenses.", "Use the Queen and Prince on what remains.", "Deploy the Dragons."],
-          "army": ["Dragon", "Lightning Spell", "Earthquake Spell"],
-          "heroes": [{ "hero": "Archer Queen" }, { "hero": "Minion Prince" }],
-          "sources": ["S", "E", "W"]
+          "steps": [
+            "Lightning and Earthquake the Air Defenses.",
+            "Use the Queen and Prince on what remains.",
+            "Deploy the Dragons."
+          ],
+          "army": [
+            "Dragon",
+            "Lightning Spell",
+            "Earthquake Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Archer Queen"
+            },
+            {
+              "hero": "Minion Prince"
+            }
+          ],
+          "sources": [
+            "S",
+            "E",
+            "W"
+          ]
         },
         {
           "name": "Queen Charge Hybrid",
           "level": "hard",
           "about": "The Queen with Healers clears one side, then Hog Riders and Miners finish. It adapts to most bases.",
-          "steps": ["Walk the Queen with her Healers, keeping her clear of single-target Inferno Towers.", "Use Healing Spells to keep her alive.", "Send Hog Riders and Miners together once the path is clear."],
-          "army": ["Healer", "Hog Rider", "Miner", "Healing Spell"],
-          "heroes": [{ "hero": "Archer Queen", "gear": ["Frozen Arrow"] }],
-          "sources": ["T", "W"]
+          "steps": [
+            "Walk the Queen with her Healers, keeping her clear of single-target Inferno Towers.",
+            "Use Healing Spells to keep her alive.",
+            "Send Hog Riders and Miners together once the path is clear."
+          ],
+          "army": [
+            "Healer",
+            "Hog Rider",
+            "Miner",
+            "Healing Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Archer Queen",
+              "gear": [
+                "Frozen Arrow"
+              ]
+            }
+          ],
+          "sources": [
+            "T",
+            "W"
+          ]
         },
         {
           "name": "Zap Lalo",
           "level": "hard",
           "about": "A classic air three-star for players who already know their timing.",
-          "steps": ["Zap Air Defenses with Lightning.", "Send Lava Hounds first.", "Balloons behind them, with Haste and Heal."],
-          "army": ["Lava Hound", "Balloon", "Lightning Spell", "Haste Spell", "Healing Spell"],
-          "sources": ["B"]
+          "steps": [
+            "Zap Air Defenses with Lightning.",
+            "Send Lava Hounds first.",
+            "Balloons behind them, with Haste and Heal."
+          ],
+          "army": [
+            "Lava Hound",
+            "Balloon",
+            "Lightning Spell",
+            "Haste Spell",
+            "Healing Spell"
+          ],
+          "sources": [
+            "B"
+          ]
         }
       ]
     },
@@ -286,27 +702,82 @@
           "name": "Zap Witches",
           "level": "easy",
           "about": "Very forgiving. Spells take out the Inferno Towers, then Witches walk through.",
-          "steps": ["Lightning and Earthquake the Inferno Towers.", "Make a wide funnel.", "Send Golems, then Witches and heroes through the centre. Use the Warden's ability when the push takes heavy damage."],
-          "army": ["Golem", "Witch", "Lightning Spell", "Earthquake Spell", "Jump Spell", "Super Wall Breaker"],
-          "heroes": [{ "hero": "Grand Warden" }],
-          "sources": ["S", "E", "W", "B"]
+          "steps": [
+            "Lightning and Earthquake the Inferno Towers.",
+            "Make a wide funnel.",
+            "Send Golems, then Witches and heroes through the centre. Use the Warden's ability when the push takes heavy damage."
+          ],
+          "army": [
+            "Golem",
+            "Witch",
+            "Lightning Spell",
+            "Earthquake Spell",
+            "Jump Spell",
+            "Super Wall Breaker"
+          ],
+          "heroes": [
+            {
+              "hero": "Grand Warden"
+            }
+          ],
+          "sources": [
+            "S",
+            "E",
+            "W",
+            "B"
+          ]
         },
         {
           "name": "Electro Dragons",
           "level": "medium",
           "about": "One of the easier air armies. Chain lightning works best in a straight line.",
-          "steps": ["Funnel with heroes or one Electro Dragon.", "Send the rest in a straight line, with Balloons on the defences in their way.", "Rage and Freeze along the path."],
-          "army": ["Electro Dragon", "Balloon", "Rage Spell", "Freeze Spell"],
-          "sources": ["B", "T"]
+          "steps": [
+            "Funnel with heroes or one Electro Dragon.",
+            "Send the rest in a straight line, with Balloons on the defences in their way.",
+            "Rage and Freeze along the path."
+          ],
+          "army": [
+            "Electro Dragon",
+            "Balloon",
+            "Rage Spell",
+            "Freeze Spell"
+          ],
+          "sources": [
+            "B",
+            "T"
+          ]
         },
         {
           "name": "Queen Charge Hybrid",
           "level": "hard",
           "about": "The versatile option for skilled players. Higher reward, less forgiving.",
-          "steps": ["Queen and Healers clear one side.", "Use Healing Spells and the Warden's ability to keep her alive.", "Send Hog Riders and Miners to finish."],
-          "army": ["Healer", "Hog Rider", "Miner", "Healing Spell"],
-          "heroes": [{ "hero": "Archer Queen", "gear": ["Frozen Arrow"] }, { "hero": "Grand Warden" }],
-          "sources": ["B", "E", "T"]
+          "steps": [
+            "Queen and Healers clear one side.",
+            "Use Healing Spells and the Warden's ability to keep her alive.",
+            "Send Hog Riders and Miners to finish."
+          ],
+          "army": [
+            "Healer",
+            "Hog Rider",
+            "Miner",
+            "Healing Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Archer Queen",
+              "gear": [
+                "Frozen Arrow"
+              ]
+            },
+            {
+              "hero": "Grand Warden"
+            }
+          ],
+          "sources": [
+            "B",
+            "E",
+            "T"
+          ]
         }
       ]
     },
@@ -318,35 +789,110 @@
           "name": "Zap Dragons",
           "level": "easy",
           "about": "Simple and reliable, and it doesn't need epic equipment.",
-          "steps": ["Use Giant Arrow, Lightning and Earthquake on the Air Defenses.", "Funnel with the King.", "Deploy the Dragons, with a Battle Blimp on the core. Rage and Freeze when needed."],
-          "army": ["Dragon", "Battle Blimp", "Lightning Spell", "Earthquake Spell", "Rage Spell", "Freeze Spell"],
-          "heroes": [{ "hero": "Barbarian King" }, { "hero": "Archer Queen", "gear": ["Giant Arrow"] }],
-          "sources": ["B", "E"]
+          "steps": [
+            "Use Giant Arrow, Lightning and Earthquake on the Air Defenses.",
+            "Funnel with the King.",
+            "Deploy the Dragons, with a Battle Blimp on the core. Rage and Freeze when needed."
+          ],
+          "army": [
+            "Dragon",
+            "Battle Blimp",
+            "Lightning Spell",
+            "Earthquake Spell",
+            "Rage Spell",
+            "Freeze Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Barbarian King"
+            },
+            {
+              "hero": "Archer Queen",
+              "gear": [
+                "Giant Arrow"
+              ]
+            }
+          ],
+          "sources": [
+            "B",
+            "E"
+          ]
         },
         {
           "name": "Yeti Smash",
           "level": "medium",
           "about": "A ground alternative. Yetis and their Yetimites overwhelm the defences behind a tank.",
-          "steps": ["Make a funnel with heroes.", "Send the Yetis behind a tank.", "Rage and Freeze as they reach the core."],
-          "army": ["Yeti", "Rage Spell", "Freeze Spell"],
-          "sources": ["T"]
+          "steps": [
+            "Make a funnel with heroes.",
+            "Send the Yetis behind an Ice Golem, which takes the hits.",
+            "Rage and Freeze as they reach the core."
+          ],
+          "army": [
+            "Ice Golem",
+            "Yeti",
+            "Rage Spell",
+            "Freeze Spell"
+          ],
+          "sources": [
+            "T"
+          ]
         },
         {
           "name": "DragBat",
           "level": "hard",
           "about": "Dragons weaken the splash defences, then Bat Spells swarm what's left. Timing decides it.",
-          "steps": ["Deploy Dragons with a Battle Blimp or Stone Slammer.", "Wait until splash defences are gone.", "Drop Bat Spells outside them, and Freeze what still threatens the Bats."],
-          "army": ["Dragon", "Bat Spell", "Freeze Spell", "Overgrowth Spell", "Battle Blimp", "Stone Slammer"],
-          "sources": ["S", "W"]
+          "steps": [
+            "Deploy Dragons with a Battle Blimp or Stone Slammer.",
+            "Wait until splash defences are gone.",
+            "Drop Bat Spells outside them, and Freeze what still threatens the Bats."
+          ],
+          "army": [
+            "Dragon",
+            "Bat Spell",
+            "Freeze Spell",
+            "Overgrowth Spell",
+            "Battle Blimp",
+            "Stone Slammer"
+          ],
+          "sources": [
+            "S",
+            "W"
+          ]
         },
         {
           "name": "Queen Charge Hybrid",
           "level": "hard",
           "about": "Still strong here if you can control the charge.",
-          "steps": ["Queen and Healers clear one side.", "Heal her, and save the Warden's ability for big hits.", "Send Hog Riders and Miners to finish."],
-          "army": ["Healer", "Hog Rider", "Miner", "Healing Spell"],
-          "heroes": [{ "hero": "Archer Queen", "gear": ["Frozen Arrow", "Healer Puppet"] }, { "hero": "Grand Warden" }, { "hero": "Barbarian King" }],
-          "sources": ["B", "T"]
+          "steps": [
+            "Queen and Healers clear one side.",
+            "Heal her, and save the Warden's ability for big hits.",
+            "Send Hog Riders and Miners to finish."
+          ],
+          "army": [
+            "Healer",
+            "Hog Rider",
+            "Miner",
+            "Healing Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Archer Queen",
+              "gear": [
+                "Frozen Arrow",
+                "Healer Puppet"
+              ]
+            },
+            {
+              "hero": "Grand Warden"
+            },
+            {
+              "hero": "Barbarian King"
+            }
+          ],
+          "sources": [
+            "B",
+            "T"
+          ]
         }
       ]
     },
@@ -358,61 +904,181 @@
           "name": "Yeti Super Archer Spam",
           "level": "easy",
           "about": "Simple to deploy, with a lot of forgiving damage.",
-          "steps": ["Ice Golems and heroes open the attack.", "Send Yetis and a Log Launcher.", "Super Archers behind them, Rage on the core."],
-          "army": ["Ice Golem", "Yeti", "Super Archer", "Log Launcher", "Rage Spell"],
-          "heroes": [{ "hero": "Grand Warden" }],
-          "sources": ["B", "E"]
+          "steps": [
+            "Ice Golems and heroes open the attack.",
+            "Send Yetis and a Log Launcher.",
+            "Super Archers behind them, Rage on the core."
+          ],
+          "army": [
+            "Ice Golem",
+            "Yeti",
+            "Super Archer",
+            "Log Launcher",
+            "Rage Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Grand Warden"
+            }
+          ],
+          "sources": [
+            "B",
+            "E"
+          ]
         },
         {
           "name": "Yeti and Super Wizard Smash",
           "level": "medium",
           "about": "A heavy ground push. Keep the heroes grouped under the Warden's ability.",
-          "steps": ["Open a side with heroes and a Log Launcher.", "Send Yetis then Super Wizards.", "Use the Warden's ability when the group is under fire."],
-          "army": ["Yeti", "Super Wizard", "Log Launcher", "Bat Spell"],
-          "heroes": [{ "hero": "Royal Champion" }, { "hero": "Grand Warden" }],
-          "sources": ["S", "W", "T"]
+          "steps": [
+            "Open a side with heroes and a Log Launcher.",
+            "Send Yetis then Super Wizards.",
+            "Use the Warden's ability when the group is under fire."
+          ],
+          "army": [
+            "Yeti",
+            "Super Wizard",
+            "Log Launcher",
+            "Bat Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Royal Champion"
+            },
+            {
+              "hero": "Grand Warden"
+            }
+          ],
+          "sources": [
+            "S",
+            "W",
+            "T"
+          ]
         },
         {
           "name": "Super Archer Clone Hydra",
           "level": "hard",
           "about": "One of the most reliable air attacks, but with several moving parts.",
-          "steps": ["Fly Super Archers in on a Battle Blimp, with Invisibility and Clone.", "Send the Royal Champion at the back of the base.", "Follow with a Lava Hound, Dragons, Balloons and Dragon Riders."],
-          "army": ["Battle Blimp", "Super Archer", "Lava Hound", "Dragon", "Balloon", "Dragon Rider", "Invisibility Spell", "Clone Spell", "Rage Spell"],
-          "heroes": [{ "hero": "Royal Champion" }, { "hero": "Grand Warden" }],
-          "sources": ["B", "E"]
+          "steps": [
+            "Fly Super Archers in on a Battle Blimp, with Invisibility and Clone.",
+            "Send the Royal Champion at the back of the base.",
+            "Follow with a Lava Hound, Dragons, Balloons and Dragon Riders."
+          ],
+          "army": [
+            "Battle Blimp",
+            "Super Archer",
+            "Lava Hound",
+            "Dragon",
+            "Balloon",
+            "Dragon Rider",
+            "Invisibility Spell",
+            "Clone Spell",
+            "Rage Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Royal Champion"
+            },
+            {
+              "hero": "Grand Warden"
+            }
+          ],
+          "sources": [
+            "B",
+            "E"
+          ]
         }
       ]
     },
     {
       "th": 14,
-      "summary": "The Pet House opens. Dragon armies are the most agreed choice.",
+      "summary": "The Pet House opens. Most guides pick a Dragon army here.",
       "strategies": [
         {
           "name": "Super Dragons",
           "level": "easy",
           "about": "One of the most reliable armies here, and forgiving to deploy.",
-          "steps": ["Take out an Air Defense with the Queen or spells.", "Deploy Super Dragons along one side.", "Balloons on defences in the way, then Rage and Freeze."],
-          "army": ["Super Dragon", "Balloon", "Rage Spell", "Freeze Spell"],
-          "heroes": [{ "hero": "Archer Queen" }, { "hero": "Grand Warden" }],
-          "sources": ["B", "E"]
+          "steps": [
+            "Take out an Air Defense with the Queen or spells.",
+            "Deploy Super Dragons along one side.",
+            "Balloons on defences in the way, then Rage and Freeze."
+          ],
+          "army": [
+            "Super Dragon",
+            "Balloon",
+            "Rage Spell",
+            "Freeze Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Archer Queen"
+            },
+            {
+              "hero": "Grand Warden"
+            }
+          ],
+          "sources": [
+            "B",
+            "E"
+          ]
         },
         {
           "name": "Mass Dragons with Blimp",
           "level": "medium",
           "about": "The Queen's Giant Arrow handles an Air Defense, and the Blimp goes for the Town Hall.",
-          "steps": ["Giant Arrow on an Air Defense.", "Send the Battle Blimp towards the Town Hall.", "Deploy Dragons with Balloons, then Rage and Freeze."],
-          "army": ["Dragon", "Balloon", "Battle Blimp", "Rage Spell", "Freeze Spell"],
-          "heroes": [{ "hero": "Archer Queen", "gear": ["Giant Arrow"] }],
-          "sources": ["S", "W"]
+          "steps": [
+            "Giant Arrow on an Air Defense.",
+            "Send the Battle Blimp towards the Town Hall.",
+            "Deploy Dragons with Balloons, then Rage and Freeze."
+          ],
+          "army": [
+            "Dragon",
+            "Balloon",
+            "Battle Blimp",
+            "Rage Spell",
+            "Freeze Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Archer Queen",
+              "gear": [
+                "Giant Arrow"
+              ]
+            }
+          ],
+          "sources": [
+            "S",
+            "W"
+          ]
         },
         {
           "name": "RC Walk Dragons",
           "level": "hard",
-          "about": "Very strong once the Champion's walk gets real value.",
-          "steps": ["Walk the Royal Champion through defences with Rocket Spear, using Invisibility to keep her alive.", "Clear air defences with Rocket Balloons.", "Deploy the Dragons."],
-          "army": ["Dragon", "Rocket Balloon", "Invisibility Spell"],
-          "heroes": [{ "hero": "Royal Champion", "gear": ["Rocket Spear"] }, { "hero": "Grand Warden" }],
-          "sources": ["B"]
+          "about": "Very strong once the Champion's walk has cleared key defences.",
+          "steps": [
+            "Walk the Royal Champion through defences with Rocket Spear, using Invisibility to keep her alive.",
+            "Clear Air Defenses with Rocket Balloons.",
+            "Deploy the Dragons."
+          ],
+          "army": [
+            "Dragon",
+            "Rocket Balloon",
+            "Invisibility Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Royal Champion",
+              "gear": [
+                "Rocket Spear"
+              ]
+            },
+            {
+              "hero": "Grand Warden"
+            }
+          ],
+          "sources": [
+            "B"
+          ]
         }
       ]
     },
@@ -423,28 +1089,90 @@
         {
           "name": "Root Rider with RC Charge",
           "level": "medium",
-          "about": "Called the most consistent high Town Hall ground army of 2026, and the default when unsure.",
-          "steps": ["Charge the Royal Champion along one side.", "Root Riders push through defences and walls.", "Overgrowth keeps defences busy while the push gets through."],
-          "army": ["Root Rider", "Overgrowth Spell"],
-          "heroes": [{ "hero": "Royal Champion", "gear": ["Electro Boots"] }, { "hero": "Archer Queen", "gear": ["Giant Arrow"] }],
-          "sources": ["B", "T"]
+          "about": "Trophy Coach calls it the most consistent high Town Hall ground army of 2026, and the default when unsure.",
+          "steps": [
+            "Charge the Royal Champion along one side.",
+            "Root Riders push through defences and walls.",
+            "Overgrowth keeps defences busy while the push gets through."
+          ],
+          "army": [
+            "Root Rider",
+            "Overgrowth Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Royal Champion",
+              "gear": [
+                "Electro Boots"
+              ]
+            },
+            {
+              "hero": "Archer Queen",
+              "gear": [
+                "Giant Arrow"
+              ]
+            }
+          ],
+          "sources": [
+            "B",
+            "T"
+          ]
         },
         {
           "name": "Warden Charge Super Yetis",
           "level": "medium",
           "about": "The Warden leads with Healers, and Super Yetis push behind him.",
-          "steps": ["Open with the Warden and Healers.", "Use Furnaces and Skeleton Spells to pull fire.", "Send Super Yetis in behind, with Jump where walls block them."],
-          "army": ["Super Yeti", "Healer", "Furnace", "Skeleton Spell", "Jump Spell"],
-          "heroes": [{ "hero": "Grand Warden" }, { "hero": "Barbarian King" }, { "hero": "Archer Queen" }, { "hero": "Royal Champion" }],
-          "sources": ["B", "E"]
+          "steps": [
+            "Open with the Warden and Healers.",
+            "Use Furnaces and Skeleton Spells to pull fire.",
+            "Send Super Yetis in behind, with Jump where walls block them."
+          ],
+          "army": [
+            "Super Yeti",
+            "Healer",
+            "Furnace",
+            "Skeleton Spell",
+            "Jump Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Grand Warden"
+            },
+            {
+              "hero": "Barbarian King"
+            },
+            {
+              "hero": "Archer Queen"
+            },
+            {
+              "hero": "Royal Champion"
+            }
+          ],
+          "sources": [
+            "B",
+            "E"
+          ]
         },
         {
           "name": "Hydra",
           "level": "hard",
           "about": "A triple air mix where pathing decides everything. Avoid the Clan Castle.",
-          "steps": ["Plan the path around the Clan Castle.", "Use the Battle Blimp to carry out Clone Spells.", "Deploy Dragons, Dragon Riders and Balloons."],
-          "army": ["Dragon", "Dragon Rider", "Balloon", "Battle Blimp", "Clone Spell"],
-          "sources": ["S", "W"]
+          "steps": [
+            "Plan the path around the Clan Castle.",
+            "Drop Clone Spells where the Battle Blimp releases its troops.",
+            "Deploy Dragons, Dragon Riders and Balloons."
+          ],
+          "army": [
+            "Dragon",
+            "Dragon Rider",
+            "Balloon",
+            "Battle Blimp",
+            "Clone Spell"
+          ],
+          "sources": [
+            "S",
+            "W"
+          ]
         }
       ]
     },
@@ -456,37 +1184,113 @@
         {
           "name": "Fireball Super Yeti",
           "level": "easy",
-          "about": "Described as safe and consistent, and the most forgiving high Town Hall three-star.",
-          "steps": ["Soften defences with the Warden's Fireball.", "Send Super Yetis with the King and Royal Champion.", "Totem, Jump and Rage to carry the push into the core."],
-          "army": ["Super Yeti", "Totem Spell", "Jump Spell", "Rage Spell"],
-          "heroes": [{ "hero": "Grand Warden", "gear": ["Fireball"] }, { "hero": "Barbarian King" }, { "hero": "Royal Champion" }],
-          "sources": ["B", "E", "T"]
+          "about": "Blueprint CoC calls it safe and consistent, and Trophy Coach the most forgiving high Town Hall three-star.",
+          "steps": [
+            "Soften defences with the Warden's Fireball.",
+            "Send Super Yetis with the King and Royal Champion.",
+            "Totem, Jump and Rage to carry the push into the core."
+          ],
+          "army": [
+            "Super Yeti",
+            "Totem Spell",
+            "Jump Spell",
+            "Rage Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Grand Warden",
+              "gear": [
+                "Fireball"
+              ]
+            },
+            {
+              "hero": "Barbarian King"
+            },
+            {
+              "hero": "Royal Champion"
+            }
+          ],
+          "sources": [
+            "B",
+            "E",
+            "T"
+          ]
         },
         {
           "name": "RC Walk Root Riders",
           "level": "hard",
           "about": "Strong, but needs precise control of the Champion's walk.",
-          "steps": ["Walk the Royal Champion with Invisibility.", "Send Root Riders along the cleared side.", "Use Overgrowth and Totems to keep them going."],
-          "army": ["Root Rider", "Invisibility Spell", "Overgrowth Spell", "Totem Spell"],
-          "heroes": [{ "hero": "Royal Champion" }, { "hero": "Grand Warden" }],
-          "sources": ["B", "E"]
+          "steps": [
+            "Walk the Royal Champion with Invisibility.",
+            "Send Root Riders along the cleared side.",
+            "Use Overgrowth and Totems to keep them going."
+          ],
+          "army": [
+            "Root Rider",
+            "Invisibility Spell",
+            "Overgrowth Spell",
+            "Totem Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Royal Champion"
+            },
+            {
+              "hero": "Grand Warden"
+            }
+          ],
+          "sources": [
+            "B",
+            "E"
+          ]
         },
         {
           "name": "Root Riders and Valkyries",
           "level": "medium",
           "about": "Controlled ground movement rather than spam.",
-          "steps": ["Clear space with a Siege Barracks.", "Send Root Riders first, then Valkyries and Super Barbarians.", "Use Overgrowth and Rage to control the path."],
-          "army": ["Root Rider", "Valkyrie", "Super Barbarian", "Healer", "Siege Barracks", "Overgrowth Spell", "Rage Spell"],
-          "sources": ["S", "W"]
+          "steps": [
+            "Clear space with a Siege Barracks.",
+            "Send Root Riders first, then Valkyries and Super Barbarians.",
+            "Use Overgrowth and Rage to control the path."
+          ],
+          "army": [
+            "Root Rider",
+            "Valkyrie",
+            "Super Barbarian",
+            "Healer",
+            "Siege Barracks",
+            "Overgrowth Spell",
+            "Rage Spell"
+          ],
+          "sources": [
+            "S",
+            "W"
+          ]
         },
         {
           "name": "RC Walk Dragons",
           "level": "hard",
           "about": "Fast and explosive when the walk takes out the right targets.",
-          "steps": ["Walk the Royal Champion with Invisibility.", "Deploy Dragons on the opened side.", "Clean up the rest."],
-          "army": ["Dragon", "Invisibility Spell"],
-          "heroes": [{ "hero": "Royal Champion" }, { "hero": "Grand Warden" }],
-          "sources": ["B"]
+          "steps": [
+            "Walk the Royal Champion with Invisibility.",
+            "Deploy Dragons on the opened side.",
+            "Clean up the rest."
+          ],
+          "army": [
+            "Dragon",
+            "Invisibility Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Royal Champion"
+            },
+            {
+              "hero": "Grand Warden"
+            }
+          ],
+          "sources": [
+            "B"
+          ]
         }
       ]
     },
@@ -498,37 +1302,127 @@
         {
           "name": "Fireball Super Yetis",
           "level": "easy",
-          "about": "Called one of the most consistent smash attacks here.",
-          "steps": ["Use the Warden's Fireball, Invisibility and Earthquake to open the way in.", "Ice Golems take the hits.", "Send Super Yetis, with Jump into the core."],
-          "army": ["Super Yeti", "Ice Golem", "Invisibility Spell", "Earthquake Spell", "Jump Spell"],
-          "heroes": [{ "hero": "Grand Warden", "gear": ["Fireball"] }, { "hero": "Archer Queen" }, { "hero": "Barbarian King" }, { "hero": "Royal Champion" }],
-          "sources": ["B", "E", "T"]
+          "about": "Blueprint CoC calls it one of the most consistent smash attacks here.",
+          "steps": [
+            "Use the Warden's Fireball, Invisibility and Earthquake to open the way in.",
+            "Ice Golems take the hits.",
+            "Send Super Yetis, with Jump into the core."
+          ],
+          "army": [
+            "Super Yeti",
+            "Ice Golem",
+            "Invisibility Spell",
+            "Earthquake Spell",
+            "Jump Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Grand Warden",
+              "gear": [
+                "Fireball"
+              ]
+            },
+            {
+              "hero": "Archer Queen"
+            },
+            {
+              "hero": "Barbarian King"
+            },
+            {
+              "hero": "Royal Champion"
+            }
+          ],
+          "sources": [
+            "B",
+            "E",
+            "T"
+          ]
         },
         {
           "name": "RC Walk Dragons",
           "level": "hard",
           "about": "Extremely strong when the walk works. Invisibility is used on the spot to steer the Dragons' path.",
-          "steps": ["Walk the Royal Champion with Invisibility.", "Clear defences with Rocket Balloons and a Siege Barracks.", "Deploy Dragons, using Invisibility to steer them."],
-          "army": ["Dragon", "Rocket Balloon", "Siege Barracks", "Invisibility Spell"],
-          "heroes": [{ "hero": "Royal Champion" }, { "hero": "Archer Queen" }, { "hero": "Grand Warden" }, { "hero": "Minion Prince" }],
-          "sources": ["B", "E", "S", "W"]
+          "steps": [
+            "Walk the Royal Champion with Invisibility.",
+            "Clear defences with Rocket Balloons and a Siege Barracks.",
+            "Deploy Dragons, using Invisibility to steer them."
+          ],
+          "army": [
+            "Dragon",
+            "Rocket Balloon",
+            "Siege Barracks",
+            "Invisibility Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Royal Champion"
+            },
+            {
+              "hero": "Archer Queen"
+            },
+            {
+              "hero": "Grand Warden"
+            },
+            {
+              "hero": "Minion Prince"
+            }
+          ],
+          "sources": [
+            "B",
+            "E",
+            "S",
+            "W"
+          ]
         },
         {
           "name": "RC Walk Root Riders",
           "level": "hard",
-          "about": "Called one of the strongest ground strategies here.",
-          "steps": ["Walk the Royal Champion with Invisibility.", "Use a Troop Launcher to get support to her.", "Send Root Riders with Overgrowth."],
-          "army": ["Root Rider", "Troop Launcher", "Invisibility Spell", "Overgrowth Spell"],
-          "heroes": [{ "hero": "Royal Champion" }, { "hero": "Grand Warden" }],
-          "sources": ["B", "T"]
+          "about": "Blueprint CoC calls it one of the strongest ground strategies here.",
+          "steps": [
+            "Walk the Royal Champion with Invisibility.",
+            "Use a Troop Launcher to get support to her.",
+            "Send Root Riders with Overgrowth."
+          ],
+          "army": [
+            "Root Rider",
+            "Troop Launcher",
+            "Invisibility Spell",
+            "Overgrowth Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Royal Champion"
+            },
+            {
+              "hero": "Grand Warden"
+            }
+          ],
+          "sources": [
+            "B",
+            "T"
+          ]
         },
         {
           "name": "Hydra Air",
           "level": "hard",
           "about": "A two-flank air attack that needs Air Defenses you can split.",
-          "steps": ["Check the Air Defenses can be split into two flanks.", "Open with a Lava Hound and Balloons.", "Send Dragons and Dragon Riders, with Rage, Freeze and Poison."],
-          "army": ["Dragon", "Balloon", "Dragon Rider", "Lava Hound", "Rage Spell", "Freeze Spell", "Poison Spell"],
-          "sources": ["T"]
+          "steps": [
+            "Check the Air Defenses can be split into two flanks.",
+            "Open with a Lava Hound and Balloons.",
+            "Send Dragons and Dragon Riders, with Rage, Freeze and Poison."
+          ],
+          "army": [
+            "Dragon",
+            "Balloon",
+            "Dragon Rider",
+            "Lava Hound",
+            "Rage Spell",
+            "Freeze Spell",
+            "Poison Spell"
+          ],
+          "sources": [
+            "T"
+          ]
         }
       ]
     },
@@ -541,55 +1435,218 @@
           "name": "Super Yeti with RC Charge",
           "level": "easy",
           "about": "The most forgiving high Town Hall three-star, according to Trophy Coach.",
-          "steps": ["Soften defences with Fireball or a Log Launcher.", "Send a tank and Super Yetis.", "Charge the Royal Champion behind them with Electro Boots."],
-          "army": ["Super Yeti", "Log Launcher", "Ice Golem", "Rage Spell", "Freeze Spell"],
-          "heroes": [{ "hero": "Royal Champion", "gear": ["Electro Boots", "Seeking Shield"] }, { "hero": "Grand Warden", "gear": ["Fireball"] }],
-          "sources": ["T", "B"]
+          "steps": [
+            "Soften defences with Fireball or a Log Launcher.",
+            "Send a tank and Super Yetis.",
+            "Charge the Royal Champion behind them with Electro Boots."
+          ],
+          "army": [
+            "Super Yeti",
+            "Log Launcher",
+            "Ice Golem",
+            "Rage Spell",
+            "Freeze Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Royal Champion",
+              "gear": [
+                "Electro Boots",
+                "Seeking Shield"
+              ]
+            },
+            {
+              "hero": "Grand Warden",
+              "gear": [
+                "Fireball"
+              ]
+            }
+          ],
+          "sources": [
+            "T",
+            "B"
+          ]
         },
         {
           "name": "Root Rider Yeti",
           "level": "medium",
           "about": "Root Riders push defences and Super Yetis push the core. Clustered troops are at risk from the Monolith, so plan to remove it early.",
-          "steps": ["The King and Giants make the funnel.", "Royal Champion pushes one side.", "Send Root Riders, then Super Yetis into the core."],
-          "army": ["Root Rider", "Super Yeti", "Giant", "Witch", "Healer", "Rage Spell", "Freeze Spell", "Earthquake Spell", "Haste Spell"],
-          "heroes": [{ "hero": "Royal Champion", "gear": ["Electro Boots"] }, { "hero": "Barbarian King", "gear": ["Spiky Ball", "Giant Gauntlet"] }],
-          "sources": ["T", "D", "W"]
+          "steps": [
+            "The King and Giants make the funnel.",
+            "The Royal Champion pushes one side.",
+            "Send Root Riders, then Super Yetis into the core."
+          ],
+          "army": [
+            "Root Rider",
+            "Super Yeti",
+            "Giant",
+            "Witch",
+            "Healer",
+            "Rage Spell",
+            "Freeze Spell",
+            "Earthquake Spell",
+            "Haste Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Royal Champion",
+              "gear": [
+                "Electro Boots"
+              ]
+            },
+            {
+              "hero": "Barbarian King",
+              "gear": [
+                "Spiky Ball",
+                "Giant Gauntlet"
+              ]
+            }
+          ],
+          "sources": [
+            "T",
+            "D",
+            "W"
+          ]
         },
         {
           "name": "Dragon Duke Charge Hydra",
           "level": "hard",
           "about": "From the most used army type in Supercell's July data. Fire Heart was nerfed in October, so older hit rates may flatter it.",
-          "steps": ["Charge the Dragon Duke along one side, using Invisibility.", "Send Inferno Dragons, a Lava Hound and Rocket Balloons.", "Dragon Riders follow, with Totem, Freeze and Poison."],
-          "army": ["Dragon Rider", "Inferno Dragon", "Lava Hound", "Rocket Balloon", "Invisibility Spell", "Totem Spell", "Freeze Spell", "Poison Spell"],
-          "heroes": [
-            { "hero": "Dragon Duke", "pet": "Spirit Fox", "gear": ["Electro Fangs", "Fire Heart"] },
-            { "hero": "Archer Queen", "pet": "Frosty", "gear": ["Giant Arrow", "Action Figure"] },
-            { "hero": "Grand Warden", "pet": "Sneezy", "gear": ["Eternal Tome", "Rage Gem"] },
-            { "hero": "Minion Prince", "pet": "Angry Jelly", "gear": ["Meteor Staff", "Dark Orb"] }
+          "steps": [
+            "Charge the Dragon Duke along one side, using Invisibility.",
+            "Send Inferno Dragons, a Lava Hound and Rocket Balloons.",
+            "Dragon Riders follow, with Totem, Freeze and Poison."
           ],
-          "sources": ["W", "B", "C"]
+          "army": [
+            "Dragon Rider",
+            "Inferno Dragon",
+            "Lava Hound",
+            "Rocket Balloon",
+            "Invisibility Spell",
+            "Totem Spell",
+            "Freeze Spell",
+            "Poison Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Dragon Duke",
+              "pet": "Spirit Fox",
+              "gear": [
+                "Electro Fangs",
+                "Fire Heart"
+              ]
+            },
+            {
+              "hero": "Archer Queen",
+              "pet": "Frosty",
+              "gear": [
+                "Giant Arrow",
+                "Action Figure"
+              ]
+            },
+            {
+              "hero": "Grand Warden",
+              "pet": "Sneezy",
+              "gear": [
+                "Eternal Tome",
+                "Rage Gem"
+              ]
+            },
+            {
+              "hero": "Minion Prince",
+              "pet": "Angry Jelly",
+              "gear": [
+                "Meteor Staff",
+                "Dark Orb"
+              ]
+            }
+          ],
+          "sources": [
+            "W",
+            "B",
+            "C"
+          ]
         },
         {
           "name": "Rocket Backpack Throwers",
           "level": "hard",
           "about": "Throwers backed by Healers were the second most used army type in Supercell's July data.",
-          "steps": ["Open with the Dragon Duke on Rocket Backpack.", "Open walls with Wall Breakers and clear the way with Lightning.", "Send Throwers and Healers, with Totem, Overgrowth and Freeze."],
-          "army": ["Thrower", "Healer", "Ice Golem", "Druid", "Headhunter", "Super Barbarian", "Super Wall Breaker", "Wall Breaker", "Lightning Spell", "Totem Spell", "Overgrowth Spell", "Freeze Spell"],
-          "heroes": [
-            { "hero": "Dragon Duke", "pet": "Angry Jelly", "gear": ["Flame Blower", "Rocket Backpack"] },
-            { "hero": "Archer Queen", "pet": "Frosty", "gear": ["Giant Arrow", "Action Figure"] },
-            { "hero": "Grand Warden", "pet": "Sneezy", "gear": ["Life Gem", "Rage Gem"] },
-            { "hero": "Royal Champion", "pet": "Phoenix", "gear": ["Rocket Spear", "Seeking Shield"] }
+          "steps": [
+            "Open with the Dragon Duke on Rocket Backpack.",
+            "Open walls with Wall Breakers and clear the way with Lightning.",
+            "Send Throwers and Healers, with Totem, Overgrowth and Freeze."
           ],
-          "sources": ["W", "B"]
+          "army": [
+            "Thrower",
+            "Healer",
+            "Ice Golem",
+            "Druid",
+            "Headhunter",
+            "Super Barbarian",
+            "Super Wall Breaker",
+            "Wall Breaker",
+            "Lightning Spell",
+            "Totem Spell",
+            "Overgrowth Spell",
+            "Freeze Spell"
+          ],
+          "heroes": [
+            {
+              "hero": "Dragon Duke",
+              "pet": "Angry Jelly",
+              "gear": [
+                "Flame Blower",
+                "Rocket Backpack"
+              ]
+            },
+            {
+              "hero": "Archer Queen",
+              "pet": "Frosty",
+              "gear": [
+                "Giant Arrow",
+                "Action Figure"
+              ]
+            },
+            {
+              "hero": "Grand Warden",
+              "pet": "Sneezy",
+              "gear": [
+                "Life Gem",
+                "Rage Gem"
+              ]
+            },
+            {
+              "hero": "Royal Champion",
+              "pet": "Phoenix",
+              "gear": [
+                "Rocket Spear",
+                "Seeking Shield"
+              ]
+            }
+          ],
+          "sources": [
+            "W",
+            "B"
+          ]
         },
         {
           "name": "Ruin Witch",
           "level": "medium",
-          "about": "Supercell put her at about 76% three-stars, against a 53% average, before an October nerf to her Ruin Knights. Check how she feels now.",
-          "steps": ["Make a funnel for her.", "Deploy the Ruin Witches, which summon Ruin Knights.", "Support the push with Rage and Freeze."],
-          "army": ["Ruin Witch", "Rage Spell", "Freeze Spell"],
-          "sources": ["T", "C"]
+          "about": "Supercell put Ruin Witch attacks at about 76% three-stars, against a 53% average, before an October nerf to her Ruin Knights. Those figures may now flatter her.",
+          "steps": [
+            "Make a funnel for them.",
+            "Deploy the Ruin Witches, which summon Ruin Knights.",
+            "Support the push with Rage and Freeze."
+          ],
+          "army": [
+            "Ruin Witch",
+            "Rage Spell",
+            "Freeze Spell"
+          ],
+          "sources": [
+            "T",
+            "C"
+          ]
         }
       ]
     }

@@ -26,14 +26,14 @@ class GuideTownHallActivity : GuideScreen() {
 
     override fun buildGuide() {
         content.addView(backHeader(getString(R.string.guide_town_hall_title, townHall)).apply {
-            if (townHall == myTownHall) addView(ui.chip(getString(R.string.guide_you), colour = ui.skin.accent))
+            if (townHall == myTownHall) addView(ui.chip(getString(R.string.guide_you), ui.skin.primaryBg, ui.skin.primaryText))
         })
         val page = guide.townHall(townHall)
         page?.summary?.let { addNote(it, 14f) }
         content.addView(upgradeCard(), ui.matchWidth(12))
         content.addView(newCard(), ui.matchWidth(14))
         fighterCard(R.string.guide_heroes, guide.facts.heroes, GuideHeroesActivity::class.java)?.let { content.addView(it, ui.matchWidth(14)) }
-        fighterCard(R.string.guide_pets, guide.facts.pets, GuidePetsActivity::class.java)?.let { content.addView(it, ui.matchWidth(14)) }
+        fighterCard(R.string.guide_pets, petsInUnlockOrder(), GuidePetsActivity::class.java)?.let { content.addView(it, ui.matchWidth(14)) }
         content.addView(sectionTitle(getString(R.string.guide_strategies)), ui.matchWidth(18).apply { marginStart = ui.dp(4) })
         if (page == null) {
             addNote(getString(R.string.guide_no_strategies), 14f)

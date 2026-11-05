@@ -119,8 +119,9 @@ The data has every piece with its rarity and ability text. Common and epic as li
 
 ## Which pet with which hero (opinion)
 
-Four sources: AllClash (Mar 2026), Base Drop (Oct 2026), GameRant (Feb 2026, predates Dragon Duke),
-and the pets actually used in 1337wiki's four TH18 armies (Oct 2026).
+Five sources: AllClash (Mar 2026), Base Drop (Oct 2026), GameRant (Feb 2026, predates Dragon Duke), Clash Ninja
+(modified Apr 2026, covers all heroes and pets), and the pets actually used in 1337wiki's four TH18 armies (Oct 2026).
+Clash Ninja was added after the first draft, and `guide_content.json` holds the current picks and warnings.
 
 | Hero | Suggested first | Also good | Where they disagree |
 |---|---|---|---|
@@ -244,6 +245,7 @@ Pets:
 - [AllClash](https://www.allclash.com/best-hero-pet-combinations-in-clash-of-clans/) (Mar 2026)
 - [Base Drop](https://cocbasedrop.com/blog/best-pets-every-hero-coc-2026-tier-list) (Oct 2026)
 - [GameRant](https://gamerant.com/clash-of-clans-best-hero-pet-combos-tier-list/) (Feb 2026)
+- [Clash Ninja](https://www.clash.ninja/guides/which-pet-should-you-pair-with-your-heroes) (Apr 2026)
 
 Town Hall 19:
 - [Base Drop, what's confirmed](https://cocbasedrop.com/blog/town-hall-19-what-supercell-confirmed-2026) (Aug 2026)
