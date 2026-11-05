@@ -30,8 +30,8 @@ class GuideHeroesActivity : GuideScreen() {
             addView(ui.text(getString(R.string.guide_you_level, mine, cap, myTownHall), 14f, ui.skin.accent, bold = true), ui.matchWidth(8))
         }
         val written = guide.heroGuide(hero.name)
-        written?.let { addView(ui.text(it.role, 14f), ui.matchWidth(8)) }
-        addView(ui.text(hero.info, 13f, ui.skin.dim), ui.matchWidth(6))
+        written?.let { addView(ui.text(it.role, 14f).withTerms(), ui.matchWidth(8)) }
+        guide.content.heroTactics[hero.name]?.let { addTactics(it) }
         addView(ui.flow().apply {
             addView(ui.chip(moves(hero)))
             addView(ui.chip(hits(hero)))

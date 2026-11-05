@@ -214,7 +214,7 @@
     <string name="credit">Game data and icons from ClashKing (assets.clashk.ing). Troop abilities and Ruin Knights from clash-of-clans-data (MIT).\n\nThis material is unofficial and is not endorsed by Supercell. For more information see Supercell\'s Fan Content Policy: www.supercell.com/fan-content-policy.</string>
 
     <string name="guide_open">Guide</string>
-    <string name="guide_intro">Town Halls, heroes, pets and how people attack. Levels and stats come from the game data. Attack and pet picks are opinions from community guides.</string>
+    <string name="guide_intro">Town Halls, heroes, pets and how people attack. Levels and stats come from the game data. Attack picks, pet picks and tips are opinions from community guides.</string>
     <string name="guide_my_town_hall">Your Town Hall: TH%1$d</string>
     <string name="guide_town_halls">Town Halls</string>
     <string name="guide_heroes">Heroes</string>
@@ -271,8 +271,8 @@
     <string name="guide_from_town_hall">From TH%1$d</string>
 
     <string name="guide_army">Troops and spells</string>
-    <string name="guide_army_intro">Tap one for its levels, damage and health.</string>
-    <string name="guide_tap_unit">Tap a troop or spell for its levels and damage.</string>
+    <string name="guide_army_intro">Tap one for how to use it, and its levels, damage and health.</string>
+    <string name="guide_tap_unit">Tap a troop or spell for how to use it, and its levels.</string>
     <string name="guide_group_elixir">Elixir troops</string>
     <string name="guide_group_dark">Dark troops</string>
     <string name="guide_group_super">Super Troops</string>
@@ -303,6 +303,23 @@
     <string name="guide_col_cost">Cost (%1$s)</string>
     <string name="guide_col_time">Time</string>
     <string name="guide_unit_sources">From ClashKing\'s game data and clash-of-clans-data. Grey on a chart is out of reach at your Town Hall, and a ring marks your level.</string>
+    <string name="guide_how_to_use">How to use it</string>
+    <string name="guide_watch_out">Watch out for</string>
+    <string name="guide_works_with">Works well with</string>
+    <string name="guide_how_to_beat">How to beat it</string>
+    <string name="guide_punishes">What it punishes</string>
+    <string name="guide_answers">Good against it</string>
+    <string name="guide_glossary">Words explained</string>
+    <string name="guide_glossary_intro">What the words in this guide mean. Tap any underlined word in the guide to come here.</string>
+    <string name="guide_glossary_attack">Attack ideas</string>
+    <string name="guide_glossary_army">Named armies</string>
+    <string name="guide_glossary_game">Game words</string>
+    <string name="guide_glossary_slang">Player talk</string>
+    <string name="guide_term_example">For example</string>
+    <string name="guide_term_units">See it in action</string>
+    <string name="guide_term_see">Related words</string>
+    <string name="guide_tip">• %1$s</string>
+    <string name="guide_tips_note">Tips come from community guides and general play, and won\'t suit every base. Last checked %1$s.</string>
     <string name="guide_picks_note">Picks from community guides, last checked %1$s.</string>
     <string name="guide_gear_from">Common pieces come from the Blacksmith, epics from events or the Trader.</string>
     <plurals name="widget_more">
@@ -310,7 +327,7 @@
         <item quantity="other">+%1$d more ›</item>
     </plurals>
     <string name="guide_defences">Defences and traps</string>
-    <string name="guide_defences_intro">Tap one for its levels, damage, range and how many each Town Hall allows.</string>
+    <string name="guide_defences_intro">Tap one for how to beat it, and its levels, damage, range and how many each Town Hall allows.</string>
     <string name="guide_group_defences">Defences</string>
     <string name="guide_group_traps">Traps</string>
     <string name="guide_by_town_hall">How many, and how high</string>

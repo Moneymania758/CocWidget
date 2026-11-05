@@ -1,9 +1,18 @@
 package com.cocwidget.ui
 
 import android.content.Intent
+import android.graphics.Color
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.TextPaint
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.view.Gravity
+import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
+import com.cocwidget.GuideTermActivity
 import com.cocwidget.GuideUnitActivity
 import com.cocwidget.R
 import com.cocwidget.game.GameData
@@ -11,6 +20,8 @@ import com.cocwidget.game.GameItem
 import com.cocwidget.game.Ids
 import com.cocwidget.guide.Fighter
 import com.cocwidget.guide.Guide
+import com.cocwidget.guide.GuideUnits
+import com.cocwidget.guide.Tactics
 import com.cocwidget.store.Icons
 import com.cocwidget.store.Store
 
@@ -63,6 +74,69 @@ abstract class GuideScreen : Screen() {
         addView(ui.text(name, 13f), ui.wrap().apply { marginStart = ui.dp(5) })
     }
 
+    // A troop, spell or siege machine. A tap opens its page.
+    protected fun unitChip(id: Int, name: String) = namedChip(items[id], name).apply {
+        minimumHeight = ui.dp(40)
+        ui.pressable(this, 8f) { openUnit(id) }
+    }
+
+    // How to use something, what stops it, what it works with, and where that came from. A defence
+    // or trap is on the other side, so the same parts read as how to beat it.
+    protected fun LinearLayout.addTactics(tactics: Tactics, defence: Boolean = false) {
+        addTips(if (defence) R.string.guide_how_to_beat else R.string.guide_how_to_use, tactics.use)
+        addTips(if (defence) R.string.guide_punishes else R.string.guide_watch_out, tactics.beware)
+        if (tactics.partners.isNotEmpty()) {
+            addView(ui.text(getString(if (defence) R.string.guide_answers else R.string.guide_works_with), 13f, bold = true), ui.matchWidth(12))
+            addView(ui.flow().apply {
+                for (name in tactics.partners) addView(unitChip(unitId(name), name))
+            }, ui.matchWidth(4))
+        }
+        addSources(tactics.sources)
+    }
+
+    protected fun LinearLayout.addSources(keys: List<String>) {
+        val names = keys.mapNotNull { key -> guide.content.sources.firstOrNull { it.key == key }?.name }
+        if (names.isNotEmpty()) {
+            addView(ui.text(getString(R.string.guide_from, names.joinToString(", ")), 12f, ui.skin.dim), ui.matchWidth(10))
+        }
+    }
+
+    private fun LinearLayout.addTips(title: Int, lines: List<String>) {
+        addView(ui.text(getString(title), 13f, bold = true), ui.matchWidth(12))
+        for (line in lines) addView(ui.text(getString(R.string.guide_tip, line), 14f).withTerms(), ui.matchWidth(3))
+    }
+
+    protected fun unitId(name: String): Int = GuideUnits.load(this).values.firstOrNull { it.name == name }?.id ?: 0
+
+    // The term whose page this is, so its own text doesn't link to itself.
+    protected open val ownTerm: String? = null
+
+    // Marks the glossary's words in this text. A tap opens what the word means.
+    protected fun <T : TextView> T.withTerms(): T {
+        val value = text.toString()
+        val matches = guide.glossary.matches(value, ownTerm)
+        if (matches.isEmpty()) return this
+        val marked = SpannableString(value)
+        for (match in matches) {
+            marked.setSpan(termSpan(match.term.term), match.start, match.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        text = marked
+        movementMethod = LinkMovementMethod.getInstance()
+        highlightColor = Color.TRANSPARENT
+        return this
+    }
+
+    private fun termSpan(name: String) = object : ClickableSpan() {
+        override fun onClick(widget: View) = openTerm(name)
+
+        override fun updateDrawState(paint: TextPaint) {
+            paint.color = ui.skin.accent
+            paint.isUnderlineText = true
+        }
+    }
+
+    protected fun openTerm(name: String) = startActivity(Intent(this, GuideTermActivity::class.java).putExtra(EXTRA_TERM, name))
+
     // A picture beside a title and a line under it.
     protected fun titleRow(item: GameItem?, title: String, line: String, pictureDp: Int = 44) = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL
@@ -99,5 +173,6 @@ abstract class GuideScreen : Screen() {
     companion object {
         const val EXTRA_ID = "id"
         const val EXTRA_TOWN_HALL = "town_hall"
+        const val EXTRA_TERM = "term"
     }
 }

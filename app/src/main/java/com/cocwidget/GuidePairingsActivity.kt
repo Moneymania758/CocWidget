@@ -32,9 +32,9 @@ class GuidePairingsActivity : GuideScreen() {
         addView(titleRow(itemNamed(guide.facts.heroes, hero.hero), hero.hero, ""))
         for ((index, pick) in hero.picks.withIndex()) addView(pickRow(pick, index == 0), ui.matchWidth(10))
         for (pick in hero.avoid) {
-            addView(ui.text(getString(R.string.guide_avoid, pick.pet, pick.why), 14f, ui.skin.accent), ui.matchWidth(10))
+            addView(ui.text(getString(R.string.guide_avoid, pick.pet, pick.why), 14f, ui.skin.accent).withTerms(), ui.matchWidth(10))
         }
-        addView(ui.text(hero.split, 13f, ui.skin.dim), ui.matchWidth(10))
+        addView(ui.text(hero.split, 13f, ui.skin.dim).withTerms(), ui.matchWidth(10))
     }
 
     private fun pickRow(pick: PetPick, first: Boolean) = LinearLayout(this).apply {
@@ -46,7 +46,7 @@ class GuidePairingsActivity : GuideScreen() {
             orientation = LinearLayout.VERTICAL
             val title = if (first) getString(R.string.guide_first_pick, pick.pet) else pick.pet
             addView(ui.text(title, 14f, bold = true))
-            addView(ui.text(pick.why, 13f, ui.skin.dim))
+            addView(ui.text(pick.why, 13f, ui.skin.dim).withTerms())
             val locked = when {
                 myTownHall == 0 -> getString(R.string.guide_from_town_hall, unlocks)
                 myTownHall < unlocks -> getString(R.string.guide_not_yet, unlocks)

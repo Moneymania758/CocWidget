@@ -30,7 +30,7 @@ class GuideTownHallActivity : GuideScreen() {
             if (townHall == myTownHall) addView(ui.chip(getString(R.string.guide_you), ui.skin.primaryBg, ui.skin.primaryText))
         })
         val page = guide.townHall(townHall)
-        page?.summary?.let { addNote(it, 14f) }
+        page?.summary?.let { addTermNote(it, 14f) }
         content.addView(upgradeCard(), ui.matchWidth(12))
         content.addView(newCard(), ui.matchWidth(14))
         fighterCard(R.string.guide_heroes, guide.facts.heroes, GuideHeroesActivity::class.java)?.let { content.addView(it, ui.matchWidth(14)) }
@@ -39,7 +39,7 @@ class GuideTownHallActivity : GuideScreen() {
         if (page == null) {
             addNote(getString(R.string.guide_no_strategies), 14f)
         } else {
-            if (page.note.isNotEmpty()) addNote(page.note, 13f)
+            if (page.note.isNotEmpty()) addTermNote(page.note, 13f)
             addNote(getString(R.string.guide_tap_unit), 13f)
             for (strategy in page.strategies) content.addView(strategyCard(strategy), ui.matchWidth(10))
             addNote(getString(R.string.guide_opinion, guide.content.checked))
@@ -106,6 +106,10 @@ class GuideTownHallActivity : GuideScreen() {
             }
         }
 
+    private fun addTermNote(text: String, sizeSp: Float) {
+        content.addView(ui.text(text, sizeSp, ui.skin.dim).withTerms(), ui.matchWidth(16).apply { marginStart = ui.dp(4) })
+    }
+
     private fun strategyCard(strategy: Strategy) = ui.card().apply {
         val (label, colour) = when (strategy.level) {
             "easy" -> R.string.guide_level_easy to ui.skin.green
@@ -114,15 +118,15 @@ class GuideTownHallActivity : GuideScreen() {
         }
         addView(LinearLayout(this@GuideTownHallActivity).apply {
             orientation = LinearLayout.HORIZONTAL
-            addView(ui.heading(strategy.name, 17f), ui.weighted())
+            addView(ui.heading(strategy.name, 17f).withTerms(), ui.weighted())
             addView(ui.chip(getString(label), colour = colour), ui.wrap().apply { marginStart = ui.dp(8) })
         })
-        addView(ui.text(strategy.about, 14f, ui.skin.dim), ui.matchWidth(6))
+        addView(ui.text(strategy.about, 14f, ui.skin.dim).withTerms(), ui.matchWidth(6))
         addView(ui.flow().apply {
             for (name in strategy.army) addView(unitChip(guide.unit(name)?.id ?: 0, name))
         }, ui.matchWidth(10))
         for ((index, step) in strategy.steps.withIndex()) {
-            addView(ui.text(getString(R.string.guide_step, index + 1, step), 14f), ui.matchWidth(if (index == 0) 10 else 4))
+            addView(ui.text(getString(R.string.guide_step, index + 1, step), 14f).withTerms(), ui.matchWidth(if (index == 0) 10 else 4))
         }
         for (setup in strategy.heroes) {
             val detail = listOfNotNull(setup.pet.takeIf { it.isNotEmpty() }) + setup.gear
@@ -133,12 +137,6 @@ class GuideTownHallActivity : GuideScreen() {
         }
         val names = strategy.sources.mapNotNull { key -> guide.content.sources.firstOrNull { it.key == key }?.name }
         addView(ui.text(getString(R.string.guide_from, names.joinToString(", ")), 12f, ui.skin.dim), ui.matchWidth(10))
-    }
-
-    // A troop, spell or siege machine. A tap opens its levels and damage.
-    private fun unitChip(id: Int, name: String) = namedChip(items[id], name).apply {
-        minimumHeight = ui.dp(40)
-        ui.pressable(this, 8f) { openUnit(id) }
     }
 
     private fun neighbours() = LinearLayout(this).apply {

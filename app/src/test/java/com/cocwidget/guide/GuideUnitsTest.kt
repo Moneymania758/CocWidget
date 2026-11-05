@@ -20,6 +20,13 @@ class GuideUnitsTest {
     private fun first(chart: UnitChart) = chart.series.first().values.first()
     private fun last(chart: UnitChart) = chart.series.first().values.last()
 
+    // ClashKing's first level and every guide read say TH15. One source's count table says TH14.
+    @Test
+    fun theMonolithOpensAtTownHall15() {
+        assertEquals(15, unit("Monolith").townHall)
+        assertEquals(15, unit("Monolith").perTownHall.first().townHall)
+    }
+
     @Test
     fun everyUnitInTheGuideCanBeOpened() {
         for (entry in guide.facts.army) assertNotNull(entry.name, units[entry.id])

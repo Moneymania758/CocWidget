@@ -162,8 +162,6 @@ const MODE_NAMES = {
   airAndGround: 'Air and ground mode', stage1: 'Stage 1', stage2: 'Stage 2', stage3: 'Stage 3',
 };
 
-const cleanInfo = text => (text || '').replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
-
 function flatten(object, prefix = '', out = {}) {
   for (const [key, value] of Object.entries(object || {})) {
     if (key === 'images' || key === 'researchTime' || key === 'buildTime') continue;
@@ -324,7 +322,6 @@ function build(data, npm) {
       let result = chartsAndStats(fields, rows);
       if (sub.from) {
         const source = extra[sub.from];
-        made.info = cleanInfo(source.description);
         const subRows = levels.map(level => {
           const own = (source.levels || []).find(l => l.level === level.level);
           if (!own) return {};
@@ -356,7 +353,6 @@ function build(data, npm) {
       k: kind,
       g: kind === 'troop' ? (entry.production_building === 'Dark Barracks' ? 'dark' : 'elixir') : kind,
       h: unlock,
-      i: cleanInfo(entry.info),
       hs: entry.housing_space,
       lv: levels.map(level => level.level),
       // A unit's first level comes with it, whatever the data's level 1 says (Barbarian's says 3).
@@ -455,7 +451,7 @@ function defenceFacts(npm, entry) {
   }
   if (npm.gearUp) {
     const gear = npm.gearUp;
-    const needs = gear.requiresBuilderBuilding ? `, needs level ${gear.requiresLevel} and a ${gear.requiresBuilderBuilding}` : '';
+    const needs = gear.requiresBuilderBuilding ? `, needs level ${gear.requiresLevel} and a Builder Base ${gear.requiresBuilderBuilding}` : '';
     add('Gear up', `${moneyText(gear.cost, gear.costResource)}, ${timeText(seconds(gear.time))}${needs}`);
   }
   const merge = entry.levels.find(level => level.merge_requirement)?.merge_requirement;
@@ -499,7 +495,8 @@ function buildDefences(data, root) {
     const { charts, stats } = chartsAndStats(DEFENCE_CHARTS.map(def => (npm.name === 'Inferno Tower' && def.title === 'Damage per second'
       ? { ...def, series: def.series.map(([key, label]) => [key, { 'stats.normal.dps': 'Single, at its peak', 'stats.normal.dpsAfter1p5s': 'Single, after 1.5s' }[key] || label]) }
       : def)), rows);
-    const counts = (npm.availablePerTownHall || []).filter(t => t.count > 0);
+    // One source lists a Monolith at TH14, before the first level's own Town Hall in the other.
+    const counts = (npm.availablePerTownHall || []).filter(t => t.count > 0 && t.townHallLevel >= (entry.levels[0].required_townhall || 0));
     const unlock = counts[0]?.townHallLevel ?? entry.levels[0].required_townhall;
     const townHalls = entry.levels.map((level, index) => (index === 0 ? unlock : Math.max(unlock, level.required_townhall ?? unlock)));
     const perTownHall = [];
@@ -514,7 +511,6 @@ function buildDefences(data, root) {
       k: isTrap ? 'trap' : 'defence',
       g: isTrap ? 'trap' : 'defence',
       h: unlock,
-      i: cleanInfo(entry.info || npm.description),
       lv: entry.levels.map(level => level.level),
       th: townHalls,
       charts,

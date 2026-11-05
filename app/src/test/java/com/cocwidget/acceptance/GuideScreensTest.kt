@@ -1,9 +1,15 @@
 package com.cocwidget.acceptance
 
+import android.text.Spanned
+import android.text.style.ClickableSpan
 import android.view.MotionEvent
+import android.widget.TextView
 import com.cocwidget.GuideActivity
 import com.cocwidget.GuideArmyActivity
 import com.cocwidget.GuideDefencesActivity
+import com.cocwidget.GuideGlossaryActivity
+import com.cocwidget.GuideSourcesActivity
+import com.cocwidget.GuideTermActivity
 import com.cocwidget.GuideHeroesActivity
 import com.cocwidget.GuidePairingsActivity
 import com.cocwidget.GuidePetsActivity
@@ -77,6 +83,106 @@ class GuideScreensTest {
                 controller.pause().stop().destroy()
             }
         }
+    }
+
+    // Taps the highlighted [word] in any text on the screen, and returns what that opened.
+    private fun tapWord(screen: GuideScreen, word: String): android.content.Intent {
+        val view = Screens.views<TextView>(Screens.root(screen)).first { label ->
+            val spanned = label.text as? Spanned ?: return@first false
+            spanned.getSpans(0, spanned.length, ClickableSpan::class.java).any {
+                spanned.subSequence(spanned.getSpanStart(it), spanned.getSpanEnd(it)).toString().equals(word, ignoreCase = true)
+            }
+        }
+        val spanned = view.text as Spanned
+        spanned.getSpans(0, spanned.length, ClickableSpan::class.java).first {
+            spanned.subSequence(spanned.getSpanStart(it), spanned.getSpanEnd(it)).toString().equals(word, ignoreCase = true)
+        }.onClick(view)
+        return shadowOf(screen).nextStartedActivity
+    }
+
+    @Test
+    fun tappingAHighlightedWordOpensWhatItMeans() {
+        val started = tapWord(openUnit("Thrower"), "funnel")
+        assertEquals(GuideTermActivity::class.java.name, started.component?.className)
+        assertEquals("Funnel", started.getStringExtra(GuideScreen.EXTRA_TERM))
+    }
+
+    @Test
+    fun wordsAreHighlightedInAttacksToo() {
+        val screen = Screens.open<GuideTownHallActivity> { putExtra(GuideScreen.EXTRA_TOWN_HALL, 18) }
+        assertEquals("Funnel", tapWord(screen, "funnel").getStringExtra(GuideScreen.EXTRA_TERM))
+    }
+
+    @Test
+    fun everyWordsPageOpensInEverySkinAndLinksOnward() {
+        for (skin in skins) {
+            Store.setSkin(app, skin.key)
+            for (term in guide.glossary.terms) {
+                val screen = Screens.open<GuideTermActivity> { putExtra(GuideScreen.EXTRA_TERM, term.term) }
+                val root = Screens.root(screen)
+                val where = "${term.term} in ${skin.key}"
+                assertTrue(where, Screens.texts(root).contains(term.short))
+                for (other in term.see) {
+                    Screens.tappable(root, other)!!.performClick()
+                    assertEquals(where, other, shadowOf(screen).nextStartedActivity.getStringExtra(GuideScreen.EXTRA_TERM))
+                }
+                for (name in term.units) {
+                    Screens.tappable(root, name)!!.performClick()
+                    assertEquals(where, unitId(name), shadowOf(screen).nextStartedActivity.getIntExtra(GuideScreen.EXTRA_ID, 0))
+                }
+            }
+        }
+    }
+
+    @Test
+    fun aWordsOwnPageDoesNotLinkToItself() {
+        val term = guide.glossary.term("Funnel")!!
+        val screen = Screens.open<GuideTermActivity> { putExtra(GuideScreen.EXTRA_TERM, term.term) }
+        val own = Screens.views<TextView>(Screens.root(screen)).flatMap { label ->
+            val spanned = label.text as? Spanned ?: return@flatMap emptyList()
+            spanned.getSpans(0, spanned.length, ClickableSpan::class.java).map {
+                spanned.subSequence(spanned.getSpanStart(it), spanned.getSpanEnd(it)).toString().lowercase()
+            }
+        }
+        assertFalse(own.toString(), term.aliases.any { it.lowercase() in own })
+    }
+
+    @Test
+    fun theWordListOpensEveryWord() {
+        val screen = Screens.open<GuideGlossaryActivity>()
+        val root = Screens.root(screen)
+        for (term in guide.glossary.terms) {
+            Screens.tappable(root, term.term)!!.performClick()
+            assertEquals(term.term, shadowOf(screen).nextStartedActivity.getStringExtra(GuideScreen.EXTRA_TERM))
+        }
+    }
+
+    @Test
+    fun everySourceOpensInTheBrowser() {
+        val screen = Screens.open<GuideSourcesActivity>()
+        val root = Screens.root(screen)
+        for (source in guide.content.sources) {
+            val row = app.getString(com.cocwidget.R.string.guide_source_row, source.name, source.date)
+            Screens.tappable(root, row)!!.performClick()
+            assertEquals(source.name, source.url, shadowOf(screen).nextStartedActivity.dataString)
+        }
+    }
+
+    @Test
+    fun theGuideLeadsToTheWordList() {
+        val screen = Screens.open<GuideActivity>()
+        Screens.tappable(Screens.root(screen), app.getString(com.cocwidget.R.string.guide_glossary))!!.performClick()
+        assertEquals(GuideGlossaryActivity::class.java.name, shadowOf(screen).nextStartedActivity.component?.className)
+    }
+
+    @Test
+    fun aDefenceSaysHowToBeatItAndATroopHowToUseIt() {
+        val defence = Screens.texts(Screens.root(openUnit("Inferno Tower")))
+        assertTrue(defence.contains(app.getString(com.cocwidget.R.string.guide_how_to_beat)))
+        assertFalse(defence.contains(app.getString(com.cocwidget.R.string.guide_how_to_use)))
+        val troop = Screens.texts(Screens.root(openUnit("Giant")))
+        assertTrue(troop.contains(app.getString(com.cocwidget.R.string.guide_how_to_use)))
+        assertFalse(troop.contains(app.getString(com.cocwidget.R.string.guide_how_to_beat)))
     }
 
     @Test

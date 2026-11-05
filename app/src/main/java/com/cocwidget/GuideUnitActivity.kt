@@ -21,7 +21,7 @@ import com.cocwidget.ui.GuideScreen
 import com.cocwidget.ui.LevelChart
 import java.text.NumberFormat
 
-// One troop, siege machine or spell: what it is, and how it grows level by level. Picking a level on
+// One troop, siege machine or spell: how to use it, and how it grows level by level. Picking a level on
 // any chart moves every chart and the table with it.
 class GuideUnitActivity : GuideScreen() {
     private val units by lazy { GuideUnits.load(this) }
@@ -63,6 +63,7 @@ class GuideUnitActivity : GuideScreen() {
         for (chart in unit.charts) content.addView(chartCard(unit, chart, reach, mine), ui.matchWidth(10))
         for (sub in unit.subs) addSubUnit(unit, sub, reach, mine)
         tableCard(unit)?.let { content.addView(it, ui.matchWidth(14)) }
+        addNote(getString(R.string.guide_tips_note, guide.content.checked))
         addNote(getString(R.string.guide_unit_sources))
         select(selected)
     }
@@ -94,11 +95,16 @@ class GuideUnitActivity : GuideScreen() {
             else -> getString(R.string.guide_cap_at, unit.levels[cap], myTownHall)
         }
         status?.let { addView(ui.text(it, 14f, ui.skin.accent, bold = true), ui.matchWidth(8)) }
-        if (unit.info.isNotEmpty()) addView(ui.text(unit.info, 13f, ui.skin.dim), ui.matchWidth(8))
+        val defence = unit.kind == "defence" || unit.kind == "trap"
+        val tactics = if (defence) guide.content.defenceTactics[unit.name] else guide.content.unitTactics[unit.name]
+        tactics?.let {
+            addView(ui.text(it.role, 14f).withTerms(), ui.matchWidth(8))
+            addTactics(it, defence)
+        }
         val chips = traitChips(unit.traits, unit)
         addView(ui.flow().apply {
-            for (chip in chips) addView(ui.chip(chip))
-            for (stat in unit.stats) addView(ui.chip(getString(R.string.guide_stat, stat.name, stat.value)))
+            for (chip in chips) addView(ui.chip(chip).withTerms())
+            for (stat in unit.stats) addView(ui.chip(getString(R.string.guide_stat, stat.name, stat.value)).withTerms())
         }, ui.matchWidth(10))
     }
 
@@ -151,14 +157,9 @@ class GuideUnitActivity : GuideScreen() {
                 }
             }
             addView(ui.flow().apply {
-                for (linked in listOfNotNull(base) + supers) addView(unitChip(linked))
+                for (linked in listOfNotNull(base) + supers) addView(unitChip(linked.id, linked.name))
             }, ui.matchWidth(if (base != null) 8 else 0))
         }
-    }
-
-    private fun unitChip(linked: GuideUnit) = namedChip(items[linked.id], linked.name).apply {
-        minimumHeight = ui.dp(40)
-        ui.pressable(this, 8f) { openUnit(linked.id) }
     }
 
     // What the picked level needs, above the charts it applies to.
@@ -248,8 +249,7 @@ class GuideUnitActivity : GuideScreen() {
                     if (!sub.partOfUnit) addView(ui.text(getString(R.string.guide_comes_from, unit.name), 13f, ui.skin.dim), ui.matchWidth(1))
                 }, ui.weighted(10))
             })
-            if (sub.info.isNotEmpty()) addView(ui.text(sub.info, 13f, ui.skin.dim), ui.matchWidth(8))
-            if (sub.note.isNotEmpty()) addView(ui.text(sub.note, 13f, ui.skin.accent), ui.matchWidth(8))
+            if (sub.note.isNotEmpty()) addView(ui.text(sub.note, 13f, ui.skin.accent).withTerms(), ui.matchWidth(8))
             val chips = sub.traits?.let { traitChips(it, null) }.orEmpty() + sub.stats.map(::statText)
             if (chips.isNotEmpty()) addView(ui.flow().apply { for (chip in chips) addView(ui.chip(chip)) }, ui.matchWidth(10))
         }, ui.matchWidth(18))

@@ -65,13 +65,12 @@ const SUPER_TROOP_TOWN_HALL = 11;
 // Some game text holds a literal backslash and n where a line break was meant.
 const cleanInfo = text => (text || '').replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
 
-// A hero or pet: its game text, how it moves and hits, and its stats at its top level.
+// A hero or pet: how it moves and hits, and its stats at its top level.
 function fighterFacts(entry) {
   const top = entry.levels[entry.levels.length - 1];
   return {
     id: entry._id,
     n: entry.name,
-    i: cleanInfo(entry.info),
     f: entry.is_flying ? 1 : 0,
     a: entry.is_air_targeting ? 1 : 0,
     g: entry.is_ground_targeting ? 1 : 0,

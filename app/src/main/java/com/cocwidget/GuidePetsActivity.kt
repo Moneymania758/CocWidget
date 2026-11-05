@@ -25,8 +25,8 @@ class GuidePetsActivity : GuideScreen() {
             mine != null -> addView(ui.text(getString(R.string.guide_you_level, mine, item?.maxLevelAt(myTownHall) ?: 0, myTownHall), 14f, ui.skin.accent, bold = true), ui.matchWidth(8))
             myTownHall in 1 until first -> addView(ui.text(getString(R.string.guide_not_yet, first), 14f, ui.skin.dim, bold = true), ui.matchWidth(8))
         }
-        guide.content.pets[pet.name]?.let { addView(ui.text(it, 14f), ui.matchWidth(8)) }
-        addView(ui.text(pet.info, 13f, ui.skin.dim), ui.matchWidth(6))
+        guide.content.pets[pet.name]?.let { addView(ui.text(it, 14f).withTerms(), ui.matchWidth(8)) }
+        guide.content.petTactics[pet.name]?.let { addTactics(it) }
         addView(ui.flow().apply {
             addView(ui.chip(moves(pet)))
             addView(ui.chip(hits(pet)))

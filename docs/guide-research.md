@@ -220,6 +220,146 @@ Supercell's Fan Content Policy (last updated 27 Sep 2023):
   them by hand.
 - `info` text holds a literal `\n` to clean up.
 
+## Tactics text (added 2026-11-05)
+
+Replaces the game's own descriptions on troop, spell, siege, hero and pet pages. It lives in
+`tactics` in `guide_content.json`, with sources per entry. The game text is gone from the guide files
+and the build scripts, except equipment text, which was never shown.
+
+How far to trust it:
+
+- **Guides backed the newer units best:** Ruin Witch, Thrower, Meteor Golem, Overgrowth, Ice Block, Totem,
+  Dragon Duke and Super Troops all had a dedicated page read for this.
+- **No source at all, written from general knowledge of the game:** Goblin, Electro Titan, Minion, Valkyrie,
+  Bowler, Rocket Balloon, Super Bowler, Jump Spell. Entries with sources can also hold a line of general
+  knowledge, so a source doesn't vouch for every line.
+- **Old sources:** AllClash Super Troops (Dec 2020), AllClash Siege Machines (Dec 2022), Blueprint on Recall
+  (Oct 2022). Used for how things behave more than for rankings.
+- **Thin:** Sky Wagon and Troop Launcher have little written about them. Angry Spell's guides were written
+  before release, so it leans on the game text, the data and one Blueprint pairing. Revive's timing advice
+  comes from a search excerpt of Sportskeeda, as the page refused to load.
+- **Disagreements settled in favour of the data or the newer source:** Ruin Knights cap at 10 and lost their
+  decay (Base Drop, Sep 2026, and the data), not 8 (Blueprint, Jun 2026). A Log Launcher opens at TH13 in the
+  data, so COC Base Guide's TH12 plan isn't repeated. Base Drop's pre-release Ruin Witch page was wrong and is
+  not used. Battle Drill goes by the game text (nearest defence), not AllClash's older description.
+- TH19 is due mid-November, so meta claims, especially at TH16 to TH18, may go stale.
+
+Sources added:
+- [Base Drop: Thrower](https://cocbasedrop.com/blog/thrower-troop-guide-coc-2026-healers), [Meteor Golem](https://cocbasedrop.com/blog/meteor-golem-guide-coc-2026-biggest-buff), [Ruin Knights](https://cocbasedrop.com/blog/ruin-witch-ruin-knights-buff-coc-2026), [Overgrowth](https://cocbasedrop.com/blog/overgrowth-spell-guide-coc-2026-how-to-use), [Minion Prince](https://cocbasedrop.com/blog/minion-prince-best-equipment-coc-2026), [Super Troops](https://cocbasedrop.com/blog/best-super-troops-guide-coc-2026)
+- [Blueprint: Ruin Witch](https://blueprintcoc.com/blogs/town-hall-18/best-th18-ruin-witch-army-links), [Rocket Backpack](https://blueprintcoc.com/blogs/clash-of-clans-guides/rocket-backpack-equipment-guide), [Recall](https://blueprintcoc.com/blogs/new-clash-of-clans-update/th15-sneak-peek-4)
+- [Trophy Coach: equipment](https://trophycoach.com/clash-of-clans/guides/hero-equipment-guide), [Dragon Duke](https://trophycoach.com/clash-of-clans/guides/dragon-duke-guide)
+- [COC Base Guide: spells](https://coc-base-guide.vercel.app/articles/coc-spell-guide-2026), [war troops](https://coc-base-guide.vercel.app/articles/best-war-troops-2026)
+- [Mobile Matters: Totem](https://mobilematters.gg/guides/clash-of-clans/totem-spell-overview), [Ice Block](https://mobilematters.gg/guides/clash-of-clans/ice-block-spell-overview), [Meteor Golem](https://mobilematters.gg/guides/clash-of-clans/meteor-golem-overview), [Siege Machines](https://mobilematters.gg/clash-of-clans/all-siege-machines-in-clash-of-clans-explained)
+- [AllClash: Siege Machines](https://www.allclash.com/siege-machine-guide/), [Super Troops](https://www.allclash.com/supertroops-guide-all-supertroops/)
+- [Clash Ninja: April update](https://www.clash.ninja/guides/april-2026-update-is-live), [SportsDunia: Totem](https://www.sportsdunia.com/gaming/clash-of-clans-totem-spell), [Sportskeeda: Furnace](https://sportskeeda.com/mobile-games/furnace-troop-clash-clans-skills-stats), [Touch, Tap, Play: Headhunter](https://www.touchtapplay.com/how-to-use-headhunter-in-clash-of-clans/)
+
+## Defence tips and the glossary (added 2026-11-05)
+
+`tactics.defences` and `glossary` in `guide_content.json`. Each entry lists its sources. All pages were read through a small fetch model, not line by line.
+
+How far to trust them:
+
+- **Defence tips lean on one fan wiki, 1337wiki.** Its values matched the data and Supercell where compared, except the Monolith's unlock, but its counter advice mostly has no second source. Its army pages have known errors (see "Where sources are wrong or unsafe").
+- **Glossary: 37 terms have no source** and are standard game knowledge: No source read, standard game knowledge: Tank, Draw fire, Lock on, Push, Carry, Spam, Mass, Dive, Clean-up, Lure, Snipe, Stall, Distraction, Mid-base, Time out, Clan Castle, Housing space, Splash, Single target, Multi-target, Chain, Aura, Melee and ranged, Tile, Minimum range, Spawned troops, Enrage, CWL, Siege Machine, Air mode and ground mode, Spell Tower effects, Inferno, Hogs, Loot, Farming, Friendly challenge, Meta..
+- Army names are used loosely in the community, and our text mixes walk and charge. The pages say so.
+- Trophy pushing was dropped: nothing in our text uses it, and it may not fit the 2026 Ranked changes (not checked).
+- Guardian: Clash Ninja's April 2026 notes (Poison works at reduced damage, no waking while Frozen) replace a 2025 line saying Poison does nothing.
+- The Monolith hits one target, hardest on high health. Earlier lines saying clustered troops suffer from it were wrong and are fixed.
+
+Data flags that look incomplete and are not fixed: Skeleton Trap is flagged ground only, though it can be set to air. X-Bow is flagged ground only, with air as a listed mode. Builder's Hut has no air or ground flag. Those pages' "Hits" chips will read accordingly.
+
+Defence writer's conflicts:
+
+- Monolith unlock: guide_units.json says TH14 (h and th). Every source and guide-research.md say TH15. No Town Hall appears in the text, but the data looks wrong and is worth checking.
+- Monolith splash: Base Drop (Apr 2026) calls it heavy area damage. The data says single target and 1337wiki agrees, so I wrote single target. The finished Root Rider and Super Yeti entries say clustered armies suffer from the Monolith, which implies splash. Those lines were not touched and may need changing.
+- Revenge Tower stages: Clash Ninja, Blueprint and Mobile Matters (Nov 2025) give 5, 20 and 40 buildings. Supercell (28 Jan 2026) moved the later two to 25 and 50, and the data's 0.35s speed matches that post. The text gives no numbers, so it will not go stale.
+- Revenge Tower while dormant: Mobile Matters (Nov 2025) says it cannot be destroyed, 1337wiki (Oct 2026) says it can. Unresolved. The text avoids the claim, and its advice holds either way.
+- Giga Bomb trigger: the data says 'Needs a troop of 18 housing', which reads as one troop. Clash Ninja and 1337wiki say total housing nearby. The text says 18 housing close by, which fits both readings.
+- Giant Bomb radius: Base Drop (Jun 2026) says it scales with nearby troop count. The data's chart and 1337wiki tie it to level. Went with the data.
+- Eagle Artillery wake-up: AllClash (2016) and a Base Drop search excerpt say 150 housing. The data says 200, and 1337wiki agrees.
+- Eagle Artillery spells: heroes and spells counting comes from 1337wiki (Oct 2026), with AllClash (2016) agreeing on spells. The data gives only the 200.
+- Skeleton Trap targeting: the data flags ground only, but its own i field and 1337wiki say it can be set to air. The text says either. The gr flag looks incomplete.
+- Builder's Hut targeting: the data has no a or gr flag. 1337wiki says the turret hits air and ground. The text does not state it, so the flags need adding if the app shows them.
+- X-Bow targeting: the data flags ground only, with air and ground as a listed mode. The text covers both modes.
+- Spell Tower Earthquake: the data opens level 4 at TH17, Supercell's February 2026 notes list it under TH18, and 1337wiki gives both. No Town Hall appears in the text. Ground only comes from 1337wiki, and Supercell only confirms the spell damages ground troops.
+- Mortar blind spot: 1337wiki says 4 tiles, the data lists no minimum range, and the game's own text hints at one. The text says 'right beside it', with no number.
+- Firespitter: coc.guide says single target and the data says multiple. 1337wiki says each shot can pierce into a second unit. Went with the data.
+- Spring Trap: Blueprint's FAQ says heroes and heavy troops get launched, but its article body and 1337wiki say over-capacity troops take damage and a knockback instead. Went with the article body, which also fits the data's capacity chart.
+- Inferno Tower: Clash Ninja (old) says Freeze a few seconds in, Trophy Coach and the Freeze Spell entry say at lock-on. The text says 'as it heats up'. A search excerpt said multi-target stops healing, but Clash Ninja says healing has worked since December 2017, so I ignored it.
+- Multi-Gear Tower: some search excerpts mention splash. The data and Blueprint say single target, so those were ignored.
+- Tornado Trap count: Base Drop says two, the data and 1337wiki say one. The text gives no count.
+
+Defence writer's weak lines:
+
+- Single source: almost all attacker advice comes from 1337wiki's defence and trap pages (Oct 2026). Its stats matched the data and Supercell on the values I compared (Ricochet bounce, Multi-Archer speed, Revenge speeds, Spell Tower values, Firespitter range), apart from the Monolith unlock. Its counter advice mostly has no second source. guide-research.md already records errors on its army pages.
+- All pages were read through WebFetch's small model, so wording and numbers were not checked line by line against the original pages.
+- Multi-Gear Tower: no source says how to tell the mode by looking at it, so the entry gives no way to. Both beware lines are my own inference from the mode stats. 'Thin for its level' rests on 1337wiki and its hitpoint table only.
+- Firespitter: the cone width (about 150 degrees), the pause on a new target and the piercing are 1337wiki only. Supercell and Blueprint only confirm the cone and stray shots.
+- Revenge Tower: the Freeze, Totem, Ice Block and Overgrowth lines are 1337wiki only. No guide I read gives other counters.
+- Super Wizard Tower: the counters and chain reach are 1337wiki only. 'A few tiles' stands for its figure of 4. Mobile Matters only names the troops that suffer.
+- Spell Tower: triggers and counters are 1337wiki only, apart from Blueprint's Backpack Thrower page on Rage. The other sources predate Earthquake. The Log Launcher trick and baiting with a Skeleton Spell are not confirmed elsewhere.
+- Giga Bomb: the list of what does not set it off, and Freeze and Overgrowth failing once armed, are 1337wiki only. Air and ground comes from the data.
+- Seeking Air Mine: which flyers qualify is 1337wiki only, and the data does not state a housing limit.
+- Monolith: 'Expect a few shots on the first hero' follows 1337wiki, but 'do not send a hurt one' is my own. 'Spreading out does not save a tank' is my own reasoning from single-target data.
+- X-Bow beware line: my own reasoning from its long range and single target. 1337wiki gave no clear punish.
+- Archer Tower: 'Give it a tank to shoot' is general game knowledge.
+- Eagle Artillery: 'Slow attacks' is my inference from how it wakes and fires. AllClash's Freeze timing is from 2016, though 1337wiki agrees on the pause.
+- Inferno Tower: both beware lines are general knowledge and the existing Yeti entry. Multi-target advice comes mainly from Clash Ninja's old guide (2018 or 2019).
+- Mortar: the geared-up line is 1337wiki only, and the data only gives the 0.5s burst.
+- Tornado Trap: 'Expect it near the Town Hall or core' rests on one promotional Blueprint base post. Balloons under Air Bombs and Scattershots is defender-side advice from search excerpts, not a page I read in full.
+- Hidden Tesla and Giant Bomb: spotting by empty gaps is a rule of thumb from 1337wiki and Trophy Coach, not a certainty.
+- Could not read: Playnews's August 2026 counter guide (403), Sportskeeda's TH17 page (405), Fandom and Reddit. Mobile Matters has no overview pages at the guessed URLs for Firespitter, Multi-Gear Tower or Giga Bomb (404).
+- May go stale soon: TH19 is due mid-November. Base Drop (Aug 2026) reports an interview saying older merged defences will drift towards ordinary ones, with no patch yet, so TH16 merge advice could age first.
+
+Glossary writer's weak lines:
+
+- No source read, standard game knowledge: Tank, Draw fire, Lock on, Push, Carry, Spam, Mass, Dive, Clean-up, Lure, Snipe, Stall, Distraction, Mid-base, Time out, Clan Castle, Housing space, Splash, Single target, Multi-target, Chain, Aura, Melee and ranged, Tile, Minimum range, Spawned troops, Enrage, CWL, Siege Machine, Air mode and ground mode, Spell Tower effects, Inferno, Hogs, Loot, Farming, Trophy pushing, Friendly challenge, Meta.
+- Hero walk, Hero charge, Queen Walk, Queen Charge: sources disagree. AllClash (2018) says a walk cleans the edge and a charge goes deep. Trophy Coach (2026) treats them as one technique with different scope. Our text mixes them, such as "Walk the Queen" in a Queen Charge plan (line 543) and "Queen Walk or Charge" (line 386). The pages say so.
+- RC Walk, RC Charge: Blueprint uses near identical wording for both, and our RC Charge plans differ on timing. Defined by what our steps do.
+- Warden Walk, Warden Charge: Blueprint calls the opening of its Warden Charge army a Warden walk, so the split is ours. Our text uses Warden Walks only once (line 724).
+- Duke Charge: one Blueprint page (Mar 2026) plus our own steps. Base Drop does not use the name.
+- Hydra: used loosely. Trophy Coach says two-flank air attack, Base Drop says Dragon Riders with Dragons or Electro Dragons, and our armies add Balloons, a Lava Hound or a Blimp. No source explains the name.
+- GoHo: no source read spells out the letters. Go and Ho are inferred from AllClash's GoVaHo (2016), and Wizards come from our own plan.
+- DragBat: only source is AllClash (2019), and its split between Dragons and Bats differs from ours. The page says both.
+- Witch Slap: AllClash (2017) and Blueprint (Apr 2025) both differ from our steps. Defined by ours, with the difference stated.
+- Sui: "suicide dive" comes from one Blueprint line (Jun 2025). The rest comes from its TH12 page, which never defines the word. No hits in our text today.
+- Zap: no source defines it. Backed by one Blueprint example and how our own steps use it. Blueprint's page also labels some non-zap plans as Zap, so names vary.
+- Hybrid: our line 293 ("air and hybrid attacks") means any air and ground mix, not the Queen Charge meaning. The page gives both.
+- Snipe: our line 492 uses it for killing an Air Defense with Lightning, wider than the usual meaning. The one-star meaning is general knowledge.
+- Core: "ground core" (line 410) means the main ground group, so that phrase goes to Push rather than Core.
+- Compartment and Core: Trophy Coach mentions these words without defining them. The definitions are general knowledge.
+- Smash: Trophy Coach uses the word for ground pushes but does not define it. Our "smash" is broader in places.
+- Root Rider Smash: exact name has no hits. It is reached through "Root Rider Yeti" (line 692).
+- Fireball: the level 24 threshold is Trophy Coach alone, and "aim is set by where the Warden stands" is inferred from the game text, which says closest defence.
+- Guardian: the Poison, Earthquake and Lightning line is Mobile Matters alone, from launch in Nov 2025, and balance may have changed since. Base Drop's Town Hall 19 claims about Guardians are left out, as the brief asks.
+- Supercharge: Mobile Matters says up to three stages, Clash Ninja says three or two for defences, and our data shows two for defences. The page follows the data.
+- Super Troop: Base Drop says 15,000 to 25,000 Dark Elixir, and our data has 25,000 for every Super Troop. The page follows the data. "From about TH11" comes from the data and earlier research.
+- Gear up: only source read directly is Clash Ninja (2019), though its build times match our data. The "needs level 10 and a Archer Tower" chip in guide_units.json reads wrongly and may be worth fixing.
+- Minimum range: the Mortar line is general knowledge. Our data only lists the Eagle Artillery and Scattershot.
+- Time out: three minutes is general knowledge, not in our data.
+
+Left out of the glossary, and why:
+
+- walk (bare): catches ordinary walking, as in "walks to the nearest defence". Only named forms such as Queen Walk, RC Walk and hero walk are aliases, plus "the walk" and "Walk the Royal Champion".
+- charge (bare): same risk, and "Charge" in "Queen Walk or Charge" (line 386) stays plain as a result. Named forms only.
+- side (bare): "the side of the Air Defense" (line 133) is not a flank. Multi-word forms such as "one side" and "opposite side" go to Flank.
+- smash, smashes, smashing (bare): plain verbs in lines 66, 86, 251 and 273. Only "ground smash", "smash attacks", "for smash" and named armies are aliases.
+- zap (bare): "Its Yetimites zap nearby buildings" (line 245) is an ordinary verb. Only Zap Dragons, Zap Witches, Zap Lalo and the two "Zap ... Air Defense" steps are aliases.
+- merge (bare): "Cloned ones cannot merge" (line 103) is about Meteormites re-forming. Writers must use merged, merges or merging for defences, or the word will not highlight.
+- boost (bare): also means Rage (line 304), a Rocket Balloon speed-up (line 202) and a Super Valkyrie effect (line 209). Three exact phrases go to Super Troop instead.
+- push, pushes (bare): verbs in many lines, and Push is also a chip on the Air Sweeper and Spring Trap. Only "the push", "a push", "main push" and "ground push" are aliases.
+- Rage, Freeze, Heal, Jump, Lightning, Poison, Haste, Clone, Totem, Earthquake, Invisibility, Overgrowth: shortened spell names. As aliases they would catch the full spell names, Rage Gem, the Dragon Duke's rage and the Ice Golem's freeze.
+- Inferno (bare singular): catches Inferno Tower and Inferno Dragon. Only "Infernos", "an Inferno starts", "Inferno on a hero" and "reset Infernos" are aliases, so "A single-target Inferno" (line 384) highlights only "single-target".
+- Blimp (bare): catches Battle Blimp. "Blimp drop" is the only alias.
+- hero, King, Queen, Warden, Champion, Prince, Duke (bare): very frequent and they catch full names, including Apprentice Warden, Archer Queen and Dragon Duke. Heroes have their own pages.
+- spell, trap, deploy, drop, cast, pet: everyday in the guide, and "spell" would light up inside every full spell name.
+- clump, bunch, cluster, swarm, pack, lane, burst, anti-air, forgiving, niche, mid-table: plain English in context. Splash and Spam cover the ideas behind the first few.
+- single, multiple, ricochet (damage type chips): "single" is everyday English and "ricochet" would catch Ricochet Cannon. Chain and Single target explain them.
+- Wakes up after (Eagle Artillery chip): the chip already says it in plain words, and Housing space mentions it.
+- Spell Tower (bare): full official name. The Spell Tower effects page is reached from the list or through units.
+- GoWiPe, GoWiWi, Legend League: not used in our guide text, so pruned.
+- Blacksmith and ore: covered as aliases of Hero equipment. Dead base: covered as an alias of Farming. RC: covered as an alias of RC Walk.
+
 ## Sources
 
 Official:

@@ -80,6 +80,21 @@
             android:label="@string/guide_defences" />
 
         <activity
+            android:name=".GuideSourcesActivity"
+            android:exported="false"
+            android:label="@string/guide_sources" />
+
+        <activity
+            android:name=".GuideGlossaryActivity"
+            android:exported="false"
+            android:label="@string/guide_glossary" />
+
+        <activity
+            android:name=".GuideTermActivity"
+            android:exported="false"
+            android:label="@string/guide_glossary" />
+
+        <activity
             android:name=".GuideUnitActivity"
             android:exported="false"
             android:label="@string/guide_army" />

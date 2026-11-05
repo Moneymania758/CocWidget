@@ -79,11 +79,44 @@ class GuideTest {
     }
 
     @Test
-    fun gameTextIsClean() {
-        for (entry in guide.facts.heroes + guide.facts.pets) {
-            assertTrue(entry.name, entry.info.isNotEmpty())
-            assertFalse(entry.name, "\\n" in entry.info || "  " in entry.info)
+    fun everyUnitHeroAndPetHasTactics() {
+        val content = guide.content
+        assertEquals(guide.facts.army.map { it.name }.toSet(), content.unitTactics.keys)
+        assertEquals(guide.facts.heroes.map { it.name }.toSet(), content.heroTactics.keys)
+        assertEquals(guide.facts.pets.map { it.name }.toSet(), content.petTactics.keys)
+        val units = GuideUnits.parse(File("src/main/assets/guide_units.json").readText()).values
+        assertEquals(units.filter { it.kind == "defence" || it.kind == "trap" }.map { it.name }.toSet(), content.defenceTactics.keys)
+        for ((name, tactics) in content.unitTactics + content.defenceTactics) assertTrue(name, tactics.role.isNotBlank())
+        for ((name, tactics) in content.unitTactics + content.defenceTactics + content.heroTactics + content.petTactics) {
+            assertTrue(name, tactics.use.isNotEmpty() && tactics.beware.isNotEmpty())
         }
+    }
+
+    @Test
+    fun tacticsNameRealUnitsAndSources() {
+        val problems = mutableListOf<String>()
+        val sources = guide.content.sources.map { it.key }.toSet()
+        for ((name, tactics) in guide.content.unitTactics + guide.content.defenceTactics + guide.content.heroTactics + guide.content.petTactics) {
+            for (partner in tactics.partners) {
+                if (guide.unit(partner) == null) problems += "$name: no unit called $partner"
+                if (partner == name) problems += "$name works with itself"
+            }
+            for (key in tactics.sources) if (key !in sources) problems += "$name: unknown source $key"
+        }
+        assertEquals(emptyList<String>(), problems)
+    }
+
+    // British spelling for our own words, though the game's Air Defense keeps its name.
+    @Test
+    fun tacticsFollowTheHouseStyle() {
+        val banned = Regex("[\u2013\u2014]|\\bdefense|\\bcolor|behavior|favorite|armor|\\b(?!(?:size|sizes|prize|prizes|seize)\\b)\\w+iz(e|ed|es|ing|ation)\\b")
+        val problems = mutableListOf<String>()
+        for ((name, tactics) in guide.content.unitTactics + guide.content.defenceTactics + guide.content.heroTactics + guide.content.petTactics) {
+            for (line in listOf(tactics.role) + tactics.use + tactics.beware) {
+                banned.find(line)?.let { problems += "$name: ${it.value} in \"$line\"" }
+            }
+        }
+        assertEquals(emptyList<String>(), problems)
     }
 
     // Anything the guide recommends has to exist, and be available at the Town Hall it's listed for.

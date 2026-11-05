@@ -38,21 +38,27 @@ class GuideActivity : GuideScreen() {
         content.addView(ui.button(getString(R.string.guide_army), null, primary = false) { open(GuideArmyActivity::class.java) }, ui.matchWidth(10))
         content.addView(ui.button(getString(R.string.guide_defences), null, primary = false) { open(GuideDefencesActivity::class.java) }, ui.matchWidth(10))
         content.addView(ui.button(getString(R.string.guide_pairings), null, primary = false) { open(GuidePairingsActivity::class.java) }, ui.matchWidth(10))
+        content.addView(ui.button(getString(R.string.guide_glossary), null, primary = false) { open(GuideGlossaryActivity::class.java) }, ui.matchWidth(10))
+        content.addView(ui.button(getString(R.string.guide_sources), null, primary = false) { open(GuideSourcesActivity::class.java) }, ui.matchWidth(10))
+        addNote(getString(R.string.credit))
+    }
+
+    private fun openTownHall(townHall: Int) = open(GuideTownHallActivity::class.java) { putExtra(EXTRA_TOWN_HALL, townHall) }
+}
+
+// Every guide the picks and tips came from. A tap opens it in the browser.
+class GuideSourcesActivity : GuideScreen() {
+    override fun buildGuide() {
+        content.addView(backHeader(R.string.guide_sources))
+        addNote(getString(R.string.guide_sources_detail, guide.content.checked), 13f)
         content.addView(ui.card(0).apply {
-            addView(ui.row().apply {
-                addView(sectionTitle(getString(R.string.guide_sources)))
-                addView(ui.text(getString(R.string.guide_sources_detail, guide.content.checked), 13f, ui.skin.dim), ui.matchWidth(4))
-            })
-            for (source in guide.content.sources) {
-                addView(ui.divider())
+            for ((index, source) in guide.content.sources.withIndex()) {
+                if (index > 0) addView(ui.divider())
                 addView(ui.row().apply {
                     addView(ui.text(getString(R.string.guide_source_row, source.name, source.date), 14f, ui.skin.accent))
                     ui.pressable(this, 0f) { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(source.url))) }
                 })
             }
         }, ui.matchWidth(14))
-        addNote(getString(R.string.credit))
     }
-
-    private fun openTownHall(townHall: Int) = open(GuideTownHallActivity::class.java) { putExtra(EXTRA_TOWN_HALL, townHall) }
 }

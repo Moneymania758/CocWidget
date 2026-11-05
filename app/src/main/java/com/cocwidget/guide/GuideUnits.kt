@@ -36,7 +36,6 @@ class PerTownHall(val townHall: Int, val count: Int, val cap: Int)
 class SubUnit(
     val name: String,
     val note: String,
-    val info: String,
     val icon: String,
     val traits: UnitTraits?,
     val charts: List<UnitChart>,
@@ -52,7 +51,6 @@ class GuideUnit(
     // Which list it's in: elixir, dark, super, siege, spell, defence or trap.
     val group: String,
     val townHall: Int,
-    val info: String,
     val levels: IntArray,
     val townHalls: IntArray,
     val charts: List<UnitChart>,
@@ -106,7 +104,6 @@ object GuideUnits {
                 kind = entry.getString("k"),
                 group = entry.getString("g"),
                 townHall = entry.getInt("h"),
-                info = entry.optString("i"),
                 levels = ints(entry.getJSONArray("lv")),
                 townHalls = ints(entry.getJSONArray("th")),
                 charts = charts(entry.optJSONArray("charts")),
@@ -136,7 +133,6 @@ object GuideUnits {
     private fun subUnit(json: JSONObject) = SubUnit(
         name = json.getString("n"),
         note = json.optString("note"),
-        info = json.optString("info"),
         icon = json.optString("icon"),
         traits = json.optJSONObject("facts")?.let { traits(it, "as", "tt") },
         charts = charts(json.optJSONArray("charts")),

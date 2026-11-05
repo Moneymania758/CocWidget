@@ -55,6 +55,316 @@
       "name": "Clash Ninja",
       "date": "Apr 2026",
       "url": "https://www.clash.ninja/guides/which-pet-should-you-pair-with-your-heroes"
+    },
+    "U": {
+      "name": "Base Drop, troop and spell guides",
+      "date": "Oct 2026",
+      "url": "https://cocbasedrop.com/blog/thrower-troop-guide-coc-2026-healers"
+    },
+    "R": {
+      "name": "Base Drop, Super Troops",
+      "date": "May 2026",
+      "url": "https://cocbasedrop.com/blog/best-super-troops-guide-coc-2026"
+    },
+    "L": {
+      "name": "Blueprint CoC, Ruin Witch",
+      "date": "Jun 2026",
+      "url": "https://blueprintcoc.com/blogs/town-hall-18/best-th18-ruin-witch-army-links"
+    },
+    "H": {
+      "name": "Trophy Coach, equipment",
+      "date": "Oct 2026",
+      "url": "https://trophycoach.com/clash-of-clans/guides/hero-equipment-guide"
+    },
+    "O": {
+      "name": "COC Base Guide",
+      "date": "May 2026",
+      "url": "https://coc-base-guide.vercel.app/articles/coc-spell-guide-2026"
+    },
+    "M": {
+      "name": "Mobile Matters",
+      "date": "date unclear",
+      "url": "https://mobilematters.gg/guides/clash-of-clans/totem-spell-overview"
+    },
+    "V": {
+      "name": "Clash Ninja, April update",
+      "date": "Apr 2026",
+      "url": "https://www.clash.ninja/guides/april-2026-update-is-live"
+    },
+    "J": {
+      "name": "Mobile Matters, Siege Machines",
+      "date": "date unclear",
+      "url": "https://mobilematters.gg/clash-of-clans/all-siege-machines-in-clash-of-clans-explained"
+    },
+    "X": {
+      "name": "AllClash, Siege Machines",
+      "date": "Dec 2022",
+      "url": "https://www.allclash.com/siege-machine-guide/"
+    },
+    "I": {
+      "name": "AllClash, Super Troops",
+      "date": "Dec 2020",
+      "url": "https://www.allclash.com/supertroops-guide-all-supertroops/"
+    },
+    "Q": {
+      "name": "Sportskeeda",
+      "date": "2024 to 2025",
+      "url": "https://sportskeeda.com/mobile-games/furnace-troop-clash-clans-skills-stats"
+    },
+    "BS": {
+      "name": "Blueprint CoC, Recall Spell",
+      "date": "Oct 2022",
+      "url": "https://blueprintcoc.com/blogs/new-clash-of-clans-update/th15-sneak-peek-4"
+    },
+    "SD": {
+      "name": "SportsDunia",
+      "date": "Dec 2025",
+      "url": "https://www.sportsdunia.com/gaming/clash-of-clans-totem-spell"
+    },
+    "TD": {
+      "name": "Trophy Coach, Dragon Duke",
+      "date": "Aug 2026",
+      "url": "https://trophycoach.com/clash-of-clans/guides/dragon-duke-guide"
+    },
+    "BK": {
+      "name": "Blueprint CoC, Rocket Backpack",
+      "date": "Apr 2026",
+      "url": "https://blueprintcoc.com/blogs/clash-of-clans-guides/rocket-backpack-equipment-guide"
+    },
+    "Y": {
+      "name": "Touch, Tap, Play",
+      "date": "date unclear",
+      "url": "https://www.touchtapplay.com/how-to-use-headhunter-in-clash-of-clans/"
+    },
+    "WD": {
+      "name": "1337wiki, defences and traps",
+      "date": "Oct 2026",
+      "url": "https://clash-of-clans.1337wiki.com/"
+    },
+    "ST": {
+      "name": "Supercell, Town Hall 17 update",
+      "date": "date unclear",
+      "url": "https://supercell.com/en/games/clashofclans/blog/game-updates/the-town-hall-17-update-is-here-2/"
+    },
+    "SM": {
+      "name": "Supercell, building merging",
+      "date": "date unclear",
+      "url": "https://supercell.com/en/games/clashofclans/blog/game-updates/building-merging-th16/"
+    },
+    "SF": {
+      "name": "Supercell, February update",
+      "date": "Feb 2026",
+      "url": "https://supercell.com/en/games/clashofclans/blog/release-notes/the-february-update-has-escaped"
+    },
+    "SB": {
+      "name": "Supercell, January balance post",
+      "date": "Jan 2026",
+      "url": "https://supercell.com/en/games/clashofclans/blog/news/balance-changes-4"
+    },
+    "NS": {
+      "name": "Clash Ninja, Town Hall 17",
+      "date": "Nov 2024",
+      "url": "https://www.clash.ninja/blog/town-hall-17-is-here"
+    },
+    "NI": {
+      "name": "Clash Ninja, Inferno Tower",
+      "date": "date unclear",
+      "url": "https://www.clash.ninja/guides/the-inferno-tower"
+    },
+    "TW": {
+      "name": "Trophy Coach, three-star guide",
+      "date": "Aug 2026",
+      "url": "https://trophycoach.com/clash-of-clans/guides/how-to-three-star-in-war"
+    },
+    "BT": {
+      "name": "Blueprint CoC, TH18 war base",
+      "date": "Jun 2026",
+      "url": "https://blueprintcoc.com/blogs/town-hall-18/best-th18-cwl-war-base"
+    },
+    "BF": {
+      "name": "Blueprint CoC, Firespitter",
+      "date": "Nov 2024",
+      "url": "https://blueprintcoc.com/blogs/new-clash-of-clans-update/firespitter-thrower-revive-spell"
+    },
+    "BG": {
+      "name": "Blueprint CoC, Multi-Gear Tower",
+      "date": "Feb 2025",
+      "url": "https://blueprintcoc.com/blogs/new-clash-of-clans-update/multi-gear-tower-sneak-peek-1"
+    },
+    "BP": {
+      "name": "Blueprint CoC, Spring Trap",
+      "date": "Oct 2025",
+      "url": "https://blueprintcoc.com/blogs/new-clash-of-clans-update/spring-trap-rework-sneak-peek-1"
+    },
+    "BM": {
+      "name": "Blueprint CoC, Monolith and Spell Tower",
+      "date": "Oct 2022",
+      "url": "https://blueprintcoc.com/blogs/new-clash-of-clans-update/th15-2"
+    },
+    "BQ": {
+      "name": "Blueprint CoC, Backpack Throwers",
+      "date": "Oct 2026",
+      "url": "https://blueprintcoc.com/blogs/coc-attack-strategies/ninj-backpack-throwers-pro-tips"
+    },
+    "BS17": {
+      "name": "Blueprint CoC, TH17 sneak peek",
+      "date": "Nov 2024",
+      "url": "https://blueprintcoc.com/blogs/new-clash-of-clans-update/town-hall-17-sp-1"
+    },
+    "MR": {
+      "name": "Mobile Matters, Revenge Tower",
+      "date": "Nov 2025",
+      "url": "https://mobilematters.gg/guides/clash-of-clans/revenge-tower-overview"
+    },
+    "MW": {
+      "name": "Mobile Matters, Super Wizard Tower",
+      "date": "Nov 2025",
+      "url": "https://mobilematters.gg/guides/clash-of-clans/super-wizard-tower-overview"
+    },
+    "AE": {
+      "name": "AllClash, Eagle Artillery",
+      "date": "Nov 2016",
+      "url": "https://www.allclash.com/eagle-artillery-attacking-strategy/"
+    },
+    "TM": {
+      "name": "Touch, Tap, Play, Monolith",
+      "date": "Oct 2022",
+      "url": "https://www.touchtapplay.com/how-to-get-and-use-monolith-in-clash-of-clans/"
+    },
+    "TS": {
+      "name": "Touch, Tap, Play, Spell Tower",
+      "date": "Oct 2022",
+      "url": "https://www.touchtapplay.com/how-to-get-and-use-spell-towers-in-clash-of-clans-coc-spell-tower-guide/"
+    },
+    "DM": {
+      "name": "Base Drop, merged defences",
+      "date": "Aug 2026",
+      "url": "https://cocbasedrop.com/blog/are-merged-defenses-getting-weaker-coc-2026"
+    },
+    "DF": {
+      "name": "Base Drop, TH17 war attacks",
+      "date": "Apr 2026",
+      "url": "https://cocbasedrop.com/blog/how-to-3-star-th17-in-war-2026"
+    },
+    "QC": {
+      "name": "Trophy Coach, Queen Charge",
+      "date": "Aug 2026",
+      "url": "https://trophycoach.com/clash-of-clans/guides/queen-charge-guide"
+    },
+    "HY": {
+      "name": "Trophy Coach, Hybrid",
+      "date": "Aug 2026",
+      "url": "https://trophycoach.com/clash-of-clans/guides/hybrid-attack-guide"
+    },
+    "TS2": {
+      "name": "Trophy Coach, three-star system",
+      "date": "Aug 2026",
+      "url": "https://trophycoach.com/clash-of-clans/guides/how-to-three-star-in-war"
+    },
+    "FN": {
+      "name": "Blueprint CoC, funnelling",
+      "date": "Aug 2024",
+      "url": "https://blueprintcoc.com/blogs/clash-of-clans-guides/easy-funneling-guide"
+    },
+    "HD": {
+      "name": "Base Drop, Dragon Rider and Hydra",
+      "date": "Jul 2026",
+      "url": "https://cocbasedrop.com/blog/dragon-rider-army-guide-coc-2026-hydra"
+    },
+    "H18": {
+      "name": "Blueprint CoC, TH18 Hydra",
+      "date": "Jul 2026",
+      "url": "https://blueprintcoc.com/blogs/town-hall-18/best-th18-hydra-army-link"
+    },
+    "DB": {
+      "name": "AllClash, DragBat",
+      "date": "Nov 2019",
+      "url": "https://www.allclash.com/3-star-attacking-guide-for-dragbat-batbomb-batwave/"
+    },
+    "SU": {
+      "name": "Blueprint CoC, Blizzard Lalo",
+      "date": "Jun 2025",
+      "url": "https://blueprintcoc.com/blogs/town-hall-17/th-17-blizzard-lalo-attack-strategy"
+    },
+    "SL": {
+      "name": "Blueprint CoC, TH12 Sui Lalo",
+      "date": "Jan 2026",
+      "url": "https://blueprintcoc.com/blogs/town-hall-12/easiest-th12-attack-strategy"
+    },
+    "GV": {
+      "name": "AllClash, GoVaHo and GoHo",
+      "date": "Nov 2016",
+      "url": "https://www.allclash.com/govaho-3-star-attacking-strategy/"
+    },
+    "WS": {
+      "name": "AllClash, Witch Slap",
+      "date": "Nov 2017",
+      "url": "https://www.allclash.com/3-star-attacking-strategy-guide-for-witch-slap/"
+    },
+    "AQ": {
+      "name": "AllClash, Queen Charge and Hog Riders",
+      "date": "Jan 2018",
+      "url": "https://www.allclash.com/queen-charge-hog-rider-3-star-strategy/"
+    },
+    "QW": {
+      "name": "Clash Ninja, Queen Walk basics",
+      "date": "Dec 2018",
+      "url": "https://www.clash.ninja/guides/how-to-queen-walk-part-1-the-basics"
+    },
+    "B9": {
+      "name": "Blueprint CoC, TH9 attacks",
+      "date": "Apr 2025",
+      "url": "https://blueprintcoc.com/blogs/town-hall-9/best-th9-attack-strategies"
+    },
+    "B16": {
+      "name": "Blueprint CoC, TH16 attacks",
+      "date": "Jul 2026",
+      "url": "https://blueprintcoc.com/blogs/town-hall-16/best-th16-attack-strategies"
+    },
+    "DK": {
+      "name": "Blueprint CoC, Dragon Duke armies",
+      "date": "Mar 2026",
+      "url": "https://blueprintcoc.com/blogs/coc-attack-strategies/best-dragon-duke-army-every-th"
+    },
+    "MS": {
+      "name": "Mobile Matters, Supercharge",
+      "date": "Nov 2024",
+      "url": "https://mobilematters.gg/guides/clash-of-clans/clash-of-clans-supercharge-guide"
+    },
+    "NS2": {
+      "name": "Clash Ninja, September 2024 update",
+      "date": "Sep 2024",
+      "url": "https://www.clash.ninja/blog/september-2024-update-is-live"
+    },
+    "BG2": {
+      "name": "Blueprint CoC, TH18 Guardians",
+      "date": "Nov 2025",
+      "url": "https://blueprintcoc.com/blogs/new-clash-of-clans-update/th18-sneak-peek-1-guardians-super-wizard-tower"
+    },
+    "MG": {
+      "name": "Mobile Matters, Guardians",
+      "date": "Nov 2025",
+      "url": "https://mobilematters.gg/guides/clash-of-clans/guardians-overview"
+    },
+    "NG": {
+      "name": "Clash Ninja, Town Hall 18",
+      "date": "Nov 2025",
+      "url": "https://www.clash.ninja/blog/town-hall-18-is-here"
+    },
+    "SC": {
+      "name": "Supercell, Town Hall 18 update notes",
+      "date": "Nov 2025",
+      "url": "https://supercell.com/en/games/clashofclans/blog/release-notes/town-hall-18-crash-lands-update/"
+    },
+    "NB": {
+      "name": "Clash Ninja, unlocking the sixth builder",
+      "date": "Nov 2019",
+      "url": "https://www.clash.ninja/guides/unlocking-the-6th-builder-b.o.b"
+    },
+    "NL": {
+      "name": "Clash Ninja, April 2026 update",
+      "date": "Apr 2026",
+      "url": "https://www.clash.ninja/blog/april-2026-update-is-live"
     }
   },
   "heroes": [
@@ -1470,7 +1780,7 @@
         {
           "name": "Root Rider Yeti",
           "level": "medium",
-          "about": "Root Riders push defences and Super Yetis push the core. Clustered troops are at risk from the Monolith, so plan to remove it early.",
+          "about": "Root Riders push defences and Super Yetis push the core. High health troops are at risk from the Monolith, so plan to remove it early.",
           "steps": [
             "The King and Giants make the funnel.",
             "The Royal Champion pushes one side.",
@@ -1649,6 +1959,4495 @@
           ]
         }
       ]
+    }
+  ],
+  "tactics": {
+    "units": {
+      "Barbarian": {
+        "role": "Cheap filler for funnels, clean-up and taking the first shots.",
+        "use": [
+          "Drop a few at the edge first to draw fire and set off traps.",
+          "Use them to clear outside buildings so stronger troops walk inwards."
+        ],
+        "beware": [
+          "Splash from Mortars and Wizard Towers kills a clump, so spread them out.",
+          "Too weak to carry an attack past the low Town Halls."
+        ],
+        "with": [
+          "Archer",
+          "Giant"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Archer": {
+        "role": "Cheap ranged damage that shoots over walls.",
+        "use": [
+          "Spread them behind a tank, so defences are shooting something else.",
+          "A thin line clears outside buildings quickly."
+        ],
+        "beware": [
+          "Very little health. Splash wipes a clump, so never drop them in one spot."
+        ],
+        "with": [
+          "Giant",
+          "Barbarian",
+          "Wall Breaker"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Goblin": {
+        "role": "Farming troop that goes for resources before anything else.",
+        "use": [
+          "Send them once something else is drawing fire near the storages.",
+          "Pick them for loot raids, not for stars."
+        ],
+        "beware": [
+          "They ignore the defences shooting them, and have little health."
+        ],
+        "with": [
+          "Giant",
+          "Wall Breaker"
+        ],
+        "src": []
+      },
+      "Giant": {
+        "role": "Low Town Hall tank that walks to the nearest defence.",
+        "use": [
+          "Drop them first, then damage troops once defences have locked on.",
+          "Open a wall for them, or they lose time hitting it.",
+          "A Healer behind a group keeps them going much longer."
+        ],
+        "beware": [
+          "Low damage, so they stall without support.",
+          "Golems and Yetis replace them as tanks from about TH8. After that they are mainly funnel troops."
+        ],
+        "with": [
+          "Archer",
+          "Wizard",
+          "Wall Breaker",
+          "Healer"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Wall Breaker": {
+        "role": "Opens walls, so ground troops reach the defences instead of stalling.",
+        "use": [
+          "Send them just after your tank, while defences are looking elsewhere.",
+          "Send small groups, so one trap or Mortar shot does not lose them all.",
+          "Aim for the wall of the compartment you want to enter."
+        ],
+        "beware": [
+          "They die to almost anything, and Spring Traps can throw them away.",
+          "Sent too early, they die before they reach the wall."
+        ],
+        "with": [
+          "Giant",
+          "Golem",
+          "P.E.K.K.A",
+          "Wizard"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Balloon": {
+        "role": "Slow flying bomber that goes for defences and hits hard.",
+        "use": [
+          "Send them behind a Lava Hound, which soaks up the Air Defense fire.",
+          "Haste keeps them moving through Air Defense range.",
+          "Send them together from one side, so they arrive as a group."
+        ],
+        "beware": [
+          "Air Defenses, Seeking Air Mines and Scattershots are what stop them.",
+          "They cannot hit air troops, and are slow without Haste."
+        ],
+        "with": [
+          "Lava Hound",
+          "Haste Spell",
+          "Rage Spell"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Wizard": {
+        "role": "Fragile splash damage that hits ground and air.",
+        "use": [
+          "Keep them behind a tank, spread in a line.",
+          "Good at clearing groups of buildings and enemy swarms."
+        ],
+        "beware": [
+          "Very little health once the tank has gone."
+        ],
+        "with": [
+          "Golem",
+          "P.E.K.K.A",
+          "Wall Breaker",
+          "Giant"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Healer": {
+        "role": "Keeps ground troops and heroes alive. Does no damage.",
+        "use": [
+          "Pair with troops that bunch up, as one Healer can then cover several.",
+          "Deal with Air Defenses on the route first, or plan a path around them.",
+          "A Queen Walk or Thrower pack is the classic use."
+        ],
+        "beware": [
+          "Air Defenses and Seeking Air Mines kill them, and the army collapses after that.",
+          "They cannot heal air units or Siege Machines. Too many on one target is wasted."
+        ],
+        "with": [
+          "Thrower",
+          "Giant"
+        ],
+        "src": [
+          "U",
+          "M"
+        ]
+      },
+      "Dragon": {
+        "role": "Tough flying splash damage. The main army at TH7, and still used well above it.",
+        "use": [
+          "Remove or weaken Air Defenses first with Lightning.",
+          "Make a funnel so they walk into the core, not around the edge.",
+          "Save Rage for the core."
+        ],
+        "beware": [
+          "Air Defenses plus Seeking Air Mines, especially at higher Town Halls without a Lightning plan.",
+          "Without a funnel they drift round the outside and time runs out."
+        ],
+        "with": [
+          "Balloon",
+          "Lightning Spell",
+          "Rage Spell",
+          "Battle Blimp"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "P.E.K.K.A": {
+        "role": "Big melee damage and health in one body.",
+        "use": [
+          "Send behind a Golem with Wizards and Wall Breakers.",
+          "Point it at the part of the base with the toughest buildings."
+        ],
+        "beware": [
+          "Single target, so Skeleton Traps and swarms waste its time.",
+          "Multi-target Infernos split its focus and hurt.",
+          "Under 3% of TH18 war attacks in Supercell's October figures, before its damage buff."
+        ],
+        "with": [
+          "Golem",
+          "Wizard",
+          "Wall Breaker"
+        ],
+        "src": [
+          "O",
+          "C"
+        ]
+      },
+      "Baby Dragon": {
+        "role": "Flying splash that gets much stronger when no other air unit is near.",
+        "use": [
+          "Use one or two apart from your air group to clear the outside for a funnel.",
+          "Send it where it can work alone, as its bonus needs that."
+        ],
+        "beware": [
+          "Nearby air troops switch off its bonus damage and attack speed."
+        ],
+        "with": [
+          "Dragon",
+          "Balloon",
+          "Super Witch"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Miner": {
+        "role": "Tunnels under walls, and comes up right beside each target.",
+        "use": [
+          "Walls do not slow them, so they suit heavily walled bases.",
+          "Healing Spells and Healers keep the group going when they surface.",
+          "They still get spell bonuses underground."
+        ],
+        "beware": [
+          "They only take damage when above ground, but hit one target at a time.",
+          "Ice Block does not protect them while they are underground.",
+          "Under 3% of TH18 war attacks in Supercell's October figures, before their health buff."
+        ],
+        "with": [
+          "Healer",
+          "Healing Spell",
+          "Hog Rider"
+        ],
+        "src": [
+          "M",
+          "C"
+        ]
+      },
+      "Yeti": {
+        "role": "Heavy ground hitter, whose Yetimites come out as it takes damage.",
+        "use": [
+          "Make a funnel first, then send them in a group to smash through.",
+          "A Log Launcher ahead of them opens the way.",
+          "Save Rage for when they reach the core."
+        ],
+        "beware": [
+          "Multi-target Infernos cut through the swarm.",
+          "Slow, so a late start can run out of time."
+        ],
+        "with": [
+          "Log Launcher",
+          "Rage Spell",
+          "Super Wizard",
+          "Druid"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Electro Dragon": {
+        "role": "Slow flying lightning that chains between close buildings.",
+        "use": [
+          "Use Lightning on Air Defenses before you send them.",
+          "A group can clear a compartment quickly when buildings sit close together.",
+          "It strikes the ground when destroyed, so one lost deep still does damage."
+        ],
+        "beware": [
+          "Very slow, so a long walk can run out the clock.",
+          "Chains do less on spread-out bases."
+        ],
+        "with": [
+          "Balloon",
+          "Lava Hound",
+          "Lightning Spell",
+          "Rage Spell"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Dragon Rider": {
+        "role": "Flying heavy hitter that goes straight for defences.",
+        "use": [
+          "Open with a hero or tank so it reaches defences while they are distracted.",
+          "Totem and Freeze buy time when it gets into the core."
+        ],
+        "beware": [
+          "Air Defenses and Seeking Air Mines, as with every air army.",
+          "It leaves other buildings standing, so plan who cleans up."
+        ],
+        "with": [
+          "Lava Hound",
+          "Inferno Dragon",
+          "Totem Spell",
+          "Freeze Spell"
+        ],
+        "src": [
+          "W"
+        ]
+      },
+      "Electro Titan": {
+        "role": "Walking tank with an aura that damages everything around her.",
+        "use": [
+          "Drop one on a flank to help make the funnel.",
+          "Walk her with the main group, so her aura and health both help."
+        ],
+        "beware": [
+          "Short range, so she walks right into defences and takes the hits."
+        ],
+        "with": [
+          "Apprentice Warden",
+          "Super Archer",
+          "Druid"
+        ],
+        "src": []
+      },
+      "Root Rider": {
+        "role": "Ground bruiser that smashes walls and goes for defences.",
+        "use": [
+          "Send a group of five to seven to open a walled base for the rest of the army.",
+          "Overgrowth on the defensive core stops them stalling there.",
+          "Save Rage for the core and Freeze for the defence melting them."
+        ],
+        "beware": [
+          "The Monolith hits high health troops hardest, so plan to remove it early."
+        ],
+        "with": [
+          "Super Yeti",
+          "Meteor Golem",
+          "Thrower",
+          "Overgrowth Spell"
+        ],
+        "src": [
+          "O",
+          "U",
+          "T"
+        ]
+      },
+      "Thrower": {
+        "role": "Long range damage that hits ground and air, from outside many defences.",
+        "use": [
+          "Clear the outside on both shoulders first, so they walk into the core. A hero or two Root Riders each side does it.",
+          "Keep the pack bunched so Healers can cover it. About four Healers is usual.",
+          "Freeze the splash defences, and Rage a pack that has stalled."
+        ],
+        "beware": [
+          "Without a funnel they wander the edge and shoot storages.",
+          "Air Defenses ignore them but kill the Healers, which collapses the attack.",
+          "Scattershots and multi-target Infernos punish the bunch."
+        ],
+        "with": [
+          "Healer",
+          "Root Rider",
+          "Ruin Witch",
+          "Meteor Golem"
+        ],
+        "src": [
+          "U"
+        ]
+      },
+      "Meteor Golem": {
+        "role": "Tank that splits into two Meteormites on each throw, then re-forms.",
+        "use": [
+          "Start with a couple up front, and keep them close so the halves can recombine.",
+          "Use a hero or side troops to set the entry point.",
+          "Pair with a damage carry, as it is not a solo army."
+        ],
+        "beware": [
+          "Spread too thin, the halves die alone and never re-form.",
+          "Only Meteormites cross walls, not a whole Golem. Cloned ones cannot merge."
+        ],
+        "with": [
+          "Root Rider",
+          "Thrower",
+          "Totem Spell",
+          "Rage Spell"
+        ],
+        "src": [
+          "U",
+          "M"
+        ]
+      },
+      "Minion": {
+        "role": "Cheap, fast flying damage.",
+        "use": [
+          "Use them to clean up edges or fill spare housing in an air army.",
+          "Seeking Air Mines ignore them, so they can go ahead of others."
+        ],
+        "beware": [
+          "Very fragile. Air Sweepers and splash make short work of a group."
+        ],
+        "with": [
+          "Balloon",
+          "Lava Hound",
+          "Dragon"
+        ],
+        "src": []
+      },
+      "Hog Rider": {
+        "role": "Fast ground troop that jumps walls and goes for defences.",
+        "use": [
+          "Kill the Clan Castle and make a funnel first, or the group scatters.",
+          "Heal them ahead of where they are going, not where they stand.",
+          "Keep a Freeze for the Inferno Tower that locks on."
+        ],
+        "beware": [
+          "Two Giant Bombs together can wipe out a group.",
+          "Infernos burn the group unless they are Frozen.",
+          "Under 3% of TH18 war attacks in Supercell's October figures, before their health buff."
+        ],
+        "with": [
+          "Healing Spell",
+          "Witch",
+          "Miner",
+          "Golem"
+        ],
+        "src": [
+          "O",
+          "C"
+        ]
+      },
+      "Valkyrie": {
+        "role": "Melee spinner that shreds groups of buildings and troops at once.",
+        "use": [
+          "Best where buildings sit tightly together, usually the core.",
+          "Send them behind a tank through an open funnel.",
+          "Rage on a group inside the core is the payoff."
+        ],
+        "beware": [
+          "Walls cost her a lot of time, so have an entry ready."
+        ],
+        "with": [
+          "Golem",
+          "Root Rider",
+          "Rage Spell",
+          "Wall Breaker"
+        ],
+        "src": []
+      },
+      "Golem": {
+        "role": "The main tank at middle Town Halls. Walks to defences and soaks up fire.",
+        "use": [
+          "Drop first and let defences lock on, especially Inferno Towers.",
+          "Follow with Wall Breakers, then your damage troops.",
+          "Golemites still draw fire after it falls, so give them time to work."
+        ],
+        "beware": [
+          "Very little damage, so it needs an army behind it.",
+          "Super Witches and Yetis largely replace it higher up."
+        ],
+        "with": [
+          "Wizard",
+          "P.E.K.K.A",
+          "Wall Breaker",
+          "Witch"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Witch": {
+        "role": "Support that keeps raising Skeletons to soak up shots.",
+        "use": [
+          "Keep her behind a tank, and let the Skeletons distract the defences.",
+          "They overload splash and waste single-target defences.",
+          "Mass Witches are a common TH9 plan."
+        ],
+        "beware": [
+          "Each Skeleton is weak, so she is not a main damage dealer.",
+          "Slow and fragile if the front line falls."
+        ],
+        "with": [
+          "Golem",
+          "Wizard",
+          "Hog Rider",
+          "Healing Spell"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Lava Hound": {
+        "role": "Flying tank that goes for Air Defenses and soaks up their fire.",
+        "use": [
+          "Send it first, from the side of the Air Defense you want to tie up.",
+          "Air troops follow once it has taken the Air Defense's attention.",
+          "When it dies, the Lava Pups keep drawing fire for a moment."
+        ],
+        "beware": [
+          "It does almost no damage, so it needs air troops behind it."
+        ],
+        "with": [
+          "Balloon",
+          "Electro Dragon",
+          "Dragon Rider",
+          "Minion"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Bowler": {
+        "role": "Ranged ground splash whose boulders bounce into whatever is behind.",
+        "use": [
+          "Send them behind a tank, and let the bounce hit two buildings at once.",
+          "They work well where buildings are packed together."
+        ],
+        "beware": [
+          "Slow, and they cannot hit air troops, so enemy air units need another answer."
+        ],
+        "with": [
+          "Witch",
+          "Golem",
+          "Healer"
+        ],
+        "src": []
+      },
+      "Ice Golem": {
+        "role": "Tank that goes for defences, then freezes the area when destroyed.",
+        "use": [
+          "Send one to soak up fire ahead of a push or a Siege Machine.",
+          "Let it die among defences, so the freeze stops them shooting your main group."
+        ],
+        "beware": [
+          "Low damage, so it only sets things up.",
+          "A freeze far away from your army helps nobody."
+        ],
+        "with": [
+          "Super Yeti",
+          "Log Launcher",
+          "Yeti"
+        ],
+        "src": [
+          "W"
+        ]
+      },
+      "Headhunter": {
+        "role": "Goes straight for enemy heroes, jumps walls, and slows them with poison.",
+        "use": [
+          "Drop her close to a defending hero, so she gets there quickly.",
+          "Removing a hero early protects your main push."
+        ],
+        "beware": [
+          "Little use once the enemy heroes are gone.",
+          "She will not clear a route, as she ignores other targets while a hero is up."
+        ],
+        "with": [
+          "Root Rider",
+          "Electro Dragon",
+          "Thrower"
+        ],
+        "src": [
+          "Y"
+        ]
+      },
+      "Apprentice Warden": {
+        "role": "Ground support whose aura gives nearby troops extra health.",
+        "use": [
+          "Walk him with tough troops, so the aura covers as many as possible.",
+          "Drop him behind the front so he reaches the middle of the group."
+        ],
+        "beware": [
+          "No Eternal Tome, so he only adds health, not protection from big hits.",
+          "Siege Machines get nothing from the aura."
+        ],
+        "with": [
+          "P.E.K.K.A",
+          "Bowler",
+          "Hog Rider",
+          "Electro Titan"
+        ],
+        "src": [
+          "Q"
+        ]
+      },
+      "Druid": {
+        "role": "Heals several troops at once, then turns into a Bear as a fighter.",
+        "use": [
+          "Send with heroes on a dive for quick healing.",
+          "Works in Yeti smash and Super Witch armies."
+        ],
+        "beware": [
+          "Bears get stuck behind walls, so Druids struggle on heavily walled bases."
+        ],
+        "with": [
+          "Yeti",
+          "Super Witch",
+          "Electro Titan"
+        ],
+        "src": [
+          "Q"
+        ]
+      },
+      "Furnace": {
+        "role": "Sits still and sends Firemites at buildings over its lifetime.",
+        "use": [
+          "Place it out of range of defences, by the outside buildings you want gone.",
+          "Use it to open up a base so the rest of the army gets deeper."
+        ],
+        "beware": [
+          "Destroyed early, its remaining Firemites are lost.",
+          "Launch guides say healing it to full stops the Firemites, so keep Healers away from it."
+        ],
+        "with": [
+          "Thrower",
+          "Meteor Golem",
+          "Super Yeti"
+        ],
+        "src": [
+          "Q"
+        ]
+      },
+      "Ruin Witch": {
+        "role": "Support that turns rubble into Ruin Knights. Top three-star rate of any troop with real use in Supercell's October TH18 war figures.",
+        "use": [
+          "Drop her behind the front line once the first buildings have fallen.",
+          "Keep her close to the main push, so Knights appear where they are needed.",
+          "One is usually enough, unless the army is built around her."
+        ],
+        "beware": [
+          "Dropped too early she stands idle, and near defences she dies before making Knights.",
+          "She cannot jump walls, so the funnel must be open.",
+          "Spring Traps can throw Knights since October. Compact bases clump them for splash."
+        ],
+        "with": [
+          "Thrower",
+          "Root Rider",
+          "Rage Spell",
+          "Angry Spell"
+        ],
+        "src": [
+          "L",
+          "U",
+          "C"
+        ]
+      },
+      "Super Barbarian": {
+        "role": "Fast funnel maker.",
+        "use": [
+          "Use them to clear the outside and open a funnel for the main army."
+        ],
+        "beware": [
+          "Few high-end armies use them for much else.",
+          "They die quickly to splash when bunched."
+        ],
+        "with": [
+          "Root Rider",
+          "Thrower",
+          "Ice Golem"
+        ],
+        "src": [
+          "O",
+          "I"
+        ]
+      },
+      "Super Archer": {
+        "role": "Arrows pierce through buildings and reach targets several buildings away.",
+        "use": [
+          "Drop them in a Battle Blimp from your Clan Castle, with Invisibility, to remove a key defence.",
+          "Use them to make a funnel or clean up, as they reach so far.",
+          "They spam well alongside Yetis at TH13."
+        ],
+        "beware": [
+          "Clan Castle troops that travel too far while invisible can be shot down.",
+          "Eagle Artillery and Scattershots can catch them at TH18."
+        ],
+        "with": [
+          "Battle Blimp",
+          "Invisibility Spell",
+          "Rage Spell",
+          "Yeti"
+        ],
+        "src": [
+          "R"
+        ]
+      },
+      "Super Wall Breaker": {
+        "role": "Rolling bomb that always blows up, so it gets through where normal ones die.",
+        "use": [
+          "Use for wall spots covered by a multi-target Inferno Tower.",
+          "Good for opening a chosen section on a Queen Charge."
+        ],
+        "beware": [
+          "Plain Wall Breakers are enough most of the time."
+        ],
+        "with": [
+          "Witch",
+          "Thrower",
+          "Golem"
+        ],
+        "src": [
+          "I"
+        ]
+      },
+      "Super Giant": {
+        "role": "Very tanky, and punches through walls.",
+        "use": [
+          "Use as a tank in a push, with Healers behind."
+        ],
+        "beware": [
+          "Slow with low damage, so hard to justify the boost at higher Town Halls.",
+          "It can break walls in unhelpful spots."
+        ],
+        "with": [
+          "Healer",
+          "Wizard"
+        ],
+        "src": [
+          "R",
+          "I"
+        ]
+      },
+      "Sneaky Goblin": {
+        "role": "Goblin that stays hidden for a while after being deployed.",
+        "use": [
+          "Pair with a Battle Blimp to take out the Town Hall for a quick star.",
+          "Use it for loot on a raid, if you have a boost spare."
+        ],
+        "beware": [
+          "Little health once revealed, and not much use beyond those two jobs."
+        ],
+        "with": [
+          "Battle Blimp"
+        ],
+        "src": [
+          "I"
+        ]
+      },
+      "Super Miner": {
+        "role": "Stronger tunnelling Miner with a blast at the end.",
+        "use": [
+          "Keep Healing Spells and Healers ready when the group surfaces."
+        ],
+        "beware": [
+          "Rated low in current guides: its tunnelling can be unpredictable, and it is barely picked at TH18.",
+          "Base Drop suggests skipping it for CWL. It got a health buff in October, so re-check."
+        ],
+        "with": [
+          "Healer",
+          "Healing Spell"
+        ],
+        "src": [
+          "R",
+          "C"
+        ]
+      },
+      "Rocket Balloon": {
+        "role": "Balloon with booster rockets that gets to defences quickly.",
+        "use": [
+          "Send them after a Lava Hound or a hero has drawn the first shots.",
+          "The speed gets them in before Air Defenses thin them out."
+        ],
+        "beware": [
+          "Scattershots and Seeking Air Mines still punish them.",
+          "The boost does not last the whole attack, so they slow to Balloon pace."
+        ],
+        "with": [
+          "Lava Hound",
+          "Dragon Rider",
+          "Dragon"
+        ],
+        "src": []
+      },
+      "Inferno Dragon": {
+        "role": "Beam that builds up the longer it stays on one target.",
+        "use": [
+          "Point it at tough buildings, where the beam has time to build.",
+          "Used in Duke Charge air armies alongside Dragon Riders."
+        ],
+        "beware": [
+          "Poor at clearing lots of small buildings.",
+          "AllClash rates it better on defence in a Clan Castle than on attack, though that page is old."
+        ],
+        "with": [
+          "Dragon Rider",
+          "Lava Hound"
+        ],
+        "src": [
+          "W",
+          "I"
+        ]
+      },
+      "Super Valkyrie": {
+        "role": "Spinning splash with a wider reach, leaving Rage when she falls.",
+        "use": [
+          "Send several, so one falling boosts the others.",
+          "Suits spam attacks with no room for your own Rage Spells."
+        ],
+        "beware": [
+          "Needs more careful placement than Super Witches.",
+          "Rated mid-table by Base Drop, and AllClash avoids her in war."
+        ],
+        "with": [
+          "Golem",
+          "Wall Breaker"
+        ],
+        "src": [
+          "R",
+          "I"
+        ]
+      },
+      "Super Witch": {
+        "role": "Summons one big tanky Big Boy instead of many Skeletons. Among the most forgiving war troops.",
+        "use": [
+          "Deploy a wide line of about six.",
+          "Works best at about TH11 to TH16.",
+          "Pair with Root Riders and the Warden, or a few Golems."
+        ],
+        "beware": [
+          "Big clusters draw Scattershots, so keep a Freeze for them.",
+          "She is slow, so start with plenty of time."
+        ],
+        "with": [
+          "Root Rider",
+          "Golem",
+          "Baby Dragon",
+          "Druid"
+        ],
+        "src": [
+          "O",
+          "R"
+        ]
+      },
+      "Ice Hound": {
+        "role": "Tanky flyer that freezes the area where it comes down.",
+        "use": [
+          "Use like a Lava Hound, tying up Air Defenses for your flyers.",
+          "Time your followers so they arrive as the freeze lands."
+        ],
+        "beware": [
+          "Little damage on its own, so it needs air troops behind it."
+        ],
+        "with": [
+          "Balloon",
+          "Rocket Balloon",
+          "Dragon"
+        ],
+        "src": [
+          "I"
+        ]
+      },
+      "Super Bowler": {
+        "role": "Slow ground splash with boulders that hit three times.",
+        "use": [
+          "Send a group through a funnel, behind a tank, for big damage on packed buildings.",
+          "Save Rage for the core."
+        ],
+        "beware": [
+          "Slow, so long routes can run out the clock.",
+          "Cannot hit air troops."
+        ],
+        "with": [
+          "Rage Spell",
+          "Healer"
+        ],
+        "src": []
+      },
+      "Super Dragon": {
+        "role": "Flying fire that destroys clusters of buildings in bursts.",
+        "use": [
+          "Use a mass of them with a funnel, like Mass Dragons.",
+          "Rage and Freeze keep the group alive through the core."
+        ],
+        "beware": [
+          "Base Drop says it struggles from TH16, where building health is too high."
+        ],
+        "with": [
+          "Balloon",
+          "Rage Spell",
+          "Freeze Spell"
+        ],
+        "src": [
+          "R"
+        ]
+      },
+      "Super Wizard": {
+        "role": "Magic that chains between targets.",
+        "use": [
+          "Use to make a funnel or clear a section, often from a Battle Blimp.",
+          "Used with Yetis for smash at TH13."
+        ],
+        "beware": [
+          "Needs buildings at the right spacing to chain well, so it is niche.",
+          "Fragile, so keep a tank in front."
+        ],
+        "with": [
+          "Yeti",
+          "Log Launcher",
+          "Battle Blimp",
+          "Bat Spell"
+        ],
+        "src": [
+          "I"
+        ]
+      },
+      "Super Minion": {
+        "role": "Flying long range sniper of defences.",
+        "use": [
+          "Support for air armies, picking off defences from far away.",
+          "Also a strong Clan Castle defender."
+        ],
+        "beware": [
+          "Too big to slip past Seeking Air Mines, unlike normal Minions."
+        ],
+        "with": [
+          "Lava Hound",
+          "Balloon"
+        ],
+        "src": [
+          "R",
+          "I"
+        ]
+      },
+      "Super Hog Rider": {
+        "role": "Hog and Rider who split up and keep fighting.",
+        "use": [
+          "Mostly useful as a distraction, or to set off Giant Bombs for what follows.",
+          "Better as a Clan Castle defender than a main attacker."
+        ],
+        "beware": [
+          "Base Drop calls it underwhelming as a main troop from TH16, and Supercell says it is barely picked at TH18. It got a health buff in October."
+        ],
+        "with": [
+          "Healing Spell"
+        ],
+        "src": [
+          "R",
+          "C"
+        ]
+      },
+      "Super Yeti": {
+        "role": "Base Drop's top ground Super Troop. Its Yetimites zap nearby buildings when it is hit.",
+        "use": [
+          "Send with a tank in front, then Rage behind the group.",
+          "Root Riders open the way and Super Yetis carry the core.",
+          "A forgiving plan at high Town Halls, with a Royal Champion charge."
+        ],
+        "beware": [
+          "Costly to boost, so check your plan before you pay.",
+          "The Monolith hits high health troops hardest at TH18."
+        ],
+        "with": [
+          "Root Rider",
+          "Log Launcher",
+          "Ice Golem",
+          "Rage Spell"
+        ],
+        "src": [
+          "R",
+          "T"
+        ]
+      },
+      "Wall Wrecker": {
+        "role": "Drives straight at the Town Hall, smashing walls on the way, then releases your Clan Castle troops.",
+        "use": [
+          "Use to open the base at a chosen spot for a ground army or Queen Charge.",
+          "Put a tank or heroes with it, as it draws heavy fire."
+        ],
+        "beware": [
+          "Single-target Infernos melt it.",
+          "Not for air armies, as Clan Castle air troops can meet Seeking Air Mines.",
+          "It cannot be healed, and spells do not affect it."
+        ],
+        "with": [
+          "Yeti",
+          "Valkyrie",
+          "Wall Breaker"
+        ],
+        "src": [
+          "X",
+          "J"
+        ]
+      },
+      "Battle Blimp": {
+        "role": "Flying delivery. It carries your Clan Castle troops to a spot, and is mainly transport.",
+        "use": [
+          "Use it to remove a key defence with Clan Castle troops, plus Rage where they land.",
+          "Send a Balloon or two ahead, to clear Seeking Air Mines.",
+          "Invisibility protects the troops it drops, not the Blimp itself."
+        ],
+        "beware": [
+          "Thin, so Air Defenses bring it down quickly if it flies too far.",
+          "Little damage of its own."
+        ],
+        "with": [
+          "Super Archer",
+          "Sneaky Goblin",
+          "Invisibility Spell",
+          "Balloon"
+        ],
+        "src": [
+          "X",
+          "R"
+        ]
+      },
+      "Stone Slammer": {
+        "role": "Flying machine that goes for defences, with splash and a quake effect.",
+        "use": [
+          "Good with defence-targeting troops such as Hogs and Balloons, to clear the outer defences.",
+          "Used in LaLoon and Queen Walk setups to open a path."
+        ],
+        "beware": [
+          "Short range, and Air Defenses handle it easily.",
+          "It has no answer to enemy air troops."
+        ],
+        "with": [
+          "Balloon",
+          "Lava Hound",
+          "Dragon",
+          "Hog Rider"
+        ],
+        "src": [
+          "X",
+          "J"
+        ]
+      },
+      "Siege Barracks": {
+        "role": "Lands, releases P.E.K.K.As and Wizards, and then your Clan Castle troops.",
+        "use": [
+          "Use it on a flank to help make a funnel, or to clean up when time is short.",
+          "Good when you want a distraction more than a core drop."
+        ],
+        "beware": [
+          "It stays on the outside, and you have little control after that.",
+          "It cannot tank, and its health keeps falling."
+        ],
+        "with": [
+          "Root Rider",
+          "Valkyrie",
+          "Thrower",
+          "Dragon"
+        ],
+        "src": [
+          "X",
+          "J",
+          "U"
+        ]
+      },
+      "Log Launcher": {
+        "role": "Rolls logs ahead of it that smash walls for ground armies.",
+        "use": [
+          "Place it in front of the walls you want gone, then follow with ground troops.",
+          "Put a tank in front, as its health drains fast."
+        ],
+        "beware": [
+          "Its health keeps falling, so it dies quickly without help.",
+          "Slow, and no use to an air army."
+        ],
+        "with": [
+          "Yeti",
+          "Super Yeti",
+          "Ice Golem",
+          "Golem"
+        ],
+        "src": [
+          "J",
+          "X"
+        ]
+      },
+      "Flame Flinger": {
+        "role": "Lobs fire at defences from very long range.",
+        "use": [
+          "Use it to pick off edge defences from outside their reach, before your main troops go in.",
+          "Put a tank in front, as its health drains."
+        ],
+        "beware": [
+          "Slow, so it can cost you the clock.",
+          "Long range defences and traps can still reach it."
+        ],
+        "with": [
+          "Golem",
+          "Ice Golem"
+        ],
+        "src": [
+          "X",
+          "J"
+        ]
+      },
+      "Battle Drill": {
+        "role": "Burrows to the nearest defence, pops up, and stuns it.",
+        "use": [
+          "Use it to take out a chosen defence, by placing it close to that defence.",
+          "Plan the line it takes, as it goes for the nearest one."
+        ],
+        "beware": [
+          "Short range and single target, so it needs a plan rather than a blind drop."
+        ],
+        "with": [],
+        "src": [
+          "J",
+          "X"
+        ]
+      },
+      "Troop Launcher": {
+        "role": "Stays where it lands, and fires barrels of troops at your army, including your Clan Castle troops.",
+        "use": [
+          "Drop it with your main push, as barrels go to your troops in the field.",
+          "Used on RC Walk Root Riders at TH17."
+        ],
+        "beware": [
+          "There are only a few barrels and it has a set lifetime, so do not waste it on a thin attack."
+        ],
+        "with": [
+          "Root Rider",
+          "Meteor Golem"
+        ],
+        "src": [
+          "V"
+        ]
+      },
+      "Sky Wagon": {
+        "role": "Flying machine that goes for defences and drops barrels of air troops and your Clan Castle troops.",
+        "use": [
+          "Deploy it behind your air troops, as Clash Ninja suggests.",
+          "Suits air and hybrid attacks."
+        ],
+        "beware": [
+          "Its wooden body cannot take much damage.",
+          "Guides on it are thin, so try it in a friendly challenge first."
+        ],
+        "with": [
+          "Dragon",
+          "Dragon Rider",
+          "Balloon",
+          "Lava Hound"
+        ],
+        "src": [
+          "V"
+        ]
+      },
+      "Lightning Spell": {
+        "role": "Removes Air Defenses before an air attack.",
+        "use": [
+          "Work out how many it takes to kill an Air Defense, and add an Earthquake to save spells.",
+          "Also handy on Clan Castle troops or a lone Wizard Tower."
+        ],
+        "beware": [
+          "Small radius, so check where your strikes land."
+        ],
+        "with": [
+          "Dragon",
+          "Electro Dragon",
+          "Earthquake Spell"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Healing Spell": {
+        "role": "Keeps a ground push alive through sustained fire.",
+        "use": [
+          "Place it 3 to 4 tiles ahead of the group, so they walk into it.",
+          "Best for Hogs, Yetis and Super Witches."
+        ],
+        "beware": [
+          "Dropped where troops stand now, they walk straight out of it."
+        ],
+        "with": [
+          "Hog Rider",
+          "Yeti",
+          "Super Witch",
+          "Miner"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Rage Spell": {
+        "role": "The damage and speed boost that finishes off the core.",
+        "use": [
+          "Drop it as the main push reaches the core or Eagle Artillery.",
+          "Save it for a group that is starting to stall."
+        ],
+        "beware": [
+          "Wasted at the start of an attack, or on troops already winning."
+        ],
+        "with": [
+          "Yeti",
+          "Dragon",
+          "Balloon",
+          "Root Rider"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Jump Spell": {
+        "role": "Lets ground troops walk over a section of wall.",
+        "use": [
+          "Place it where the whole group needs to enter the compartment.",
+          "Lets you bring fewer Wall Breakers."
+        ],
+        "beware": [
+          "Troops will only use it if their route takes them there, so check your funnel."
+        ],
+        "with": [
+          "Golem",
+          "Witch",
+          "Super Yeti"
+        ],
+        "src": []
+      },
+      "Freeze Spell": {
+        "role": "Stops a defence that is about to kill something you need.",
+        "use": [
+          "Cast it the moment a defence locks on to your key unit, not before.",
+          "Priorities: Inferno on a hero, Scattershot on a cluster, Eagle Artillery opening, Spell Tower on the army."
+        ],
+        "beware": [
+          "A second Freeze on the same defence adds little, so use it elsewhere."
+        ],
+        "with": [
+          "Thrower",
+          "Root Rider",
+          "Dragon Rider",
+          "Super Dragon"
+        ],
+        "src": [
+          "O",
+          "U"
+        ]
+      },
+      "Poison Spell": {
+        "role": "Kills or slows Clan Castle troops. Does nothing to buildings.",
+        "use": [
+          "Lure the Clan Castle first, then Poison it before heroes get into a fight.",
+          "They also attack and move slower, so it buys time."
+        ],
+        "beware": [
+          "Do not send the Queen at Valkyries or Super Valkyries with no Poison on them. It wastes her ability and Healers."
+        ],
+        "with": [
+          "Dragon Rider",
+          "Hog Rider"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Earthquake Spell": {
+        "role": "Opens walls and softens tough buildings by a share of their health.",
+        "use": [
+          "Use it mainly to open compartments. Four break any wall, and two can make a gap for Root Riders.",
+          "It can soften high-health buildings, such as Eagle Artillery and Infernos, before troops arrive."
+        ],
+        "beware": [
+          "Each repeat on the same spot does less.",
+          "It only hits ground targets."
+        ],
+        "with": [
+          "Lightning Spell",
+          "Root Rider",
+          "Dragon"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Haste Spell": {
+        "role": "Faster movement with no damage boost, for one housing space.",
+        "use": [
+          "Cast it on Balloons as they push past mid-base, to stop them stalling under Air Defenses.",
+          "Use it when speed matters more than damage."
+        ],
+        "beware": [
+          "No damage boost, so Rage is better once troops are hitting the core."
+        ],
+        "with": [
+          "Balloon",
+          "Hog Rider"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Clone Spell": {
+        "role": "Makes temporary copies of troops that enter it.",
+        "use": [
+          "Cast it on your mid-base Dragons, or on the troops about to enter the core.",
+          "Used in Hydra air armies."
+        ],
+        "beware": [
+          "There is a housing limit, so it clones only so many at once. Clones also last a short time.",
+          "COC Base Guide says it is less useful at higher Town Halls."
+        ],
+        "with": [
+          "Dragon",
+          "Balloon",
+          "Dragon Rider",
+          "Lava Hound"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Skeleton Spell": {
+        "role": "Instant distraction anywhere on the map, and does not set off traps.",
+        "use": [
+          "Use it on the Monolith or a single-target defence to waste its shots.",
+          "Handy against a Town Hall cluster at the end of an attack."
+        ],
+        "beware": [
+          "Skeletons can wander, so results vary."
+        ],
+        "with": [
+          "Super Yeti",
+          "Thrower"
+        ],
+        "src": [
+          "O",
+          "L"
+        ]
+      },
+      "Bat Spell": {
+        "role": "Instant air clean-up that does not set off traps.",
+        "use": [
+          "Use it to finish a Town Hall cluster, or a group of Mortars and Wizard Towers.",
+          "Good follow-up in a Dragon or Yeti army."
+        ],
+        "beware": [
+          "Bats die quickly to splash, so aim them at a spot with few air-hitting defences."
+        ],
+        "with": [
+          "Dragon",
+          "Yeti",
+          "Super Wizard"
+        ],
+        "src": [
+          "O"
+        ]
+      },
+      "Invisibility Spell": {
+        "role": "Hides everything inside it, except walls and Siege Machines.",
+        "use": [
+          "Cast it on a hero as an Inferno starts to burn, or across the route of a charge.",
+          "Use it on Clan Castle troops after a Blimp drop, so they reach their target."
+        ],
+        "beware": [
+          "Lasts a short time, so troops that travel too far come out exposed.",
+          "It does not hide your Blimp or other Siege Machines."
+        ],
+        "with": [
+          "Super Archer",
+          "Dragon",
+          "Dragon Rider",
+          "Root Rider"
+        ],
+        "src": [
+          "O",
+          "R"
+        ]
+      },
+      "Recall Spell": {
+        "role": "Sends troops, heroes and pets back to your deployment bar, to use again elsewhere.",
+        "use": [
+          "Use it to rescue a push that has gone the wrong way, or to save units from a lethal defence.",
+          "Redeploy where your Jump or Healing Spells can help."
+        ],
+        "beware": [
+          "It does not heal, so hurt troops come back hurt, and it takes the biggest units first.",
+          "Anything left undeployed at the end is lost. Totems cannot be recalled."
+        ],
+        "with": [
+          "Jump Spell",
+          "Healing Spell"
+        ],
+        "src": [
+          "BS"
+        ]
+      },
+      "Overgrowth Spell": {
+        "role": "Roots buildings: they stop firing, cannot be hit, and your troops ignore them.",
+        "use": [
+          "Drop it on the defensive core, ahead of the push and in the direction of travel.",
+          "Centre it on a gap between buildings, to catch more defences.",
+          "Ground armies gain most, especially Root Riders."
+        ],
+        "beware": [
+          "Do not root the building your army is hitting, or the whole pack reroutes.",
+          "Traps, Clan Castle troops and heroes still work inside it.",
+          "Weak on spread-out bases and hero charges."
+        ],
+        "with": [
+          "Root Rider",
+          "Thrower",
+          "Valkyrie"
+        ],
+        "src": [
+          "U"
+        ]
+      },
+      "Revive Spell": {
+        "role": "Brings back a fallen hero within its range, with some health.",
+        "use": [
+          "Bring it when a hero has to survive deep in the base, where its job is not done.",
+          "Wait until the area around the fallen hero is safer, or they will fall again straight away."
+        ],
+        "beware": [
+          "Casting it the moment a hero falls is the usual mistake.",
+          "It takes two housing spaces, so it replaces something else."
+        ],
+        "with": [
+          "Healing Spell",
+          "Rage Spell"
+        ],
+        "src": [
+          "Q"
+        ]
+      },
+      "Ice Block Spell": {
+        "role": "Freezes your own troops, so they take far less damage for a few seconds.",
+        "use": [
+          "Cast it on tanks such as Golems, Lava Hounds or Yetis, once they are drawing fire deep in the base.",
+          "Follow with your damage troops while defences are wasting shots."
+        ],
+        "beware": [
+          "Frozen troops cannot attack, so a badly timed one costs you damage.",
+          "It only catches troops already inside. No Siege Machines, underground troops, or spawned troops such as Skeletons."
+        ],
+        "with": [
+          "Golem",
+          "Lava Hound",
+          "Yeti",
+          "Dragon"
+        ],
+        "src": [
+          "M"
+        ]
+      },
+      "Totem Spell": {
+        "role": "Drops a tough totem that stuns defences on landing and takes their fire.",
+        "use": [
+          "Drop it near strong defences or units that threaten your army, then follow up with damage.",
+          "Use it on the outside first, to protect troops as they go in."
+        ],
+        "beware": [
+          "Stun is brief, and its health falls by itself, so timing matters. It does not set off traps.",
+          "It cannot be Cloned, Recalled or protected by Ice Block. Healers and Druids do not go for it."
+        ],
+        "with": [
+          "Meteor Golem",
+          "Dragon Rider",
+          "Thrower"
+        ],
+        "src": [
+          "M",
+          "SD"
+        ]
+      },
+      "Angry Spell": {
+        "role": "Makes troops inside it faster, and sends them at defences for a short time.",
+        "use": [
+          "Cast it on troops stuck on outside buildings, to turn them on the defences.",
+          "Blueprint pairs it with a Ruin Witch, as buildings fall faster and Knights arrive sooner."
+        ],
+        "beware": [
+          "Short lived, so time it for when they reach the defences you care about.",
+          "A newer spell with few good guides, so try it in a friendly challenge first."
+        ],
+        "with": [
+          "Ruin Witch",
+          "Thrower",
+          "Root Rider"
+        ],
+        "src": [
+          "L"
+        ]
+      }
+    },
+    "heroes": {
+      "Barbarian King": {
+        "use": [
+          "Send him along one side to take out a corner and start the funnel.",
+          "Spiky Ball is the usual first pick. Earthquake Boots suit wall-breaking pushes, and Giant Gauntlet suits a tank role.",
+          "Use his ability before an Inferno Tower has him locked down, not after."
+        ],
+        "beware": [
+          "Melee, so walls and Clan Castle troops stall him.",
+          "A single-target Inferno burns him quickly, so keep a Freeze back."
+        ],
+        "src": [
+          "H",
+          "O"
+        ]
+      },
+      "Archer Queen": {
+        "use": [
+          "Queen Walk or Charge with Healers behind her is the classic plan.",
+          "Action Figure is the top pick by most guides, as it works like a second life.",
+          "Giant Arrow can take out Air Defenses and Air Sweepers from level 9 up."
+        ],
+        "beware": [
+          "Low health. Use Invisibility or Freeze as an Inferno starts to burn her.",
+          "Poison enemy Valkyries first, or she wastes her ability and Healers on them."
+        ],
+        "src": [
+          "H",
+          "O"
+        ]
+      },
+      "Grand Warden": {
+        "use": [
+          "Walk with the main group: on foot for ground armies, flying for air armies.",
+          "Eternal Tome is the safest first upgrade, as it protects the army through the worst moment.",
+          "Fireball cracks defence clusters on ground smashes. Rage Gem helps a longer fight."
+        ],
+        "beware": [
+          "Low health. If he falls early, the army loses its protection.",
+          "Fire the Tome on the big hit, not as soon as it is ready."
+        ],
+        "src": [
+          "H"
+        ]
+      },
+      "Royal Champion": {
+        "use": [
+          "Drop her where she can jump to the first defence straight away.",
+          "Electro Boots is the top pick. Seeking Shield hits several defences on a charge, and Rocket Spear snipes one.",
+          "She leads RC Walk and RC Charge plans, with Invisibility on the way in."
+        ],
+        "beware": [
+          "Short range and alone, so she falls quickly if several defences lock on.",
+          "Skeleton Traps slow her down unless she has Electro Boots."
+        ],
+        "src": [
+          "H",
+          "W"
+        ]
+      },
+      "Minion Prince": {
+        "use": [
+          "Drop him 4 to 5 tiles from the defences you want cleared, not at the map edge.",
+          "He flies to the nearest buildings, so placement decides his route.",
+          "Dark Orb and Dark Crown are the usual pair. The Orb slows and damages what it touches."
+        ],
+        "beware": [
+          "He does not handle Clan Castle troops well, so deal with them first.",
+          "Base Drop calls him a specialist, not a main carry, and rates him for CWL clean-up."
+        ],
+        "src": [
+          "U",
+          "H"
+        ]
+      },
+      "Dragon Duke": {
+        "use": [
+          "Send your ground core first, then drop him on a lane no friendly air unit will follow.",
+          "Fire Heart is the usual first pick, since Healers cannot heal him. Add Flame Blower for burst, Stun Blaster for control, or Electro Fangs on packed bases.",
+          "Rocket Backpack flies him straight through the base centre, so line up the angle first. It sits out traps and Clan Castle."
+        ],
+        "beware": [
+          "Friendly flyers near him switch off his rage.",
+          "Seeking Air Mines hurt him more since July, so route around them.",
+          "He lands exposed after a Rocket Backpack, so have follow-up ready."
+        ],
+        "src": [
+          "TD",
+          "BK"
+        ]
+      }
+    },
+    "pets": {
+      "L.A.S.S.I": {
+        "use": [
+          "Send with a hero that can keep up, such as the Royal Champion."
+        ],
+        "beware": [
+          "It cannot hit air troops, and can run ahead of slow heroes and die alone."
+        ],
+        "src": [
+          "N"
+        ]
+      },
+      "Mighty Yak": {
+        "use": [
+          "Use it when your hero would otherwise stall at walls.",
+          "It suits a King going in close, and Clash Ninja likes it with the Queen."
+        ],
+        "beware": [
+          "Ground only.",
+          "Its rage comes when the hero falls, which is late to be useful."
+        ],
+        "src": [
+          "N"
+        ]
+      },
+      "Electro Owl": {
+        "use": [
+          "Good on heroes that need ranged support behind them.",
+          "An early favourite for the Warden, before Sneezy opens."
+        ],
+        "beware": [
+          "Low health, so it needs its hero in front."
+        ],
+        "src": [
+          "A",
+          "P"
+        ]
+      },
+      "Unicorn": {
+        "use": [
+          "Best on long walks, as on a Queen Charge, where steady healing adds up."
+        ],
+        "beware": [
+          "Steady healing does not save a hero from one big hit.",
+          "TH18 war armies have moved away from it to Frosty."
+        ],
+        "src": [
+          "P",
+          "A"
+        ]
+      },
+      "Frosty": {
+        "use": [
+          "A good all-rounder when defences are the main threat.",
+          "Frostmites also help slow defences near the hero."
+        ],
+        "beware": [
+          "Slowing is not stopping, so you still need a Freeze for Infernos."
+        ],
+        "src": [
+          "W",
+          "P"
+        ]
+      },
+      "Diggy": {
+        "use": [
+          "Strongest on the Royal Champion, where it surfaces to attack buildings beside her."
+        ],
+        "beware": [
+          "Guides rate it very differently, so try it in a friendly challenge."
+        ],
+        "src": [
+          "A",
+          "N"
+        ]
+      },
+      "Poison Lizard": {
+        "use": [
+          "Its poison slows defences for a hero nearby. Works for a ground mode Warden."
+        ],
+        "beware": [
+          "Very fast, so it can arrive alone with slower heroes."
+        ],
+        "src": [
+          "A"
+        ]
+      },
+      "Phoenix": {
+        "use": [
+          "Pick it for heroes that dive alone into danger.",
+          "It starts as an egg, then hatches to make the hero briefly invulnerable when they would fall."
+        ],
+        "beware": [
+          "It does nothing until that moment, so you give up steady value from another pet."
+        ],
+        "src": [
+          "P",
+          "A"
+        ]
+      },
+      "Spirit Fox": {
+        "use": [
+          "Best on heroes that need to get deep, such as the Royal Champion and Dragon Duke."
+        ],
+        "beware": [
+          "Its range is only 4.5 tiles, so it runs ahead of long range heroes such as the Queen."
+        ],
+        "src": [
+          "N",
+          "W"
+        ]
+      },
+      "Angry Jelly": {
+        "use": [
+          "Pick it when you want your hero on defences rather than chewing outside buildings.",
+          "A top pick for the Dragon Duke and Minion Prince."
+        ],
+        "beware": [
+          "It changes where your hero goes, so plan the path around that."
+        ],
+        "src": [
+          "A",
+          "G"
+        ]
+      },
+      "Sneezy": {
+        "use": [
+          "Boogers target buildings and take hits, so it suits a Warden in air mode."
+        ],
+        "beware": [
+          "Boogers near the Dragon Duke can cancel his rage.",
+          "Clash Ninja warns it exposes the Queen to Air Defenses."
+        ],
+        "src": [
+          "A",
+          "N"
+        ]
+      },
+      "Greedy Raven": {
+        "use": [
+          "A farming pet. Its extra damage to resource buildings is what you pay for."
+        ],
+        "beware": [
+          "Swap it out before war, unless your plan needs storage damage."
+        ],
+        "src": [
+          "P",
+          "A"
+        ]
+      }
+    },
+    "defences": {
+      "Air Defense": {
+        "role": "Heavy single-target anti-air. It cannot touch ground troops at all.",
+        "use": [
+          "Send a Lava Hound first. It flies at Air Defenses and soaks up their shots.",
+          "Remove one or two with Lightning plus Earthquake before an air attack. Count your spells first.",
+          "Let Giants or a hero clear the outer ones, since they take no fire from it."
+        ],
+        "beware": [
+          "A few big flyers. Dragons, Healers and flying heroes all take its full hit.",
+          "Small groups of Balloons. Send many at once, as it only hits one target per shot."
+        ],
+        "with": [
+          "Lava Hound",
+          "Lightning Spell",
+          "Earthquake Spell",
+          "Giant"
+        ],
+        "src": [
+          "WD",
+          "TW"
+        ]
+      },
+      "Air Sweeper": {
+        "role": "Does no damage. Blasts air troops back, leaving them longer under other defences.",
+        "use": [
+          "Check its facing when scouting, then fly in from the side or behind.",
+          "Spread air troops in a wide arc, so one gust cannot push them all.",
+          "Haste or Rage gets pushed troops back quicker. Ground troops or Lightning can remove it."
+        ],
+        "beware": [
+          "Slow flyers. Balloons and Electro Dragons lose the most time, and Inferno Dragons lose their beam.",
+          "Healers on a Queen Walk, which get blown away from her."
+        ],
+        "with": [
+          "Haste Spell",
+          "Rage Spell",
+          "Lightning Spell"
+        ],
+        "src": [
+          "WD",
+          "TW"
+        ]
+      },
+      "Archer Tower": {
+        "role": "Single-target tower that hits air and ground. You will meet it at every Town Hall.",
+        "use": [
+          "Swarm it. Each arrow kills one small troop, so a pack of Archers or Barbarians wins.",
+          "Outside towers often fall to one strong troop, such as a Valkyrie or Super Barbarian.",
+          "Give it a tank to shoot, so your damage troops survive."
+        ],
+        "beware": [
+          "Lone troops and thin groups of Balloons, which get picked off on the way in.",
+          "Tanks walking up to a Fast Attack tower. It hits far quicker within 8 tiles."
+        ],
+        "with": [
+          "Archer",
+          "Barbarian",
+          "Giant",
+          "Valkyrie"
+        ],
+        "src": [
+          "WD"
+        ]
+      },
+      "Bomb Tower": {
+        "role": "Short range ground splash that also explodes when destroyed.",
+        "use": [
+          "Send a Giant or Golem in first, and hold melee troops back until it has gone.",
+          "It cannot hit air, so Balloons or Minions can remove an exposed one.",
+          "A Grand Warden can hit it from outside its reach."
+        ],
+        "beware": [
+          "Melee troops that finish it off. A Freeze does not stop the death blast.",
+          "Skeletons and Witches, plus Hog Riders if Giant Bombs sit in a gap beside it."
+        ],
+        "with": [
+          "Golem",
+          "Giant",
+          "Balloon",
+          "Minion"
+        ],
+        "src": [
+          "WD"
+        ]
+      },
+      "Builder's Hut": {
+        "role": "Harmless early on. From TH14 it can carry a turret, and its Builder repairs nearby buildings.",
+        "use": [
+          "Below TH14, drop one Barbarian or Archer on a corner hut for cheap percentage.",
+          "From TH14, kill huts on your attack side, or catch them in your spells.",
+          "Freeze stops repairs. Or damage a harmless building first, as he stays on it until it is full."
+        ],
+        "beware": [
+          "Spell plans that leave a defence barely alive. The Builder heals it back up.",
+          "You cannot hit the Builder himself. Only spells or killing the hut will stop him."
+        ],
+        "with": [
+          "Freeze Spell",
+          "Barbarian",
+          "Archer"
+        ],
+        "src": [
+          "WD"
+        ]
+      },
+      "Cannon": {
+        "role": "Basic single-target gun for ground troops. It can never hit air.",
+        "use": [
+          "Send Balloons or Minions if no anti-air covers it, as it cannot shoot back.",
+          "Swarm it with Archers or Barbarians, or let a Giant hold its fire."
+        ],
+        "beware": [
+          "Wall Breakers, which it picks off before they reach the wall.",
+          "Giants, Hog Riders and Valkyries against Burst mode, though Burst wastes shots on swarms."
+        ],
+        "with": [
+          "Balloon",
+          "Minion",
+          "Archer",
+          "Giant"
+        ],
+        "src": [
+          "WD"
+        ]
+      },
+      "Eagle Artillery": {
+        "role": "Base-wide artillery for air and ground, up to TH16. At TH17 it merges into the Town Hall.",
+        "use": [
+          "It sleeps until 200 housing is deployed, and heroes and spells count. Spend that on your funnel first.",
+          "Freeze it just before a volley. Freezing in the long pause between volleys wastes the spell.",
+          "It can't hit closer than 7 tiles, so troops that reach it are safe from its shells."
+        ],
+        "beware": [
+          "Tight clumps and heavy targets. Shells land where the most troop health is packed, often your King.",
+          "Slow attacks. Once awake it keeps firing volleys into your main army until destroyed."
+        ],
+        "with": [
+          "Freeze Spell",
+          "Earthquake Spell"
+        ],
+        "src": [
+          "WD",
+          "AE",
+          "TW"
+        ]
+      },
+      "Firespitter": {
+        "role": "Very long range flames that only fire inside a fixed cone, and shred big single targets.",
+        "use": [
+          "Check its facing when scouting. Troops outside the cone are not targeted, so come from the side or behind.",
+          "A second Firespitter may cover that angle. If you must cross, use Freeze or Overgrowth.",
+          "A Skeleton Spell in the cone soaks up bursts, as each new target makes it pause."
+        ],
+        "beware": [
+          "Heroes and big troops, plus whatever stands behind them. Healers following a Queen get hit too.",
+          "Stacks of air and ground. Stray shots hit both, whichever one it aimed at."
+        ],
+        "with": [
+          "Freeze Spell",
+          "Overgrowth Spell",
+          "Skeleton Spell"
+        ],
+        "src": [
+          "WD",
+          "ST",
+          "BF",
+          "BT"
+        ]
+      },
+      "Hidden Tesla": {
+        "role": "Stays hidden until something comes close, then zaps one target, air or ground.",
+        "use": [
+          "Look for empty 2x2 gaps inside walls. From TH7 up, these are often Teslas.",
+          "Set them off with one cheap troop, instead of walking your army in.",
+          "They are thin and short range, so a Giant with Archers or a Grand Warden kills them."
+        ],
+        "beware": [
+          "Clusters of gaps, or a Tesla farm. It melts anything you keep feeding into its range.",
+          "Hog Riders and Balloons turn towards a revealed Tesla, and can leave your planned path."
+        ],
+        "with": [
+          "Giant",
+          "Archer",
+          "Barbarian"
+        ],
+        "src": [
+          "WD",
+          "BT"
+        ]
+      },
+      "Inferno Tower": {
+        "role": "Two modes. Single-target burns hotter the longer it holds, multi-target melts several troops at once.",
+        "use": [
+          "Check its mode when you scout, as the tower looks different in each.",
+          "Single-target: Freeze it as it heats up, which resets the beam, or keep it busy with a swarm.",
+          "Multi-target: its damage stays fixed, so Healing Spells, Healers and several tanks can outlast it."
+        ],
+        "beware": [
+          "Single-target: one tank or hero left under a fully heated beam.",
+          "Multi-target: swarms and small troops, such as Yetimites and Skeletons."
+        ],
+        "with": [
+          "Freeze Spell",
+          "Healing Spell",
+          "Invisibility Spell",
+          "Golem"
+        ],
+        "src": [
+          "WD",
+          "NI",
+          "TW"
+        ]
+      },
+      "Monolith": {
+        "role": "Slow single shots with bonus damage based on the target's maximum health. Built to kill big units.",
+        "use": [
+          "Freeze or Overgrowth stops it. Save one for when your key hero or tank comes into range.",
+          "Give it cheap targets. Skeleton, Bat or Totem Spells soak up its slow shots.",
+          "Expect a few shots on the first hero to arrive, so do not send a hurt one."
+        ],
+        "beware": [
+          "Heroes, Golems, Super Witches and anything else with lots of maximum health.",
+          "It hits one target, so spreading out does not save a tank. Cheap targets do."
+        ],
+        "with": [
+          "Freeze Spell",
+          "Overgrowth Spell",
+          "Skeleton Spell",
+          "Totem Spell",
+          "Bat Spell"
+        ],
+        "src": [
+          "WD",
+          "BM",
+          "TM",
+          "DF"
+        ]
+      },
+      "Mortar": {
+        "role": "Slow long range splash for ground troops. One shell can wipe out a clump.",
+        "use": [
+          "Spread Archers, Barbarians and Goblins out. Never drop them in one spot.",
+          "Send Giants first, so shells land on something tough. Fast troops often outrun the shell.",
+          "It cannot hit air, or troops right beside it. So fly, or get close."
+        ],
+        "beware": [
+          "Clumps of small ground troops, and slow groups that stay in its range.",
+          "A geared-up Mortar fires shells in quick runs, so one clump can take several."
+        ],
+        "with": [
+          "Giant",
+          "Balloon",
+          "Hog Rider"
+        ],
+        "src": [
+          "WD"
+        ]
+      },
+      "Multi-Archer Tower": {
+        "role": "Merged tower that fires three arrows at up to three targets, air or ground.",
+        "use": [
+          "Do not send a hero in alone. Puppets or a group of small troops spread the arrows.",
+          "Swarms still work, as three arrows cannot keep up with a big pack.",
+          "Time a Freeze for when your main damage arrives. Air armies should remove it early."
+        ],
+        "beware": [
+          "Lone targets. With one troop in range, all three arrows hit it.",
+          "Lava Pups, as the arrows spread on to them once a Hound pops."
+        ],
+        "with": [
+          "Freeze Spell",
+          "Invisibility Spell",
+          "Overgrowth Spell",
+          "Archer"
+        ],
+        "src": [
+          "WD",
+          "SM",
+          "DM"
+        ]
+      },
+      "Multi-Gear Tower": {
+        "role": "Merged tower with two modes. Both hit one target at a time, air or ground.",
+        "use": [
+          "Long Range fires slowly at up to 12 tiles, so swarms of small troops waste its shots.",
+          "Fast Attack reaches only 8 tiles. Freeze it as tanks arrive, or hit it from further out.",
+          "It is thin for its level. Earthquake plus Lightning can remove it before the army arrives."
+        ],
+        "beware": [
+          "Fast Attack: tanks and heroes that walk up to it unsupported.",
+          "Long Range: single big troops, which it starts hitting well before they get close."
+        ],
+        "with": [
+          "Freeze Spell",
+          "Earthquake Spell",
+          "Lightning Spell",
+          "Skeleton Spell"
+        ],
+        "src": [
+          "WD",
+          "BG"
+        ]
+      },
+      "Revenge Tower": {
+        "role": "Starts silent, then wakes and gets faster and deadlier as your attack destroys buildings.",
+        "use": [
+          "It wakes once a few buildings fall. Deal with it early, before it reaches its later stages.",
+          "Freeze stops it. Totem and Ice Block soak up its shots.",
+          "Overgrowth only pauses it, as it keeps counting fallen buildings while rooted."
+        ],
+        "beware": [
+          "Slow, deep attacks. Late on it fires quickly, and shots bounce on to nearby troops.",
+          "Clean-up troops at the end of an attack, as bounces hit air and ground alike."
+        ],
+        "with": [
+          "Freeze Spell",
+          "Totem Spell",
+          "Ice Block Spell"
+        ],
+        "src": [
+          "WD",
+          "SB",
+          "MR",
+          "BT"
+        ]
+      },
+      "Ricochet Cannon": {
+        "role": "Merged ground-only cannon whose shot bounces on to a second ground troop nearby.",
+        "use": [
+          "Go air. Balloons or Dragons can destroy it without it firing a shot at them.",
+          "Spread ground troops, as the bounce only reaches 3.5 tiles.",
+          "Freeze it as tanks arrive, which stops both shots while damage troops close in."
+        ],
+        "beware": [
+          "Tight ground pushes, above all damage troops right behind a tank.",
+          "A hero walking with a ground pet. An air pet gives the bounce nothing to hit."
+        ],
+        "with": [
+          "Balloon",
+          "Dragon",
+          "Freeze Spell"
+        ],
+        "src": [
+          "WD",
+          "SB",
+          "SM",
+          "DM"
+        ]
+      },
+      "Scattershot": {
+        "role": "Heavy shots at one target, then fragments spray over the troops behind it. Hits air and ground.",
+        "use": [
+          "Bring your tank in from a different angle, so the spray misses your main army.",
+          "Freeze or Overgrowth it as your pack comes into range.",
+          "It can't hit closer than 3 tiles, and each shot hits ground or air, never both."
+        ],
+        "beware": [
+          "Troops lined up behind a tank. A meat shield does not help, as fragments pass through.",
+          "Bowlers, Witches, Hog Riders and Balloons, which all suffer from the spray."
+        ],
+        "with": [
+          "Freeze Spell",
+          "Overgrowth Spell",
+          "Healing Spell"
+        ],
+        "src": [
+          "WD",
+          "TW",
+          "DF"
+        ]
+      },
+      "Spell Tower": {
+        "role": "Never attacks. Casts the defender's chosen spell: Rage, Poison, Invisibility or Earthquake.",
+        "use": [
+          "Bait it with a hero, Siege Machine or Skeleton Spell. Reloads are long, so a wasted cast buys time.",
+          "Freeze or Overgrowth stops it casting, but not a spell already running. Keep moving through Rage.",
+          "Earthquake only hits ground, so air ignores it. Log Launcher logs can set off Invisibility early."
+        ],
+        "beware": [
+          "Poison hurts swarms such as Witches and Bowlers. Earthquake takes a share of big ground troops' health.",
+          "Killing it is no escape, as a loaded tower still releases its spell when destroyed."
+        ],
+        "with": [
+          "Freeze Spell",
+          "Skeleton Spell",
+          "Overgrowth Spell",
+          "Log Launcher"
+        ],
+        "src": [
+          "WD",
+          "SF",
+          "BQ",
+          "BT",
+          "TS",
+          "BM"
+        ]
+      },
+      "Super Wizard Tower": {
+        "role": "Merged tower. A bolt hits one troop, then chains to many others nearby, air and ground.",
+        "use": [
+          "Keep support troops a few tiles away from your tank, so the chain misses them.",
+          "Freeze, Invisibility or Overgrowth stops the bolts. Save one for when your army walks into range.",
+          "A Totem Spell draws its fire away from your army."
+        ],
+        "beware": [
+          "Clusters and swarms. Hog Riders, Balloons, Witches and Archers all suffer from the chain.",
+          "Big flyers still take a heavy first hit, so Dragons feel it too."
+        ],
+        "with": [
+          "Freeze Spell",
+          "Invisibility Spell",
+          "Overgrowth Spell",
+          "Totem Spell"
+        ],
+        "src": [
+          "WD",
+          "MW"
+        ]
+      },
+      "Wizard Tower": {
+        "role": "Short range splash that fires quickly at air or ground.",
+        "use": [
+          "Send a tank first, then kill it with Archers, Minions or other ranged troops behind.",
+          "Spread out in a line. Never walk a packed swarm into its splash.",
+          "Each blast hits ground or air, never both, so Balloons over a targeted Giant are safe."
+        ],
+        "beware": [
+          "Clumps of small troops, ground or air, especially Balloons and Minions."
+        ],
+        "with": [
+          "Giant",
+          "Archer",
+          "Minion",
+          "Lightning Spell"
+        ],
+        "src": [
+          "WD"
+        ]
+      },
+      "X-Bow": {
+        "role": "Rapid single-target fire with huge reach. Ground only at long range, or air and ground at shorter range.",
+        "use": [
+          "Check the bow. Level means ground only, tilted up means air too. Tactical Overview shows it as well.",
+          "A ground-only X-Bow cannot touch air troops, so send them at it.",
+          "Put a Golem or Ice Golem in front and swarm it with cheap troops, or Freeze it."
+        ],
+        "beware": [
+          "Slow, fragile troops in its long reach, as it locks on early and holds on."
+        ],
+        "with": [
+          "Golem",
+          "Ice Golem",
+          "Balloon",
+          "Freeze Spell"
+        ],
+        "src": [
+          "WD"
+        ]
+      },
+      "Air Bomb": {
+        "role": "Hidden air trap that blasts everything flying in a small area.",
+        "use": [
+          "Send one Minion or Balloon ahead on your path to set it off.",
+          "Spread small flyers out, so one blast cannot catch them all.",
+          "Expect them near an exposed Town Hall, storage or Air Defense."
+        ],
+        "beware": [
+          "Tight clumps of small flyers. Dragons and other tough flyers can mostly ignore it.",
+          "Lava Pups, if it goes off just as a Hound pops."
+        ],
+        "with": [
+          "Minion",
+          "Balloon"
+        ],
+        "src": [
+          "WD"
+        ]
+      },
+      "Bomb": {
+        "role": "Small hidden ground trap that hits everything nearby. Air troops ignore it.",
+        "use": [
+          "Lead with a Giant or other tank, which takes the blast with little harm.",
+          "Send one Barbarian ahead of Wall Breakers where walls meet."
+        ],
+        "beware": [
+          "Wall Breakers at wall corners, where one blast can kill them.",
+          "Stacked Archers or Goblins, and any group standing still to hit a building."
+        ],
+        "with": [
+          "Giant",
+          "Barbarian",
+          "Balloon"
+        ],
+        "src": [
+          "WD"
+        ]
+      },
+      "Giant Bomb": {
+        "role": "Big hidden ground trap with a wide blast. Air troops ignore it.",
+        "use": [
+          "Look for empty 2x2 gaps between defences, or a 4x2 gap for a pair of them.",
+          "Send one cheap troop through first, and do not drop more near a lit fuse.",
+          "Heal survivors straight away. Heroes, Golems and P.E.K.K.A barely notice it."
+        ],
+        "beware": [
+          "Groups of small and medium ground troops. A pair can end a Hog Rider attack.",
+          "Puppets and other summons dropped before the area is clear."
+        ],
+        "with": [
+          "Barbarian",
+          "Healing Spell",
+          "Golem"
+        ],
+        "src": [
+          "WD",
+          "TW"
+        ]
+      },
+      "Giga Bomb": {
+        "role": "Always visible trap with a huge blast and strong knockback, hitting air and ground.",
+        "use": [
+          "Small groups can snipe nearby buildings, as it needs 18 housing close by to go off.",
+          "Set it off early with one Yeti or a small group, before your main army comes.",
+          "Use Eternal Tome just before the blast. Freeze and Overgrowth do not stop it once armed."
+        ],
+        "beware": [
+          "Big packs walking through its zone. Knockback moves even heroes and Golems, and they then retarget.",
+          "Do not count on spells to clear it. Lightning, Earthquake, Skeletons and Bats will not set it off."
+        ],
+        "with": [
+          "Yeti",
+          "Miner",
+          "Battle Drill"
+        ],
+        "src": [
+          "WD",
+          "ST",
+          "NS",
+          "BS17"
+        ]
+      },
+      "Seeking Air Mine": {
+        "role": "Hidden mine that chases one flyer and hits it very hard. Small flyers do not set it off.",
+        "use": [
+          "Send a lone Balloon along your path first. Each mine it takes is one less for Dragons.",
+          "Or lead with a Lava Hound, which can take the hit.",
+          "Minions and Bats are safe from it, so they can follow your tanks without losses."
+        ],
+        "beware": [
+          "Dragons, Balloons and Healers pushing on just after an Air Defense falls.",
+          "Battle Blimps and a flying Grand Warden, which can lose most of their health at once."
+        ],
+        "with": [
+          "Balloon",
+          "Lava Hound",
+          "Minion",
+          "Bat Spell"
+        ],
+        "src": [
+          "WD"
+        ]
+      },
+      "Skeleton Trap": {
+        "role": "Hidden trap that releases Skeletons to distract your troops. It can be set for ground or air.",
+        "use": [
+          "Bring splash. Valkyries, Wizards, Witches and Bowlers clear the Skeletons quickly.",
+          "Lightning clears a group near the Town Hall. A Golem's death damage does too.",
+          "Keep support behind Giants and Hog Riders, which ignore Skeletons hitting them."
+        ],
+        "beware": [
+          "Slow single-target troops such as P.E.K.K.A and Electro Dragons, which waste time on them.",
+          "Hero dives near the Town Hall that stop to fight."
+        ],
+        "with": [
+          "Valkyrie",
+          "Wizard",
+          "Golem",
+          "Lightning Spell"
+        ],
+        "src": [
+          "WD"
+        ]
+      },
+      "Spring Trap": {
+        "role": "Hidden trap that throws the biggest troop it can reach off the map, or hurts it if too big.",
+        "use": [
+          "Be wary of wall gaps and paths. Ground troops walk through them on to the trap.",
+          "Send one cheap troop through first. It only takes one troop, so those behind are safe.",
+          "That troop must arrive alone, or the trap picks the bigger unit beside it."
+        ],
+        "beware": [
+          "Mid-size ground troops such as Hog Riders and Valkyries, which can be removed for good.",
+          "Golems and P.E.K.K.A lose health and time. Heroes only take half damage."
+        ],
+        "with": [
+          "Barbarian"
+        ],
+        "src": [
+          "WD",
+          "BP"
+        ]
+      },
+      "Tornado Trap": {
+        "role": "Hidden trap whose vortex holds your troops in place, so defences and other traps can hit them.",
+        "use": [
+          "Send a few cheap troops first, such as Barbarians or Minions, so it fires on them.",
+          "Miners and Battle Drills ignore the pull, though they still take its small damage.",
+          "Expect it near the Town Hall or core, beside Air Bombs or a Poison Spell Tower."
+        ],
+        "beware": [
+          "Packs held under splash. Balloons pulled together are easy work for Air Bombs and Scattershots.",
+          "Ground troops pulled on to a wall, which stay stuck until it ends."
+        ],
+        "with": [
+          "Barbarian",
+          "Minion",
+          "Miner",
+          "Super Miner",
+          "Battle Drill"
+        ],
+        "src": [
+          "WD",
+          "BT"
+        ]
+      }
+    }
+  },
+  "glossary": [
+    {
+      "term": "Funnel",
+      "group": "attack",
+      "short": "A path you clear so your main army walks into the base, not around it.",
+      "means": [
+        "Troops head for the nearest building they want. If outer buildings are left standing on both sides, your army walks off along the edge and runs out of time.",
+        "A funnel fixes that. Before the main army goes in, you destroy the buildings on either side of your entry point. What is left in front of the army is the way into the middle.",
+        "A poor funnel is one of the most common reasons an attack fails. Heroes, Baby Dragons, Wizards and Siege Machines are the usual funnel makers."
+      ],
+      "example": "Send a hero down each side to clear the outer buildings, then drop Dragons in the gap between them.",
+      "aliases": [
+        "funnel",
+        "funnels",
+        "funnelling",
+        "funnelled",
+        "entry point"
+      ],
+      "see": [
+        "Core",
+        "Flank",
+        "Pathing"
+      ],
+      "units": [
+        "Baby Dragon",
+        "Wizard",
+        "Siege Barracks"
+      ],
+      "src": [
+        "FN",
+        "TS2"
+      ]
+    },
+    {
+      "term": "Core",
+      "group": "attack",
+      "short": "The middle of a base, where the Town Hall and strongest defences usually sit.",
+      "means": [
+        "Most bases keep their most valuable buildings in the centre, wrapped in walls and other buildings. That centre is the core. The defensive core means the same thing, with the focus on the defences in it.",
+        "Getting your main damage into the core usually decides an attack. It is why guides tell you to save Rage or Freeze for that moment rather than spend them on the way in."
+      ],
+      "example": "Rage your Valkyries as they enter the core, where buildings sit close enough for them to hit several at once.",
+      "aliases": [
+        "core",
+        "defensive core"
+      ],
+      "see": [
+        "Compartment",
+        "Funnel",
+        "Mid-base"
+      ],
+      "units": [],
+      "src": [
+        "TS2"
+      ]
+    },
+    {
+      "term": "Compartment",
+      "group": "attack",
+      "short": "A section of a base closed off by its own ring of walls.",
+      "means": [
+        "Base builders split a base into walled sections. Each one is a compartment. Ground troops have to break in or get lifted over the walls, which costs them time.",
+        "It matters because you often want your army inside one particular compartment. That is why you aim Wall Breakers and Jump Spells at a chosen spot rather than at the nearest wall."
+      ],
+      "example": "Cast a Jump Spell over the wall of the Town Hall compartment, so your Yetis walk straight in.",
+      "aliases": [
+        "compartment",
+        "compartments"
+      ],
+      "see": [
+        "Core",
+        "Stall"
+      ],
+      "units": [
+        "Wall Breaker",
+        "Jump Spell",
+        "Earthquake Spell"
+      ],
+      "src": [
+        "TS2"
+      ]
+    },
+    {
+      "term": "Tank",
+      "group": "attack",
+      "short": "A tough unit sent first so defences shoot it rather than your damage troops.",
+      "means": [
+        "A tank has lots of health and usually little damage. Its job is to reach the defences first and take the shots while weaker troops behind it do the real work.",
+        "Tanky just means hard to kill. Used as a verb, as in Lava Hounds tank for Balloons, it means taking the fire for someone else. A bruiser is a tough troop that also hits hard."
+      ],
+      "example": "Drop a Golem first. Once the defences are shooting it, send your Wizards behind it.",
+      "aliases": [
+        "tank",
+        "tanks",
+        "tanky",
+        "tanking",
+        "bruiser"
+      ],
+      "see": [
+        "Draw fire",
+        "Lock on"
+      ],
+      "units": [
+        "Giant",
+        "Golem",
+        "Ice Golem",
+        "Lava Hound"
+      ],
+      "src": []
+    },
+    {
+      "term": "Draw fire",
+      "group": "attack",
+      "short": "To make defences shoot one unit so the others get through.",
+      "means": [
+        "Defences can only shoot so many things at once. Anything that draws their fire, or soaks it up, is protecting whatever you send next.",
+        "It does not have to be a big tank. Skeletons, a Totem or a Furnace can all waste a defence's shots for a few seconds, and that can be enough."
+      ],
+      "example": "A Lava Hound sent in first soaks up the Air Defense fire, so your Balloons arrive unhurt.",
+      "aliases": [
+        "draw fire",
+        "draws fire",
+        "drawing fire",
+        "draws heavy fire",
+        "pull fire",
+        "soak up",
+        "soaks up"
+      ],
+      "see": [
+        "Tank",
+        "Distraction",
+        "Lock on"
+      ],
+      "units": [
+        "Lava Hound",
+        "Skeleton Spell",
+        "Totem Spell"
+      ],
+      "src": []
+    },
+    {
+      "term": "Lock on",
+      "group": "attack",
+      "short": "When a defence picks a target and stays on it.",
+      "means": [
+        "Most defences choose a target and keep shooting it until it dies or moves out of range. That is called locking on. A defence that has locked on to your tank ignores the troops walking past.",
+        "This is why order matters. Send the tank first so it gets the attention, then send the damage troops. It also tells you when to spend a spell, as Freeze is best cast the moment an Inferno Tower locks on to your key unit."
+      ],
+      "example": "Let the Inferno Towers lock on to your Golem before you drop anything fragile.",
+      "aliases": [
+        "lock on",
+        "locks on",
+        "locked on",
+        "locked down"
+      ],
+      "see": [
+        "Tank",
+        "Draw fire",
+        "Inferno"
+      ],
+      "units": [
+        "Inferno Tower",
+        "Freeze Spell"
+      ],
+      "src": []
+    },
+    {
+      "term": "Pathing",
+      "group": "attack",
+      "short": "The route your troops choose by themselves once you drop them.",
+      "means": [
+        "You cannot steer troops directly. Each one walks to the nearest thing it wants to hit, then the next, and so on. Most take any building, but some have a favourite, such as defences, walls or heroes. The route that results is its pathing.",
+        "Good attacks are planned around it. You remove buildings or use spells so that the nearest target is always in the direction you want. Overgrowth and Invisibility can steer troops too, because they make buildings something your troops skip.",
+        "Air armies care about this as much as ground ones, since a flyer's route decides which defences it passes."
+      ],
+      "example": "Root a building your army is already hitting with Overgrowth and the whole pack reroutes to the next target.",
+      "aliases": [
+        "pathing"
+      ],
+      "see": [
+        "Funnel",
+        "Compartment"
+      ],
+      "units": [
+        "Overgrowth Spell",
+        "Ice Golem",
+        "Headhunter",
+        "Wall Wrecker"
+      ],
+      "src": [
+        "TS2"
+      ]
+    },
+    {
+      "term": "Push",
+      "group": "attack",
+      "short": "The main group of troops moving into a base together.",
+      "means": [
+        "The push, or main push, is the group that does most of the work. A ground push is one on foot. Spells and supporting troops are planned around keeping it alive and moving.",
+        "A ground core in our tips means the same as a ground push, and has nothing to do with the middle of the base."
+      ],
+      "example": "Place Healing Spells a little ahead of the main push, so it walks into them.",
+      "aliases": [
+        "ground push",
+        "main push",
+        "the push",
+        "Wizard push",
+        "Valkyrie push",
+        "ground core"
+      ],
+      "see": [
+        "Tank",
+        "Smash",
+        "Core"
+      ],
+      "units": [
+        "Healing Spell",
+        "Rage Spell"
+      ],
+      "src": []
+    },
+    {
+      "term": "Carry",
+      "group": "attack",
+      "short": "The unit your attack relies on for most of its damage.",
+      "means": [
+        "Borrowed from other games. The carry is what actually destroys the base, while tanks and support keep it alive. A damage carry and a main carry are the same idea.",
+        "Saying a troop cannot carry an attack means it is too weak to win without something else doing the heavy lifting."
+      ],
+      "example": "In a Root Rider Yeti attack, Super Yetis carry the core once Root Riders have opened the way.",
+      "aliases": [
+        "carry",
+        "damage carry",
+        "main carry"
+      ],
+      "see": [
+        "Tank",
+        "Push"
+      ],
+      "units": [
+        "Super Yeti",
+        "Dragon"
+      ],
+      "src": []
+    },
+    {
+      "term": "Smash",
+      "group": "attack",
+      "short": "A heavy ground attack that breaks through a base by force.",
+      "means": [
+        "A smash sends a tough, hard hitting ground group through walls and defences together, with a tank in front. It relies on raw power more than on precise spell placement. Yetis, Super Yetis and Root Riders are the usual smash troops.",
+        "It works best once a funnel lets the group go in as one, and it suffers against splash damage because the troops stay bunched. The Monolith also hits its high health troops hard."
+      ],
+      "example": "A Yeti and Super Wizard Smash opens one side with heroes and a Log Launcher, then pours everything through the gap.",
+      "aliases": [
+        "ground smash",
+        "ground smashes",
+        "smash attacks",
+        "for smash",
+        "Super Wizard Smash"
+      ],
+      "see": [
+        "Yeti Smash",
+        "Root Rider Smash",
+        "Spam",
+        "Funnel"
+      ],
+      "units": [
+        "Yeti",
+        "Super Yeti",
+        "Root Rider"
+      ],
+      "src": [
+        "T"
+      ]
+    },
+    {
+      "term": "Spam",
+      "group": "attack",
+      "short": "Dropping a lot of one troop in a wide line and letting numbers do the work.",
+      "means": [
+        "Spam means less careful placement and more troops. You spread them across a wide front so no single defence can deal with all of them.",
+        "It is usually easier to do than a planned attack, but it gives you less control. Our guide contrasts it with controlled ground movement."
+      ],
+      "example": "Yeti Super Archer Spam: drop a wide line of Yetis, then Super Archers behind them.",
+      "aliases": [
+        "spam",
+        "spams",
+        "spamming"
+      ],
+      "see": [
+        "Mass",
+        "Smash"
+      ],
+      "units": [
+        "Super Archer",
+        "Yeti"
+      ],
+      "src": []
+    },
+    {
+      "term": "Mass",
+      "group": "attack",
+      "short": "An army built almost entirely from one troop.",
+      "means": [
+        "Mass Dragons means nearly all your housing space goes on Dragons. Mass Witches and Mass Hog Riders work the same way.",
+        "These armies are often the easiest to learn, because every troop does the same job. They can also be stopped by one thing that beats that troop, such as enough Air Defenses against Dragons."
+      ],
+      "example": "Mass Dragons is the classic beginner army at TH7.",
+      "aliases": [
+        "mass"
+      ],
+      "see": [
+        "Spam",
+        "Housing space"
+      ],
+      "units": [
+        "Dragon",
+        "Witch",
+        "Hog Rider"
+      ],
+      "src": []
+    },
+    {
+      "term": "Hero walk",
+      "group": "attack",
+      "short": "A hero sent through a base early, kept alive by support, to clear the way.",
+      "means": [
+        "In a hero walk, one hero spends a long time moving through the base at the start of the attack, removing buildings and defences. Healers, Invisibility or other spells keep them alive. The main army comes afterwards through the space they cleared.",
+        "Players use walk and charge in two ways. Some say a walk stays near the edge to shape a funnel, and a charge goes deep. Others treat them as the same technique, with a charge just being the bigger job. Expect guides to mix them up, as ours sometimes does."
+      ],
+      "example": "Walk the Royal Champion with Invisibility down one side, then send Dragons along the path she opened.",
+      "aliases": [
+        "hero walk",
+        "hero walks",
+        "the walk",
+        "long walks",
+        "on a long walk"
+      ],
+      "see": [
+        "Hero charge",
+        "Queen Walk",
+        "RC Walk",
+        "Warden Walk"
+      ],
+      "units": [
+        "Healer",
+        "Invisibility Spell"
+      ],
+      "src": [
+        "QC",
+        "AQ",
+        "B16"
+      ]
+    },
+    {
+      "term": "Hero charge",
+      "group": "attack",
+      "short": "A hero sent deep to remove key defences before the main army follows.",
+      "means": [
+        "A charge asks more of the hero than a walk. The hero goes further in and takes out defences that matter, such as an Inferno Tower or Spell Tower, with more spells and support to match.",
+        "The army that follows is a separate job. A good charge can still fail if the follow-up is mistimed, and a weak charge leaves that army facing a full base. The word is used loosely, so a walk in one guide may be a charge in another."
+      ],
+      "example": "Charge the Dragon Duke along one side using Invisibility, then send your air army.",
+      "aliases": [
+        "hero charge",
+        "hero charges",
+        "the charge",
+        "of a charge",
+        "on a charge"
+      ],
+      "see": [
+        "Hero walk",
+        "Queen Charge",
+        "RC Charge",
+        "Duke Charge",
+        "Warden Charge",
+        "Dive"
+      ],
+      "units": [
+        "Healer",
+        "Invisibility Spell"
+      ],
+      "src": [
+        "QC",
+        "AQ",
+        "DK"
+      ]
+    },
+    {
+      "term": "Dive",
+      "group": "attack",
+      "short": "Sending a hero or small group straight into the dangerous part of a base.",
+      "means": [
+        "Diving means going in deep, often alone, to hit something important. It skips the slow work of clearing a route, and the unit is exposed once it gets there.",
+        "It only pays off if what it destroys is worth what you might lose. That is why diving heroes often bring a Phoenix or a Spirit Fox, or have a Druid alongside them."
+      ],
+      "example": "The Royal Champion dives over walls and goes for defences, so staying alive decides how far she gets.",
+      "aliases": [
+        "dive",
+        "dives",
+        "diving"
+      ],
+      "see": [
+        "Hero charge",
+        "Sui"
+      ],
+      "units": [
+        "Druid"
+      ],
+      "src": []
+    },
+    {
+      "term": "Hybrid",
+      "group": "attack",
+      "short": "Usually a Queen Charge followed by Hog Riders and Miners.",
+      "means": [
+        "The name comes from mixing two ways of winning. The Queen and her Healers carve out one side and take care of tough defences, and a group of Hog Riders and Miners finishes what is left.",
+        "Hybrid can also just mean a mix of two troop types. When our guide says air and hybrid attacks, it means armies that mix air and ground."
+      ],
+      "example": "Queen Charge Hybrid: the Queen clears one side, then Hog Riders and Miners go in together.",
+      "aliases": [
+        "hybrid",
+        "hybrids"
+      ],
+      "see": [
+        "Queen Charge",
+        "Hogs"
+      ],
+      "units": [
+        "Hog Rider",
+        "Miner",
+        "Healer"
+      ],
+      "src": [
+        "HY",
+        "QC"
+      ]
+    },
+    {
+      "term": "Clean-up",
+      "group": "attack",
+      "short": "The troops or spells that finish off whatever your main army left behind.",
+      "means": [
+        "Your main army often destroys the core and leaves small buildings around the edge. Those still count towards your percentage and the last star, so something has to reach them before time runs out.",
+        "Cheap, fast troops suit this well. Keep a few back rather than dropping them all at the start."
+      ],
+      "example": "Spread your last Archers around the base to clean up what the Giants did not reach.",
+      "aliases": [
+        "clean-up",
+        "clean up",
+        "cleans up",
+        "cleaning up",
+        "cleanup"
+      ],
+      "see": [
+        "Three-star",
+        "Time out"
+      ],
+      "units": [
+        "Archer",
+        "Minion",
+        "Bat Spell"
+      ],
+      "src": []
+    },
+    {
+      "term": "Lure",
+      "group": "attack",
+      "short": "Pulling the enemy's Clan Castle troops out so you can kill them away from your army.",
+      "means": [
+        "Enemy Clan Castle troops stay inside until an attacker comes close. A lure is a small troop sent near the castle to bring them out early.",
+        "It matters because those troops can wreck a hero or a push that meets them by surprise. Once they are out, you can kill them with a Poison Spell, Lightning, or your own troops."
+      ],
+      "example": "Send one Giant towards the Clan Castle, then Poison the troops that come out before your Queen arrives.",
+      "aliases": [
+        "lure",
+        "lures",
+        "lured",
+        "luring",
+        "pull out"
+      ],
+      "see": [
+        "Clan Castle"
+      ],
+      "units": [
+        "Poison Spell"
+      ],
+      "src": []
+    },
+    {
+      "term": "Snipe",
+      "group": "attack",
+      "short": "To take out a single target from a distance, or with little effort.",
+      "means": [
+        "Most often it means killing one chosen building, usually a defence, without fighting through everything around it. It can be done with long range troops, hero equipment or spells. Our guide uses it for removing an Air Defense with Lightning.",
+        "Players also use it for a quick cheap attack that grabs one star, such as going straight for an exposed Town Hall."
+      ],
+      "example": "Snipe an Air Defense with Lightning Spells before your Dragons deploy.",
+      "aliases": [
+        "snipe",
+        "snipes",
+        "sniper",
+        "sniping",
+        "pick off",
+        "picking off"
+      ],
+      "see": [
+        "Zap",
+        "Three-star"
+      ],
+      "units": [
+        "Lightning Spell",
+        "Flame Flinger",
+        "Super Minion"
+      ],
+      "src": []
+    },
+    {
+      "term": "Stall",
+      "group": "attack",
+      "short": "When troops get held up, wasting time and taking damage.",
+      "means": [
+        "A troop stalls when it stops making progress, usually because it is chewing through walls or stuck on buildings that do not matter. While it does that, the defences keep shooting it and the clock keeps running.",
+        "It is the problem Wall Breakers, Jump Spells and Overgrowth exist to solve, and often the moment to use a Rage Spell."
+      ],
+      "example": "Valkyries stall at a wall they cannot get past, so have an entry ready before you send them.",
+      "aliases": [
+        "stall",
+        "stalls",
+        "stalled",
+        "stalling"
+      ],
+      "see": [
+        "Compartment",
+        "Time out"
+      ],
+      "units": [
+        "Wall Breaker",
+        "Jump Spell",
+        "Overgrowth Spell"
+      ],
+      "src": []
+    },
+    {
+      "term": "Distraction",
+      "group": "attack",
+      "short": "A cheap unit or spell that wastes a defence's attention.",
+      "means": [
+        "A distraction exists to be shot at. It buys your important troops a few seconds or sends a defence in the wrong direction. Unlike a tank, it does not need much health, only good timing.",
+        "It works best against single target defences, which can only deal with one thing at a time."
+      ],
+      "example": "A Skeleton Spell on the Monolith gives it something worthless to shoot.",
+      "aliases": [
+        "distraction",
+        "distractions"
+      ],
+      "see": [
+        "Draw fire",
+        "Tank",
+        "Single target"
+      ],
+      "units": [
+        "Skeleton Spell",
+        "Witch"
+      ],
+      "src": []
+    },
+    {
+      "term": "Flank",
+      "group": "attack",
+      "short": "One side of the base, as seen from where you attack.",
+      "means": [
+        "Attacks are often planned side by side. You might clear the left flank with one hero and the right with another, leaving a clean way into the middle.",
+        "A two-flank attack hits two sides at once, so defences have to split their fire. Our guide also says side or shoulders for the same thing."
+      ],
+      "example": "Drop a Siege Barracks on one flank and a hero on the other to make a funnel.",
+      "aliases": [
+        "flank",
+        "flanks",
+        "two-flank",
+        "both shoulders"
+      ],
+      "see": [
+        "Funnel",
+        "Hydra"
+      ],
+      "units": [
+        "Siege Barracks"
+      ],
+      "src": [
+        "FN"
+      ]
+    },
+    {
+      "term": "Mid-base",
+      "group": "attack",
+      "short": "The ring between a base's outer buildings and its core.",
+      "means": [
+        "Your troops have got past the outside, but have not reached the centre yet. This is often where Air Defenses and other strong defences start reaching them, and where an army can slow down.",
+        "Guides mention it when timing a spell, so that it lands as troops enter this part of the base rather than too early or too late."
+      ],
+      "example": "Cast Haste on Balloons as they push past mid-base, so they do not stall under Air Defenses.",
+      "aliases": [
+        "mid-base",
+        "midbase"
+      ],
+      "see": [
+        "Core",
+        "Stall"
+      ],
+      "units": [
+        "Haste Spell",
+        "Clone Spell"
+      ],
+      "src": []
+    },
+    {
+      "term": "Time out",
+      "group": "attack",
+      "short": "When the attack clock reaches zero before you have finished the base.",
+      "means": [
+        "An attack lasts three minutes once it starts. When the clock reaches zero the attack stops, and you keep only what you have already earned. A time out can cost you the last star even when the army is still alive.",
+        "Slow troops are most at risk. So is any plan that spends too long clearing the outside, or a long hero walk that uses up the time your main army needs."
+      ],
+      "example": "Electro Dragons are very slow, so a long route can run out the clock with buildings still standing.",
+      "aliases": [
+        "time out",
+        "timed out",
+        "run out the clock",
+        "cost you the clock"
+      ],
+      "see": [
+        "Clean-up",
+        "Stall"
+      ],
+      "units": [
+        "Electro Dragon",
+        "Super Witch"
+      ],
+      "src": []
+    },
+    {
+      "term": "Blimp drop",
+      "group": "attack",
+      "short": "Flying a Battle Blimp over the base to drop your Clan Castle troops on a target.",
+      "means": [
+        "A Battle Blimp is a Siege Machine that flies towards the Town Hall and releases your Clan Castle troops when it is destroyed or arrives. Used on purpose, it lands strong troops deep in the base early on, where they take out a key defence.",
+        "Super Archers are a common load, often with Invisibility or Clone Spells where they land. It is delicate, as Air Defenses and Seeking Air Mines can bring the Blimp down before it gets there."
+      ],
+      "example": "Fly Super Archers in on a Battle Blimp, then cast Invisibility and Clone where they drop.",
+      "aliases": [
+        "Blimp drop",
+        "Blimp drops"
+      ],
+      "see": [
+        "Siege Machine",
+        "Clan Castle",
+        "Hydra"
+      ],
+      "units": [
+        "Battle Blimp",
+        "Super Archer",
+        "Invisibility Spell",
+        "Clone Spell"
+      ],
+      "src": [
+        "B",
+        "FN"
+      ]
+    },
+    {
+      "term": "Zap",
+      "group": "army",
+      "short": "Killing a defence outright with spells, usually Lightning and Earthquake, before the army goes in.",
+      "means": [
+        "To zap a defence, you hit it with enough Lightning Spells to destroy it, often adding an Earthquake Spell to save a Lightning. In an army name, it tells you what is being removed so the main troops have an easy run.",
+        "Zap Dragons and Zap Lalo clear Air Defenses. Zap Witches clears Inferno Towers. You work out how many spells it takes first, as a defence left on a sliver of health is a wasted zap."
+      ],
+      "example": "At TH9, Blueprint uses six Lightning Spells and one Earthquake Spell to zap two Air Defenses.",
+      "aliases": [
+        "Zap Dragons",
+        "Zap Witches",
+        "Zap Lalo",
+        "Zap an Air Defense",
+        "Zap Air Defenses"
+      ],
+      "see": [
+        "LaLoon",
+        "Snipe"
+      ],
+      "units": [
+        "Lightning Spell",
+        "Earthquake Spell",
+        "Dragon",
+        "Witch"
+      ],
+      "src": [
+        "B9"
+      ]
+    },
+    {
+      "term": "LaLoon",
+      "group": "army",
+      "short": "Lava Hounds and Balloons together. Also written Lalo or LavaLoon.",
+      "means": [
+        "The name joins Lava Hound and Balloon. The Lava Hounds go first and tie up the Air Defenses, then the Balloons follow and destroy defences while the Air Defenses are busy.",
+        "It is a classic air attack, but it depends on timing. Balloons sent too soon arrive before the Hounds have taken the fire, and sent too late they arrive after the Hounds have died. Zap Lalo removes an Air Defense with Lightning first."
+      ],
+      "example": "Send Lava Hounds first, then Balloons close behind with Haste and Healing Spells.",
+      "aliases": [
+        "LaLoon",
+        "Lalo",
+        "LavaLoon"
+      ],
+      "see": [
+        "Zap",
+        "Sui",
+        "Tank"
+      ],
+      "units": [
+        "Lava Hound",
+        "Balloon",
+        "Haste Spell"
+      ],
+      "src": [
+        "T",
+        "QC"
+      ]
+    },
+    {
+      "term": "Hydra",
+      "group": "army",
+      "short": "An air army mixing Dragons and Dragon Riders, often hitting from two sides.",
+      "means": [
+        "Hydra is used loosely. At its simplest it means Dragon Riders with Dragons or Electro Dragons, so you are not relying on one troop. Many guides also describe it as a two-flank air attack, which makes Air Defenses split their fire.",
+        "Our armies called Hydra all mix several air troops, usually with Balloons or a Lava Hound, but differ otherwise. Super Archer Clone Hydra opens with a Battle Blimp, and Dragon Duke Charge Hydra opens with the Duke.",
+        "Routes decide it, so plan around where the Air Defenses and Clan Castle sit. It suits bases whose Air Defenses can be split."
+      ],
+      "example": "Open with a Lava Hound and Balloons on one flank, then send Dragons and Dragon Riders with Rage and Freeze.",
+      "aliases": [
+        "Hydra"
+      ],
+      "see": [
+        "Flank",
+        "Pathing",
+        "Duke Charge",
+        "Blimp drop"
+      ],
+      "units": [
+        "Dragon",
+        "Dragon Rider",
+        "Balloon",
+        "Lava Hound"
+      ],
+      "src": [
+        "T",
+        "HD",
+        "H18",
+        "B"
+      ]
+    },
+    {
+      "term": "GoHo",
+      "group": "army",
+      "short": "A Golem and Hog Rider attack, with Wizards in our version.",
+      "means": [
+        "Go stands for Golems and Ho for Hog Riders. Golems take the fire on one side while Wizards clear a funnel, and then Hog Riders run through the gap to go after defences.",
+        "It teaches timing and spell placement, because Hog Riders die quickly if they meet Giant Bombs or splash without healing. Older guides warn that it needs careful scouting."
+      ],
+      "example": "Heal the Hog Riders at the spot where defences overlap, rather than where they stand now.",
+      "aliases": [
+        "GoHo"
+      ],
+      "see": [
+        "Hogs",
+        "Tank",
+        "Funnel"
+      ],
+      "units": [
+        "Golem",
+        "Hog Rider",
+        "Wizard"
+      ],
+      "src": [
+        "GV"
+      ]
+    },
+    {
+      "term": "Witch Slap",
+      "group": "army",
+      "short": "Golems in front, Witches behind, winning by steady pressure.",
+      "means": [
+        "Witches keep raising Skeletons, which distract defences and soak up shots. In our plan, Golems lead and Witches follow through a gap made by Wall Breakers or a Jump Spell. It does not take precise timing.",
+        "Guides differ on the details. Some put Witches on two corners first, with Healers, to make a funnel, and then send a Golem and heroes into the core. Army names like this are often used loosely."
+      ],
+      "example": "Golems first to take the fire, then Witches behind them, then Rage, Freeze and Healing as needed.",
+      "aliases": [
+        "Witch Slap"
+      ],
+      "see": [
+        "Tank",
+        "Funnel"
+      ],
+      "units": [
+        "Witch",
+        "Golem",
+        "Wall Breaker"
+      ],
+      "src": [
+        "WS",
+        "B9"
+      ]
+    },
+    {
+      "term": "Queen Walk",
+      "group": "army",
+      "short": "The Archer Queen and a group of Healers moving around the base together.",
+      "means": [
+        "Healers follow the Archer Queen and heal the damage she takes. With four or five of them she can go on removing buildings for a long time.",
+        "Her usual job is clearing the edge of a base to set up a funnel, or removing one chosen target. Air Defenses are the danger, because when they kill the Healers she falls quickly."
+      ],
+      "example": "Walk the Queen down one side with her Healers, keeping clear of Air Defenses, then send the main army.",
+      "aliases": [
+        "Queen Walk",
+        "Queen Walks",
+        "Queen Walking"
+      ],
+      "see": [
+        "Queen Charge",
+        "Hero walk",
+        "Funnel"
+      ],
+      "units": [
+        "Healer",
+        "Baby Dragon"
+      ],
+      "src": [
+        "QW",
+        "AQ",
+        "QC"
+      ]
+    },
+    {
+      "term": "Queen Charge",
+      "group": "army",
+      "short": "The Archer Queen with Healers, sent to clear a whole side before the army follows.",
+      "means": [
+        "It uses the same pair as a Queen Walk, but gives her a bigger job. With four to six Healers and spells, she removes several key defences and clears one side, often after Wall Breakers have got her into a compartment.",
+        "Our Queen Charge plans follow with a Hybrid of Hog Riders and Miners. Other follow-ups are possible, such as LaLoon. Some guides, and at times ours, use Queen Walk and Queen Charge for the same thing. QC is the short form."
+      ],
+      "example": "Walk the Queen with Healers on one side, keeping her away from single target Inferno Towers, then send Hog Riders and Miners.",
+      "aliases": [
+        "Queen Charge",
+        "Queen Charges",
+        "QC"
+      ],
+      "see": [
+        "Queen Walk",
+        "Hybrid",
+        "Hero charge"
+      ],
+      "units": [
+        "Healer",
+        "Wall Breaker",
+        "Healing Spell"
+      ],
+      "src": [
+        "QC",
+        "AQ",
+        "HY"
+      ]
+    },
+    {
+      "term": "RC Walk",
+      "group": "army",
+      "short": "RC means Royal Champion. Here she clears a route while spells keep her alive.",
+      "means": [
+        "RC is short for Royal Champion. She has short range and goes for defences, jumping walls to do so. In an RC Walk you keep her alive with Invisibility Spells, so she takes out defence after defence and leaves a funnel behind her.",
+        "When the walk is finished, your Dragons or Root Riders follow along the side she cleared. Blueprint suggests recalling her once the Invisibility runs out. It takes precise control, because a badly placed spell loses her."
+      ],
+      "example": "Walk the Royal Champion with Invisibility, then send Root Riders with Overgrowth along the cleared side.",
+      "aliases": [
+        "RC Walk",
+        "RC Walks",
+        "RC",
+        "Walk the Royal Champion",
+        "Champion's walk"
+      ],
+      "see": [
+        "RC Charge",
+        "Hero walk",
+        "Funnel"
+      ],
+      "units": [
+        "Invisibility Spell",
+        "Root Rider",
+        "Dragon",
+        "Recall Spell"
+      ],
+      "src": [
+        "B16",
+        "B"
+      ]
+    },
+    {
+      "term": "RC Charge",
+      "group": "army",
+      "short": "The Royal Champion sent in to strip key defences as part of the main attack.",
+      "means": [
+        "In an RC Charge she goes after particular defences, such as a Spell Tower or those around the Town Hall. Electro Boots and Invisibility are common choices for keeping her alive.",
+        "Our plans differ on timing. Some charge her along one side first, and others send her behind a tank and Super Yetis. Guides overlap with RC Walk too, so treat the name as a rough guide and read the steps."
+      ],
+      "example": "Charge the Royal Champion along one side, then send Root Riders through the defences she has weakened.",
+      "aliases": [
+        "RC Charge",
+        "RC Charges",
+        "Charge the Royal Champion",
+        "Royal Champion charge"
+      ],
+      "see": [
+        "RC Walk",
+        "Hero charge"
+      ],
+      "units": [
+        "Invisibility Spell",
+        "Super Yeti",
+        "Root Rider"
+      ],
+      "src": [
+        "B",
+        "B16",
+        "T"
+      ]
+    },
+    {
+      "term": "Duke Charge",
+      "group": "army",
+      "short": "The Dragon Duke sent into the base first, with an air army following.",
+      "means": [
+        "The Dragon Duke is a tough flying hero who gets stronger when no friendly flyers are near him. A Duke Charge uses that. He goes in alone, supported by spells such as Invisibility, Revive or Totem, and clears what he can before the rest fly in.",
+        "Keep your other air troops away from him at first, or they switch off the bonus. Our plan follows with Inferno Dragons, a Lava Hound, Rocket Balloons and Dragon Riders. Blueprint's version has Dragons sweeping up behind him."
+      ],
+      "example": "Charge the Dragon Duke along one side using Invisibility, then send your air troops on a different lane.",
+      "aliases": [
+        "Duke Charge",
+        "Dragon Duke Charge",
+        "Charge the Dragon Duke"
+      ],
+      "see": [
+        "Hero charge",
+        "Enrage",
+        "Hydra",
+        "Rocket Backpack"
+      ],
+      "units": [
+        "Invisibility Spell",
+        "Inferno Dragon",
+        "Dragon Rider",
+        "Revive Spell",
+        "Totem Spell"
+      ],
+      "src": [
+        "DK"
+      ]
+    },
+    {
+      "term": "Warden Walk",
+      "group": "army",
+      "short": "The Grand Warden and Healers moving round the base to clear a side.",
+      "means": [
+        "The Grand Warden has long range and little health, so Healers keep him going while he shoots. Blueprint uses him with Healers and Furnaces to make the funnel, before the main group arrives.",
+        "It works like a Queen Walk, though you also have his ability and his Fireball, if he wears it, to think about. Keep the ability back for the moment it is most needed."
+      ],
+      "example": "Open with the Warden and Healers on one side, then fire his Fireball at a stack of defences.",
+      "aliases": [
+        "Warden Walk",
+        "Warden Walks"
+      ],
+      "see": [
+        "Warden Charge",
+        "Hero walk",
+        "Fireball",
+        "Eternal Tome"
+      ],
+      "units": [
+        "Healer",
+        "Furnace"
+      ],
+      "src": [
+        "B",
+        "B16"
+      ]
+    },
+    {
+      "term": "Warden Charge",
+      "group": "army",
+      "short": "The Grand Warden leads with Healers, and the main army pushes in behind him.",
+      "means": [
+        "Our Warden Charge Super Yetis plan opens with the Warden and Healers, uses Furnaces and Skeleton Spells to pull fire, and then sends Super Yetis behind him, with Jump where walls block them.",
+        "It is loosely named. Blueprint calls the opening of this same army a Warden walk, so the two names can mean the same thing."
+      ],
+      "example": "Warden and Healers first, then Super Yetis behind, with a Jump Spell on the blocking wall.",
+      "aliases": [
+        "Warden Charge",
+        "Warden Charges"
+      ],
+      "see": [
+        "Warden Walk",
+        "Hero charge",
+        "Air mode and ground mode"
+      ],
+      "units": [
+        "Healer",
+        "Furnace",
+        "Super Yeti",
+        "Jump Spell"
+      ],
+      "src": [
+        "B",
+        "FN"
+      ]
+    },
+    {
+      "term": "Root Rider Smash",
+      "group": "army",
+      "short": "A heavy ground attack led by Root Riders, which break walls very quickly.",
+      "means": [
+        "Root Riders are tough ground troops that smash walls and go for defences, so walls hold them up far less than most ground troops. A group of them goes through a walled base with Overgrowth and Rage helping. Trophy Coach calls Root Rider smash the most consistent high Town Hall ground army of 2026.",
+        "Our Root Rider Yeti is one form of it. Root Riders push the defences and Super Yetis follow into the core, with a hero charge alongside. Its weak point is the Monolith, which hits high health troops hardest."
+      ],
+      "example": "The King and Giants make the funnel, then Root Riders go in, followed by Super Yetis into the core.",
+      "aliases": [
+        "Root Rider Smash",
+        "Root Rider Yeti"
+      ],
+      "see": [
+        "Smash",
+        "RC Charge",
+        "RC Walk",
+        "Yeti Smash"
+      ],
+      "units": [
+        "Root Rider",
+        "Super Yeti",
+        "Overgrowth Spell",
+        "Monolith"
+      ],
+      "src": [
+        "T",
+        "D"
+      ]
+    },
+    {
+      "term": "Yeti Smash",
+      "group": "army",
+      "short": "Yetis sent behind a tank to overwhelm the base on the ground.",
+      "means": [
+        "Yetis hit hard, and they release small Yetimites as they take damage, which add to the pressure. Sent through a funnel behind a tank such as an Ice Golem, they flood the core.",
+        "It is a ground alternative to Dragons from about TH12. Multi-target Inferno Towers are its main problem, as they cut through a swarm."
+      ],
+      "example": "Make a funnel with heroes, send Yetis behind an Ice Golem, then Rage and Freeze as they reach the core.",
+      "aliases": [
+        "Yeti Smash"
+      ],
+      "see": [
+        "Smash",
+        "Spawned troops",
+        "Funnel"
+      ],
+      "units": [
+        "Yeti",
+        "Ice Golem",
+        "Log Launcher"
+      ],
+      "src": [
+        "T"
+      ]
+    },
+    {
+      "term": "DragBat",
+      "group": "army",
+      "short": "Dragons followed by a swarm from Bat Spells.",
+      "means": [
+        "The name joins Dragons and Bats. Dragons go first and deal with what would kill Bats quickly, such as Wizard Towers and other splash defences. Bat Spells then flood the part of the base that is left.",
+        "Bats die quickly to splash, so timing decides the attack. AllClash's older guide has a slightly different split, with Dragons on the side away from the Air Defenses and Bats taking those Air Defenses."
+      ],
+      "example": "Deploy Dragons with a Battle Blimp, wait until the splash defences are gone, then drop Bat Spells outside the rest.",
+      "aliases": [
+        "DragBat",
+        "DragBats"
+      ],
+      "see": [
+        "Splash",
+        "Blimp drop"
+      ],
+      "units": [
+        "Dragon",
+        "Bat Spell",
+        "Freeze Spell"
+      ],
+      "src": [
+        "DB"
+      ]
+    },
+    {
+      "term": "Sui",
+      "group": "army",
+      "short": "Short for suicide. Heroes dive early to remove defences, without being expected to survive.",
+      "means": [
+        "In a sui, heroes and a few tanks go deep early on to remove key defences. They may well not come back, and that is fine if they took out enough. Players talk about the value of a sui, meaning what it removed.",
+        "It is usually the first half of an attack. The classic form is Sui Lalo, where Lava Hounds and Balloons follow through the space it opened."
+      ],
+      "example": "Sui Lalo at TH12: a Golem and Ice Golem tank for the heroes, then Lava Hounds and Balloons finish the base.",
+      "aliases": [
+        "Sui",
+        "Sui Lalo",
+        "Sui heroes"
+      ],
+      "see": [
+        "Dive",
+        "LaLoon",
+        "Hero charge"
+      ],
+      "units": [
+        "Ice Golem",
+        "Golem",
+        "Lava Hound",
+        "Balloon"
+      ],
+      "src": [
+        "SU",
+        "SL"
+      ]
+    },
+    {
+      "term": "Fireball",
+      "group": "game",
+      "short": "Grand Warden equipment that throws an explosion at the closest defence. Armies are named after it.",
+      "means": [
+        "Fireball is epic hero equipment for the Grand Warden. When fired, it throws a big exploding ball at the closest defence, which can flatten a group of defences that sit close together. Fireball Super Yeti opens the base this way and then sends Super Yetis through the hole.",
+        "Trophy Coach warns that it needs a high level to work well, at about level 24. Below that, it may leave a damaged defence standing and not the empty space you planned for. Aim is set by where the Warden stands, so walk him to the right spot first."
+      ],
+      "example": "Soften defences with the Warden's Fireball, then send Super Yetis with the King and Royal Champion.",
+      "aliases": [
+        "Fireball"
+      ],
+      "see": [
+        "Hero equipment",
+        "Warden Walk",
+        "Hero ability"
+      ],
+      "units": [
+        "Super Yeti",
+        "Log Launcher",
+        "Earthquake Spell"
+      ],
+      "src": [
+        "H",
+        "B",
+        "T"
+      ]
+    },
+    {
+      "term": "Rocket Backpack",
+      "group": "game",
+      "short": "Dragon Duke equipment that flies him in a straight line across the base.",
+      "means": [
+        "When fired, the Dragon Duke flies across the base in a straight line, breathing fire. While flying he cannot be targeted, traps do not go off, and the Clan Castle stays inactive.",
+        "Line up the angle first, since a poor line wastes most of its value. He lands exposed on the far side, so have follow-up ready, or a Recall Spell. Rocket Backpack Throwers opens with this flight, then sends Throwers and Healers."
+      ],
+      "example": "Open with the Dragon Duke on Rocket Backpack, then open walls with Wall Breakers and send Throwers and Healers.",
+      "aliases": [
+        "Rocket Backpack"
+      ],
+      "see": [
+        "Duke Charge",
+        "Hero equipment"
+      ],
+      "units": [
+        "Thrower",
+        "Healer",
+        "Recall Spell"
+      ],
+      "src": [
+        "BK"
+      ]
+    },
+    {
+      "term": "Clan Castle",
+      "group": "game",
+      "short": "A building that holds troops donated by your clan. Also called the CC.",
+      "means": [
+        "Your clan mates can send you troops, spells and Siege Machines, which sit in your Clan Castle. When you attack, you can drop those troops like any others. A Siege Machine can carry them into the base for you.",
+        "On defence, the enemy's castle does the same in reverse. Its troops come out when an attacker gets close, and can stop a hero or a push by surprise. So guides often say to lure them out first, or to plan your path around the castle."
+      ],
+      "example": "Clan Castle troops can be sent in a Battle Blimp to land next to a key defence.",
+      "aliases": [
+        "Clan Castle",
+        "Clan Castles",
+        "CC"
+      ],
+      "see": [
+        "Lure",
+        "Siege Machine",
+        "Blimp drop"
+      ],
+      "units": [
+        "Poison Spell",
+        "Battle Blimp"
+      ],
+      "src": []
+    },
+    {
+      "term": "Town Hall",
+      "group": "game",
+      "short": "The main building of a base. TH followed by a number gives its level, as in TH13.",
+      "means": [
+        "Your Town Hall level decides what you can build and which troops, spells and heroes are open to you. Advice is often given by level because the same army can be strong at TH9 and useless at TH14.",
+        "It also matters in an attack. Destroying the enemy's Town Hall earns a star on its own."
+      ],
+      "example": "Root Riders open at TH15, so a Root Rider plan is no use to a TH14 player.",
+      "aliases": [
+        "TH#"
+      ],
+      "see": [
+        "Three-star",
+        "Guardian"
+      ],
+      "units": [],
+      "src": [
+        "TS2"
+      ]
+    },
+    {
+      "term": "Housing space",
+      "group": "game",
+      "short": "How much room a troop or spell takes up in your army.",
+      "means": [
+        "Your army has a limited amount of room, and each troop takes a set share of it. A Barbarian takes 1, a Dragon 20, a Golem 30. A strong troop costs more than a weak one, so every army is a trade-off.",
+        "Spells use their own separate space, and the same word applies. A Haste Spell takes one space and a Revive Spell two. Some effects also depend on it, such as the Eagle Artillery, which waits until 200 housing has been deployed."
+      ],
+      "example": "A Yeti takes 18 housing and a Super Yeti takes 35, so boosting it changes how many you can bring.",
+      "aliases": [
+        "housing space",
+        "housing spaces",
+        "housing",
+        "housing limit"
+      ],
+      "see": [
+        "Super Troop",
+        "Mass"
+      ],
+      "units": [
+        "Yeti",
+        "Super Yeti",
+        "Eagle Artillery",
+        "Spring Trap"
+      ],
+      "src": []
+    },
+    {
+      "term": "Splash",
+      "group": "game",
+      "short": "Damage that hits everything in an area, not just one target.",
+      "means": [
+        "Splash hits the target and whatever stands near it. Mortars, Wizard Towers and Bomb Towers use it against your troops, so a tight clump of weak troops can vanish in one shot. That is why guides say to spread them out.",
+        "It works for you too. Wizards, Baby Dragons and Super Bowlers hit several buildings at once, which suits a packed core. A defence's splash radius tells you how far it reaches."
+      ],
+      "example": "One Mortar shell can kill a clump of Archers, so drop them in a line.",
+      "aliases": [
+        "splash",
+        "splash damage",
+        "Area Splash",
+        "Splash radius",
+        "area damage"
+      ],
+      "see": [
+        "Single target",
+        "Multi-target",
+        "Chain"
+      ],
+      "units": [
+        "Mortar",
+        "Wizard Tower",
+        "Bomb Tower",
+        "Wizard",
+        "Baby Dragon"
+      ],
+      "src": []
+    },
+    {
+      "term": "Single target",
+      "group": "game",
+      "short": "Hits only one thing at a time.",
+      "means": [
+        "A single target defence or troop puts all its damage on one target and moves on only when that target is gone. It is deadly against a hero or tank, but slow against many small units.",
+        "So you beat single target defences with numbers or distractions. Skeletons and swarms waste their shots. Inferno Towers are the main example, because a single target Inferno builds up the longer it stays on one target."
+      ],
+      "example": "Keep your Queen clear of single target Inferno Towers, or Freeze them as they lock on.",
+      "aliases": [
+        "single target",
+        "single-target"
+      ],
+      "see": [
+        "Multi-target",
+        "Splash",
+        "Distraction",
+        "Inferno"
+      ],
+      "units": [
+        "Inferno Tower",
+        "Monolith",
+        "Cannon",
+        "Miner"
+      ],
+      "src": []
+    },
+    {
+      "term": "Multi-target",
+      "group": "game",
+      "short": "Hits several separate targets at the same moment.",
+      "means": [
+        "A multi-target defence fires at several enemies at once, with less damage on each than a single target one. It is at its best against swarms of small troops and weak against one big tank.",
+        "An Inferno Tower can be set by its owner to single or multi-target, so check which it is when you scout. A Multi-Archer Tower hits three targets at once."
+      ],
+      "example": "Multi-target Inferno Towers cut through a swarm of Yetis and Yetimites.",
+      "aliases": [
+        "multi-target",
+        "multi target",
+        "Multi-target mode",
+        "Targets at once"
+      ],
+      "see": [
+        "Single target",
+        "Splash",
+        "Scout"
+      ],
+      "units": [
+        "Inferno Tower",
+        "Multi-Archer Tower"
+      ],
+      "src": []
+    },
+    {
+      "term": "Chain",
+      "group": "game",
+      "short": "An attack that jumps from one target to others close by.",
+      "means": [
+        "A chain attack hits one target and then leaps to the next one in reach, usually for less damage each time. Spacing decides how well it does. Close buildings or close troops take more hits, and spread ones break the chain.",
+        "It works in both directions. Electro Dragons and Super Wizards chain through your enemy's buildings. A Super Wizard Tower chains through your troops, up to 15 targets, and a Ricochet Cannon's shot bounces on to a second target."
+      ],
+      "example": "Send Electro Dragons in a straight line through buildings that sit close together.",
+      "aliases": [
+        "chain",
+        "chains",
+        "chained",
+        "chain lightning",
+        "Chain range",
+        "Chains to"
+      ],
+      "see": [
+        "Splash",
+        "Merged defence"
+      ],
+      "units": [
+        "Electro Dragon",
+        "Super Wizard",
+        "Super Wizard Tower",
+        "Ricochet Cannon"
+      ],
+      "src": []
+    },
+    {
+      "term": "Aura",
+      "group": "game",
+      "short": "An area around a unit that affects everything nearby.",
+      "means": [
+        "An aura goes with the unit and affects things inside its range. Some help your troops, as with the Apprentice Warden, whose aura gives nearby troops extra health. Others hurt the enemy, as with the Electro Titan, whose aura damages everything around her.",
+        "To get the most from a helping aura, drop it where the most friends will stand inside it, usually mid-group and not at the front."
+      ],
+      "example": "Walk an Apprentice Warden with tough troops, since his aura only reaches 7 tiles.",
+      "aliases": [
+        "aura",
+        "auras",
+        "Aura range"
+      ],
+      "see": [
+        "Tile"
+      ],
+      "units": [
+        "Apprentice Warden",
+        "Electro Titan"
+      ],
+      "src": []
+    },
+    {
+      "term": "Melee and ranged",
+      "group": "game",
+      "short": "Melee means hitting at arm's length. Ranged means shooting from further off.",
+      "means": [
+        "A melee unit has to walk right up to its target, so walls and other troops can hold it up, and it takes the fire when it gets there. A ranged unit shoots from a distance, often over walls, and usually has less health.",
+        "Reach is why some pets and heroes fit badly together. A pet with short range may run far ahead of a hero who attacks from long range."
+      ],
+      "example": "Valkyries are melee and need a way through walls, while Archers can shoot over them.",
+      "aliases": [
+        "melee",
+        "ranged"
+      ],
+      "see": [
+        "Stall",
+        "Tile"
+      ],
+      "units": [
+        "Valkyrie",
+        "Archer",
+        "Super Archer"
+      ],
+      "src": []
+    },
+    {
+      "term": "Tile",
+      "group": "game",
+      "short": "One square of the grid a base is built on, used to measure distance.",
+      "means": [
+        "A base sits on a grid. Each square is a tile. Building sizes such as 3x3 count tiles, and so do ranges and spell sizes.",
+        "It helps you place things. Knowing a Healing Spell reaches 5 tiles or a defence shoots 9 tiles tells you where to drop things and who is safe."
+      ],
+      "example": "Place a Healing Spell 3 to 4 tiles ahead of the group, so they walk into it.",
+      "aliases": [
+        "tile",
+        "tiles"
+      ],
+      "see": [
+        "Minimum range"
+      ],
+      "units": [
+        "Healing Spell"
+      ],
+      "src": []
+    },
+    {
+      "term": "Minimum range",
+      "group": "game",
+      "short": "A distance too close for a defence to hit. Also called a blind spot.",
+      "means": [
+        "Some defences cannot shoot anything right next to them. Troops that get inside that distance are safe from that defence and can hit it freely.",
+        "The Eagle Artillery cannot hit closer than 7 tiles and the Scattershot closer than 3. The Mortar has a small gap as well. It explains why these defences are hard to deal with from far off, yet simple once your troops are next to them."
+      ],
+      "example": "Once your troops reach an Eagle Artillery they no longer take its shots, though other defences still hit them.",
+      "aliases": [
+        "minimum range",
+        "min range",
+        "blind spot",
+        "blind spots",
+        "Can't hit closer than"
+      ],
+      "see": [
+        "Tile",
+        "Melee and ranged"
+      ],
+      "units": [
+        "Eagle Artillery",
+        "Scattershot",
+        "Mortar"
+      ],
+      "src": []
+    },
+    {
+      "term": "Spawned troops",
+      "group": "game",
+      "short": "Small units made by another troop, spell or pet during an attack.",
+      "means": [
+        "You do not train these. They appear during the attack. Skeletons from a Witch are the simplest example. Yetimites come out of Yetis and Super Yetis as they take damage. Golemites and Lava Pups appear when a Golem or Lava Hound falls. Ice Pups do the same for an Ice Hound. Meteormites are the halves a Meteor Golem splits into.",
+        "Firemites come from a Furnace. A Super Witch summons a single Big Boy. A Ruin Witch turns rubble, which destroyed buildings leave behind, into Ruin Knights. Frostmites and Boogers come from the pets Frosty and Sneezy.",
+        "They can be a real part of your damage, and they keep drawing fire after their parent has gone. Some spells treat them differently. Ice Block, for one, does not cover spawned troops."
+      ],
+      "example": "Golemites keep drawing fire after a Golem falls, which gives your main troops extra time.",
+      "aliases": [
+        "spawned troops",
+        "spawned",
+        "Yetimite",
+        "Yetimites",
+        "Golemite",
+        "Golemites",
+        "Lava Pup",
+        "Lava Pups",
+        "Ice Pup",
+        "Ice Pups",
+        "Meteormite",
+        "Meteormites",
+        "Firemite",
+        "Firemites",
+        "Big Boy",
+        "Big Boys",
+        "Ruin Knight",
+        "Ruin Knights",
+        "Knights",
+        "rubble",
+        "Frostmites",
+        "Booger",
+        "Boogers"
+      ],
+      "see": [
+        "Draw fire",
+        "Yeti Smash"
+      ],
+      "units": [
+        "Yeti",
+        "Super Yeti",
+        "Golem",
+        "Lava Hound",
+        "Ice Hound",
+        "Meteor Golem",
+        "Furnace",
+        "Super Witch",
+        "Ruin Witch",
+        "Ice Block Spell",
+        "Witch"
+      ],
+      "src": []
+    },
+    {
+      "term": "Enrage",
+      "group": "game",
+      "short": "A built-in power-up some troops get when they are alone or angry. Not the Rage Spell.",
+      "means": [
+        "Baby Dragons and the Dragon Duke become enraged when no other friendly flyers are near. They gain extra damage and attack speed while it lasts.",
+        "So these units want space. Sending other flyers alongside them, or giving the Duke a pet like Sneezy whose Boogers fly near him, can turn the bonus off."
+      ],
+      "example": "Use one or two Baby Dragons away from your air group, so each one stays enraged while clearing the outside.",
+      "aliases": [
+        "enrage",
+        "enraged",
+        "his rage"
+      ],
+      "see": [
+        "Duke Charge"
+      ],
+      "units": [
+        "Baby Dragon"
+      ],
+      "src": []
+    },
+    {
+      "term": "Three-star",
+      "group": "game",
+      "short": "The best result an attack can get: all three stars.",
+      "means": [
+        "An attack can earn three stars. You get one for destroying 50% of the base, one for destroying the Town Hall, and one for destroying everything. A three-star therefore means the whole base went down.",
+        "To three-star a base, or an army's three-star rate, is the usual way players judge how good an attack is. A hit rate is the same idea: the share of attacks with an army that got all three."
+      ],
+      "example": "Mass Dragons is often called the safest three-star at TH7.",
+      "aliases": [
+        "three-star",
+        "three-stars",
+        "three star",
+        "three stars",
+        "3-star",
+        "star",
+        "stars",
+        "hit rates"
+      ],
+      "see": [
+        "War",
+        "Clean-up",
+        "Town Hall"
+      ],
+      "units": [],
+      "src": [
+        "TS2"
+      ]
+    },
+    {
+      "term": "War",
+      "group": "game",
+      "short": "A clan against clan contest, decided by total stars.",
+      "means": [
+        "Two clans are matched and face off. After a preparation day comes a battle day, when each member can usually attack twice, and the clan with more stars wins.",
+        "Unlike a normal attack, you can study the target base for as long as you like before you start, and you only get limited attempts. So guides favour armies that are reliable, and much advice here is aimed at war."
+      ],
+      "example": "Greedy Raven is a farming pet, so swap it out before war unless your plan needs its storage damage.",
+      "aliases": [
+        "war",
+        "wars",
+        "Clan War",
+        "Clan Wars"
+      ],
+      "see": [
+        "CWL",
+        "Three-star",
+        "Scout"
+      ],
+      "units": [],
+      "src": [
+        "TS2"
+      ]
+    },
+    {
+      "term": "CWL",
+      "group": "game",
+      "short": "Clan War League: a monthly event where clans play a series of wars.",
+      "means": [
+        "Clan War League runs for part of each month. Your clan plays several wars in a row against other clans in its group, and each member gets one attack per war. Results earn League Medals to spend in a special shop.",
+        "With one attack per war, there is no second try, so players look for safe armies. If a guide calls something good for CWL, it usually means dependable."
+      ],
+      "example": "Base Drop rates the Minion Prince for CWL clean-up rather than as a main carry.",
+      "aliases": [
+        "CWL",
+        "Clan War League",
+        "Clan War Leagues"
+      ],
+      "see": [
+        "War"
+      ],
+      "units": [],
+      "src": []
+    },
+    {
+      "term": "Super Troop",
+      "group": "game",
+      "short": "A stronger version of a normal troop that you pay to unlock for a few days.",
+      "means": [
+        "From about TH11, you can boost a troop you have levelled high enough into its super version. A boost costs Dark Elixir, 25,000 in our data, and lasts three days. Super Yeti, Super Archer and Rocket Balloon are examples.",
+        "Most take more housing than the normal troop, and most have a special ability of their own. As a boost is costly and time limited, check your plan before you pay."
+      ],
+      "example": "Boosting Yetis into Super Yetis takes each one from 18 housing to 35.",
+      "aliases": [
+        "Super Troop",
+        "Super Troops",
+        "justify the boost",
+        "boost spare",
+        "Costly to boost"
+      ],
+      "see": [
+        "Housing space",
+        "Hero ability"
+      ],
+      "units": [
+        "Super Yeti",
+        "Super Archer",
+        "Rocket Balloon",
+        "Super Witch"
+      ],
+      "src": [
+        "R"
+      ]
+    },
+    {
+      "term": "Siege Machine",
+      "group": "game",
+      "short": "A vehicle that carries your Clan Castle troops into the base. Built in the Workshop.",
+      "means": [
+        "You build these in the Workshop from TH12 on. Most go somewhere useful, such as to the Town Hall, and release your Clan Castle troops when they finish or are destroyed. Some do the job in a different way, like a Log Launcher that clears walls ahead of it.",
+        "Spells mostly do not help them. A Healer will not heal one, and many lose health over time. Clan mates can also donate them to your Clan Castle."
+      ],
+      "example": "A Wall Wrecker drives at the Town Hall, smashing walls on the way, then releases your Clan Castle troops.",
+      "aliases": [
+        "Siege Machine",
+        "Siege Machines",
+        "Workshop"
+      ],
+      "see": [
+        "Clan Castle",
+        "Blimp drop"
+      ],
+      "units": [
+        "Wall Wrecker",
+        "Battle Blimp",
+        "Stone Slammer",
+        "Siege Barracks",
+        "Log Launcher",
+        "Flame Flinger",
+        "Battle Drill",
+        "Troop Launcher",
+        "Sky Wagon"
+      ],
+      "src": []
+    },
+    {
+      "term": "Hero ability",
+      "group": "game",
+      "short": "A power you fire by tapping a hero's icon during an attack.",
+      "means": [
+        "Heroes can do things beyond their normal attack. You tap the hero's icon once, and what happens depends on the equipment they wear, such as a burst of healing, a big strike or a shield for the army. You usually get one use in an attack.",
+        "Timing is often the difference between a hero surviving or not. Fire it too early and it is gone when the big hit comes. Fire it too late and the hero has already fallen. Some troops have named abilities of their own, which work without you doing anything."
+      ],
+      "example": "Save the Warden's ability until the push is under heavy fire, not the moment you can use it.",
+      "aliases": [
+        "ability",
+        "abilities"
+      ],
+      "see": [
+        "Hero equipment",
+        "Eternal Tome",
+        "Fireball"
+      ],
+      "units": [],
+      "src": [
+        "H"
+      ]
+    },
+    {
+      "term": "Hero equipment",
+      "group": "game",
+      "short": "Items a hero wears that change what they can do, upgraded with ore at the Blacksmith.",
+      "means": [
+        "Each hero wears two pieces at a time, chosen from a set made for that hero. The Blacksmith opens at TH8 and upgrades them using ore. Shiny Ore is the most common, Glowy Ore is rarer, and Starry Ore is the rarest and only goes on epic pieces.",
+        "Common pieces come free as you upgrade the Blacksmith and reach level 18. Epic pieces come from events, the season shop or the Trader and reach level 27. Rarity does not always mean stronger, so check what your plan needs."
+      ],
+      "example": "Spiky Ball is the usual first pick for the King. Earthquake Boots suit pushes that need walls broken.",
+      "aliases": [
+        "equipment",
+        "epic equipment",
+        "Blacksmith",
+        "ore",
+        "Shiny Ore",
+        "Glowy Ore",
+        "Starry Ore"
+      ],
+      "see": [
+        "Hero ability",
+        "Eternal Tome",
+        "Fireball",
+        "Rocket Backpack"
+      ],
+      "units": [],
+      "src": [
+        "H"
+      ]
+    },
+    {
+      "term": "Eternal Tome",
+      "group": "game",
+      "short": "Grand Warden equipment that makes him and nearby troops immune to damage for a moment.",
+      "means": [
+        "When fired, the Grand Warden and friendly units close to him take no damage for a short time. It is the safest first upgrade for him, since it helps in almost any army.",
+        "Use it for the worst moment of the attack, such as when a group walks into a nest of defences. Fire it the moment it is ready and you have nothing left for that. It is a piece of equipment, so a Warden not wearing it does not have it. An Apprentice Warden never does."
+      ],
+      "example": "Save the Tome until your Yetis reach the core, then fire it as the Inferno Towers and bombs start hitting.",
+      "aliases": [
+        "Eternal Tome",
+        "the Tome"
+      ],
+      "see": [
+        "Hero ability",
+        "Hero equipment"
+      ],
+      "units": [
+        "Apprentice Warden"
+      ],
+      "src": [
+        "H"
+      ]
+    },
+    {
+      "term": "Air mode and ground mode",
+      "group": "game",
+      "short": "The two ways a Grand Warden can move, on foot or flying.",
+      "means": [
+        "You choose before you deploy him. In ground mode he walks with ground troops and can walk over walls. In air mode he flies with an air army, and air-hitting defences can target him instead of ground ones.",
+        "Choose by the army he has to stay with, since his support only reaches nearby troops. Some pets suit one mode better. Boogers from Sneezy, for example, are said to work in air mode only.",
+        "An X-Bow has modes too, though for a different reason. Its owner sets it to ground only at long range, or to air and ground at a shorter 11.5 tiles."
+      ],
+      "example": "Walk him on foot with Super Yetis, and fly him with Dragons.",
+      "aliases": [
+        "air mode",
+        "ground mode",
+        "Air and ground mode"
+      ],
+      "see": [
+        "Warden Walk",
+        "Warden Charge",
+        "Eternal Tome"
+      ],
+      "units": [
+        "X-Bow"
+      ],
+      "src": []
+    },
+    {
+      "term": "Supercharge",
+      "group": "game",
+      "short": "Extra upgrade stages for a building already at its final level.",
+      "means": [
+        "When a building is fully upgraded at the top Town Hall, you can spend a builder and resources on small extra boosts. A defence usually gets two stages, each adding a bit of damage or health. They are cheaper and smaller than a normal upgrade.",
+        "They do not last forever. When Supercell releases a new level for that building, its supercharges reset. For an attacker, it means a top level defence can be a little stronger than its level suggests."
+      ],
+      "example": "",
+      "aliases": [
+        "supercharge",
+        "supercharges",
+        "supercharged",
+        "supercharging"
+      ],
+      "see": [
+        "Town Hall",
+        "Merged defence"
+      ],
+      "units": [
+        "Inferno Tower",
+        "Air Defense",
+        "Monolith",
+        "Builder's Hut"
+      ],
+      "src": [
+        "NS2",
+        "MS"
+      ]
+    },
+    {
+      "term": "Merged defence",
+      "group": "game",
+      "short": "Two defences at high levels combined into one stronger building.",
+      "means": [
+        "From TH16, you can merge two maxed defences to make a new one. Two Archer Towers at level 21 become a Multi-Archer Tower, and two Cannons at level 21 become a Ricochet Cannon.",
+        "A Multi-Gear Tower at TH17 takes a geared up Archer Tower and a geared up Cannon. At TH18, two level 17 Wizard Towers become a Super Wizard Tower. Each has an attack the originals lacked, so old advice about those buildings no longer fits."
+      ],
+      "example": "A Ricochet Cannon's shot bounces on to a second target, so a line of troops is not as safe as it once was.",
+      "aliases": [
+        "merged",
+        "merged defence",
+        "merged defences",
+        "Merged from",
+        "merges",
+        "merging"
+      ],
+      "see": [
+        "Gear up",
+        "Chain",
+        "Multi-target"
+      ],
+      "units": [
+        "Multi-Archer Tower",
+        "Ricochet Cannon",
+        "Multi-Gear Tower",
+        "Super Wizard Tower"
+      ],
+      "src": [
+        "SC",
+        "MW"
+      ]
+    },
+    {
+      "term": "Gear up",
+      "group": "game",
+      "short": "A Builder Base upgrade that gives a home defence a second way of firing.",
+      "means": [
+        "A Cannon, an Archer Tower and a Mortar can each be geared up once you have their partner building on the Builder Base. The Master Builder does the work, and it costs home village Gold. You need the defence at the listed level too.",
+        "A geared up defence gets a new mode. A Cannon or Mortar gets Burst mode, and an Archer Tower gets Fast attack mode. It shoots much faster, though Cannons and Archer Towers lose some range for it. A geared up pair can also feed the Multi-Gear Tower later on."
+      ],
+      "example": "A geared up Cannon in Burst mode reaches 7 tiles instead of 9 but hits every 0.192 seconds.",
+      "aliases": [
+        "gear up",
+        "gears up",
+        "geared up",
+        "gearing up",
+        "Burst mode",
+        "Fast attack mode",
+        "Fast attack",
+        "geared-up",
+        "gear-up"
+      ],
+      "see": [
+        "Merged defence",
+        "Tile"
+      ],
+      "units": [
+        "Cannon",
+        "Archer Tower",
+        "Mortar",
+        "Multi-Gear Tower"
+      ],
+      "src": [
+        "NB"
+      ]
+    },
+    {
+      "term": "Guardian",
+      "group": "game",
+      "short": "A defending unit that protects the Town Hall at TH18. Attackers cannot use them.",
+      "means": [
+        "At TH18, the Town Hall lost its own weapon and gained a Guardian. You pick one to defend at a time: the Smasher, the Longshot or the Logger. It stands on the Town Hall, then jumps down and fights once enemies come within range.",
+        "The Smasher is melee, and it hits with splash. It leaves Rage behind when it falls. The Longshot is ranged with splash and explodes when defeated. The Logger rolls slow logs that hit everything in their path and knock targets back.",
+        "All of them hit both ground and air, so plan for one as you reach the Town Hall. Clash Ninja's April 2026 notes say Poison works on them at reduced damage, and that they do not wake while Frozen."
+      ],
+      "example": "Do not walk fragile troops into the Town Hall area without checking which Guardian is on it.",
+      "aliases": [
+        "Guardian",
+        "Guardians",
+        "Smasher",
+        "Longshot",
+        "Logger"
+      ],
+      "see": [
+        "Town Hall",
+        "Splash",
+        "Melee and ranged"
+      ],
+      "units": [
+        "Freeze Spell",
+        "Poison Spell"
+      ],
+      "src": [
+        "SC",
+        "NG",
+        "BG2",
+        "MG",
+        "NL"
+      ]
+    },
+    {
+      "term": "Spell Tower effects",
+      "group": "game",
+      "short": "The spells a Spell Tower can cast on the defending side.",
+      "means": [
+        "A Spell Tower casts spells to help the defence, the same way you would on attack. Its options grow by level: Rage from level 1, Poison from level 2, Invisibility from level 3, and Earthquake from level 4.",
+        "Rage makes defences hit harder. Poison hurts and slows your troops. Invisibility hides defences for a moment. Earthquake does a share of damage to troops. After casting, it needs 50 to 70 seconds to recharge, so it can fire again in a long attack. Taking one out early, or freezing it when it is about to cast, can save an attack."
+      ],
+      "example": "Rage from a Spell Tower gives defences 60% extra damage for 18 seconds, so a Freeze on the tower is often well spent.",
+      "aliases": [
+        "Spell Tower effect",
+        "Spell Tower effects",
+        "Spell Tower spell",
+        "Spell Tower spells"
+      ],
+      "see": [
+        "Hero charge"
+      ],
+      "units": [
+        "Spell Tower",
+        "Freeze Spell"
+      ],
+      "src": []
+    },
+    {
+      "term": "Inferno",
+      "group": "slang",
+      "short": "Short for Inferno Tower, a defence that burns one target or several.",
+      "means": [
+        "In single target mode, the beam grows stronger the longer it stays on the same target, until it melts heroes and tanks. In multi-target mode, it hits several at once for steady damage.",
+        "Freeze, Invisibility and Ice Block are the usual answers. Breaking its lock with Invisibility resets the beam, so it has to build up again."
+      ],
+      "example": "Cast Invisibility on a hero as an Inferno starts to burn, and the beam has to start over.",
+      "aliases": [
+        "Infernos",
+        "an Inferno starts",
+        "Inferno on a hero",
+        "reset Infernos"
+      ],
+      "see": [
+        "Single target",
+        "Multi-target",
+        "Lock on"
+      ],
+      "units": [
+        "Inferno Tower",
+        "Freeze Spell",
+        "Invisibility Spell",
+        "Ice Block Spell"
+      ],
+      "src": []
+    },
+    {
+      "term": "Hogs",
+      "group": "slang",
+      "short": "Short for Hog Riders.",
+      "means": [
+        "Hog Riders jump walls and go straight for defences, so they are fast but easily wiped by traps and splash. Players nearly always call them Hogs.",
+        "A Super Hog Rider is a separate boosted troop, so check which one a plan means."
+      ],
+      "example": "Heal the Hogs where defences overlap.",
+      "aliases": [
+        "Hogs"
+      ],
+      "see": [
+        "GoHo",
+        "Hybrid"
+      ],
+      "units": [
+        "Hog Rider",
+        "Super Hog Rider"
+      ],
+      "src": []
+    },
+    {
+      "term": "Loot",
+      "group": "slang",
+      "short": "The Gold, Elixir and Dark Elixir you take from a base you attack.",
+      "means": [
+        "Attacking lets you steal part of what another player holds in their storages and collectors. Destroying those buildings gets you the loot inside.",
+        "Loot pays for your upgrades, so it is what players attack for when they are not fighting for stars. A troop or pet that is good for loot goes for those resource buildings, and may not help you win a war."
+      ],
+      "example": "Goblins run for storages first, so they suit raids for loot but not war.",
+      "aliases": [
+        "loot",
+        "resource building",
+        "resource buildings"
+      ],
+      "see": [
+        "Farming"
+      ],
+      "units": [
+        "Goblin",
+        "Sneaky Goblin"
+      ],
+      "src": []
+    },
+    {
+      "term": "Farming",
+      "group": "slang",
+      "short": "Attacking mainly to collect resources rather than to win stars.",
+      "means": [
+        "Upgrades are costly, so players spend a lot of attacks raiding for Gold and Elixir. A farming army is cheap and quick to rebuild, and it does not need three stars.",
+        "Players look for dead bases, meaning inactive villages whose collectors have filled up. They are full of easy loot, since nobody has been around to collect it. A raid in our guide means this kind of attack."
+      ],
+      "example": "A Greedy Raven does extra damage to resource buildings, which is why it is a farming pet.",
+      "aliases": [
+        "farming",
+        "raid",
+        "raids",
+        "loot raids",
+        "dead base",
+        "dead bases"
+      ],
+      "see": [
+        "Loot",
+        "Three-star"
+      ],
+      "units": [
+        "Goblin",
+        "Sneaky Goblin"
+      ],
+      "src": []
+    },
+    {
+      "term": "Scout",
+      "group": "slang",
+      "short": "To study a base before you attack it.",
+      "means": [
+        "Before you attack, you look over the base. Note where Air Defenses and Inferno Towers sit, whether each Inferno is single or multi-target, and where traps might be hiding in gaps.",
+        "In war you get as long as you like, and Trophy Coach suggests at least 30 seconds. A plan that does not fit the base often fails however well you carry it out."
+      ],
+      "example": "Check where the Clan Castle reaches, so you know whether your hero will wake its troops.",
+      "aliases": [
+        "scout",
+        "scouts",
+        "scouted",
+        "scouting"
+      ],
+      "see": [
+        "War",
+        "Pathing"
+      ],
+      "units": [],
+      "src": [
+        "TS2"
+      ]
+    },
+    {
+      "term": "Friendly challenge",
+      "group": "slang",
+      "short": "A free practice attack on a clan mate's base.",
+      "means": [
+        "You can post a challenge in clan chat, and a clan mate can attack your base. Nothing is lost: you keep your troops and spells, and no trophies or loot change hands.",
+        "It is the safest place to try an army or a new unit before risking a war attack. Guides are thin on some newer units, so testing here may tell you more."
+      ],
+      "example": "Try a new army in a friendly challenge before using it in war.",
+      "aliases": [
+        "friendly challenge",
+        "friendly challenges"
+      ],
+      "see": [
+        "War"
+      ],
+      "units": [],
+      "src": []
+    },
+    {
+      "term": "Buff",
+      "group": "slang",
+      "short": "A change by Supercell that makes something stronger.",
+      "means": [
+        "Supercell adjusts troops and defences through balance updates. When something gets stronger, it has been buffed. A buff can make old advice about it out of date.",
+        "So a guide written before a buff can undersell what it describes."
+      ],
+      "example": "Hog Riders had a health buff in October, so older low ratings may no longer be fair.",
+      "aliases": [
+        "buff",
+        "buffs",
+        "buffed"
+      ],
+      "see": [
+        "Nerf",
+        "Meta"
+      ],
+      "units": [
+        "Hog Rider",
+        "Miner",
+        "P.E.K.K.A",
+        "Meteor Golem"
+      ],
+      "src": [
+        "C"
+      ]
+    },
+    {
+      "term": "Nerf",
+      "group": "slang",
+      "short": "A change by Supercell that makes something weaker.",
+      "means": [
+        "The opposite of a buff. When a unit is too strong, Supercell cuts its health, damage or something else, and players say it was nerfed.",
+        "Figures gathered before a nerf can flatter what they describe, as our guide warns in a few places."
+      ],
+      "example": "Fire Heart was nerfed in October, so older figures for Dragon Duke armies may overstate them.",
+      "aliases": [
+        "nerf",
+        "nerfs",
+        "nerfed"
+      ],
+      "see": [
+        "Buff",
+        "Meta"
+      ],
+      "units": [
+        "Ruin Witch"
+      ],
+      "src": [
+        "C"
+      ]
+    },
+    {
+      "term": "Meta",
+      "group": "slang",
+      "short": "Whichever armies and tactics are most popular and effective right now.",
+      "means": [
+        "The meta is what most strong players are using at the moment. It shifts as Supercell changes the game and players find new ideas.",
+        "It is a helpful starting point, not a rule. An army can be strong and out of the meta, particularly at lower Town Halls, where the top players' choices matter less."
+      ],
+      "example": "",
+      "aliases": [
+        "meta"
+      ],
+      "see": [
+        "Buff",
+        "Nerf"
+      ],
+      "units": [],
+      "src": []
     }
   ]
 }

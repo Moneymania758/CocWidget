@@ -7,11 +7,10 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Locale
 
-// A hero or pet's game text, how it moves and hits, and its stats at its top level.
+// A hero or pet: how it moves and hits, and its stats at its top level.
 class Fighter(
     val id: Int,
     val name: String,
-    val info: String,
     val flying: Boolean,
     val hitsAir: Boolean,
     val hitsGround: Boolean,
@@ -60,6 +59,17 @@ class HeroGuide(
 
 class Source(val key: String, val name: String, val date: String, val url: String)
 
+// What something is for in an attack, how to use it and what stops it. Written by hand, in place of
+// the game's own text. Heroes and pets keep their role elsewhere, so theirs is empty here. [sources]
+// is empty for advice from general play that no guide backs.
+class Tactics(
+    val role: String,
+    val use: List<String>,
+    val beware: List<String>,
+    val partners: List<String>,
+    val sources: List<String>,
+)
+
 // Written by hand in assets/guide_content.json. These picks are opinion, so they carry their sources
 // and the date they were checked. GuideTest checks them against the game facts.
 class GuideContent(
@@ -69,12 +79,19 @@ class GuideContent(
     val heroes: List<HeroGuide>,
     val pets: Map<String, String>,
     val townHalls: List<TownHallGuide>,
+    val unitTactics: Map<String, Tactics>,
+    val defenceTactics: Map<String, Tactics>,
+    val heroTactics: Map<String, Tactics>,
+    val petTactics: Map<String, Tactics>,
+    val glossary: Glossary,
 )
 
 // One thing a Town Hall adds. [first] is false for more copies of something an earlier one added.
 class TownHallAddition(val item: GameItem, val quantity: Int, val first: Boolean)
 
 class Guide(val content: GuideContent, val facts: GuideFacts) {
+    val glossary: Glossary get() = content.glossary
+
     private val unitsByName = facts.army.associateBy { it.name }
 
     fun unit(name: String): ArmyUnit? = unitsByName[name]
@@ -156,7 +173,6 @@ class Guide(val content: GuideContent, val facts: GuideFacts) {
         private fun fighter(json: JSONObject) = Fighter(
             id = json.getInt("id"),
             name = json.getString("n"),
-            info = json.getString("i"),
             flying = json.getInt("f") == 1,
             hitsAir = json.getInt("a") == 1,
             hitsGround = json.getInt("g") == 1,
@@ -168,6 +184,7 @@ class Guide(val content: GuideContent, val facts: GuideFacts) {
         private fun parseContent(root: JSONObject): GuideContent {
             val sources = root.getJSONObject("sources")
             val pets = root.getJSONObject("pets")
+            val tactics = root.getJSONObject("tactics")
             return GuideContent(
                 checked = root.getString("checked"),
                 sources = sources.keys().asSequence().map { key ->
@@ -193,8 +210,37 @@ class Guide(val content: GuideContent, val facts: GuideFacts) {
                         strategies = townHall.getJSONArray("strategies").objects().map(::strategy),
                     )
                 },
+                unitTactics = tacticsByName(tactics.getJSONObject("units")),
+                defenceTactics = tacticsByName(tactics.getJSONObject("defences")),
+                heroTactics = tacticsByName(tactics.getJSONObject("heroes")),
+                petTactics = tacticsByName(tactics.getJSONObject("pets")),
+                glossary = Glossary(root.getJSONArray("glossary").objects().map(::glossaryTerm)),
             )
         }
+
+        private fun glossaryTerm(json: JSONObject) = GlossaryTerm(
+            term = json.getString("term"),
+            group = json.getString("group"),
+            short = json.getString("short"),
+            means = json.getJSONArray("means").strings(),
+            example = json.optString("example"),
+            aliases = json.getJSONArray("aliases").strings(),
+            see = json.optJSONArray("see")?.strings().orEmpty(),
+            units = json.optJSONArray("units")?.strings().orEmpty(),
+            sources = json.getJSONArray("src").strings(),
+        )
+
+        private fun tacticsByName(json: JSONObject): Map<String, Tactics> =
+            json.keys().asSequence().associateWith { name ->
+                val entry = json.getJSONObject(name)
+                Tactics(
+                    role = entry.optString("role"),
+                    use = entry.getJSONArray("use").strings(),
+                    beware = entry.getJSONArray("beware").strings(),
+                    partners = entry.optJSONArray("with")?.strings().orEmpty(),
+                    sources = entry.getJSONArray("src").strings(),
+                )
+            }
 
         private fun pick(json: JSONObject) = PetPick(json.getString("pet"), json.getString("why"))
 
