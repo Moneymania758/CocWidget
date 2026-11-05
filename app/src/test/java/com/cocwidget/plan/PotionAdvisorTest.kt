@@ -3,11 +3,7 @@ package com.cocwidget.plan
 import com.cocwidget.TestData
 import com.cocwidget.game.BUILDER_POTION_MULTIPLIER
 import com.cocwidget.game.Boost
-import com.cocwidget.game.PET_POTION_MULTIPLIER
-import com.cocwidget.game.STUDY_SOUP_MULTIPLIER
-import com.cocwidget.game.RESEARCH_POTION_MULTIPLIER
 import com.cocwidget.game.Section
-import com.cocwidget.game.VillageParser
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -60,14 +56,5 @@ class PotionAdvisorTest {
     fun theGoblinsUpgradeIsNotABuilder() {
         val village = TestData.villageOf(now, TestData.upgrade(day), TestData.upgrade(day, extra = true))
         assertEquals(1, PotionAdvisor.advise(village, Section.BUILDERS, 2, BUILDER_POTION_MULTIPLIER, now).idle)
-    }
-
-    @Test
-    fun petsFollowAStudySoupThatEndsWithTheLabBoost() {
-        assertEquals(STUDY_SOUP_MULTIPLIER, VillageParser.petMultiplier(STUDY_SOUP_MULTIPLIER, 3500, 3480))
-        // A Research Potion, or a pet boost ending at another time, stays a Pet Potion.
-        assertEquals(PET_POTION_MULTIPLIER, VillageParser.petMultiplier(RESEARCH_POTION_MULTIPLIER, 3500, 3500))
-        assertEquals(PET_POTION_MULTIPLIER, VillageParser.petMultiplier(STUDY_SOUP_MULTIPLIER, 3500, 1200))
-        assertEquals(PET_POTION_MULTIPLIER, VillageParser.petMultiplier(STUDY_SOUP_MULTIPLIER, 3500, 0))
     }
 }

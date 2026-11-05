@@ -14,7 +14,6 @@ class BuilderBiteTest {
 
     private fun parse(boosts: String) = VillageParser.parse(
         """{"tag":"#TEST","timestamp":1800000000,"buildings":[{"data":1000015,"lvl":3,"timer":100000}],"units":[{"data":4000000,"lvl":3,"timer":100000}],"boosts":{$boosts}}""",
-        BUILDER_POTION_MULTIPLIER,
     ) { TestData.gameData[it] }!!
 
     @Test

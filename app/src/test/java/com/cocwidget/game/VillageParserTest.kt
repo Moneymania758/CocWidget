@@ -84,8 +84,8 @@ class VillageParserTest {
     }
 
     @Test
-    fun builderBiteUsesItsOwnMultiplier() {
-        val bitten = TestData.village(BUILDER_BITE_MULTIPLIER)
+    fun builderBiteOnItsOwnRunsAtDouble() {
+        val bitten = TestData.village(TestData.exportJson().replace("builder_boost", "builder_consumable"))
         val storage = bitten.upgrades.single { it.name == "Elixir Storage" }
         assertEquals(bitten.exportedAtMillis + 75_591_000L, bitten.endMillis(storage))
     }
@@ -105,7 +105,7 @@ class VillageParserTest {
 
     @Test
     fun unknownIdsStillShow() {
-        val parsed = VillageParser.parse(TestData.exportJson(), BUILDER_POTION_MULTIPLIER) { null }!!
+        val parsed = VillageParser.parse(TestData.exportJson()) { null }!!
         val king = parsed.upgrades.first { it.section == Section.BUILDERS && it.workSec == 46_271L }
         assertEquals("#28000000", king.name)
         assertNull(king.totalSec)
@@ -114,8 +114,8 @@ class VillageParserTest {
     @Test
     fun rejectsTextThatIsNotAnExport() {
         val lookup: (Int) -> GameItem? = { TestData.gameData[it] }
-        assertNull(VillageParser.parse("hello", BUILDER_POTION_MULTIPLIER, lookup = lookup))
-        assertNull(VillageParser.parse("{}", BUILDER_POTION_MULTIPLIER, lookup = lookup))
-        assertNull(VillageParser.parse("{\"tag\":\"#X\"}", BUILDER_POTION_MULTIPLIER, lookup = lookup))
+        assertNull(VillageParser.parse("hello", lookup = lookup))
+        assertNull(VillageParser.parse("{}", lookup = lookup))
+        assertNull(VillageParser.parse("{\"tag\":\"#X\"}", lookup = lookup))
     }
 }

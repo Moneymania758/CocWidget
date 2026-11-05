@@ -1,11 +1,9 @@
 package com.cocwidget
 
-import com.cocwidget.game.BUILDER_POTION_MULTIPLIER
 import com.cocwidget.game.Boost
 import com.cocwidget.game.GameData
 import com.cocwidget.game.GameItem
 import com.cocwidget.game.Helpers
-import com.cocwidget.game.RESEARCH_POTION_MULTIPLIER
 import com.cocwidget.game.Section
 import com.cocwidget.game.Upgrade
 import com.cocwidget.game.Village
@@ -31,13 +29,13 @@ object TestData {
     fun superchargingExportJson(): String = javaClass.getResource("/village_export_th18_supercharging.json")!!.readText()
 
     fun superchargingVillage(): Village =
-        VillageParser.parse(superchargingExportJson(), BUILDER_POTION_MULTIPLIER) { gameData[it] }!!
+        VillageParser.parse(superchargingExportJson()) { gameData[it] }!!
 
-    fun village(builderMultiplier: Int = BUILDER_POTION_MULTIPLIER): Village =
-        VillageParser.parse(exportJson(), builderMultiplier) { gameData[it] }!!
+    fun village(json: String = exportJson()): Village =
+        VillageParser.parse(json) { gameData[it] }!!
 
-    fun th18Village(labMultiplier: Int = RESEARCH_POTION_MULTIPLIER): Village =
-        VillageParser.parse(th18ExportJson(), BUILDER_POTION_MULTIPLIER, labMultiplier) { gameData[it] }!!
+    fun th18Village(json: String = th18ExportJson()): Village =
+        VillageParser.parse(json) { gameData[it] }!!
 
     fun plan(json: String = exportJson(), builders: Int = 6, eventPercent: Int = 0): Planner.Plan =
         Planner.plan(json, gameData, builders, eventPercent)!!
@@ -66,6 +64,7 @@ object TestData {
         builderBoost: Boost = Boost.NONE,
         helpers: Helpers = Helpers.NONE,
         builderSnack: Boost = Boost.NONE,
+        labSnack: Boost = Boost.NONE,
     ) = Village(
         tag = "#TEST",
         exportedAtMillis = exportedAtMillis,
@@ -78,5 +77,6 @@ object TestData {
         petBoost = Boost.NONE,
         helpers = helpers,
         builderSnack = builderSnack,
+        labSnack = labSnack,
     )
 }

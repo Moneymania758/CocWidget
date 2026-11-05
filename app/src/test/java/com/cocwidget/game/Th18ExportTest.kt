@@ -28,7 +28,7 @@ class Th18ExportTest {
     fun noBuilderBaseBeforeTheBoatIsFixed() {
         val root = JSONObject(TestData.th18ExportJson())
         root.remove("buildings2")
-        val village = VillageParser.parse(root.toString(), BUILDER_POTION_MULTIPLIER) { TestData.gameData[it] }!!
+        val village = VillageParser.parse(root.toString()) { TestData.gameData[it] }!!
         assertFalse(village.hasBuilderBase)
         assertFalse(village.withUpgrades(emptyList()).hasBuilderBase)
         assertTrue(TestData.th18Village().withUpgrades(emptyList()).hasBuilderBase)
@@ -114,7 +114,7 @@ class Th18ExportTest {
     fun studySoupIsSlower() {
         // 3,063 s at 4 + 12 = 16x clears 49,008 s, the soup's last 1,723 s at 4x clear 6,892 s,
         // and the remaining 22,036 s run at normal speed.
-        val souped = TestData.th18Village(STUDY_SOUP_MULTIPLIER)
+        val souped = TestData.th18Village(TestData.th18ExportJson().replace("lab_boost", "lab_consumable"))
         val goblin = souped.upgrades.single { it.name == "Goblin" }
         assertEquals(souped.exportedAtMillis + 26_822_000L, souped.endMillis(goblin))
     }

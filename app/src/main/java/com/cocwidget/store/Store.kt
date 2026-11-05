@@ -3,9 +3,7 @@ package com.cocwidget.store
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import com.cocwidget.game.BUILDER_POTION_MULTIPLIER
 import com.cocwidget.game.EventDiscount
-import com.cocwidget.game.RESEARCH_POTION_MULTIPLIER
 import com.cocwidget.game.Village
 import com.cocwidget.game.VillageParser
 import com.cocwidget.plan.Bedtime
@@ -29,6 +27,7 @@ object Store {
 
     // Per account. Up to 1.9.1 these sat in the app-wide file, for the only account.
     private const val KEY_EXPORT = "export"
+    // Answers to a Sync question that's gone. Only still here so an old install moves them out.
     private const val KEY_BUILDER_MULTIPLIER = "builder_multiplier"
     private const val KEY_LAB_MULTIPLIER = "lab_multiplier"
     private const val KEY_NAME = "name"
@@ -143,7 +142,7 @@ object Store {
     fun saveExport(context: Context, json: String): String {
         val tag = tagOf(json)
         val previous = rawVillage(context, tag)
-        val current = VillageParser.parse(context, json, builderMultiplier(context, tag), labMultiplier(context, tag))
+        val current = VillageParser.parse(context, json)
         val tracked = current?.let {
             EventDiscount.track(previous, upgradeIds(context, tag), discountedUpgrades(context, tag), it, eventOn(context))
         }
@@ -181,7 +180,7 @@ object Store {
 
     private fun rawVillage(context: Context, tag: String): Village? {
         val json = exportJson(context, tag) ?: return null
-        return VillageParser.parse(context, json, builderMultiplier(context, tag), labMultiplier(context, tag))
+        return VillageParser.parse(context, json)
     }
 
     private fun upgradeIds(context: Context, tag: String): List<String> =
@@ -198,20 +197,6 @@ object Store {
 
     // What the event switch takes off upgrades not started yet, 0 with it off.
     fun eventPercent(context: Context): Int = if (eventOn(context)) EventDiscount.PERCENT else 0
-
-    fun builderMultiplier(context: Context, tag: String): Int =
-        account(context, tag).getInt(KEY_BUILDER_MULTIPLIER, BUILDER_POTION_MULTIPLIER)
-
-    fun setBuilderMultiplier(context: Context, tag: String, multiplier: Int) {
-        account(context, tag).edit().putInt(KEY_BUILDER_MULTIPLIER, multiplier).apply()
-    }
-
-    fun labMultiplier(context: Context, tag: String): Int =
-        account(context, tag).getInt(KEY_LAB_MULTIPLIER, RESEARCH_POTION_MULTIPLIER)
-
-    fun setLabMultiplier(context: Context, tag: String, multiplier: Int) {
-        account(context, tag).edit().putInt(KEY_LAB_MULTIPLIER, multiplier).apply()
-    }
 
     fun collapsedSections(context: Context, tag: String): Set<String> =
         account(context, tag).getStringSet(KEY_COLLAPSED, emptySet()).orEmpty()
