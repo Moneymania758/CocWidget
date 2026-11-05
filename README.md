@@ -75,9 +75,9 @@ than a discounted one could, so it's never halved.
 
 - **BUILDERS 6/6** is builders busy out of builders you have. An orange **idle** means a free
   builder (or a free lab or pet house).
-- **+ Goblin** and the green **GOBLIN** tag mark the extra upgrade run by the event Goblin.
+- **+ Goblin** and the Goblin's face on a row mark the extra upgrade run by the event Goblin.
 - **×10 34:44** is a boost running and how long it has left. Timers already account for it.
-- The blue **HELPER** tag marks the upgrade your Builder's Apprentice or Lab Assistant is
+- A helper's face on a row marks the upgrade your Builder's Apprentice or Lab Assistant is
   working on. Timers already account for the hour they're working.
 - **Helpers ready in 19:56:32** at the bottom counts down to your helpers' next work day. It
   turns orange as **Helpers ready** when you can give them a new job.

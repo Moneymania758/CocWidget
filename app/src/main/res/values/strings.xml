@@ -4,8 +4,8 @@
     <string name="widget_description">Builder, lab and pet timers from your village export</string>
 
     <string name="sync">Sync</string>
-    <string name="goblin">GOBLIN</string>
-    <string name="helper">HELPER</string>
+    <string name="goblin">Goblin</string>
+    <string name="helper">Helper</string>
     <string name="helpers_ready">Helpers ready</string>
     <string name="helpers_ready_in">Helpers ready in %s</string>
     <string name="done">Done</string>

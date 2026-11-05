@@ -280,6 +280,10 @@ object WidgetRenderer {
         }
     }
 
+    // Who is working on a row. Only the builders and the lab have a helper.
+    internal fun helperFace(section: Section): Int =
+        if (section == Section.LAB) R.drawable.ic_face_assistant else R.drawable.ic_face_apprentice
+
     private fun row(context: Context, village: Village, upgrade: Upgrade, now: Long): RemoteViews {
         val row = RemoteViews(context.packageName, R.layout.widget_row)
         row.setTextViewText(R.id.name, upgradeName(upgrade))
@@ -290,6 +294,7 @@ object WidgetRenderer {
         if (icon != null) row.setImageViewBitmap(R.id.icon, icon) else row.setImageViewResource(R.id.icon, R.drawable.ic_placeholder)
 
         val left = village.endMillis(upgrade) - now
+        row.setImageViewResource(R.id.helper, helperFace(upgrade.section))
         row.setViewVisibility(R.id.helper, if (left > 0 && village.isHelped(upgrade, now)) View.VISIBLE else View.GONE)
         if (left <= 0) {
             row.setViewVisibility(R.id.clock, View.GONE)
