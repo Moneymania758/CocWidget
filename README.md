@@ -226,10 +226,11 @@ starts to pick up the next hour.
   can't show them, and an alarm redraws the widget when a day rolls over, an upgrade finishes or
   a boost ends, and at least every 15 minutes.
 - Boosts: the export's `boosts` block gives seconds left as `builder_boost`, `lab_boost` and
-  `pet_boost`. Builder Potion is 10x, Builder Bite is taken as 2x (community figure,
-  unconfirmed), Research Potion 24x, Study Soup 4x, Pet Potion 24x. Work done during the boost
+  `pet_boost`. Builder Potion is 10x, Builder Bite 2x, Research Potion 24x, Study Soup 4x, Pet Potion 24x. Work done during the boost
   runs at that rate and the rest at normal speed. A potion and a snack together add up in the
-  game (27x for the lab); the app takes whichever one you confirm.
+  game. `builder_consumable` is taken as a running Builder Bite, on its own clock beside the
+  potion (10x plus 2x makes 11x), with its own chip on the widget. For the lab (27x together) the
+  app still takes whichever one you confirm.
 - Helpers: `helpers[]` gives each helper's level and `helper_cooldown`, the seconds left in the
   23-hour work day they share (missing when none is running). `helper_timer` on an upgrade is
   the real seconds left of a helper's one-hour shift on it, and `helper_recurrent` marks "Keep

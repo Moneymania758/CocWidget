@@ -34,4 +34,19 @@
         android:textColor="@color/text"
         android:textSize="12sp"
         android:visibility="gone" />
+
+    <Chronometer
+        android:id="@+id/badge_snack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/chip_boost"
+        android:fontFamily="sans-serif-black"
+        android:paddingStart="8dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="2dp"
+        android:textColor="@color/text"
+        android:textSize="12sp"
+        android:visibility="gone" />
 </LinearLayout>

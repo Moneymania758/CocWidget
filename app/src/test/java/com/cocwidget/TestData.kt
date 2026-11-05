@@ -65,6 +65,7 @@ object TestData {
         vararg upgrades: Upgrade,
         builderBoost: Boost = Boost.NONE,
         helpers: Helpers = Helpers.NONE,
+        builderSnack: Boost = Boost.NONE,
     ) = Village(
         tag = "#TEST",
         exportedAtMillis = exportedAtMillis,
@@ -76,5 +77,6 @@ object TestData {
         labBoost = Boost.NONE,
         petBoost = Boost.NONE,
         helpers = helpers,
+        builderSnack = builderSnack,
     )
 }

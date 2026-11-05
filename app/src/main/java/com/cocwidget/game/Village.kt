@@ -38,6 +38,8 @@ class Village(
     val clockTowerBoost: Boost = Boost.NONE,
     // Builder Base unlocked, whether or not anything is upgrading there.
     val hasBuilderBase: Boolean = false,
+    // A Builder Bite, which runs on its own clock beside a Builder Potion.
+    val builderSnack: Boost = Boost.NONE,
 ) {
     fun boostFor(section: Section): Boost = when (section) {
         Section.BUILDERS -> builderBoost
@@ -45,6 +47,8 @@ class Village(
         Section.PETS -> petBoost
         Section.BUILDER_BASE -> clockTowerBoost
     }
+
+    fun snackFor(section: Section): Boost = if (section == Section.BUILDERS) builderSnack else Boost.NONE
 
     // The Apprentice helps builders, the Assistant the lab. Nothing helps pets or the Builder Base.
     fun helperLevelFor(section: Section): Int = when (section) {
@@ -65,10 +69,10 @@ class Village(
         helperLevelFor(upgrade.section) > 0 && (upgrade.helperRepeats || helperShiftEndMillis(upgrade) > nowMillis)
 
     fun paceFor(upgrade: Upgrade): Pace =
-        Pace(boostFor(upgrade.section), upgrade.helperSec, helperLevelFor(upgrade.section))
+        Pace(boostFor(upgrade.section), upgrade.helperSec, helperLevelFor(upgrade.section), snackFor(upgrade.section))
 
     fun withUpgrades(upgrades: List<Upgrade>) =
-        Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, labBoost, petBoost, helpers, clockTowerBoost, hasBuilderBase)
+        Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, labBoost, petBoost, helpers, clockTowerBoost, hasBuilderBase, builderSnack)
 
     fun endMillis(upgrade: Upgrade): Long =
         exportedAtMillis + paceFor(upgrade).realSecondsFor(upgrade.workSec) * 1000
