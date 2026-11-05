@@ -97,10 +97,95 @@ class GuideUnitsTest {
         assertEquals(580.0, last(chart(unit("Meteor Golem").charts, "Damage per second")))
     }
 
+    // Super Yeti showed "None" at levels the other source doesn't list.
     @Test
-    fun perHitIsDroppedWhereTheSourcesDisagreeOnDamage() {
-        val perHit = chart(unit("Dragon Rider").charts, "Damage per hit")
-        assertEquals(null, perHit.series.first().values.last())
+    fun perHitIsThereAtEveryLevel() {
+        for (entry in units.values) {
+            val perHit = entry.charts.firstOrNull { it.title == "Damage per hit" } ?: continue
+            assertFalse(entry.name, perHit.series.first().values.contains(null))
+        }
+        assertEquals(550.0, last(chart(unit("Super Yeti").charts, "Damage per hit")))
+    }
+
+    // It follows ClashKing's damage, so a change only the newer source has carries through.
+    @Test
+    fun perHitFollowsTheNewerDamage() {
+        assertEquals(588.0, last(chart(unit("Dragon Rider").charts, "Damage per hit")))
+        assertEquals(537.5, last(chart(unit("Dragon").charts, "Damage per hit")))
+    }
+
+    // Sky Wagon's Balloons sat exactly under its Baby Dragons, so a line in its legend couldn't be seen.
+    @Test
+    fun everyLineOnAChartCanBeSeen() {
+        for (entry in units.values) {
+            for (chart in entry.charts + entry.subs.flatMap { it.charts }) {
+                val where = "${entry.name} ${chart.title}"
+                val lines = chart.series.map { it.values }
+                assertEquals(where, lines.size, lines.toSet().size)
+                if (lines.size > 1) for (line in lines) assertTrue(where, line.filterNotNull().toSet().size > 1)
+            }
+        }
+    }
+
+    @Test
+    fun theStoneSlammerSplitsItsDamageByDistance() {
+        val slammer = unit("Stone Slammer")
+        assertEquals(listOf("Outer", "Inner"), chart(slammer.charts, "Damage when destroyed").series.map { it.name })
+        assertFalse(slammer.stats.any { it.name.startsWith("Damage when destroyed") })
+    }
+
+    @Test
+    fun aFlatLineBesideMovingOnesIsAFact() {
+        val barrels = unit("Sky Wagon").subs.single()
+        assertTrue(barrels.stats.any { it.name.contains("balloons") && it.value == "1" })
+        assertEquals(listOf("Minions"), barrels.charts.first { it.title.startsWith("Troops per barrel") }.series.map { it.name })
+    }
+
+    // A scroll starting on a chart used to change the level, as a level was picked on touching down.
+    @Test
+    fun aVerticalScrollFromAChartPicksNothing() {
+        val touch = ChartTouch(slop = 10f)
+        touch.down(100f, 100f)
+        assertFalse(touch.move(104f, 60f))
+        assertFalse(touch.move(106f, 20f))
+        assertFalse(touch.up(106f, 20f))
+    }
+
+    @Test
+    fun aSidewaysDragPicksAsItGoes() {
+        val touch = ChartTouch(slop = 10f)
+        touch.down(100f, 100f)
+        assertFalse(touch.move(105f, 100f))
+        assertTrue(touch.move(130f, 104f))
+        assertTrue(touch.move(100f, 140f))
+        assertFalse(touch.up(100f, 140f))
+    }
+
+    @Test
+    fun aTapPicksWhereItLands() {
+        val touch = ChartTouch(slop = 10f)
+        touch.down(100f, 100f)
+        assertFalse(touch.move(103f, 102f))
+        assertTrue(touch.up(103f, 102f))
+    }
+
+    @Test
+    fun aSlowDiagonalThatEndsFarAwayIsNotATap() {
+        val touch = ChartTouch(slop = 10f)
+        touch.down(100f, 100f)
+        assertFalse(touch.move(100f, 200f))
+        assertFalse(touch.up(100f, 200f))
+    }
+
+    // Inferno Dragon's "91" sat on the next line's dot, and looked like that line's value.
+    @Test
+    fun labelsGiveWayRatherThanSitOnAnotherLine() {
+        assertTrue(ChartScale.endLabelsClear(listOf(100f), 14f, 9f))
+        assertTrue(ChartScale.endLabelsClear(listOf(200f, 100f), 14f, 9f))
+        assertFalse(ChartScale.endLabelsClear(listOf(200f, 190f, 20f), 14f, 9f))
+        assertFalse(ChartScale.endLabelsClear(listOf(200f, 200f), 14f, 9f))
+        // The labels clear each other here, but the lower one sits right on the higher line's dot.
+        assertFalse(ChartScale.endLabelsClear(listOf(200f, 180f), 14f, 9f))
     }
 
     @Test
@@ -179,6 +264,7 @@ class GuideUnitsTest {
         assertEquals("5000", ChartScale.axisLabel(5000.0, 9000.0, ""))
         assertEquals("5K", ChartScale.axisLabel(5000.0, 20000.0, ""))
         assertEquals("20%", ChartScale.axisLabel(20.0, 40.0, "%"))
+        assertEquals("0", ChartScale.axisLabel(0.0, 20000.0, ""))
         assertEquals("2.5", ChartScale.axisLabel(2.5, 5.0, " tiles"))
     }
 

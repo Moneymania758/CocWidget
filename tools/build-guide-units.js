@@ -148,7 +148,8 @@ function chartsAndStats(defs, rows) {
     for (const [key, label] of def.series) {
       const values = rows.map(row => (row[key] === undefined ? null : round(row[key])));
       if (values.every(v => v === null) || series.some(s => s.key === key)) continue;
-      if (series.some(s => s.n === label && values.every((v, i) => v === null || s.v[i] === null))) continue;
+      // Both sources can have the same figure under one label, and that's one line, not two.
+      if (series.some(s => s.n === label && values.every((v, i) => v === null || s.v[i] === null || s.v[i] === v))) continue;
       series.push({ key, n: label, v: values });
     }
     if (!series.length) continue;
@@ -161,8 +162,14 @@ function chartsAndStats(defs, rows) {
         else stats.push({ n: `${def.title}: ${s.n}`, v: `${number(s.v.find(v => v !== null))}${unit}` });
       }
     } else if (series.some(varies)) {
+      // A flat line beside moving ones says nothing, and can sit exactly on another flat line.
+      const moving = series.filter(varies);
+      for (const s of series.filter(s => !varies(s))) {
+        stats.push({ n: `${def.title} (${s.n.toLowerCase()})`, v: `${number(s.v.find(v => v !== null))}${unit}` });
+      }
       const stages = series.some(s => s.key === 'stats.stage2.dps');
-      charts.push(chart(def.title, series.map(s => (stages && s.key === 'dps' ? { ...s, n: 'Stage 1' } : s))));
+      const title = moving.length === 1 && series.length > 1 ? `${def.title}: ${moving[0].n}` : def.title;
+      charts.push(chart(title, moving.map(s => (stages && s.key === 'dps' ? { ...s, n: 'Stage 1' } : s))));
     } else {
       for (const s of series) {
         const name = series.length > 1 ? `${def.title} (${s.n.toLowerCase()})` : def.title;
@@ -218,16 +225,27 @@ function build(data, npm) {
     // A Super Troop's lower levels exist in the data, but its base troop must be this high first.
     const levels = entry.levels.filter(level => !superInfo || level.level >= superInfo.original_min_level);
     const npmLevels = Object.fromEntries((extra.levels || []).map(level => [level.level, flatten(level)]));
+    // Damage per hit is damage per second times a unit's fixed attack time, and the other source
+    // only has it for its own levels and figures. So take that ratio from a level where both sources
+    // agree on the damage, and work out every level from ClashKing's numbers.
+    const hitKey = ['stats.normal.damagePerShot', 'damagePerHit'].find(key => Object.values(npmLevels).some(row => row[key] !== undefined));
+    const ratios = levels.flatMap(level => {
+      const row = npmLevels[level.level];
+      if (!row || !hitKey || row[hitKey] === undefined) return [];
+      const dps = row['stats.normal.dps'] ?? row.damagePerSecond;
+      return dps > 0 && dps === level.dps ? [row[hitKey] / dps] : [];
+    });
+    if (new Set(ratios.map(r => r.toFixed(2))).size > 1) console.warn(`${entry.name}: damage per hit ratios differ: ${[...new Set(ratios.map(r => r.toFixed(2)))].join(', ')}`);
+    const ratio = ratios[0];
     const rows = levels.map(level => {
       const row = { ...(npmLevels[level.level] || {}) };
       for (const key of Object.keys(row)) {
         if (!knownKeys.has(key)) throw new Error(`No label for ${entry.name}'s level field ${key}`);
       }
-      // A per-hit figure is only safe where the other source agrees on the damage it comes from.
       const npmDps = row['stats.normal.dps'] ?? row.damagePerSecond;
-      if (npmDps !== undefined && Math.abs(npmDps) !== Math.abs(level.dps)) {
-        delete row['stats.normal.damagePerShot'];
-        delete row.damagePerHit;
+      if (hitKey) {
+        delete row[hitKey];
+        if (ratio && level.dps > 0) row[hitKey] = level.dps * ratio;
       }
       if (!isSpell) {
         row.hp = level.hitpoints;
@@ -235,7 +253,8 @@ function build(data, npm) {
         const npmHasDamage = npmDps !== undefined || !npmLevels[level.level];
         if (level.dps > 0 && npmHasDamage) row.dps = level.dps;
         if (level.dps < 0) row.heal = -level.dps;
-        if (level.death_damage) row.death = level.death_damage;
+        // The Stone Slammer's figure is flat here, while the other source splits it by distance.
+        if (level.death_damage && row.damageWhenDestroyedHitbox1 === undefined) row.death = level.death_damage;
       } else {
         if (level.damage > 0 && row.damage === undefined && row.maxDamagePerSecond === undefined) row.damage = level.damage;
       }

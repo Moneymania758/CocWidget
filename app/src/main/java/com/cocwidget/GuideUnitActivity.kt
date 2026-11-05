@@ -274,7 +274,9 @@ class GuideUnitActivity : GuideScreen() {
                 }
             }
             addView(HorizontalScrollView(this@GuideUnitActivity).apply {
-                isHorizontalScrollBarEnabled = false
+                // Wider tables run past the card, so keep the bar showing to say they scroll.
+                isHorizontalScrollBarEnabled = true
+                isScrollbarFadingEnabled = false
                 addView(table)
             }, ui.matchWidth(8))
         }

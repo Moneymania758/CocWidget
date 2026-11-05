@@ -9,7 +9,9 @@ import android.graphics.RectF
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import com.cocwidget.guide.ChartScale
+import com.cocwidget.guide.ChartTouch
 import com.cocwidget.guide.UnitChart
 import kotlin.math.abs
 
@@ -62,8 +64,7 @@ class LevelChart(
     private val plotTop get() = PAD * density + endText.textSize + 6 * density
     private val plotBottom get() = height - PAD * density - axisText.textSize - 6 * density
 
-    private var downX = 0f
-    private var downY = 0f
+    private val touch = ChartTouch(ViewConfiguration.get(context).scaledTouchSlop.toFloat())
 
     override fun onMeasure(widthSpec: Int, heightSpec: Int) {
         val wanted = (PLOT_HEIGHT * density + 2 * PAD * density + axisText.textSize + endText.textSize + 12 * density).toInt()
@@ -118,16 +119,19 @@ class LevelChart(
         values.indices.lastOrNull { values[it] != null }?.let { last ->
             drawDot(canvas, last, values[last]!!, if (last > reachEnd) OUT_OF_REACH else colour, 4f)
         }
+        if (selected in values.indices) values[selected]?.let { value -> drawDot(canvas, selected, value, colour, 5f) }
+        // Last, so it still shows when the player's own level is the one picked: the dot fits inside.
         if (myIndex in values.indices) values[myIndex]?.let { value ->
-            dot.color = SURFACE
-            canvas.drawCircle(x(myIndex), y(value), 7 * density, dot)
+            if (myIndex != selected) {
+                dot.color = SURFACE
+                canvas.drawCircle(x(myIndex), y(value), 7 * density, dot)
+            }
             dot.style = Paint.Style.STROKE
             dot.strokeWidth = 2 * density
             dot.color = PRIMARY_TEXT
             canvas.drawCircle(x(myIndex), y(value), 6 * density, dot)
             dot.style = Paint.Style.FILL
         }
-        if (selected in values.indices) values[selected]?.let { value -> drawDot(canvas, selected, value, colour, 5f) }
     }
 
     private fun strokeBetween(canvas: Canvas, values: List<Double?>, from: Int, to: Int) {
@@ -153,34 +157,41 @@ class LevelChart(
         canvas.drawCircle(x(index), y(value), radius * density, dot)
     }
 
-    // Each line's top value beside its end, unless it would sit on another. The legend and the
-    // readout above the chart carry the rest.
+    // Each line's top value, just left of its last dot, so the crosshair at that level can't run
+    // through it. A patch of panel keeps gridlines out of the digits. If any label would sit on
+    // another line's dot it could be read as that line's, so none show and the legend carries them.
     private fun drawEndLabels(canvas: Canvas) {
-        endText.textAlign = Paint.Align.RIGHT
-        val used = mutableListOf<Float>()
-        for (series in chart.series) {
-            val value = series.values.lastOrNull { it != null } ?: continue
-            val labelY = y(value) - 9 * density
-            if (used.any { abs(it - labelY) < endText.textSize + 2 * density }) continue
-            used += labelY
-            canvas.drawText(ChartScale.value(value, chart.unit), plotRight + 8 * density, labelY.coerceAtLeast(endText.textSize + 2 * density), endText)
+        val ends = chart.series.mapNotNull { series ->
+            series.values.indexOfLast { it != null }.takeIf { it >= 0 }?.let { index -> index to series.values[index]!! }
+        }
+        val labelHeight = endText.textSize + 2 * density
+        if (!ChartScale.endLabelsClear(ends.map { y(it.second) }, labelHeight, LABEL_GAP * density)) return
+        endText.textAlign = Paint.Align.LEFT
+        val line = endText.fontMetrics
+        for ((index, value) in ends) {
+            val text = ChartScale.value(value, chart.unit)
+            val width = endText.measureText(text)
+            val left = (x(index) - 8 * density - width).coerceAtLeast(plotLeft + 2 * density)
+            val baseline = (y(value) - LABEL_GAP * density).coerceAtLeast(endText.textSize + 2 * density)
+            bounds.set(left - 3 * density, baseline + line.ascent, left + width + 3 * density, baseline + line.descent)
+            canvas.drawRoundRect(bounds, 3 * density, 3 * density, panel)
+            canvas.drawText(text, left, baseline, endText)
         }
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                downX = event.x
-                downY = event.y
-                pick(event.x)
-            }
-            MotionEvent.ACTION_MOVE -> {
+            MotionEvent.ACTION_DOWN -> touch.down(event.x, event.y)
+            MotionEvent.ACTION_MOVE -> if (touch.move(event.x, event.y)) {
                 // A sideways drag belongs to the chart. Anything else scrolls the page as normal.
-                if (abs(event.x - downX) > abs(event.y - downY)) parent?.requestDisallowInterceptTouchEvent(true)
+                parent?.requestDisallowInterceptTouchEvent(true)
                 pick(event.x)
             }
-            MotionEvent.ACTION_UP -> performClick()
+            MotionEvent.ACTION_UP -> {
+                if (touch.up(event.x, event.y)) pick(event.x)
+                performClick()
+            }
         }
         return true
     }
@@ -193,6 +204,7 @@ class LevelChart(
     companion object {
         private const val PLOT_HEIGHT = 120f
         private const val PAD = 10f
+        private const val LABEL_GAP = 9f
 
         // Checked with the data visualisation palette validator against SURFACE: colourblind
         // separation, normal vision and 3:1 contrast all pass for these three, in this order.

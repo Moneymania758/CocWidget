@@ -5,6 +5,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.text.NumberFormat
 import java.util.Locale
+import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.log10
@@ -177,7 +178,7 @@ object ChartScale {
 
     // Full numbers under 10,000 and short ones from there, one style per axis.
     fun axisLabel(value: Double, axisMax: Double, unit: String): String {
-        val text = if (axisMax >= 10_000) trim(value / 1000) + "K" else trim(value)
+        val text = if (axisMax >= 10_000 && value != 0.0) trim(value / 1000) + "K" else trim(value)
         return if (unit.isBlank() || unit.startsWith(" ")) text else text + unit
     }
 
@@ -199,5 +200,46 @@ object ChartScale {
         return ceil((count - 1).toDouble() / (fit - 1)).toInt().coerceAtLeast(1)
     }
 
+    // Whether every line's value label can sit above its dot without touching another label or
+    // another line's dot. [points] are the dots' heights on screen, where down is larger.
+    fun endLabelsClear(points: List<Float>, labelHeight: Float, gap: Float): Boolean {
+        for ((index, point) in points.withIndex()) {
+            val bottom = point - gap
+            val top = bottom - labelHeight
+            for ((other, otherPoint) in points.withIndex()) {
+                if (other == index) continue
+                val otherBottom = otherPoint - gap
+                val otherTop = otherBottom - labelHeight
+                if (otherPoint in top..point) return false
+                if (top <= otherBottom && otherTop <= bottom) return false
+            }
+        }
+        return true
+    }
+
     private fun trim(value: Double) = String.format(Locale.ROOT, "%.2f", value).trimEnd('0').trimEnd('.')
+}
+
+// Tells a tap and a sideways drag from a scroll. Nothing is picked as a finger lands, as a scroll
+// that happens to start on a chart mustn't change the level.
+class ChartTouch(private val slop: Float) {
+    private var downX = 0f
+    private var downY = 0f
+    private var dragging = false
+
+    fun down(x: Float, y: Float) {
+        downX = x
+        downY = y
+        dragging = false
+    }
+
+    // True while this is a sideways drag, which picks levels as it goes.
+    fun move(x: Float, y: Float): Boolean {
+        val sideways = abs(x - downX)
+        if (!dragging && sideways > slop && sideways > abs(y - downY)) dragging = true
+        return dragging
+    }
+
+    // True if this was a tap, which picks the level it's on.
+    fun up(x: Float, y: Float): Boolean = !dragging && abs(x - downX) <= slop && abs(y - downY) <= slop
 }
