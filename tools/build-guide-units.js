@@ -121,6 +121,15 @@ const TOP_STATS = [
   ['radius', 'Radius', ' tiles'], ['spellDuration', 'Lasts', 's'], ['shotsPerBurst', 'Shots per burst', ''], ['timeBetweenBursts', 'Between bursts', 's'],
 ];
 
+// Where the plain air and ground flags would mislead. The first three are flagged for one setting
+// only, or not at all, though the clash-of-clans-data entry for each says it can hit both.
+const HITS_NOTES = {
+  'X-Bow': () => 'Hits ground, or air and ground',
+  'Skeleton Trap': () => 'Set to chase ground or air',
+  "Builder's Hut": entry => `Hits air and ground from TH${entry.levels.find(level => level.dps > 0).required_townhall}`,
+  'Air Sweeper': () => 'Pushes air troops back',
+};
+
 // Defences and traps. Their fields differ from troops', so they have their own list of charts.
 const DEFENCE_CHARTS = [
   { title: 'Damage per second', series: [
@@ -529,6 +538,8 @@ function buildDefences(data, root) {
     const ground = isTrap ? entry.ground_trigger : entry.is_ground_targeting;
     if (air) unit.a = 1;
     if (ground) unit.gr = 1;
+    const hits = HITS_NOTES[npm.name]?.(entry);
+    if (hits) unit.hn = hits;
     const charge = entry.levels[entry.levels.length - 1].supercharge;
     if (charge?.levels?.length) {
       unit.subs = [{

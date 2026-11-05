@@ -62,6 +62,8 @@ class GuideUnit(
     val flying: Boolean,
     val hitsAir: Boolean,
     val hitsGround: Boolean,
+    // What it hits in words, where the two flags above would mislead. Usually empty.
+    val hitsNote: String,
     val preferredTarget: String,
     val ability: String,
     // Super Troops only: the troop they come from, the level it needs, and the boost.
@@ -114,6 +116,7 @@ object GuideUnits {
                 flying = entry.optInt("f") == 1,
                 hitsAir = entry.optInt("a") == 1,
                 hitsGround = entry.optInt("gr") == 1,
+                hitsNote = entry.optString("hn"),
                 preferredTarget = entry.optString("pt"),
                 ability = entry.optString("ab"),
                 baseId = base?.optInt("id") ?: 0,

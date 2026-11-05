@@ -176,6 +176,28 @@ class GuideScreensTest {
     }
 
     @Test
+    fun defencesThatDontFitOneLineSayWhatTheyHit() {
+        val expected = mapOf(
+            "X-Bow" to "Hits ground, or air and ground",
+            "Skeleton Trap" to "Set to chase ground or air",
+            "Builder's Hut" to "Hits air and ground from TH14",
+            "Air Sweeper" to "Pushes air troops back",
+        )
+        val plain = listOf(com.cocwidget.R.string.guide_hits_both, com.cocwidget.R.string.guide_hits_air, com.cocwidget.R.string.guide_hits_ground).map(app::getString)
+        for ((name, chip) in expected) {
+            val texts = Screens.texts(Screens.root(openUnit(name)))
+            assertTrue(name, texts.contains(chip))
+            assertEquals(name, emptyList<String>(), texts.filter { it in plain })
+        }
+    }
+
+    @Test
+    fun aPlainDefenceKeepsItsHitsChip() {
+        assertTrue(Screens.texts(Screens.root(openUnit("Cannon"))).contains(app.getString(com.cocwidget.R.string.guide_hits_ground)))
+        assertTrue(Screens.texts(Screens.root(openUnit("Air Defense"))).contains(app.getString(com.cocwidget.R.string.guide_hits_air)))
+    }
+
+    @Test
     fun aDefenceSaysHowToBeatItAndATroopHowToUseIt() {
         val defence = Screens.texts(Screens.root(openUnit("Inferno Tower")))
         assertTrue(defence.contains(app.getString(com.cocwidget.R.string.guide_how_to_beat)))

@@ -266,7 +266,7 @@ How far to trust them:
 - Guardian: Clash Ninja's April 2026 notes (Poison works at reduced damage, no waking while Frozen) replace a 2025 line saying Poison does nothing.
 - The Monolith hits one target, hardest on high health. Earlier lines saying clustered troops suffer from it were wrong and are fixed.
 
-Data flags that look incomplete and are not fixed: Skeleton Trap is flagged ground only, though it can be set to air. X-Bow is flagged ground only, with air as a listed mode. Builder's Hut has no air or ground flag. Those pages' "Hits" chips will read accordingly.
+ClashKing flags X-Bow and Skeleton Trap ground only and gives Builder's Hut no flag, though clash-of-clans-data has all three as both. `HITS_NOTES` in `tools/build-guide-units.js` gives those pages, and the Air Sweeper's, a chip in words.
 
 Defence writer's conflicts:
 

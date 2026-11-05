@@ -113,6 +113,7 @@ class GuideUnitActivity : GuideScreen() {
         if (unit != null) {
             if (unit.isTroop) add(getString(if (unit.flying) R.string.guide_flying else R.string.guide_ground))
             when {
+                unit.hitsNote.isNotEmpty() -> add(unit.hitsNote)
                 unit.hitsAir && unit.hitsGround -> add(getString(R.string.guide_hits_both))
                 unit.hitsAir -> add(getString(R.string.guide_hits_air))
                 unit.hitsGround -> add(getString(R.string.guide_hits_ground))
