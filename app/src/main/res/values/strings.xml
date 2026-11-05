@@ -207,7 +207,7 @@
         <item quantity="one">%1$d epic equipment piece at level 1 isn\'t counted: the export lists pieces you don\'t own at level 1, so it can\'t tell.</item>
         <item quantity="other">%1$d epic equipment pieces at level 1 aren\'t counted: the export lists pieces you don\'t own at level 1, so it can\'t tell.</item>
     </plurals>
-    <string name="credit">Game data and icons from ClashKing (assets.clashk.ing).\n\nThis material is unofficial and is not endorsed by Supercell. For more information see Supercell\'s Fan Content Policy: www.supercell.com/fan-content-policy.</string>
+    <string name="credit">Game data and icons from ClashKing (assets.clashk.ing). Troop abilities and Ruin Knights from clash-of-clans-data (MIT).\n\nThis material is unofficial and is not endorsed by Supercell. For more information see Supercell\'s Fan Content Policy: www.supercell.com/fan-content-policy.</string>
 
     <string name="guide_open">Guide</string>
     <string name="guide_intro">Town Halls, heroes, pets and how people attack. Levels and stats come from the game data. Attack and pet picks are opinions from community guides.</string>
@@ -265,4 +265,38 @@
     <string name="guide_avoid">Avoid %1$s: %2$s</string>
     <string name="guide_first_pick">%1$s (first pick)</string>
     <string name="guide_from_town_hall">From TH%1$d</string>
+
+    <string name="guide_army">Troops and spells</string>
+    <string name="guide_army_intro">Tap one for its levels, damage and health.</string>
+    <string name="guide_tap_unit">Tap a troop or spell for its levels and damage.</string>
+    <string name="guide_group_elixir">Elixir troops</string>
+    <string name="guide_group_dark">Dark troops</string>
+    <string name="guide_group_super">Super Troops</string>
+    <string name="guide_group_siege">Siege machines</string>
+    <string name="guide_group_spell">Spells</string>
+    <string name="guide_opens_at">Opens at Town Hall %1$d</string>
+    <string name="guide_cap_at">Level cap %1$d at TH%2$d</string>
+    <string name="guide_stat">%1$s: %2$s</string>
+    <string name="guide_housing">Housing %1$d</string>
+    <string name="guide_targets">Targets %1$s</string>
+    <string name="guide_speed">Speed %1$s</string>
+    <string name="guide_attack_speed">Attacks every %1$ss</string>
+    <string name="guide_damage_type">Damage: %1$s</string>
+    <string name="guide_prefers">Prefers %1$s</string>
+    <string name="guide_super_of">Super version of the %1$s. Base troop level needed: %2$d.</string>
+    <string name="guide_boost">Boost: %1$s %2$s for %3$s</string>
+    <string name="guide_pick_level">Tap or drag along a chart to change level.</string>
+    <string name="guide_level">Level %1$d</string>
+    <string name="guide_level_short">Lv %1$d</string>
+    <string name="guide_level_value">%1$s: %2$s</string>
+    <string name="guide_needs_town_hall">Needs TH%1$d</string>
+    <string name="guide_no_value">None</string>
+    <string name="guide_chart_range">%1$s at level %2$d, rising to %3$s at level %4$d</string>
+    <string name="guide_comes_from">From the %1$s</string>
+    <string name="guide_all_levels">All levels</string>
+    <string name="guide_col_level">Level</string>
+    <string name="guide_col_town_hall">TH</string>
+    <string name="guide_col_cost">Cost (%1$s)</string>
+    <string name="guide_col_time">Time</string>
+    <string name="guide_unit_sources">From ClashKing\'s game data and clash-of-clans-data. Grey on a chart is out of reach at your Town Hall, and a ring marks your level.</string>
 </resources>

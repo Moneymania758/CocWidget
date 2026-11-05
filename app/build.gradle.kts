@@ -56,6 +56,7 @@ tasks.withType<Test>().configureEach {
     inputs.file("src/main/assets/coc_data.json").withPathSensitivity(PathSensitivity.RELATIVE)
     inputs.file("src/main/assets/guide_content.json").withPathSensitivity(PathSensitivity.RELATIVE)
     inputs.file("src/main/assets/guide_facts.json").withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.file("src/main/assets/guide_units.json").withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
 dependencies {

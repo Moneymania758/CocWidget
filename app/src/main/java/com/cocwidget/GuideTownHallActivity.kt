@@ -39,6 +39,7 @@ class GuideTownHallActivity : GuideScreen() {
             addNote(getString(R.string.guide_no_strategies), 14f)
         } else {
             if (page.note.isNotEmpty()) addNote(page.note, 13f)
+            addNote(getString(R.string.guide_tap_unit), 13f)
             for (strategy in page.strategies) content.addView(strategyCard(strategy), ui.matchWidth(10))
             addNote(getString(R.string.guide_opinion, guide.content.checked))
         }
@@ -72,7 +73,7 @@ class GuideTownHallActivity : GuideScreen() {
             for (addition in additions.filter { it.first }) {
                 addView(namedChip(addition.item, withQuantity(addition.item.name, addition.quantity)))
             }
-            for (unit in units) addView(namedChip(items[unit.id], unit.name))
+            for (unit in units) addView(unitChip(unit.id, unit.name))
         }, ui.matchWidth(8))
         val more = additions.filter { !it.first }
         if (more.isNotEmpty()) {
@@ -113,17 +114,26 @@ class GuideTownHallActivity : GuideScreen() {
         })
         addView(ui.text(strategy.about, 14f, ui.skin.dim), ui.matchWidth(6))
         addView(ui.flow().apply {
-            for (name in strategy.army) addView(namedChip(guide.unit(name)?.let { items[it.id] }, name))
+            for (name in strategy.army) addView(unitChip(guide.unit(name)?.id ?: 0, name))
         }, ui.matchWidth(10))
         for ((index, step) in strategy.steps.withIndex()) {
             addView(ui.text(getString(R.string.guide_step, index + 1, step), 14f), ui.matchWidth(if (index == 0) 10 else 4))
         }
         for (setup in strategy.heroes) {
             val detail = listOfNotNull(setup.pet.takeIf { it.isNotEmpty() }) + setup.gear
-            addView(titleRow(itemNamed(guide.facts.heroes, setup.hero), setup.hero, detail.joinToString(", "), 32), ui.matchWidth(8))
+            val heroId = guide.facts.heroes.firstOrNull { it.name == setup.hero }?.id ?: 0
+            addView(titleRow(items[heroId], setup.hero, detail.joinToString(", "), 32).apply {
+                ui.pressable(this, 8f) { open(GuideHeroesActivity::class.java) { putExtra(EXTRA_ID, heroId) } }
+            }, ui.matchWidth(8))
         }
         val names = strategy.sources.mapNotNull { key -> guide.content.sources.firstOrNull { it.key == key }?.name }
         addView(ui.text(getString(R.string.guide_from, names.joinToString(", ")), 12f, ui.skin.dim), ui.matchWidth(10))
+    }
+
+    // A troop, spell or siege machine. A tap opens its levels and damage.
+    private fun unitChip(id: Int, name: String) = namedChip(items[id], name).apply {
+        minimumHeight = ui.dp(40)
+        ui.pressable(this, 8f) { openUnit(id) }
     }
 
     private fun neighbours() = LinearLayout(this).apply {

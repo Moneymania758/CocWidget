@@ -70,6 +70,16 @@
             android:label="@string/guide_pets" />
 
         <activity
+            android:name=".GuideArmyActivity"
+            android:exported="false"
+            android:label="@string/guide_army" />
+
+        <activity
+            android:name=".GuideUnitActivity"
+            android:exported="false"
+            android:label="@string/guide_army" />
+
+        <activity
             android:name=".GuidePairingsActivity"
             android:exported="false"
             android:label="@string/guide_pairings" />

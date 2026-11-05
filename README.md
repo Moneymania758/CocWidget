@@ -166,6 +166,10 @@ The Guide button on the main screen works with or without a synced village.
 
 - **Town Halls** (TH3 up): what the upgrade costs, what it adds, hero and pet level caps, and popular
   attacks with the army, steps and rough difficulty.
+- **Troops and spells**: tap any troop or spell in an attack, or browse them all, for charts of how its
+  damage and health grow by level, its abilities and what it summons, such as the Ruin Witch's Ruin Knights.
+  Tap or drag along a chart to pick a level. With a synced village, a ring marks your level and grey is out of
+  reach at your Town Hall.
 - **Heroes and Pets**: how each one moves and hits, what it unlocks at, its stats, and good pairings.
 - **Best pets for each hero**: picks with reasons, and a set for your Town Hall that uses each pet
   once. A pet can only go with one hero at a time.
@@ -276,6 +280,10 @@ starts to pick up the next hour.
   hand, in our own words, with its sources (research in `docs/guide-research.md`). `GuideTest` fails if a
   strategy uses a troop, hero, pet or piece of equipment that doesn't exist or isn't open at that Town Hall.
   A new Town Hall shows its facts straight away, and a "not checked yet" note until content is added.
+- Guide troops and spells: `guide_units.json` comes from `tools/build-guide-units.js`, which merges ClashKing with
+  [clash-of-clans-data](https://www.npmjs.com/package/clash-of-clans-data) (MIT, see `licenses/`). ClashKing wins on
+  health and damage, as it has been the newer of the two. Charts are drawn by `LevelChart` on a fixed dark panel, in
+  three colours checked for colour blindness and contrast against it.
 - Accounts: each export is filed under its `tag` in its own preferences file
   (`account_<tag>`), holding the export, boost answers, name, folded sections and notification
   record. Theme, event switch and update check stay app-wide in `village`. Each widget's account

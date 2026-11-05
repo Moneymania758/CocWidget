@@ -4,6 +4,7 @@ import android.content.Intent
 import android.view.Gravity
 import android.widget.ImageView
 import android.widget.LinearLayout
+import com.cocwidget.GuideUnitActivity
 import com.cocwidget.R
 import com.cocwidget.game.GameData
 import com.cocwidget.game.GameItem
@@ -41,6 +42,12 @@ abstract class GuideScreen : Screen() {
     protected fun picture(item: GameItem?, sizeDp: Int = 44): ImageView = ui.picture().apply {
         layoutParams = LinearLayout.LayoutParams(ui.dp(sizeDp), ui.dp(sizeDp))
         if (item != null) pictures.add(Icons.path(item, 1), this)
+    }
+
+    // A picture ClashKing doesn't have, bundled in assets/icons under its [path]'s name.
+    protected fun picture(path: String, sizeDp: Int = 44): ImageView = ui.picture().apply {
+        layoutParams = LinearLayout.LayoutParams(ui.dp(sizeDp), ui.dp(sizeDp))
+        pictures.add(path, this)
     }
 
     // A small picture and a name, for lists of troops, spells and equipment.
@@ -81,6 +88,8 @@ abstract class GuideScreen : Screen() {
     )
 
     protected fun open(screen: Class<*>, extras: Intent.() -> Unit = {}) = startActivity(Intent(this, screen).apply(extras))
+
+    protected fun openUnit(id: Int) = startActivity(Intent(this, GuideUnitActivity::class.java).putExtra(EXTRA_ID, id))
 
     protected fun itemNamed(fighters: List<Fighter>, name: String) = fighters.firstOrNull { it.name == name }?.let { items[it.id] }
 
