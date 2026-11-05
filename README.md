@@ -83,6 +83,8 @@ than a discounted one could, so it's never halved.
   turns orange as **Helpers ready** when you can give them a new job.
 - The **green bar** is how far through the upgrade you are.
 - The **timer** counts down live. **Done** means it has finished.
+- **+4 more ›** under a section means its last 4 upgrades don't fit. Tap it to show only that section, or make
+  the widget taller. The soonest to finish always show first.
 - **▾** after a section title means it's open. **▸ 4** means it's folded, with 4 upgrades hidden.
   Tap the title to switch.
 - **HOME**, **BUILDER BASE** and **ALL** under the title fold several sections in one tap: HOME

@@ -208,4 +208,8 @@
         <item quantity="other">%1$d epic equipment pieces at level 1 aren\'t counted: the export lists pieces you don\'t own at level 1, so it can\'t tell.</item>
     </plurals>
     <string name="credit">Game data and icons from ClashKing (assets.clashk.ing).\n\nThis material is unofficial and is not endorsed by Supercell. For more information see Supercell\'s Fan Content Policy: www.supercell.com/fan-content-policy.</string>
+    <plurals name="widget_more">
+        <item quantity="one">+%1$d more ›</item>
+        <item quantity="other">+%1$d more ›</item>
+    </plurals>
 </resources>

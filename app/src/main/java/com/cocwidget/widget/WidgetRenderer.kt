@@ -54,7 +54,7 @@ object WidgetRenderer {
         val now = System.currentTimeMillis()
         for (widgetId in widgetIds) {
             val tag = shown[widgetId]
-            manager.updateAppWidget(widgetId, build(context, widgetId, tag, tag?.let(villages::get), now))
+            manager.updateAppWidget(widgetId, build(context, manager, widgetId, tag, tag?.let(villages::get), now))
         }
         for (widgetId in nextIds) {
             val tag = shown[widgetId]
@@ -124,7 +124,7 @@ object WidgetRenderer {
         return views
     }
 
-    private fun build(context: Context, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {
+    private fun build(context: Context, manager: AppWidgetManager, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget)
         views.setOnClickPendingIntent(R.id.sync, activityIntent(context, SyncActivity::class.java, 0))
         views.setOnClickPendingIntent(R.id.title, openAppIntent(context, widgetId, tag))
@@ -169,7 +169,8 @@ object WidgetRenderer {
         showHelpers(context, views, village, now)
 
         // Rows stay in a plain LinearLayout rather than a scrolling ListView: on One UI the
-        // countdowns stop ticking inside a ListView. Sections fold instead, to make room.
+        // countdowns stop ticking inside a ListView. Sections fold to make room, and what still
+        // doesn't fit becomes a "more" line (WidgetFit).
         val shown = Shown(widgetId, tag, village, now)
         val sections = buildSet {
             add(Section.BUILDERS)
@@ -178,10 +179,20 @@ object WidgetRenderer {
             if (village.hasBuilderBase || village.upgrades.any { it.section == Section.BUILDER_BASE }) add(Section.BUILDER_BASE)
         }
         showViews(context, views, shown, sections)
-        addSection(context, views, shown, Section.BUILDERS, "BUILDERS", village.builders)
-        addSection(context, views, shown, Section.LAB, "LAB", 1)
-        if (Section.PETS in sections) addSection(context, views, shown, Section.PETS, "PETS", 1)
-        if (Section.BUILDER_BASE in sections) addSection(context, views, shown, Section.BUILDER_BASE, "BUILDER BASE", 0)
+        val order = listOf(Section.BUILDERS, Section.LAB, Section.PETS, Section.BUILDER_BASE).filter { it in sections }
+        val folded = Store.collapsedSections(context, tag)
+        val rows = order.map { section -> if (section.name in folded) 0 else village.upgrades.count { it.section == section } }
+        val room = WidgetMeasure.of(context, manager, widgetId, Section.BUILDER_BASE in sections, village.helpers.apprenticeLevel > 0 || village.helpers.assistantLevel > 0, update != null)
+        val fits = if (room == null) rows else WidgetFit.rowsToShow(rows, room.rows, room.header, room.more)
+        for ((index, section) in order.withIndex()) {
+            val (title, slots) = when (section) {
+                Section.BUILDERS -> "BUILDERS" to village.builders
+                Section.LAB -> "LAB" to 1
+                Section.PETS -> "PETS" to 1
+                Section.BUILDER_BASE -> "BUILDER BASE" to 0
+            }
+            addSection(context, views, shown, section, title, slots, fits[index])
+        }
         return views
     }
 
@@ -225,6 +236,8 @@ object WidgetRenderer {
         section: Section,
         title: String,
         slots: Int,
+        // How many of its rows fit. They run soonest first, so the ones left out finish last.
+        fits: Int,
     ) {
         val village = shown.village
         val now = shown.now
@@ -254,7 +267,14 @@ object WidgetRenderer {
         showBoost(header, R.id.badge_snack_chip, R.id.badge_snack_icon, R.id.badge_snack, snackIcon(section), village, village.snackFor(section), now)
         views.addView(R.id.rows, header)
         if (collapsed) return
-        for (upgrade in upgrades) views.addView(R.id.rows, row(context, village, upgrade, now))
+        for (upgrade in upgrades.take(fits)) views.addView(R.id.rows, row(context, village, upgrade, now))
+        val hidden = upgrades.size - fits
+        if (hidden > 0) {
+            val more = RemoteViews(context.packageName, R.layout.widget_more)
+            more.setTextViewText(R.id.more, context.resources.getQuantityString(R.plurals.widget_more, hidden, hidden))
+            more.setOnClickPendingIntent(R.id.more, showOnlyIntent(context, shown, section))
+            views.addView(R.id.rows, more)
+        }
     }
 
     // The picture on a section's chips. Multipliers alone don't say which item is running.
@@ -344,6 +364,10 @@ object WidgetRenderer {
     // The data Uri is unique per widget and section, so each header's intent keeps its own extras.
     private fun toggleIntent(context: Context, shown: Shown, section: Section): PendingIntent =
         broadcast(context, 100 + section.ordinal, accountIntent(context, shown, VillageWidget.ACTION_TOGGLE_SECTION, "toggle", section.name)
+            .putExtra(VillageWidget.EXTRA_SECTION, section.name))
+
+    private fun showOnlyIntent(context: Context, shown: Shown, section: Section): PendingIntent =
+        broadcast(context, 300 + section.ordinal, accountIntent(context, shown, VillageWidget.ACTION_SHOW_ONLY, "only", section.name)
             .putExtra(VillageWidget.EXTRA_SECTION, section.name))
 
     private fun viewIntent(context: Context, shown: Shown, view: WidgetView): PendingIntent =
