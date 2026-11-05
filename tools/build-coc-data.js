@@ -38,6 +38,9 @@ const BUILDING_GROUPS = {
 const MISSING_LEVELS = {
   1000049: { t: [864000], c: [4000000], h: [9] },
 };
+// Supercharges ClashKing lists that the game doesn't appear to offer. Plain Wizard Towers aren't on
+// Clash Ninja's list, and TH18 exports with everything else charged show none on them.
+const NO_SUPERCHARGE = new Set([1000011]);
 const CRAFTING_STATION = 1000097;
 const TOWN_HALL = 1000001;
 const OTHER_GROUPS = { traps: 'traps', heroes: 'heroes', pets: 'pets', guardians: 'guardians', equipment: 'equipment' };
@@ -123,7 +126,7 @@ function itemFor(entry, kind, group = '') {
     item.b = building;
     item.q = Array.from(needs, q => q ?? 0);
   }
-  if (supercharge) item.s = supercharge;
+  if (supercharge && !NO_SUPERCHARGE.has(entry._id)) item.s = supercharge;
   // c holds the first ore, x the others: { "Glowy Ore": [...], "Starry Ore": [...] }.
   if (ores.length) {
     const [first, ...rest] = Object.keys(ORES);

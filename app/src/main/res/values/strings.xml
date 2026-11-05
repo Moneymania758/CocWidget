@@ -109,6 +109,8 @@
 
     <string name="whats_new_card">New in %1$s</string>
     <string name="whats_new_got_it">Got it</string>
+    <string name="whats_new_2_6_1">• A Builder Bite running with a Builder Potion now counts: builders run at 11x, and the widget shows a chip for each.
+• Fixed: Time to max counted supercharges on plain Wizard Towers, which the game no longer has.</string>
     <string name="whats_new_2_6">• Share your export: help fix bugs and keep up with game updates by emailing your village export to the developer. Your email app opens with everything filled in, so you just press send. Your player tag is taken out first.</string>
     <string name="whats_new_2_4">• Next to finish: a small one-line widget with just the next upgrade to finish and its countdown, plus anything idle. Add it from your home screen\'s widget list.</string>
     <string name="whats_new_2_3_1">• Fixed: the widget could keep showing the helpers line or the Home, Builder Base and All buttons from another account or an earlier sync.\n• Fixed: the \"Helpers ready in\" countdown didn\'t come back once the helpers had been ready.</string>

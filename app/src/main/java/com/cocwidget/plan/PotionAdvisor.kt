@@ -25,7 +25,8 @@ object PotionAdvisor {
     }
 
     fun advise(village: Village, section: Section, slots: Int, multiplier: Int, now: Long): Advice {
-        val boostLeft = ((village.boostEndMillis(village.boostFor(section)) - now) / 1000).coerceAtLeast(0)
+        val boostEnd = maxOf(village.boostEndMillis(village.boostFor(section)), village.boostEndMillis(village.snackFor(section)))
+        val boostLeft = ((boostEnd - now) / 1000).coerceAtLeast(0)
         val possible = slots * (multiplier - 1) * HOUR_SEC
         if (boostLeft > 0) return Advice(0, emptyList(), 0, possible, boostLeft)
 

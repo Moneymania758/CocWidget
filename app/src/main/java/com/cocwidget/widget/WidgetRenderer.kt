@@ -19,6 +19,7 @@ import com.cocwidget.NextWidget
 import com.cocwidget.R
 import com.cocwidget.SyncActivity
 import com.cocwidget.VillageWidget
+import com.cocwidget.game.Boost
 import com.cocwidget.game.Section
 import com.cocwidget.game.Upgrade
 import com.cocwidget.game.Village
@@ -249,18 +250,22 @@ object WidgetRenderer {
         val header = RemoteViews(context.packageName, R.layout.widget_section)
         header.setTextViewText(R.id.label, label)
         header.setOnClickPendingIntent(R.id.section, toggleIntent(context, shown, section))
-        val boost = village.boostFor(section)
-        val boostLeft = village.boostEndMillis(boost) - now
-        if (boost.seconds > 0 && boostLeft > 0) {
-            header.setChronometer(R.id.badge, SystemClock.elapsedRealtime() + boostLeft, "×${boost.multiplier}  %s", true)
-            header.setChronometerCountDown(R.id.badge, true)
-            header.setViewVisibility(R.id.badge, View.VISIBLE)
-        } else {
-            header.setViewVisibility(R.id.badge, View.GONE)
-        }
+        showBoost(header, R.id.badge, village, village.boostFor(section), now)
+        showBoost(header, R.id.badge_snack, village, village.snackFor(section), now)
         views.addView(R.id.rows, header)
         if (collapsed) return
         for (upgrade in upgrades) views.addView(R.id.rows, row(context, village, upgrade, now))
+    }
+
+    private fun showBoost(header: RemoteViews, id: Int, village: Village, boost: Boost, now: Long) {
+        val left = village.boostEndMillis(boost) - now
+        if (boost.seconds > 0 && left > 0) {
+            header.setChronometer(id, SystemClock.elapsedRealtime() + left, "×${boost.multiplier}  %s", true)
+            header.setChronometerCountDown(id, true)
+            header.setViewVisibility(id, View.VISIBLE)
+        } else {
+            header.setViewVisibility(id, View.GONE)
+        }
     }
 
     private fun row(context: Context, village: Village, upgrade: Upgrade, now: Long): RemoteViews {

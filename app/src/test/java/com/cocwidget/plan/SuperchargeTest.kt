@@ -30,6 +30,18 @@ class SuperchargeTest {
     }
 
     @Test
+    fun plainWizardTowersHaveNoSupercharges() {
+        // ClashKing lists stages on them. Super Wizard Towers keep theirs.
+        val wizardTower = th18.item("Wizard Tower")
+        assertEquals(0, wizardTower.supercharges)
+        assertEquals(0L, wizardTower.seconds)
+        assertTrue(wizardTower.costs.isEmpty())
+        assertEquals(4, th18.item("Super Wizard Tower").supercharges)
+        val steps = Planner.nextSteps(TestData.th18ExportJson(), TestData.gameData)!!
+        assertTrue(steps.none { it.name == "Wizard Tower" })
+    }
+
+    @Test
     fun bedtimeOffersTheNextStage() {
         val steps = Planner.nextSteps(TestData.th18ExportJson(), TestData.gameData)!!.filter { it.name == "Bomb Tower" }
         assertEquals(setOf(1, 2), steps.map { it.supercharge }.toSet())

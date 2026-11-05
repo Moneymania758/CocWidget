@@ -67,6 +67,8 @@ object VillageParser {
             // cooldown starts when the boost ends, so clocktower_cooldown includes the boost.
             clockTowerBoost = Boost(boosts?.optLong("clocktower_boost") ?: 0, CLOCK_TOWER_MULTIPLIER),
             hasBuilderBase = root.entries("buildings2").isNotEmpty(),
+            // Matched to the game's own boost timers, with a Potion and a Bite both running.
+            builderSnack = Boost(boosts?.optLong("builder_consumable") ?: 0, BUILDER_BITE_MULTIPLIER),
         )
     }
 
