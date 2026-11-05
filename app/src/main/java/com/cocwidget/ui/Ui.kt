@@ -113,19 +113,23 @@ class Ui(private val activity: Activity, val skin: Skin) {
         }
     }
 
-    fun button(label: CharSequence, icon: Int?, primary: Boolean, onClick: () -> Unit): LinearLayout {
+    private fun buttonFace(primary: Boolean): Drawable {
         val fill = if (primary) skin.primaryBg else skin.secondaryBg
-        val colour = if (primary) skin.primaryText else skin.secondaryText
         val shade = if (primary) skin.primaryShade else skin.secondaryShade
+        return when {
+            skin.drop != 0 -> raised(fill, 12f, shade, 4, if (primary) 0x38FFFFFF else 0x59FFFFFF)
+            !primary && skin.secondaryOutline != 0 -> rounded(0, 12f, skin.secondaryOutline, 1.5f)
+            else -> rounded(fill, 12f)
+        }
+    }
+
+    fun button(label: CharSequence, icon: Int?, primary: Boolean, onClick: () -> Unit): LinearLayout {
+        val colour = if (primary) skin.primaryText else skin.secondaryText
         return LinearLayout(activity).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
             minimumHeight = dp(52) + raisedDrop
-            background = when {
-                skin.drop != 0 -> raised(fill, 12f, shade, 4, if (primary) 0x38FFFFFF else 0x59FFFFFF)
-                !primary && skin.secondaryOutline != 0 -> rounded(0, 12f, skin.secondaryOutline, 1.5f)
-                else -> rounded(fill, 12f)
-            }
+            background = buttonFace(primary)
             setPadding(dp(12), 0, dp(12), raisedDrop)
             if (icon != null) {
                 addView(ImageView(activity).apply {
@@ -140,6 +144,27 @@ class Ui(private val activity: Activity, val skin: Skin) {
             })
             pressable(this, 12f, onClick)
         }
+    }
+
+    // A secondary button with its icon above the label, for a row of tools.
+    fun tile(label: CharSequence, icon: Int, onClick: () -> Unit) = LinearLayout(activity).apply {
+        orientation = LinearLayout.VERTICAL
+        gravity = Gravity.CENTER
+        minimumHeight = dp(84) + raisedDrop
+        background = buttonFace(primary = false)
+        setPadding(dp(6), dp(8), dp(6), dp(8) + raisedDrop)
+        addView(ImageView(activity).apply {
+            setImageResource(icon)
+            imageTintList = ColorStateList.valueOf(skin.secondaryText)
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, LinearLayout.LayoutParams(dp(24), dp(24)))
+        val size = if (skin.headingFont != null) 15f else 13f
+        addView(heading(label, size, skin.secondaryText).apply {
+            gravity = Gravity.CENTER
+            if (skin.headingFont == null) typeface = Typeface.DEFAULT_BOLD
+            setShadowLayer(0f, 0f, 0f, 0)
+        }, matchWidth(6))
+        pressable(this, 12f, onClick)
     }
 
     fun chip(value: CharSequence, background: Int = skin.chip, colour: Int = skin.text, icon: Int? = null) = text(value, 13f, colour).apply {

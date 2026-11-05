@@ -47,6 +47,8 @@ abstract class Screen : Activity() {
         addView(ui.heading(getString(title), 22f, ui.skin.title), ui.weighted(4))
     }
 
+    protected fun installedVersion() = packageManager.getPackageInfo(packageName, 0).versionName.orEmpty()
+
     // Shown by the planner screens before the first sync.
     protected fun addNothingSynced() {
         content.addView(ui.card().apply { addView(ui.text(getString(R.string.planner_none), 15f)) }, ui.matchWidth(16))

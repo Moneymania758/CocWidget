@@ -12,7 +12,7 @@ import com.cocwidget.ExportProvider
 import com.cocwidget.R
 import com.cocwidget.store.Store
 
-// The main screen's way to email the selected account's export to the developer, so bugs and game
+// The way to email the selected account's export to the developer, so bugs and game
 // updates can be checked against real villages. The email opens ready to send. Hidden until
 // there's an export to send.
 class ShareCard(private val activity: Activity, private val ui: Ui, private val version: String) {

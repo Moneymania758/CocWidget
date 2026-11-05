@@ -31,8 +31,9 @@ and **What's new** further down lists every version.
 4. **Allow notifications** when asked (on your first sync, or when you open the app). You'll get
    a notification each time an upgrade finishes, such as "Bomb Tower → 11 finished · A builder is
    free". Tap it to open Clash.
-5. **Optional: set your name.** Tap the name at the top of the widget to open the app, type the
-   name you want shown under **Name on the widget** and tap **Save name**. Each account has its
+5. **Optional: set your name.** Tap the name at the top of the widget to open the app, tap the
+   gear at the top right, type the name you want shown under **Name on the widget** and tap
+   **Save name**. Each account has its
    own name.
 
 ## Sync your village
@@ -60,7 +61,7 @@ which account it was, such as **Main synced** (or the tag, until you name it).
   show (only if you have more than one). On some phones you can long-press a widget and tap
   **Settings** to switch it later.
 - **In the app:** tap an account's chip at the top of the main screen to see it. Time to max,
-  the name and **Remove this account** all follow the chip you picked. Tapping a widget's name
+  the name and **Remove this account** in Settings all follow the chip you picked. Tapping a widget's name
   opens the app on that widget's account.
 - **Notifications** carry the account's name when you have more than one.
 
@@ -165,7 +166,7 @@ covers, so it's fully used when every slot stays busy for the whole hour.
 
 ## Themes
 
-Open the app and pick a look under **Theme**:
+Open the app, tap the gear at the top right and pick a look under **Theme**:
 
 - **Widget**: brown and gold, like the widget.
 - **Clean**: dark grey with gold, the default.
@@ -183,14 +184,14 @@ It only changes the app's own screens. The widget keeps its look.
   Set up, step 3.
 - **No notifications**: Settings > Apps > Clash Timers > Notifications, and switch them on.
 
-Still stuck? Tap **Report a problem** under **Get help** on the app's main screen. It opens a
+Still stuck? Tap the gear at the top right of the app, then **Report a problem** under **Get help**. It opens a
 short form on GitHub with your app version and phone already filled in (you need a free GitHub
 account). Or [report it here](https://github.com/Moneymania758/CocWidget/issues/new?template=bug.yml).
 
 No GitHub account? Email **clashtimers@proton.me**, or tap **Email the developer** in the app,
 which fills in your version and phone the same way.
 
-Want to help test against more villages? Use **Share your export** on the main screen. Your email
+Want to help test against more villages? Use **Share your export** in the app's Settings (the gear at the top right). Your email
 app opens with the selected account's export and details filled in, so you just press send. Your player
 tag is taken out first. It's kept private and only used for testing.
 
@@ -277,7 +278,7 @@ Under `app/src/main/java/com/cocwidget/`, with tests in matching folders:
 | `plan` | The time-to-max planner, bedtime planner and their text formatting |
 | `store` | Saved accounts and settings, the icon cache, the update check |
 | `widget` | Widget drawing, its quick views, countdown refresh times, finish notifications |
-| `ui` | The in-code view toolkit, themes, shared screen base, main screen cards, contact details |
+| `ui` | The in-code view toolkit, themes, shared screen base, Settings screen cards, contact details |
 
 Manifest classes stay in `com.cocwidget`. Android remembers placed widgets, Quick Settings tiles
 and launcher icons by class name, so moving one would remove it from people's phones on update.

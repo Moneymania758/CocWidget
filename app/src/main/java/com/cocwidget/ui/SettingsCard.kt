@@ -15,33 +15,30 @@ import com.cocwidget.R
 import com.cocwidget.VillageWidget
 import com.cocwidget.store.Store
 
-// The main screen's settings: theme, event switch, the selected account's name and removal, and
-// folding rows of help text. [open] holds the folds opened, kept while the screen is rebuilt.
-// [redraw] rebuilds the screen after a change that alters it.
+// The Settings screen's cards. [redraw] rebuilds the screen after a change that alters it.
 class SettingsCard(
     private val activity: Activity,
     private val ui: Ui,
-    private val open: MutableSet<Int>,
     private val redraw: () -> Unit,
 ) {
-    fun build(): View = ui.card(0).apply {
+    // Settings for the whole app, whichever account is selected.
+    fun general(): View = ui.card(0).apply {
         addView(themePicker())
         addView(ui.divider())
         addView(eventRow())
-        val tag = Store.selected(activity)
-        if (tag != null) {
-            addView(ui.divider())
+    }
+
+    // The selected account's name and removal. Hidden until there's an account.
+    fun account(): View? {
+        val tag = Store.selected(activity) ?: return null
+        return ui.card(0).apply {
+            addView(ui.heading(Store.label(activity, tag), 16f, ui.skin.accent).apply {
+                setPadding(ui.dp(16), ui.dp(14), ui.dp(16), ui.dp(4))
+            })
             addView(nameRow(tag))
             addView(ui.divider())
             addView(removeRow(tag))
         }
-        addView(ui.divider())
-        addView(fold(R.string.fold_setup, activity.getString(R.string.main_steps)))
-        addView(ui.divider())
-        val notes = WhatsNew.RELEASES.joinToString("\n\n") { "${it.version}\n${activity.getString(it.notes)}" }
-        addView(fold(R.string.fold_whats_new, notes))
-        addView(ui.divider())
-        addView(fold(R.string.fold_about, activity.getString(R.string.credit) + "\n\n" + activity.getString(R.string.font_credit)))
     }
 
     private fun themePicker() = ui.row().apply {
@@ -137,31 +134,5 @@ class SettingsCard(
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
         }
-    }
-
-    // A row that opens to show [body] underneath, and closes again.
-    private fun fold(title: Int, body: String) = LinearLayout(activity).apply {
-        orientation = LinearLayout.VERTICAL
-        val chevron = ui.icon(R.drawable.ic_chevron, ui.skin.dim, 18)
-        val text = ui.text(body, 14f, ui.skin.dim).apply { setPadding(ui.dp(16), 0, ui.dp(16), ui.dp(16)) }
-        fun refresh() {
-            val isOpen = title in open
-            chevron.rotation = if (isOpen) 90f else 0f
-            text.visibility = if (isOpen) View.VISIBLE else View.GONE
-        }
-        addView(LinearLayout(activity).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            minimumHeight = ui.dp(52)
-            setPadding(ui.dp(16), 0, ui.dp(16), 0)
-            addView(ui.text(activity.getString(title), 15f), ui.weighted())
-            addView(chevron)
-            ui.pressable(this, 0f) {
-                if (!open.remove(title)) open += title
-                refresh()
-            }
-        })
-        addView(text)
-        refresh()
     }
 }

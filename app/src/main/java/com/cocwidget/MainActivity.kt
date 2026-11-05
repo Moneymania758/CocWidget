@@ -13,18 +13,14 @@ import android.widget.LinearLayout
 import com.cocwidget.plan.PlanFormat
 import com.cocwidget.store.Store
 import com.cocwidget.store.UpdateChecker
-import com.cocwidget.ui.HelpCard
 import com.cocwidget.ui.Screen
-import com.cocwidget.ui.SettingsCard
-import com.cocwidget.ui.ShareCard
 import com.cocwidget.ui.TimeText
 import com.cocwidget.ui.WhatsNew
 import kotlin.concurrent.thread
 
+// The selected village and the tools for it. Everything about the app itself is on the Settings
+// screen, so this one stays short as features are added.
 class MainActivity : Screen() {
-    // Folded sections the person opened, kept while the screen is rebuilt.
-    private val open = mutableSetOf<Int>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Not after a rotation, so a chip picked since isn't undone.
@@ -66,9 +62,6 @@ class MainActivity : Screen() {
         }
         whatsNewCard()?.let { content.addView(it, ui.matchWidth(16)) }
         content.addView(villageCard(), ui.matchWidth(16))
-        content.addView(SettingsCard(this, ui, open, ::show).build(), ui.matchWidth(16))
-        content.addView(HelpCard(this, ui, installedVersion()).build(), ui.matchWidth(16))
-        ShareCard(this, ui, installedVersion()).build()?.let { content.addView(it, ui.matchWidth(16)) }
         addNote(getString(R.string.footer))
     }
 
@@ -86,9 +79,13 @@ class MainActivity : Screen() {
             addView(ui.heading(getString(R.string.app_name), 24f, ui.skin.title))
             addView(ui.text(getString(R.string.version_line, installedVersion()), 13f, ui.skin.dim))
         }, ui.weighted(12))
+        addView(LinearLayout(this@MainActivity).apply {
+            gravity = Gravity.CENTER
+            contentDescription = getString(R.string.settings_title)
+            addView(ui.icon(R.drawable.ic_settings, ui.skin.text, 24))
+            ui.pressable(this, 22f) { startActivity(Intent(this@MainActivity, SettingsActivity::class.java)) }
+        }, LinearLayout.LayoutParams(ui.dp(44), ui.dp(44)))
     }
-
-    private fun installedVersion() = packageManager.getPackageInfo(packageName, 0).versionName.orEmpty()
 
     // A card for the version just installed, until it's dismissed.
     private fun whatsNewCard(): View? {
@@ -154,21 +151,34 @@ class MainActivity : Screen() {
                 }, ui.matchWidth(14))
             }
         }
-        addView(LinearLayout(this@MainActivity).apply {
-            orientation = LinearLayout.HORIZONTAL
-            addView(ui.button(getString(R.string.sync), R.drawable.ic_sync_line, primary = true) {
-                startActivity(Intent(this@MainActivity, SyncActivity::class.java))
-            }, ui.weighted())
-            addView(ui.button(getString(R.string.planner_open), R.drawable.ic_chart, primary = false) {
-                startActivity(Intent(this@MainActivity, PlannerActivity::class.java))
-            }, ui.weighted(10))
+        addView(ui.button(getString(R.string.sync), R.drawable.ic_sync_line, primary = true) {
+            startActivity(Intent(this@MainActivity, SyncActivity::class.java))
         }, ui.matchWidth(14))
-        addView(ui.button(getString(R.string.bedtime_open), R.drawable.ic_clock_line, primary = false) {
-            startActivity(Intent(this@MainActivity, BedtimeActivity::class.java))
-        }, ui.matchWidth(10))
-        addView(ui.button(getString(R.string.potions_open), R.drawable.ic_clock_line, primary = false) {
-            startActivity(Intent(this@MainActivity, PotionsActivity::class.java))
-        }, ui.matchWidth(10))
+        if (village == null) {
+            // Nothing to plan yet, and the setup steps are what a first-time user needs.
+            addView(ui.button(getString(R.string.fold_setup), null, primary = false) {
+                startActivity(Intent(this@MainActivity, SettingsActivity::class.java).putExtra(SettingsActivity.EXTRA_SHOW_SETUP, true))
+            }, ui.matchWidth(10))
+        } else {
+            addView(tools(), ui.matchWidth(10))
+        }
+    }
+
+    // The tiles share their row's width and take the height of the tallest label.
+    private fun tools() = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        isBaselineAligned = false
+        val tiles = listOf(
+            Triple(R.string.planner_open, R.drawable.ic_chart, PlannerActivity::class.java),
+            Triple(R.string.bedtime_open, R.drawable.ic_moon, BedtimeActivity::class.java),
+            Triple(R.string.potions_open, R.drawable.ic_flask, PotionsActivity::class.java),
+        )
+        for ((index, tile) in tiles.withIndex()) {
+            val (label, icon, screen) = tile
+            addView(ui.tile(getString(label), icon) {
+                startActivity(Intent(this@MainActivity, screen))
+            }, ui.weighted(if (index == 0) 0 else 8).apply { height = LinearLayout.LayoutParams.MATCH_PARENT })
+        }
     }
 
     // One chip per account, plus one saying how to add another.
