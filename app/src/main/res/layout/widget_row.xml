@@ -30,32 +30,28 @@
             android:scaleType="fitCenter"
             android:src="@drawable/ic_placeholder" />
 
-        <TextView
+        <ImageView
             android:id="@+id/goblin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_marginStart="6dp"
             android:background="@drawable/chip_goblin"
-            android:fontFamily="sans-serif-black"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
-            android:text="@string/goblin"
-            android:textColor="@color/goblin"
-            android:textSize="9sp"
+            android:contentDescription="@string/goblin"
+            android:padding="1dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_face_goblin"
             android:visibility="gone" />
 
-        <TextView
+        <ImageView
             android:id="@+id/helper"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_marginStart="6dp"
             android:background="@drawable/chip_helper"
-            android:fontFamily="sans-serif-black"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
-            android:text="@string/helper"
-            android:textColor="@color/helper"
-            android:textSize="9sp"
+            android:contentDescription="@string/helper"
+            android:padding="1dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_face_apprentice"
             android:visibility="gone" />
 
         <TextView
