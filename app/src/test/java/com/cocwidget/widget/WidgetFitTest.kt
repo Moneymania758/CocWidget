@@ -1,95 +1,95 @@
 package com.cocwidget.widget
 
+import com.cocwidget.widget.WidgetFit.Section
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 
 class WidgetFitTest {
-    private val header = 30
-    private val more = 26
+    private val header = 32
     private val row = WidgetFit.ROW_DP
+    private val village = listOf(Section(6, false), Section(1, false), Section(1, false), Section(4, false))
 
-    private fun fit(rows: List<Int>, available: Int?) = WidgetFit.rowsToShow(rows, available, header, more)
+    private fun hint(sections: List<Section>, available: Int?) = WidgetFit.hint(sections, available, header)
 
-    private fun used(rows: List<Int>, shown: List<Int>) =
-        rows.size * header + shown.sum() * row + rows.indices.count { shown[it] < rows[it] } * more
-
+    // 2.7.3 left rows out to fit every header and a more line, so a 360 dp widget with this village
+    // showed no upgrades at all. Only the hint may depend on the height. Every row is always drawn,
+    // so a launcher reporting the wrong height can't hide anything either.
     @Test
-    fun everythingShowsWhenTheSizeIsUnknown() {
-        assertEquals(listOf(6, 1, 1, 4), fit(listOf(6, 1, 1, 4), null))
+    fun everyRowIsAlwaysDrawn() {
+        val renderer = File("src/main/java/com/cocwidget/widget/WidgetRenderer.kt").readText()
+        assertTrue(renderer.contains("for (upgrade in upgrades) views.addView(R.id.rows, row(context, village, upgrade, now))"))
+        assertFalse(renderer.contains("upgrades.take("))
     }
 
     @Test
-    fun everythingShowsWhenItFits() {
-        val rows = listOf(6, 1, 1, 4)
-        val exactly = rows.size * header + rows.sum() * row
-        assertEquals(rows, fit(rows, exactly))
-    }
-
-    // The case from the emulator test: a TH16 village in the ALL view with the Builder Base cut off.
-    // One row short still shows the rest, and says one is hidden.
-    @Test
-    fun oneRowTooManyLeavesOutOnlyTheLastSectionsLastRow() {
-        val rows = listOf(6, 1, 1, 4)
-        val exactly = rows.size * header + rows.sum() * row
-        assertEquals(listOf(6, 1, 1, 3), fit(rows, exactly - 1))
+    fun noHintWhenTheHeightIsUnknown() {
+        assertNull(hint(village, null))
     }
 
     @Test
-    fun aSectionThatCantFitAnyRowsStillGetsItsMoreLine() {
-        val rows = listOf(6, 1, 1, 4)
-        val room = rows.size * header + 8 * row + more
-        assertEquals(listOf(6, 1, 1, 0), fit(rows, room))
+    fun noHintWhenEverythingFits() {
+        assertNull(hint(village, 4 * header + 12 * row))
+        assertNull(hint(village, 2000))
     }
 
     @Test
-    fun earlierSectionsComeFirst() {
-        assertEquals(listOf(2, 0, 0, 0), fit(listOf(6, 1, 1, 4), 4 * header + 4 * more + 2 * row))
+    fun oneRowShortCountsOne() {
+        val found = hint(village, 4 * header + 12 * row - 1)!!
+        assertEquals(1, found.hidden)
+        assertEquals(3, found.section)
+    }
+
+    // The room a 360 dp widget has at normal font. Five builders show, as they did before 2.7.3.
+    @Test
+    fun aNormalWidgetCountsWhatItCantShow() {
+        val found = hint(village, 233)!!
+        assertEquals(12 - 5, found.hidden)
+        assertEquals(0, found.section)
     }
 
     @Test
-    fun foldedSectionsNeedNoMoreLine() {
-        val rows = listOf(0, 0, 0, 4)
-        assertEquals(listOf(0, 0, 0, 3), fit(rows, 4 * header + more + 3 * row))
+    fun aSectionWhoseHeaderDoesntFitCountsWhole() {
+        val found = hint(village, 3 * header + 8 * row)!!
+        assertEquals(4, found.hidden)
+        assertEquals(3, found.section)
     }
 
     @Test
-    fun aVerySmallWidgetShowsNoRowsAndNothingNegative() {
-        assertEquals(listOf(0, 0, 0, 0), fit(listOf(6, 1, 1, 4), 10))
-        assertEquals(listOf(0, 0), fit(listOf(6, 1), -50))
+    fun foldedSectionsCountOnlyIfTheirHeaderIsCutOff() {
+        val folded = listOf(Section(6, true), Section(1, true), Section(1, true), Section(4, true))
+        assertNull(hint(folded, 4 * header))
+        val found = hint(folded, 3 * header)!!
+        assertEquals(4, found.hidden)
+        assertEquals(3, found.section)
     }
 
     @Test
-    fun whatItShowsAlwaysFitsWhenTheHeadersAndMoreLinesCan() {
-        for (rows in listOf(listOf(6, 1, 1, 4), listOf(1, 1, 0, 9), listOf(0, 3, 2, 0), listOf(5, 0), listOf(12))) {
-            val floor = rows.size * header + rows.count { it > 0 } * more
-            val top = rows.size * header + rows.sum() * row
-            for (available in floor..top) {
-                val shown = fit(rows, available)
-                assertTrue("$rows in $available: $shown", used(rows, shown) <= available)
-                assertTrue("$rows in $available: $shown", shown.indices.all { shown[it] in 0..rows[it] })
-            }
-        }
+    fun anEmptySectionsCutOffHeaderIsNothingToCount() {
+        assertNull(hint(listOf(Section(0, false), Section(0, false)), header))
     }
 
     @Test
-    fun moreRoomNeverTakesRowsFromTheFirstSection() {
-        val rows = listOf(6, 1, 1, 4)
-        val shown = (0..700).map { fit(rows, it).first() }
-        assertEquals(shown.sorted(), shown)
+    fun thingsAfterTheCutAreHiddenEvenIfTheyWouldFit() {
+        val sections = listOf(Section(3, false), Section(1, false))
+        val found = hint(sections, header + 2 * row + 30)!!
+        assertEquals(2, found.hidden)
+        assertEquals(0, found.section)
     }
 
     @Test
-    fun noRoomForAnotherRowGoesToWaste() {
-        for (rows in listOf(listOf(6, 1, 1, 4), listOf(1, 1, 0, 9), listOf(0, 3, 2, 0), listOf(12))) {
-            val floor = rows.size * header + rows.count { it > 0 } * more
-            val top = rows.size * header + rows.sum() * row
-            for (available in floor..top) {
-                val shown = fit(rows, available)
-                if (shown != rows) assertTrue("$rows in $available: $shown", available - used(rows, shown) < row + more)
-            }
-        }
+    fun aVerySmallWidgetCountsEverything() {
+        assertEquals(12, hint(village, 10)!!.hidden)
+        assertEquals(12, hint(village, -50)!!.hidden)
+    }
+
+    @Test
+    fun moreRoomNeverHidesMore() {
+        val hidden = (0..700).map { hint(village, it)?.hidden ?: 0 }
+        assertEquals(hidden.sortedDescending(), hidden)
     }
 
     // A line of text in the sizes the widget uses, roughly as a phone at normal font size.
@@ -106,11 +106,10 @@ class WidgetFitTest {
 
     @Test
     fun theFrameMatchesItsSizesAtNormalText() {
-        // 12 + 12 padding, title row 28 (the Sync button: text 18 + 10), footer 4 + 14, safety 4.
-        assertEquals(400 - 24 - 28 - 18 - 4, WidgetFit.roomForRows(400, viewButtons = false, helpers = false, normalText))
+        // 12 + 12 padding, title row 28 (the Sync button: text 18 + 10), footer 4 + the hint's 20, safety 4.
+        assertEquals(400 - 24 - 28 - 24 - 4, WidgetFit.roomForRows(400, viewButtons = false, helpers = false, normalText))
         // 8 + 4 padding, then the chip: 2 + 2 + its 16 tall text.
         assertEquals(32, WidgetFit.headerDp(normalText))
-        assertEquals(26, WidgetFit.moreDp(normalText))
     }
 
     @Test
@@ -119,7 +118,6 @@ class WidgetFitTest {
             assertTrue(WidgetFit.roomForRows(400, buttons, helpers, hugeText) < WidgetFit.roomForRows(400, buttons, helpers, normalText))
         }
         assertTrue(WidgetFit.headerDp(hugeText) > WidgetFit.headerDp(normalText))
-        assertTrue(WidgetFit.moreDp(hugeText) > WidgetFit.moreDp(normalText))
     }
 
     // The sums above copy these sizes, so a layout change has to change them too.
@@ -129,13 +127,13 @@ class WidgetFitTest {
         val widget = xml("widget")
         assertTrue(widget.contains("android:padding=\"12dp\""))
         assertTrue(widget.contains("android:paddingTop=\"5dp\"") && widget.contains("android:paddingBottom=\"5dp\""))
+        assertTrue(widget.contains("android:paddingTop=\"2dp\"") && widget.contains("android:paddingBottom=\"2dp\""))
         assertTrue(widget.contains("android:layout_marginTop=\"6dp\""))
         assertTrue(widget.contains("android:layout_marginTop=\"4dp\""))
         val section = xml("widget_section")
         assertTrue(section.contains("android:paddingTop=\"8dp\"") && section.contains("android:paddingBottom=\"4dp\""))
         assertTrue(section.contains("android:paddingTop=\"2dp\"") && section.contains("android:paddingBottom=\"2dp\""))
         assertTrue(section.contains("android:layout_height=\"16dp\""))
-        assertTrue(xml("widget_more").contains("android:minHeight=\"26dp\""))
         val button = File("src/main/res/values/themes.xml").readText()
         assertTrue(button.contains("<item name=\"android:paddingTop\">3dp</item>") && button.contains("<item name=\"android:paddingBottom\">3dp</item>"))
     }
