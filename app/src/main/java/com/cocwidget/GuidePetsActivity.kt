@@ -8,12 +8,11 @@ import com.cocwidget.ui.GuideScreen
 class GuidePetsActivity : GuideScreen() {
     override fun buildGuide() {
         val only = intent.getIntExtra(EXTRA_ID, 0)
-        val pets = guide.facts.pets.filter { only == 0 || it.id == only }
-            .sortedBy { pet -> items[pet.id]?.requiredLevelFor(1) ?: 0 }
+        val pets = petsInUnlockOrder().filter { only == 0 || it.id == only }
         val single = pets.singleOrNull().takeIf { only != 0 }
         content.addView(if (single != null) backHeader(single.name) else backHeader(R.string.guide_pets))
         for (pet in pets) content.addView(petCard(pet), ui.matchWidth(14))
-        addNote(getString(R.string.guide_opinion, guide.content.checked))
+        addNote(getString(R.string.guide_picks_note, guide.content.checked))
     }
 
     private fun petCard(pet: Fighter) = ui.card().apply {

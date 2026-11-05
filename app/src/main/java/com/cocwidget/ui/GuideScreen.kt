@@ -75,6 +75,9 @@ abstract class GuideScreen : Screen() {
         }, ui.weighted(10))
     }
 
+    // The order the Pet House opens them.
+    protected fun petsInUnlockOrder() = guide.facts.pets.sortedBy { pet -> items[pet.id]?.requiredLevelFor(1) ?: 0 }
+
     protected fun sectionTitle(text: String) = ui.heading(text, 15f, ui.skin.accent)
 
     protected fun moves(fighter: Fighter) = getString(if (fighter.flying) R.string.guide_flying else R.string.guide_ground)

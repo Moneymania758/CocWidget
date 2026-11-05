@@ -55,7 +55,12 @@ class Ui(private val activity: Activity, val skin: Skin) {
     // Titles and big numbers: the Game skin's display font with a dark drop under the letters.
     fun heading(value: CharSequence, sizeSp: Float, colour: Int = skin.text) = text(value, sizeSp, colour).apply {
         typeface = headingFace
-        if (skin.headingShadow != 0) setShadowLayer(0.01f, 0f, dp(2).toFloat(), skin.headingShadow)
+        if (skin.headingShadow != 0) {
+            setShadowLayer(0.01f, 0f, dp(2).toFloat(), skin.headingShadow)
+            // The shadow reaches below the letters, and a view can't draw outside its own bounds.
+            // Without this room, a descender's shadow is cut off in a straight line.
+            setPadding(0, dp(2), 0, dp(2))
+        }
     }
 
     fun rounded(fill: Int, radiusDp: Float, stroke: Int = 0, strokeDp: Float = 0f) = GradientDrawable().apply {
