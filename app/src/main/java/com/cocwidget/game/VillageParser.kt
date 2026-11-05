@@ -4,7 +4,6 @@ import android.content.Context
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import kotlin.math.abs
 
 object VillageParser {
     private val SECTIONS = mapOf(
@@ -24,15 +23,11 @@ object VillageParser {
     fun parse(
         context: Context,
         text: String,
-        builderMultiplier: Int = BUILDER_POTION_MULTIPLIER,
-        labMultiplier: Int = RESEARCH_POTION_MULTIPLIER,
-    ): Village? = parse(text, builderMultiplier, labMultiplier) { GameData.get(context, it) }
+    ): Village? = parse(text) { GameData.get(context, it) }
 
     // Returns null when [text] isn't a Clash of Clans village export.
     fun parse(
         text: String,
-        builderMultiplier: Int,
-        labMultiplier: Int = RESEARCH_POTION_MULTIPLIER,
         lookup: (Int) -> GameItem?,
     ): Village? {
         val root = root(text) ?: return null
@@ -42,8 +37,6 @@ object VillageParser {
         val huts = buildings.filter { it.optInt("data") == Ids.BUILDER_HUT }.sumOf { it.optInt("cnt", 1) }
         val bob = if (buildings.any { it.optInt("data") == Ids.BOB_HUT }) 1 else 0
         val boosts = root.optJSONObject("boosts")
-        val labSec = boosts?.optLong("lab_boost") ?: 0
-        val petSec = boosts?.optLong("pet_boost") ?: 0
         val helpers = root.entries("helpers")
         fun helperLevel(id: Int) = helpers.firstOrNull { it.optInt("data") == id }?.optInt("lvl") ?: 0
 
@@ -54,9 +47,11 @@ object VillageParser {
             builders = huts + bob,
             hasPetHouse = buildings.any { it.optInt("data") == Ids.PET_HOUSE },
             upgrades = upgrades,
-            builderBoost = Boost(boosts?.optLong("builder_boost") ?: 0, builderMultiplier),
-            labBoost = Boost(labSec, labMultiplier),
-            petBoost = Boost(petSec, petMultiplier(labMultiplier, labSec, petSec)),
+            // The *_boost fields are potions and the *_consumable fields snacks. With only a Bite
+            // and a Soup running, an export had the two consumable fields and no boost fields.
+            builderBoost = Boost(boosts?.optLong("builder_boost") ?: 0, BUILDER_POTION_MULTIPLIER),
+            labBoost = Boost(boosts?.optLong("lab_boost") ?: 0, RESEARCH_POTION_MULTIPLIER),
+            petBoost = Boost(boosts?.optLong("pet_boost") ?: 0, PET_POTION_MULTIPLIER),
             // Every helper carries the same cooldown. None means no work day is running.
             helpers = Helpers(
                 apprenticeLevel = helperLevel(Ids.BUILDERS_APPRENTICE),
@@ -69,21 +64,10 @@ object VillageParser {
             hasBuilderBase = root.entries("buildings2").isNotEmpty(),
             // Matched to the game's own boost timers, with a Potion and a Bite both running.
             builderSnack = Boost(boosts?.optLong("builder_consumable") ?: 0, BUILDER_BITE_MULTIPLIER),
+            // The game calls Study Soup TID_CONSUMABLE_BOOST_LAB.
+            labSnack = Boost(boosts?.optLong("lab_consumable") ?: 0, STUDY_SOUP_MULTIPLIER),
         )
     }
-
-    // Study Soup speeds up the Pet House as well as the lab (ClashKing's description of it). A pet
-    // boost ending with a Soup's lab boost is taken to be the same Soup, at its speed. Unchecked
-    // against an export: if the game doesn't set the pet boost for a Soup, this never applies.
-    internal fun petMultiplier(labMultiplier: Int, labSec: Long, petSec: Long): Int =
-        if (labMultiplier == STUDY_SOUP_MULTIPLIER && petSec > 0 && abs(petSec - labSec) <= SAME_BOOST_SEC) {
-            STUDY_SOUP_MULTIPLIER
-        } else {
-            PET_POTION_MULTIPLIER
-        }
-
-    // Two boosts ending this close together come from the same item.
-    private const val SAME_BOOST_SEC = 120L
 
     // The export's top level, or null when [text] isn't a Clash of Clans village export.
     internal fun root(text: String): JSONObject? {

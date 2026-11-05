@@ -2,21 +2,12 @@ package com.cocwidget
 
 import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.ClipboardManager
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.widget.Toast
-import com.cocwidget.game.BUILDER_BITE_MULTIPLIER
-import com.cocwidget.game.BUILDER_POTION_MULTIPLIER
-import com.cocwidget.game.Boost
-import com.cocwidget.game.RESEARCH_POTION_MULTIPLIER
-import com.cocwidget.game.STUDY_SOUP_MULTIPLIER
-import com.cocwidget.game.Village
 import com.cocwidget.game.VillageParser
 import com.cocwidget.store.Store
-import kotlin.math.abs
 
 // Invisible screen opened by the widget's Sync button. Android only lets the app with
 // input focus read the clipboard, so a widget can't read it directly.
@@ -30,45 +21,13 @@ class SyncActivity : Activity() {
 
         val clip = getSystemService(ClipboardManager::class.java).primaryClip
         val text = clip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(this)?.toString()
-        val village = text?.let { VillageParser.parse(this, it) }
-        if (text == null || village == null) {
+        if (text == null || VillageParser.parse(this, text) == null) {
             Toast.makeText(this, R.string.sync_not_export, Toast.LENGTH_LONG).show()
             finish()
             return
         }
 
-        val tag = Store.tagOf(text)
-        val questions = ArrayDeque<BoostQuestion>()
-        if (isNewBoost(tag, village) { it.builderBoost }) questions += BUILDER_QUESTION
-        if (isNewBoost(tag, village) { it.labBoost }) questions += LAB_QUESTION
-        askNext(questions, tag, text)
-    }
-
-    // The export gives a boost's time left but not which item caused it, and the items run at
-    // different speeds. A boost confirmed at the last sync ends at the same moment, so there's
-    // no need to ask about it again.
-    private fun isNewBoost(tag: String, village: Village, boost: (Village) -> Boost): Boolean {
-        if (boost(village).seconds <= 0) return false
-        val previous = Store.village(this, tag) ?: return true
-        if (boost(previous).seconds <= 0) return true
-        return abs(previous.boostEndMillis(boost(previous)) - village.boostEndMillis(boost(village))) >= BOOST_MATCH_MS
-    }
-
-    private fun askNext(questions: ArrayDeque<BoostQuestion>, tag: String, json: String) {
-        val question = questions.removeFirstOrNull() ?: return save(json)
-        AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-            .setTitle(question.title)
-            .setMessage(R.string.boost_message)
-            .setPositiveButton(question.strong.first) { _, _ ->
-                question.save(this, tag, question.strong.second)
-                askNext(questions, tag, json)
-            }
-            .setNegativeButton(question.weak.first) { _, _ ->
-                question.save(this, tag, question.weak.second)
-                askNext(questions, tag, json)
-            }
-            .setOnCancelListener { finish() }
-            .show()
+        save(text)
     }
 
     private fun save(json: String) {
@@ -96,29 +55,7 @@ class SyncActivity : Activity() {
             !Store.askedNotifications(this) &&
             checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
 
-    // The two items that can cause a boost, strongest first, each with its string and multiplier.
-    private class BoostQuestion(
-        val title: Int,
-        val strong: Pair<Int, Int>,
-        val weak: Pair<Int, Int>,
-        val save: (Context, String, Int) -> Unit,
-    )
-
     private companion object {
-        const val BOOST_MATCH_MS = 2 * 60_000L
         const val NOTIFICATION_REQUEST = 1
-
-        val BUILDER_QUESTION = BoostQuestion(
-            R.string.boost_title,
-            R.string.boost_potion to BUILDER_POTION_MULTIPLIER,
-            R.string.boost_bite to BUILDER_BITE_MULTIPLIER,
-            Store::setBuilderMultiplier,
-        )
-        val LAB_QUESTION = BoostQuestion(
-            R.string.lab_boost_title,
-            R.string.lab_boost_potion to RESEARCH_POTION_MULTIPLIER,
-            R.string.lab_boost_soup to STUDY_SOUP_MULTIPLIER,
-            Store::setLabMultiplier,
-        )
     }
 }

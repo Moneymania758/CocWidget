@@ -11,7 +11,7 @@ class ClockTowerTest {
     private fun village(boostSec: Long): Village {
         val root = JSONObject(TestData.exportJson())
         root.getJSONObject("boosts").put("clocktower_boost", boostSec)
-        return VillageParser.parse(root.toString(), BUILDER_POTION_MULTIPLIER) { TestData.gameData[it] }!!
+        return VillageParser.parse(root.toString()) { TestData.gameData[it] }!!
     }
 
     @Test

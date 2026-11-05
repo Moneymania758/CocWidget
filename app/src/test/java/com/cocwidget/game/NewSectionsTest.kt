@@ -12,7 +12,7 @@ class NewSectionsTest {
     private fun parse(mutate: (JSONObject) -> Unit): Village {
         val root = JSONObject(TestData.exportJson())
         mutate(root)
-        return VillageParser.parse(root.toString(), BUILDER_POTION_MULTIPLIER) { TestData.gameData[it] }!!
+        return VillageParser.parse(root.toString()) { TestData.gameData[it] }!!
     }
 
     private fun timed(id: Int, lvl: Int, timer: Long) = JSONObject().put("data", id).put("lvl", lvl).put("timer", timer)

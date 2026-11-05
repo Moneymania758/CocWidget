@@ -42,10 +42,6 @@ and **What's new** further down lists every version.
    (Or go to your home screen and tap **Sync** on the widget.)
 3. You'll see **Village synced**.
 
-If a builder boost (Potion or Bite) or a lab boost (Research Potion or Study Soup) is running, it
-asks which one the first time it sees that boost. The export doesn't say which it is, and it
-changes how fast the timers run.
-
 **Sync again whenever things change:** you start an upgrade, finish one early with gems or a
 book, or use a potion. The widget only knows what was true when you last copied the export.
 
@@ -225,12 +221,12 @@ starts to pick up the next hour.
   Sections fold instead of scrolling. Whole days sit in a separate label because a Chronometer
   can't show them, and an alarm redraws the widget when a day rolls over, an upgrade finishes or
   a boost ends, and at least every 15 minutes.
-- Boosts: the export's `boosts` block gives seconds left as `builder_boost`, `lab_boost` and
-  `pet_boost`. Builder Potion is 10x, Builder Bite 2x, Research Potion 24x, Study Soup 4x, Pet Potion 24x. Work done during the boost
-  runs at that rate and the rest at normal speed. A potion and a snack together add up in the
-  game. `builder_consumable` is taken as a running Builder Bite, on its own clock beside the
-  potion (10x plus 2x makes 11x), with its own chip on the widget. For the lab (27x together) the
-  app still takes whichever one you confirm.
+- Boosts: the export's `boosts` block gives seconds left. `builder_boost`, `lab_boost` and
+  `pet_boost` are the potions (Builder 10x, Research 24x, Pet 24x). `builder_consumable` is a
+  Builder Bite (2x) and `lab_consumable` a Study Soup (4x, for the lab and the Pet House). Work
+  done during a boost runs at that rate and the rest at normal speed. A potion and a snack run on
+  their own clocks and add up (10x plus 2x makes 11x, 24x plus 4x makes 27x), with a chip each
+  on the widget.
 - Helpers: `helpers[]` gives each helper's level and `helper_cooldown`, the seconds left in the
   23-hour work day they share (missing when none is running). `helper_timer` on an upgrade is
   the real seconds left of a helper's one-hour shift on it, and `helper_recurrent` marks "Keep

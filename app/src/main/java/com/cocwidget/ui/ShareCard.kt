@@ -35,7 +35,7 @@ class ShareCard(private val activity: Activity, private val ui: Ui, private val 
         val uri = ExportProvider.uri(activity)
         val device = Contact.device(version, Build.VERSION.RELEASE, Build.MANUFACTURER, Build.MODEL)
         val subject = Contact.exportSubject(Store.village(activity, tag)?.townHall)
-        val body = Contact.exportBody(device, Store.builderMultiplier(activity, tag), Store.labMultiplier(activity, tag), Store.eventOn(activity), export)
+        val body = Contact.exportBody(device, Store.eventOn(activity), export)
         val attached = Intent(Intent.ACTION_SEND).apply {
             type = ExportProvider.MIME_TYPE
             putExtra(Intent.EXTRA_EMAIL, arrayOf(Contact.EMAIL))

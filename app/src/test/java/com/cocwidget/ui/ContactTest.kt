@@ -11,10 +11,8 @@ class ContactTest {
     @Test
     fun exportEmailCarriesTheDetailsAndNoTag() {
         val json = TestData.exportJson()
-        val body = Contact.exportBody("Clash Timers 2.5, Android 15, Pixel 8", 10, 24, true, Store.withoutTag(json))
+        val body = Contact.exportBody("Clash Timers 2.5, Android 15, Pixel 8", true, Store.withoutTag(json))
         assertTrue("Clash Timers 2.5, Android 15, Pixel 8" in body)
-        assertTrue("Builder boost set to 10x" in body)
-        assertTrue("Lab boost set to 24x" in body)
         assertTrue("Hammer Jam switch on" in body)
         assertTrue(body.endsWith(Store.withoutTag(json)))
         assertFalse(Store.tagOf(json) in body)
