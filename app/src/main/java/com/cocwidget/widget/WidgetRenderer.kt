@@ -124,7 +124,7 @@ object WidgetRenderer {
         return views
     }
 
-    private fun build(context: Context, manager: AppWidgetManager, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {
+    internal fun build(context: Context, manager: AppWidgetManager, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget)
         views.setOnClickPendingIntent(R.id.sync, activityIntent(context, SyncActivity::class.java, 0))
         views.setOnClickPendingIntent(R.id.title, openAppIntent(context, widgetId, tag))

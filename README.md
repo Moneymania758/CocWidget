@@ -331,6 +331,11 @@ maths, day rollover, notification decisions, version comparison and the time-to-
 layouts gain a `ListView` or other collection view, where countdowns stop ticking on One UI.
 Widget rendering itself can only be checked on a phone.
 
+Tests in the `acceptance` package open the real screens and widget views with Robolectric, without a phone:
+every guide, troop and spell page in every theme, taps, level picking, rotation and a synced village. They cover
+what happens, not how it looks, so layout on a device and launchers still need a person. Robolectric downloads its
+Android runtime on the first run, which takes a few minutes.
+
 ### Release signing
 
 Releases are built with `gradlew assembleRelease` and signed by a key that is not in this repo.
