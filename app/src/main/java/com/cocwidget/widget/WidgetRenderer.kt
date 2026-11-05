@@ -127,7 +127,8 @@ object WidgetRenderer {
     internal fun build(context: Context, manager: AppWidgetManager, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget)
         views.setOnClickPendingIntent(R.id.sync, activityIntent(context, SyncActivity::class.java, 0))
-        views.setOnClickPendingIntent(R.id.title, openAppIntent(context, widgetId, tag))
+        // Tapping anywhere opens the app's full list. The fold, view and Import controls keep their own taps.
+        views.setOnClickPendingIntent(R.id.widget_root, openAppIntent(context, widgetId, tag))
         views.removeAllViews(R.id.rows)
         // The launcher applies an update on top of the views already on screen, so anything not
         // set here keeps its state from the last update, even one for another account. Lines
@@ -156,40 +157,26 @@ object WidgetRenderer {
         views.setViewVisibility(R.id.footer, View.VISIBLE)
         views.setTextViewText(R.id.title, Store.label(context, tag))
         views.setTextViewText(R.id.town_hall, if (village.townHall > 0) "TH${village.townHall}" else "")
-        val exported = TimeText.exported(village.exportedAtMillis, now)
-        // A finished upgrade usually means a new one has started in the game that the export can't show.
-        val finishedSince = village.upgrades.count { village.endMillis(it) <= now }
-        val old = now - village.exportedAtMillis > Countdown.DAY_MS
-        val footer = when {
-            finishedSince > 0 -> context.getString(R.string.exported_finished_since, exported, finishedSince)
-            old -> context.getString(R.string.exported_out_of_date, exported)
-            else -> context.getString(R.string.exported_at, exported)
-        }
-        views.setTextViewText(R.id.footer, footer)
-        views.setTextColor(R.id.footer, context.getColor(if (finishedSince > 0 || old) R.color.idle else R.color.text_dim))
+        val footer = exportLine(context, village, now)
+        views.setTextViewText(R.id.footer, footer.text)
+        views.setTextColor(R.id.footer, context.getColor(if (footer.stale) R.color.idle else R.color.text_dim))
         showHelpers(context, views, village, now)
 
         // Rows stay in a plain LinearLayout rather than a scrolling ListView: on One UI the
         // countdowns stop ticking inside a ListView. Sections fold to make room, and what still
         // doesn't fit is cut off at the bottom, with a hint in the footer (WidgetFit).
         val shown = Shown(widgetId, tag, village, now)
-        val sections = buildSet {
-            add(Section.BUILDERS)
-            add(Section.LAB)
-            if (village.hasPetHouse) add(Section.PETS)
-            if (village.hasBuilderBase || village.upgrades.any { it.section == Section.BUILDER_BASE }) add(Section.BUILDER_BASE)
-        }
-        showViews(context, views, shown, sections)
-        val order = listOf(Section.BUILDERS, Section.LAB, Section.PETS, Section.BUILDER_BASE).filter { it in sections }
+        val order = village.sections()
+        showViews(context, views, shown, order.toSet())
         val folded = Store.collapsedSections(context, tag)
         for (section in order) {
-            val (title, slots) = when (section) {
-                Section.BUILDERS -> "BUILDERS" to village.builders
-                Section.LAB -> "LAB" to 1
-                Section.PETS -> "PETS" to 1
-                Section.BUILDER_BASE -> "BUILDER BASE" to 0
+            val title = when (section) {
+                Section.BUILDERS -> "BUILDERS"
+                Section.LAB -> "LAB"
+                Section.PETS -> "PETS"
+                Section.BUILDER_BASE -> "BUILDER BASE"
             }
-            addSection(context, views, shown, section, title, slots)
+            addSection(context, views, shown, section, title)
         }
         showMoreHint(context, views, shown, manager, order, folded)
         return views
@@ -225,6 +212,22 @@ object WidgetRenderer {
         }
     }
 
+    class ExportLine(val text: String, val stale: Boolean)
+
+    // When the export was taken, and whether it's time for a new one. A finished upgrade usually
+    // means a new one has started in the game that the export can't show.
+    fun exportLine(context: Context, village: Village, now: Long): ExportLine {
+        val exported = TimeText.exported(village.exportedAtMillis, now)
+        val finishedSince = village.upgrades.count { village.endMillis(it) <= now }
+        val old = now - village.exportedAtMillis > Countdown.DAY_MS
+        val text = when {
+            finishedSince > 0 -> context.getString(R.string.exported_finished_since, exported, finishedSince)
+            old -> context.getString(R.string.exported_out_of_date, exported)
+            else -> context.getString(R.string.exported_at, exported)
+        }
+        return ExportLine(text, finishedSince > 0 || old)
+    }
+
     // What one widget is drawing.
     private class Shown(val widgetId: Int, val tag: String, val village: Village, val now: Long)
 
@@ -234,21 +237,20 @@ object WidgetRenderer {
         shown: Shown,
         section: Section,
         title: String,
-        slots: Int,
     ) {
         val village = shown.village
         val now = shown.now
         val upgrades = village.upgrades.filter { it.section == section }.sortedBy { village.endMillis(it) }
         val running = upgrades.filter { village.endMillis(it) > now }
-        val busy = running.count { !it.extra }
+        val busy = village.busyIn(section, now)
+        val slots = village.slotsFor(section)
 
         val label = SpannableStringBuilder(title)
         if (section == Section.BUILDERS) label.append(" $busy/$slots")
         if (running.any { it.extra }) {
             label.append(" + Goblin", ForegroundColorSpan(context.getColor(R.color.goblin)), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
-        // The Builder Base has no slot count, so it reads idle only when nothing runs there.
-        val idle = if (section == Section.BUILDER_BASE && running.isEmpty()) 1 else slots - busy
+        val idle = village.idleIn(section, now)
         if (idle > 0) {
             val text = if (section == Section.BUILDERS) "  $idle idle" else "  idle"
             label.append(text, ForegroundColorSpan(context.getColor(R.color.idle)), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -338,7 +340,7 @@ object WidgetRenderer {
     }
 
     // "Cannon → 12", or "X-Bow ⚡2" for a supercharge (the row ellipsizes, so the stage stays short).
-    private fun upgradeName(upgrade: Upgrade): CharSequence = SpannableStringBuilder(upgrade.name)
+    internal fun upgradeName(upgrade: Upgrade): CharSequence = SpannableStringBuilder(upgrade.name)
         .append(if (upgrade.supercharge > 0) "  ⚡${upgrade.supercharge}" else "  → ${upgrade.toLevel}", RelativeSizeSpan(0.85f), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
     // Redraws don't wake the phone. A sleeping screen doesn't need fresh numbers.

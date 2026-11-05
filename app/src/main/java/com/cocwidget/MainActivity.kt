@@ -4,23 +4,48 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
-import com.cocwidget.plan.PlanFormat
+import com.cocwidget.game.Village
+import com.cocwidget.store.Icons
 import com.cocwidget.store.Store
 import com.cocwidget.store.UpdateChecker
+import com.cocwidget.ui.HomeUpgrades
+import com.cocwidget.ui.Pictures
 import com.cocwidget.ui.Screen
-import com.cocwidget.ui.TimeText
 import com.cocwidget.ui.WhatsNew
+import com.cocwidget.widget.NextFinish
+import com.cocwidget.widget.WidgetRenderer
 import kotlin.concurrent.thread
 
-// The selected village and the tools for it. Everything about the app itself is on the Settings
-// screen, so this one stays short as features are added.
+// The selected village, its tools and every upgrade running in it. Everything about the app
+// itself is on the Settings screen.
 class MainActivity : Screen() {
+    private lateinit var pictures: Pictures
+    private var clocks: List<HomeUpgrades.Clock> = emptyList()
+    private val handler = Handler(Looper.getMainLooper())
+
+    // Counts down on the screen. Something ending changes more than its clock, so that rebuilds.
+    private val ticker = object : Runnable {
+        override fun run() {
+            val now = System.currentTimeMillis()
+            if (clocks.any { it.endMillis <= now }) {
+                show()
+            } else {
+                for (clock in clocks) clock.view.text = clock.text(clock.endMillis - now)
+            }
+            handler.postDelayed(this, TICK_MS)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Not after a rotation, so a chip picked since isn't undone.
@@ -43,8 +68,14 @@ class MainActivity : Screen() {
         intent.getStringExtra(EXTRA_ACCOUNT)?.let { Store.setSelected(this, it) }
     }
 
+    override fun onPause() {
+        super.onPause()
+        handler.removeCallbacks(ticker)
+    }
+
     override fun onResume() {
         super.onResume()
+        handler.postDelayed(ticker, TICK_MS)
         // The screen was just built, so redraw only when an update turns up.
         val before = UpdateChecker.availableUpdate(this)
         thread {
@@ -61,10 +92,24 @@ class MainActivity : Screen() {
             }, ui.matchWidth(16))
         }
         whatsNewCard()?.let { content.addView(it, ui.matchWidth(16)) }
-        content.addView(villageCard(), ui.matchWidth(16))
-        content.addView(ui.button(getString(R.string.guide_open), R.drawable.ic_book, primary = false) {
-            startActivity(Intent(this, GuideActivity::class.java))
-        }, ui.matchWidth(14))
+        val tag = Store.selected(this)
+        val village = tag?.let { Store.village(this, it) }
+        pictures = Pictures(this)
+        val now = System.currentTimeMillis()
+        val list = village?.let { HomeUpgrades(this, ui, pictures, it, now) }
+        content.addView(villageCard(tag, village, list, now), ui.matchWidth(16))
+        if (village == null || list == null) {
+            content.addView(ui.button(getString(R.string.guide_open), R.drawable.ic_book, primary = false) {
+                startActivity(Intent(this, GuideActivity::class.java))
+            }, ui.matchWidth(14))
+            clocks = emptyList()
+        } else {
+            content.addView(tools(), ui.matchWidth(14))
+            list.helpers()?.let { content.addView(it, ui.matchWidth(14)) }
+            for (section in village.sections()) content.addView(list.section(section), ui.matchWidth(14))
+            clocks = list.clocks
+        }
+        pictures.load()
         addNote(getString(R.string.footer))
     }
 
@@ -109,62 +154,69 @@ class MainActivity : Screen() {
         }
     }
 
-    private fun villageCard(): View = ui.card().apply {
+    private fun villageCard(tag: String?, village: Village?, list: HomeUpgrades?, now: Long): View = ui.card().apply {
         val accounts = Store.accounts(this@MainActivity)
-        val tag = Store.selected(this@MainActivity)
-        val village = tag?.let { Store.village(this@MainActivity, it) }
-        val now = System.currentTimeMillis()
         if (accounts.isNotEmpty()) addView(accountChips(accounts, tag), ui.matchWidth().apply { bottomMargin = ui.dp(14) })
-        if (village == null) {
+        if (village == null || list == null) {
             addView(ui.heading(getString(R.string.status_none), 18f))
             addView(ui.text(getString(R.string.empty_state), 14f, ui.skin.dim), ui.matchWidth(6))
         } else {
-            val running = village.upgrades.filter { village.endMillis(it) > now }
-            val exported = TimeText.exported(village.exportedAtMillis, now)
-            addView(LinearLayout(this@MainActivity).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.BOTTOM
-                addView(LinearLayout(this@MainActivity).apply {
-                    orientation = LinearLayout.VERTICAL
-                    addView(ui.heading(running.size.toString(), 40f))
-                    val label = resources.getQuantityString(R.plurals.status_running, running.size)
-                    addView(ui.text(getString(R.string.status_town_hall, label, village.townHall), 14f, ui.skin.dim))
-                }, ui.weighted())
-                addView(LinearLayout(this@MainActivity).apply {
-                    orientation = LinearLayout.VERTICAL
-                    gravity = Gravity.END
-                    addView(ui.text(getString(R.string.status_exported), 13f, ui.skin.dim))
-                    addView(ui.text(exported, 16f, bold = true))
-                })
-            })
-            running.minByOrNull { village.endMillis(it) }?.let { next ->
-                addView(LinearLayout(this@MainActivity).apply {
-                    orientation = LinearLayout.HORIZONTAL
-                    gravity = Gravity.CENTER_VERTICAL
-                    background = ui.rounded(ui.skin.chip, 10f)
-                    setPadding(ui.dp(12), ui.dp(10), ui.dp(12), ui.dp(10))
-                    addView(android.view.View(this@MainActivity).apply { background = ui.rounded(ui.skin.green, 4f) }, LinearLayout.LayoutParams(ui.dp(8), ui.dp(8)))
-                    val step = if (next.supercharge > 0) {
-                        getString(R.string.next_finish_supercharge, next.name, next.supercharge)
-                    } else {
-                        getString(R.string.next_finish, next.name, next.toLevel)
-                    }
-                    addView(ui.text(step, 14f), ui.weighted(10))
-                    addView(ui.text(PlanFormat.duration((village.endMillis(next) - now) / 1000), 14f, ui.skin.green, bold = true))
-                }, ui.matchWidth(14))
-            }
+            addView(villageTitle(village, now))
+            NextFinish.of(village, now).next?.let { next -> addView(list.nextFinish(next), ui.matchWidth(14)) }
+            val line = WidgetRenderer.exportLine(this@MainActivity, village, now)
+            addView(ui.text(line.text, 12f, if (line.stale) getColor(R.color.idle) else ui.skin.dim).apply {
+                gravity = Gravity.CENTER
+            }, ui.matchWidth(12))
         }
-        addView(ui.button(getString(R.string.sync), R.drawable.ic_sync_line, primary = true) {
+        addView(ui.button(getString(R.string.import_village), R.drawable.ic_import_line, primary = true) {
             startActivity(Intent(this@MainActivity, SyncActivity::class.java))
-        }, ui.matchWidth(14))
+        }, ui.matchWidth(if (village == null) 14 else 6))
         if (village == null) {
             // Nothing to plan yet, and the setup steps are what a first-time user needs.
             addView(ui.button(getString(R.string.fold_setup), null, primary = false) {
                 startActivity(Intent(this@MainActivity, SettingsActivity::class.java).putExtra(SettingsActivity.EXTRA_SHOW_SETUP, true))
             }, ui.matchWidth(10))
-        } else {
-            addView(tools(), ui.matchWidth(10))
         }
+    }
+
+    // The Town Hall large on a soft glow, beside what's sitting idle. The account chip above says
+    // whose village it is.
+    private fun villageTitle(village: Village, now: Long) = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        if (village.townHall > 0) addView(townHallPicture(village.townHall), LinearLayout.LayoutParams(ui.dp(104), ui.dp(112)))
+        addView(LinearLayout(this@MainActivity).apply {
+            orientation = LinearLayout.VERTICAL
+            if (village.townHall > 0) {
+                addView(ui.heading(getString(R.string.home_town_hall, village.townHall), 24f, ui.skin.title))
+            }
+            val summary = NextFinish.of(village, now)
+            addView(ui.text(idleLine(summary), 13f, if (summary.anyIdle) getColor(R.color.idle) else ui.skin.green, bold = true), ui.matchWidth(6))
+        }, ui.weighted(12))
+    }
+
+    private fun townHallPicture(level: Int) = ImageView(this).apply {
+        scaleType = ImageView.ScaleType.FIT_CENTER
+        contentDescription = getString(R.string.home_town_hall, level)
+        val glow = ui.skin.accent and 0x00FFFFFF
+        background = GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(glow or 0x40000000, glow)).apply {
+            gradientType = GradientDrawable.RADIAL_GRADIENT
+            gradientRadius = ui.dp(58).toFloat()
+        }
+        // Straight away if it's bundled, so it doesn't blink each time the screen is rebuilt.
+        val path = Icons.townHallPath(level)
+        val bitmap = Icons.load(this@MainActivity, path)
+        if (bitmap != null) setImageBitmap(bitmap) else pictures.add(path, this)
+    }
+
+    private fun idleLine(summary: NextFinish.Summary): String = if (summary.anyIdle) {
+        buildList {
+            if (summary.idleBuilders > 0) add(resources.getQuantityString(R.plurals.next_builders_idle, summary.idleBuilders, summary.idleBuilders))
+            if (summary.labIdle) add(getString(R.string.next_lab_idle))
+            if (summary.petsIdle) add(getString(R.string.next_pets_idle))
+        }.joinToString(" · ")
+    } else {
+        resources.getQuantityString(R.plurals.next_all_busy, summary.builders, summary.builders)
     }
 
     // The tiles share their row's width and take the height of the tallest label.
@@ -175,6 +227,7 @@ class MainActivity : Screen() {
             Triple(R.string.planner_open, R.drawable.ic_chart, PlannerActivity::class.java),
             Triple(R.string.bedtime_open, R.drawable.ic_moon, BedtimeActivity::class.java),
             Triple(R.string.potions_open, R.drawable.ic_flask, PotionsActivity::class.java),
+            Triple(R.string.guide_open, R.drawable.ic_book, GuideActivity::class.java),
         )
         for ((index, tile) in tiles.withIndex()) {
             val (label, icon, screen) = tile
@@ -215,5 +268,6 @@ class MainActivity : Screen() {
     companion object {
         const val EXTRA_ACCOUNT = "account"
         private const val NOTIFICATION_REQUEST = 1
+        private const val TICK_MS = 1000L
     }
 }

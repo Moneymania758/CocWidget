@@ -3,16 +3,17 @@
     <string name="app_name">Clash Timers</string>
     <string name="widget_description">Builder, lab and pet timers from your village export</string>
 
-    <string name="sync">Sync</string>
+    <string name="import_village">Import my village</string>
+    <string name="import_short">Import</string>
     <string name="goblin">Goblin</string>
     <string name="helper">Helper</string>
     <string name="helpers_ready">Helpers ready</string>
     <string name="helpers_ready_in">Helpers ready in %s</string>
     <string name="done">Done</string>
-    <string name="empty_state">In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy. Then tap Sync.</string>
+    <string name="empty_state">In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy. Then tap Import my village.</string>
     <string name="exported_at">Exported %1$s</string>
-    <string name="exported_finished_since">Exported %1$s · %2$d finished since, sync again</string>
-    <string name="exported_out_of_date">Exported %1$s · out of date, sync again</string>
+    <string name="exported_finished_since">Exported %1$s · %2$d finished since, import again</string>
+    <string name="exported_out_of_date">Exported %1$s · out of date, import again</string>
     <string name="update_available">Update %1$s ›</string>
     <string name="view_home">HOME</string>
     <string name="view_builder_base">BUILDER BASE</string>
@@ -29,12 +30,12 @@
     <string name="notify_builder_base">Builder Base upgrade done</string>
 
     <string name="sync_not_export">The clipboard doesn\'t hold a village export. Copy it in Clash first (Settings &gt; More Settings &gt; Data Export).</string>
-    <string name="sync_done">Village synced</string>
-    <string name="sync_done_account">%1$s synced</string>
+    <string name="sync_done">Village imported</string>
+    <string name="sync_done_account">%1$s imported</string>
     <string name="widget_pick_title">Show which account?</string>
     <string name="next_widget_label">Next to finish</string>
     <string name="next_widget_description">The next upgrade to finish, and any idle builders, lab or pets</string>
-    <string name="next_no_village">Sync a village to start</string>
+    <string name="next_no_village">Import a village to start</string>
     <string name="next_nothing">Nothing upgrading</string>
     <string name="next_lab_idle">Lab idle</string>
     <string name="next_pets_idle">Pets idle</string>
@@ -48,27 +49,37 @@
     </plurals>
     <string name="account_add">+ Add account</string>
     <string name="account_add_title">Add an account</string>
-    <string name="account_add_steps">Switch to the other account in Clash, then export and sync it as usual (Settings &gt; More Settings &gt; Data Export &gt; Copy, then Sync). It\'s added by itself, with its own timers and notifications.\n\nTo see it on your home screen, add another Clash Timers widget and pick the account. On some phones you can also long-press a widget and tap Settings to switch it.</string>
+    <string name="account_add_steps">Switch to the other account in Clash, then export and import it as usual (Settings &gt; More Settings &gt; Data Export &gt; Copy, then Import my village). It\'s added by itself, with its own timers and notifications.\n\nTo see it on your home screen, add another Clash Timers widget and pick the account. On some phones you can also long-press a widget and tap Settings to switch it.</string>
     <string name="account_remove">Remove this account</string>
     <string name="account_remove_title">Remove %1$s?</string>
-    <string name="account_remove_message">Its timers and notifications stop, and widgets showing it switch to another account. Sync its export again to bring it back.</string>
+    <string name="account_remove_message">Its timers and notifications stop, and widgets showing it switch to another account. Import its export again to bring it back.</string>
     <string name="account_remove_confirm">Remove</string>
-    <string name="tile_label">Clash Sync</string>
-    <string name="tile_never">Not synced yet</string>
+    <string name="tile_label">Import my village</string>
+    <string name="tile_never">Not imported yet</string>
 
-    <string name="main_steps">SET UP (ONCE)\n1. Add the widget: long-press the home screen, tap Widgets and drag Clash Timers on. Make it tall. If it doesn\'t all fit, tap a section title on the widget to fold it. There\'s also a small Next to finish widget showing only the next upgrade.\n2. Add the sync tile: pull the notification shade all the way down, tap edit (pencil, or ⋮ then Edit) and drag Clash Sync into your tiles.\n3. Settings &gt; Apps &gt; Clash Timers &gt; Battery &gt; Unrestricted, so the widget keeps updating.\n\nSYNC YOUR VILLAGE\n1. In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy.\n2. Pull down and tap Clash Sync. You stay in the game. (Or tap Sync on the widget, or in the app.)\n\nSync again whenever you start an upgrade, finish one early or use a potion. The widget only knows what was true at your last export.\n\nMORE THAN ONE ACCOUNT\nExport and sync each account the same way. Each one is added by itself. When you add a widget, you pick which account it shows.</string>
+    <string name="main_steps">SET UP (ONCE)\n1. Add the widget: long-press the home screen, tap Widgets and drag Clash Timers on. Make it tall. If it doesn\'t all fit, tap a section title on the widget to fold it. Tap anywhere else on it to open the app and see every upgrade. There\'s also a small Next to finish widget showing only the next upgrade.\n2. Add the import tile: pull the notification shade all the way down, tap edit (pencil, or ⋮ then Edit) and drag Import my village into your tiles.\n3. Settings &gt; Apps &gt; Clash Timers &gt; Battery &gt; Unrestricted, so the widget keeps updating.\n\nIMPORT YOUR VILLAGE\n1. In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy.\n2. Pull down and tap Import my village. You stay in the game. (Or tap Import on the widget, or Import my village in the app.)\n\nImport again whenever you start an upgrade, finish one early or use a potion. The widget only knows what was true at your last export.\n\nMORE THAN ONE ACCOUNT\nExport and import each account the same way. Each one is added by itself. When you add a widget, you pick which account it shows.</string>
     <string name="event_switch">Event: 50% off upgrade times</string>
     <string name="event_explain">Turn on while Hammer Jam (or another event that halves upgrade times) is running, and off when it ends. Upgrades you start while it\'s on then get the right progress bar. Timers and notifications are right either way.</string>
     <string name="name_hint">Name</string>
     <string name="save_name">Save name</string>
     <string name="name_saved">Name saved</string>
-    <string name="status_none">No export synced yet.</string>
-    <plurals name="status_running">
-        <item quantity="one">upgrade running</item>
-        <item quantity="other">upgrades running</item>
+    <string name="status_none">No village imported yet.</string>
+    <string name="home_town_hall">Town Hall %1$d</string>
+    <string name="home_helpers">Helpers</string>
+    <string name="home_helpers_ready">Ready</string>
+    <string name="home_helpers_ready_in">Ready in %1$s</string>
+    <string name="home_level">Lv %1$d</string>
+    <string name="home_builders">Builders %1$d/%2$d</string>
+    <string name="home_lab">Lab</string>
+    <string name="home_pets">Pets</string>
+    <string name="home_builder_base">Builder Base</string>
+    <string name="home_goblin">+ Goblin</string>
+    <string name="home_idle">Idle</string>
+    <plurals name="home_idle_count">
+        <item quantity="one">%d idle</item>
+        <item quantity="other">%d idle</item>
     </plurals>
-    <string name="status_town_hall">%1$s · TH%2$d</string>
-    <string name="status_exported">Exported</string>
+    <string name="home_boost">×%1$d  %2$s</string>
     <string name="next_finish">%1$s → %2$d</string>
     <string name="next_finish_supercharge">%1$s supercharge %2$d</string>
     <string name="version_line">Version %1$s</string>
@@ -129,7 +140,7 @@
     <string name="whats_new_1_1">• Clash Sync tile in Quick Settings, so you can sync without leaving the game.\n• The Potion or Bite question only appears for a new boost.</string>
     <string name="whats_new_1_0">• First release.</string>
     <string name="planner_open">Time to max</string>
-    <string name="planner_none">Sync your village first, then come back here.</string>
+    <string name="planner_none">Import your village first, then come back here.</string>
     <string name="back">Back</string>
     <string name="town_hall_chip">TH%1$d</string>
     <string name="planner_could_finish">Builders could finish in</string>
@@ -196,7 +207,7 @@
     </plurals>
     <string name="potions_idle_lab">The lab is idle. Start research first.</string>
     <string name="potions_idle_pets">The Pet House is idle. Start a pet upgrade first.</string>
-    <string name="potions_notes">Worked out from your last sync, so sync first. Helpers and the event Goblin aren\'t counted.</string>
+    <string name="potions_notes">Worked out from your last import, so import first. Helpers and the event Goblin aren\'t counted.</string>
     <string name="bedtime_notes">Normal speed, without potions, helpers or Goblins. Only levels your Lab, Pet House and Hero Hall allow are listed.</string>
     <string name="group_defences">Defences</string>
     <string name="group_traps">Traps</string>

@@ -12,6 +12,20 @@ class CountdownTest {
     private val now = 1_800_000_000_000L
 
     @Test
+    fun theClockShowsDaysHoursAndMinutes() {
+        assertEquals("3d 04:12:55", Countdown.clock(3 * DAY_MS + (4 * 3600 + 12 * 60 + 55) * 1000L))
+        assertEquals("04:12:55", Countdown.clock((4 * 3600 + 12 * 60 + 55) * 1000L))
+        assertEquals("12:55", Countdown.clock((12 * 60 + 55) * 1000L))
+    }
+
+    @Test
+    fun theClockRoundsUpSoItNeverReadsZeroWhileRunning() {
+        assertEquals("00:01", Countdown.clock(1))
+        assertEquals("00:00", Countdown.clock(0))
+        assertEquals("00:00", Countdown.clock(-5000))
+    }
+
+    @Test
     fun underADayHasNoDays() {
         val split = Countdown.split(5_000)
         assertEquals(0L, split.days)

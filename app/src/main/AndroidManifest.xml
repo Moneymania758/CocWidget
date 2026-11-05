@@ -141,7 +141,7 @@
         <service
             android:name=".SyncTileService"
             android:exported="true"
-            android:icon="@drawable/ic_sync"
+            android:icon="@drawable/ic_import"
             android:label="@string/tile_label"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>

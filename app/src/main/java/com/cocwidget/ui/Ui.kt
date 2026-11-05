@@ -252,6 +252,22 @@ class Ui(private val activity: Activity, val skin: Skin) {
         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
     }
 
+    // A character's face in a coloured ring, for the helpers and the Goblin.
+    fun face(resource: Int, sizeDp: Int, ring: Int, description: CharSequence) = ImageView(activity).apply {
+        setImageResource(resource)
+        scaleType = ImageView.ScaleType.CENTER_CROP
+        contentDescription = description
+        background = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(skin.chip)
+            setStroke(dp(2), ring)
+        }
+        setPadding(dp(2), dp(2), dp(2), dp(2))
+        outlineProvider = ViewOutlineProvider.BACKGROUND
+        clipToOutline = true
+        layoutParams = LinearLayout.LayoutParams(dp(sizeDp), dp(sizeDp))
+    }
+
     fun flow(gapDp: Int = 6) = FlowLayout(activity, dp(gapDp), dp(gapDp))
 
     fun matchWidth(top: Int = 0) = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {

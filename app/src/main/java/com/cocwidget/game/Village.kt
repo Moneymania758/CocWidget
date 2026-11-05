@@ -43,6 +43,32 @@ class Village(
     // A Study Soup, which runs on its own clock beside a Research or Pet Potion.
     val labSnack: Boost = Boost.NONE,
 ) {
+    // What this village has, in the order they're shown.
+    fun sections(): List<Section> = buildList {
+        add(Section.BUILDERS)
+        add(Section.LAB)
+        if (hasPetHouse) add(Section.PETS)
+        if (hasBuilderBase || upgrades.any { it.section == Section.BUILDER_BASE }) add(Section.BUILDER_BASE)
+    }
+
+    fun slotsFor(section: Section): Int = when (section) {
+        Section.BUILDERS -> builders
+        Section.LAB, Section.PETS -> 1
+        Section.BUILDER_BASE -> 0
+    }
+
+    // Running upgrades in a section, leaving out the Goblin's slot.
+    fun busyIn(section: Section, nowMillis: Long): Int =
+        upgrades.count { it.section == section && !it.extra && endMillis(it) > nowMillis }
+
+    // The Builder Base has no slot count, so it reads idle only when nothing runs there.
+    fun idleIn(section: Section, nowMillis: Long): Int =
+        if (section == Section.BUILDER_BASE) {
+            if (upgrades.any { it.section == section && endMillis(it) > nowMillis }) 0 else 1
+        } else {
+            maxOf(0, slotsFor(section) - busyIn(section, nowMillis))
+        }
+
     fun boostFor(section: Section): Boost = when (section) {
         Section.BUILDERS -> builderBoost
         Section.LAB -> labBoost

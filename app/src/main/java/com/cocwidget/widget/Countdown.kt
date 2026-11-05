@@ -1,6 +1,7 @@
 package com.cocwidget.widget
 
 import com.cocwidget.game.Village
+import java.util.Locale
 
 // Countdown maths for the widget, kept free of Android types so unit tests can run it.
 object Countdown {
@@ -15,6 +16,22 @@ object Countdown {
     fun split(leftMs: Long): Split {
         val days = (leftMs - 1) / DAY_MS
         return Split(days, leftMs - days * DAY_MS)
+    }
+
+    // A running clock for the app's own screens, where a text can hold days: "3d 04:12:55",
+    // "04:12:55" or "12:55". Rounds up, so it reads 00:01 until the moment it ends.
+    fun clock(leftMs: Long): String {
+        val total = (leftMs.coerceAtLeast(0) + 999) / 1000
+        val days = total / 86_400
+        val hours = total % 86_400 / 3_600
+        val minutes = total % 3_600 / 60
+        val seconds = total % 60
+        val time = if (days > 0 || hours > 0) {
+            String.format(Locale.ROOT, "%02d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            String.format(Locale.ROOT, "%02d:%02d", minutes, seconds)
+        }
+        return if (days > 0) "${days}d $time" else time
     }
 
     // When the widget must redraw next: a chronometer reaching zero (a day rolling over or an

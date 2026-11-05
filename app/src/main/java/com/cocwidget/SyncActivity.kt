@@ -10,7 +10,7 @@ import com.cocwidget.game.VillageParser
 import com.cocwidget.store.Store
 import com.cocwidget.ui.WhatsNew
 
-// Invisible screen opened by the widget's Sync button. Android only lets the app with
+// Invisible screen opened by the widget's Import button. Android only lets the app with
 // input focus read the clipboard, so a widget can't read it directly.
 class SyncActivity : Activity() {
     private var started = false

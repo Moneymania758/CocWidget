@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_bg"
@@ -44,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/sync_button"
-            android:drawableStart="@drawable/ic_sync"
+            android:drawableStart="@drawable/ic_import"
             android:drawablePadding="4dp"
             android:fontFamily="sans-serif-black"
             android:gravity="center_vertical"
@@ -52,7 +53,7 @@
             android:paddingTop="5dp"
             android:paddingEnd="12dp"
             android:paddingBottom="5dp"
-            android:text="@string/sync"
+            android:text="@string/import_short"
             android:textColor="#4A2E10"
             android:textSize="14sp" />
     </LinearLayout>

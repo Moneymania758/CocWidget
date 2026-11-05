@@ -11,7 +11,7 @@ Needs Android 12 or later. It is not available for iPhone.
 2. Open the downloaded file and tap **Install**. If your phone blocks it, allow
    "Install unknown apps" for your browser or file manager and try again.
 
-To update, install the newer `.apk` the same way. Your synced village is kept. From 1.3 on, the
+To update, install the newer `.apk` the same way. Your imported village is kept. From 1.3 on, the
 widget shows **Update 2.1 ›** (or whichever is newest) at the bottom when a new version is out.
 Tap it to go to the download. From 1.7 on, opening the app after an update shows what it added,
 and **What's new** further down lists every version.
@@ -23,12 +23,12 @@ and **What's new** further down lists every version.
    all fit, tap a section title (for example **BUILDER BASE**) to fold that section to one line.
    Tap it again to open it. For just the next upgrade to finish, there's also a small
    one-line widget called **Next to finish**.
-2. **Add the sync tile (recommended).** Pull the notification shade all the way down, tap the
-   edit button (a pencil, or ⋮ then Edit), and drag **Clash Sync** into your active tiles.
+2. **Add the import tile (recommended).** Pull the notification shade all the way down, tap the
+   edit button (a pencil, or ⋮ then Edit), and drag **Import my village** into your active tiles.
 3. **Stop the phone pausing it.** Open your phone's Settings > Apps > Clash Timers > Battery and
    choose **Unrestricted** (on some phones: "Don't optimise" or "No restrictions"). Without this
    the widget can be slow to update.
-4. **Allow notifications** when asked (on your first sync, or when you open the app). You'll get
+4. **Allow notifications** when asked (on your first import, or when you open the app). You'll get
    a notification each time an upgrade finishes, such as "Bomb Tower → 11 finished · A builder is
    free". Tap it to open Clash.
 5. **Optional: set your name.** Tap the name at the top of the widget to open the app, tap the
@@ -36,22 +36,28 @@ and **What's new** further down lists every version.
    **Save name**. Each account has its
    own name.
 
-## Sync your village
+## The main screen
+
+Tap the widget (anywhere but its buttons and section titles) to open the app on that account. It
+shows your Town Hall, what's idle, your helpers, and every upgrade counting down, however little
+of the widget fits on your home screen.
+
+## Import your village
 
 1. In Clash of Clans: **Settings > More Settings > Data Export > Copy**.
-2. Pull down the notification shade and tap **Clash Sync**. You stay in the game.
-   (Or go to your home screen and tap **Sync** on the widget.)
-3. You'll see **Village synced**.
+2. Pull down the notification shade and tap **Import my village**. You stay in the game.
+   (Or go to your home screen and tap **Import** on the widget, or **Import my village** in the app.)
+3. You'll see **Village imported**.
 
-**Sync again whenever things change:** you start an upgrade, finish one early with gems or a
+**Import again whenever things change:** you start an upgrade, finish one early with gems or a
 book, or use a potion. The widget only knows what was true when you last copied the export.
 
 ## More than one account
 
-Export and sync each account the same way: switch account in Clash, copy its Data Export, tap
-**Clash Sync**. The app reads the player tag in the export, so each account is added by itself,
-with its own timers, boost answers and notifications. Once there's more than one, sync says
-which account it was, such as **Main synced** (or the tag, until you name it).
+Export and import each account the same way: switch account in Clash, copy its Data Export, tap
+**Import my village**. The app reads the player tag in the export, so each account is added by itself,
+with its own timers, boost answers and notifications. Once there's more than one, the import says
+which account it was, such as **Main imported** (or the tag, until you name it).
 
 - **Widgets:** add one widget per account. When you place a widget it asks which account to
   show (only if you have more than one). On some phones you can long-press a widget and tap
@@ -93,7 +99,7 @@ than a discounted one could, so it's never halved.
 - **Update 2.1 ›** in small grey text at the bottom means a new version is out. Tap it to
   download.
 - **Exported 13:44** at the bottom is when you last copied the export. It turns **orange** when
-  an upgrade has finished since then, or the export is over a day old. That's your cue to sync
+  an upgrade has finished since then, or the export is over a day old. That's your cue to import
   again, because you've probably started something new that the widget can't see yet.
 
 The small **Next to finish** widget shows the one upgrade that finishes first, from any section,
@@ -107,7 +113,7 @@ shows shorter times than the game does. The widget's times are when the upgrades
 ## Time to max
 
 Open the app and tap **Time to max** to see what's left before everything your Town Hall allows
-is maxed. It uses your last sync, so sync first for an up-to-date answer.
+is maxed. It uses your last import, so import first for an up-to-date answer.
 
 - **Builders** is the soonest your builders could finish it all, if none of them is ever idle.
   It can't be shorter than the longest run of upgrades on one thing, such as a hero's levels.
@@ -146,7 +152,7 @@ you're awake, and no builder sits idle overnight.
 - Below that are the upgrades you could start, soonest finish first, with how long each takes,
   when it would be done and what it costs. Ones that would finish while you're asleep are left
   out and just counted.
-- Like Time to max, it works from your last sync at normal speed, without potions, helpers or the
+- Like Time to max, it works from your last import at normal speed, without potions, helpers or the
   Goblin. It only lists levels your Lab, Pet House and Hero Hall are high enough for.
 
 ## Potions
@@ -160,17 +166,17 @@ covers, so it's fully used when every slot stays busy for the whole hour.
 - It says why: an idle builder (start something first), or an upgrade that would finish partway
   through the hour, leaving its slot idle unless you start something new straight away.
 - If a boost is already running, it says how long is left instead.
-- It works from your last sync, so sync first. Helpers and the event Goblin aren't counted.
+- It works from your last import, so import first. Helpers and the event Goblin aren't counted.
 
 ## Guide
 
-The Guide button on the main screen works with or without a synced village.
+The Guide button on the main screen works with or without an imported village.
 
 - **Town Halls** (TH3 up): what the upgrade costs, what it adds, hero and pet level caps, and popular
   attacks with the army, steps and rough difficulty.
 - **Troops and spells**: tap any troop or spell in an attack, or browse them all, for charts of how its
   damage and health grow by level, its abilities and what it summons, such as the Ruin Witch's Ruin Knights.
-  Tap or drag along a chart to pick a level. With a synced village, a ring marks your level and grey is out of
+  Tap or drag along a chart to pick a level. With an imported village, a ring marks your level and grey is out of
   reach at your Town Hall.
 - **Defences and traps**: tap one from a Town Hall's new list, or browse them all, for the same level charts, how many
   each Town Hall allows, range, modes, merges and supercharges.
@@ -178,7 +184,7 @@ The Guide button on the main screen works with or without a synced village.
 - **Best pets for each hero**: picks with reasons, and a set for your Town Hall that uses each pet
   once. A pet can only go with one hero at a time.
 
-With a synced village it marks your Town Hall and shows your hero and pet levels against the cap.
+With an imported village it marks your Town Hall and shows your hero and pet levels against the cap.
 
 Levels and stats come from the game data. Attack and pet picks are opinions from community guides,
 which often disagree, so each screen says when they were last checked and the sources are listed.
@@ -195,9 +201,9 @@ It only changes the app's own screens. The widget keeps its look.
 
 ## If something's wrong
 
-- **"The clipboard doesn't hold a village export"**: copy the export in Clash again, then sync
+- **"The clipboard doesn't hold a village export"**: copy the export in Clash again, then import
   straight away. Some phones clear the clipboard after about an hour.
-- **A timer looks wrong**: sync again. The widget can't see upgrades started, sped up or
+- **A timer looks wrong**: import again. The widget can't see upgrades started, sped up or
   finished since your last export.
 - **The widget is slow to update, or notifications arrive late**: check the battery setting in
   Set up, step 3.
@@ -223,7 +229,7 @@ The export doesn't include these, so the widget can't either: gold, elixir and d
 amounts, and Clan Capital Forge builders.
 
 If you've ticked "Keep assigned until upgrade is complete" for a helper, the widget counts only
-the hour they're working at your export, not the ones on later days. Sync after each new work day
+the hour they're working at your export, not the ones on later days. Import after each new work day
 starts to pick up the next hour.
 
 ---

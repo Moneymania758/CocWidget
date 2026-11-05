@@ -12,7 +12,8 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 // Icons come from ClashKing's asset host and are cached on disk, shrunk to widget size. The few
-// ClashKing doesn't have are bundled in assets/icons, named as the cache names them.
+// ClashKing doesn't have are bundled in assets/icons, named as the cache names them. So are the
+// Town Halls, in their original format and size, as the main screen shows one large.
 object Icons {
     private const val BASE_URL = "https://assets.clashk.ing/"
     private const val SIZE_PX = 96
@@ -24,7 +25,7 @@ object Icons {
 
     fun load(context: Context, path: String?): Bitmap? {
         val name = fileName(path ?: return null)
-        if (name in bundled(context)) return context.assets.open("icons/$name").use { BitmapFactory.decodeStream(it) }
+        bundledFile(context, name)?.let { bundled -> return context.assets.open("icons/$bundled").use { BitmapFactory.decodeStream(it) } }
         val file = File(File(context.filesDir, "icons"), name)
         return if (file.length() > 0) BitmapFactory.decodeFile(file.path) else null
     }
@@ -39,7 +40,7 @@ object Icons {
         for (path in paths.distinct()) {
             val name = fileName(path)
             val file = File(File(context.filesDir, "icons"), name)
-            if (name !in bundled(context) && !file.exists()) {
+            if (bundledFile(context, name) == null && !file.exists()) {
                 download(path, file)
                 fetched = true
             }
@@ -49,6 +50,9 @@ object Icons {
 
     // The picture for a planner item at [level]: buildings and traps look different per level.
     fun path(item: GameItem, level: Int): String? = path(item.name, item.kind, item.village, maxOf(1, level), item.defence)
+
+    // A Town Hall above the bundled ones (a new one, before an app update) downloads like any icon.
+    fun townHallPath(level: Int) = "buildings/home-village/town_hall/level_$level.webp"
 
     private fun download(path: String, file: File) {
         try {
@@ -80,10 +84,13 @@ object Icons {
 
     fun fileName(path: String) = path.replace('/', '_').removeSuffix(".webp") + ".png"
 
+    private fun bundledFile(context: Context, name: String): String? =
+        listOf(name, name.removeSuffix(".png") + ".webp").firstOrNull { it in bundled(context) }
+
     private fun bundled(context: Context): Set<String> =
         bundled ?: context.assets.list("icons").orEmpty().toSet().also { bundled = it }
 
-    private fun path(upgrade: Upgrade): String? =
+    fun path(upgrade: Upgrade): String? =
         path(upgrade.name, upgrade.kind, upgrade.village, if (upgrade.supercharge > 0) upgrade.toLevel else maxOf(1, upgrade.toLevel - 1), upgrade.defence)
 
     private fun path(rawName: String, kind: String, rawVillage: String, level: Int, defence: String): String? {
