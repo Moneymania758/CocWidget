@@ -227,7 +227,7 @@ starts to pick up the next hour.
   Builder Bite (2x) and `lab_consumable` a Study Soup (4x, for the lab and the Pet House). Work
   done during a boost runs at that rate and the rest at normal speed. A potion and a snack run on
   their own clocks and add up (10x plus 2x makes 11x, 24x plus 4x makes 27x), with a chip each
-  on the widget.
+  on the widget showing the item's picture (bundled from ClashKing).
 - Helpers: `helpers[]` gives each helper's level and `helper_cooldown`, the seconds left in the
   23-hour work day they share (missing when none is running). `helper_timer` on an upgrade is
   the real seconds left of a helper's one-hour shift on it, and `helper_recurrent` marks "Keep

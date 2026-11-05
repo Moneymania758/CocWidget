@@ -250,21 +250,33 @@ object WidgetRenderer {
         val header = RemoteViews(context.packageName, R.layout.widget_section)
         header.setTextViewText(R.id.label, label)
         header.setOnClickPendingIntent(R.id.section, toggleIntent(context, shown, section))
-        showBoost(header, R.id.badge, village, village.boostFor(section), now)
-        showBoost(header, R.id.badge_snack, village, village.snackFor(section), now)
+        showBoost(header, R.id.badge_chip, R.id.badge_icon, R.id.badge, potionIcon(section), village, village.boostFor(section), now)
+        showBoost(header, R.id.badge_snack_chip, R.id.badge_snack_icon, R.id.badge_snack, snackIcon(section), village, village.snackFor(section), now)
         views.addView(R.id.rows, header)
         if (collapsed) return
         for (upgrade in upgrades) views.addView(R.id.rows, row(context, village, upgrade, now))
     }
 
-    private fun showBoost(header: RemoteViews, id: Int, village: Village, boost: Boost, now: Long) {
+    // The picture on a section's chips. Multipliers alone don't say which item is running.
+    internal fun potionIcon(section: Section): Int = when (section) {
+        Section.BUILDERS -> R.drawable.ic_boost_builder_potion
+        Section.LAB -> R.drawable.ic_boost_research_potion
+        Section.PETS -> R.drawable.ic_boost_pet_potion
+        Section.BUILDER_BASE -> R.drawable.ic_boost_clock_tower_potion
+    }
+
+    internal fun snackIcon(section: Section): Int =
+        if (section == Section.BUILDERS) R.drawable.ic_boost_builder_bite else R.drawable.ic_boost_study_soup
+
+    private fun showBoost(header: RemoteViews, chip: Int, iconView: Int, timer: Int, icon: Int, village: Village, boost: Boost, now: Long) {
         val left = village.boostEndMillis(boost) - now
         if (boost.seconds > 0 && left > 0) {
-            header.setChronometer(id, SystemClock.elapsedRealtime() + left, "×${boost.multiplier}  %s", true)
-            header.setChronometerCountDown(id, true)
-            header.setViewVisibility(id, View.VISIBLE)
+            header.setImageViewResource(iconView, icon)
+            header.setChronometer(timer, SystemClock.elapsedRealtime() + left, "×${boost.multiplier}  %s", true)
+            header.setChronometerCountDown(timer, true)
+            header.setViewVisibility(chip, View.VISIBLE)
         } else {
-            header.setViewVisibility(id, View.GONE)
+            header.setViewVisibility(chip, View.GONE)
         }
     }
 
