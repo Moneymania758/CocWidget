@@ -134,6 +134,7 @@ object WidgetRenderer {
         // shown only sometimes start hidden on every update.
         views.setViewVisibility(R.id.helpers, View.GONE)
         views.setViewVisibility(R.id.views, View.GONE)
+        views.setViewVisibility(R.id.more, View.GONE)
 
         val update = UpdateChecker.availableUpdate(context)
         views.setViewVisibility(R.id.update, if (update != null) View.VISIBLE else View.GONE)
@@ -170,7 +171,7 @@ object WidgetRenderer {
 
         // Rows stay in a plain LinearLayout rather than a scrolling ListView: on One UI the
         // countdowns stop ticking inside a ListView. Sections fold to make room, and what still
-        // doesn't fit becomes a "more" line (WidgetFit).
+        // doesn't fit is cut off at the bottom, with a hint in the footer (WidgetFit).
         val shown = Shown(widgetId, tag, village, now)
         val sections = buildSet {
             add(Section.BUILDERS)
@@ -181,18 +182,16 @@ object WidgetRenderer {
         showViews(context, views, shown, sections)
         val order = listOf(Section.BUILDERS, Section.LAB, Section.PETS, Section.BUILDER_BASE).filter { it in sections }
         val folded = Store.collapsedSections(context, tag)
-        val rows = order.map { section -> if (section.name in folded) 0 else village.upgrades.count { it.section == section } }
-        val room = WidgetMeasure.of(context, manager, widgetId, Section.BUILDER_BASE in sections, village.helpers.apprenticeLevel > 0 || village.helpers.assistantLevel > 0)
-        val fits = if (room == null) rows else WidgetFit.rowsToShow(rows, room.rows, room.header, room.more)
-        for ((index, section) in order.withIndex()) {
+        for (section in order) {
             val (title, slots) = when (section) {
                 Section.BUILDERS -> "BUILDERS" to village.builders
                 Section.LAB -> "LAB" to 1
                 Section.PETS -> "PETS" to 1
                 Section.BUILDER_BASE -> "BUILDER BASE" to 0
             }
-            addSection(context, views, shown, section, title, slots, fits[index])
+            addSection(context, views, shown, section, title, slots)
         }
+        showMoreHint(context, views, shown, manager, order, folded)
         return views
     }
 
@@ -236,8 +235,6 @@ object WidgetRenderer {
         section: Section,
         title: String,
         slots: Int,
-        // How many of its rows fit. They run soonest first, so the ones left out finish last.
-        fits: Int,
     ) {
         val village = shown.village
         val now = shown.now
@@ -267,14 +264,20 @@ object WidgetRenderer {
         showBoost(header, R.id.badge_snack_chip, R.id.badge_snack_icon, R.id.badge_snack, snackIcon(section), village, village.snackFor(section), now)
         views.addView(R.id.rows, header)
         if (collapsed) return
-        for (upgrade in upgrades.take(fits)) views.addView(R.id.rows, row(context, village, upgrade, now))
-        val hidden = upgrades.size - fits
-        if (hidden > 0) {
-            val more = RemoteViews(context.packageName, R.layout.widget_more)
-            more.setTextViewText(R.id.more, context.resources.getQuantityString(R.plurals.widget_more, hidden, hidden))
-            more.setOnClickPendingIntent(R.id.more, showOnlyIntent(context, shown, section))
-            views.addView(R.id.rows, more)
-        }
+        for (upgrade in upgrades) views.addView(R.id.rows, row(context, village, upgrade, now))
+    }
+
+    // Says how much is cut off. Every row is still drawn, so a launcher reporting the wrong height
+    // can only make this hint wrong, and can never hide an upgrade that would have fitted.
+    private fun showMoreHint(context: Context, views: RemoteViews, shown: Shown, manager: AppWidgetManager, order: List<Section>, folded: Set<String>) {
+        val village = shown.village
+        val helpers = village.helpers.apprenticeLevel > 0 || village.helpers.assistantLevel > 0
+        val room = WidgetMeasure.of(context, manager, shown.widgetId, Section.BUILDER_BASE in order, helpers) ?: return
+        val sections = order.map { section -> WidgetFit.Section(village.upgrades.count { it.section == section }, section.name in folded) }
+        val hint = WidgetFit.hint(sections, room.rows, room.header) ?: return
+        views.setTextViewText(R.id.more, context.resources.getQuantityString(R.plurals.widget_more, hint.hidden, hint.hidden))
+        views.setOnClickPendingIntent(R.id.more, showOnlyIntent(context, shown, order[hint.section]))
+        views.setViewVisibility(R.id.more, View.VISIBLE)
     }
 
     // The picture on a section's chips. Multipliers alone don't say which item is running.

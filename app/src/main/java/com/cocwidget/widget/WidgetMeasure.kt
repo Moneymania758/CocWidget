@@ -12,10 +12,9 @@ import kotlin.math.ceil
 // measured, so this works from the font's real metrics (which follow the phone's font size) and the
 // layouts' fixed sizes in WidgetFit.
 object WidgetMeasure {
-    class Room(val rows: Int, val header: Int, val more: Int)
+    class Room(val rows: Int, val header: Int)
 
-    // Null when the launcher hasn't said how tall the widget is. The widget then shows every row,
-    // and leaves any overflow cut off as it did before.
+    // Null when the launcher hasn't said how tall the widget is, and the widget then gives no hint.
     fun of(context: Context, manager: AppWidgetManager, widgetId: Int, viewButtons: Boolean, helpers: Boolean): Room? {
         val options = manager.getAppWidgetOptions(widgetId)
         // Launchers report the tallest height for portrait and the shortest for landscape.
@@ -30,6 +29,6 @@ object WidgetMeasure {
             val line = paint.fontMetricsInt
             ceil((line.bottom - line.top) / metrics.density).toInt()
         }
-        return Room(WidgetFit.roomForRows(height, viewButtons, helpers, text), WidgetFit.headerDp(text), WidgetFit.moreDp(text))
+        return Room(WidgetFit.roomForRows(height, viewButtons, helpers, text), WidgetFit.headerDp(text))
     }
 }
