@@ -11,17 +11,32 @@ import com.cocwidget.ui.ShareCard
 
 // Everything about the app rather than the village: settings, help and the way to About.
 class SettingsActivity : Screen() {
-    // Folded sections the person opened, kept while the screen is rebuilt.
+    // Folds opened and names typed but not saved, by account. The screen is rebuilt on every
+    // visit, and after a rotation these come back from the saved state.
     private val open = mutableSetOf<Int>()
+    private val nameDrafts = mutableMapOf<String, String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedInstanceState == null && intent.getBooleanExtra(EXTRA_SHOW_SETUP, false)) open += R.string.fold_setup
+        if (savedInstanceState == null) {
+            if (intent.getBooleanExtra(EXTRA_SHOW_SETUP, false)) open += R.string.fold_setup
+        } else {
+            savedInstanceState.getIntegerArrayList(STATE_OPEN)?.let { open += it }
+            savedInstanceState.getBundle(STATE_DRAFTS)?.let { drafts ->
+                for (tag in drafts.keySet()) drafts.getString(tag)?.let { nameDrafts[tag] = it }
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putIntegerArrayList(STATE_OPEN, ArrayList(open))
+        outState.putBundle(STATE_DRAFTS, Bundle().apply { for ((tag, name) in nameDrafts) putString(tag, name) })
     }
 
     override fun build() {
         content.addView(backHeader(R.string.settings_title))
-        val settings = SettingsCard(this, ui, ::show)
+        val settings = SettingsCard(this, ui, nameDrafts, ::show)
         content.addView(settings.general(), ui.matchWidth(12))
         settings.account()?.let { content.addView(it, ui.matchWidth(16)) }
         content.addView(HelpCard(this, ui, installedVersion(), open).build(), ui.matchWidth(16))
@@ -41,5 +56,7 @@ class SettingsActivity : Screen() {
 
     companion object {
         const val EXTRA_SHOW_SETUP = "show_setup"
+        private const val STATE_OPEN = "open"
+        private const val STATE_DRAFTS = "name_drafts"
     }
 }

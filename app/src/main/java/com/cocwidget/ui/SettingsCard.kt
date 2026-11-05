@@ -3,7 +3,9 @@ package com.cocwidget.ui
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.res.ColorStateList
+import android.text.Editable
 import android.text.InputType
+import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -15,10 +17,12 @@ import com.cocwidget.R
 import com.cocwidget.VillageWidget
 import com.cocwidget.store.Store
 
-// The Settings screen's cards. [redraw] rebuilds the screen after a change that alters it.
+// The Settings screen's cards. [nameDrafts] holds names typed but not saved, by account, so they
+// outlive a rebuild. [redraw] rebuilds the screen after a change that alters it.
 class SettingsCard(
     private val activity: Activity,
     private val ui: Ui,
+    private val nameDrafts: MutableMap<String, String>,
     private val redraw: () -> Unit,
 ) {
     // Settings for the whole app, whichever account is selected.
@@ -96,13 +100,20 @@ class SettingsCard(
     private fun nameRow(tag: String) = ui.row().apply {
         addView(ui.text(activity.getString(R.string.name_title), 15f))
         val name = EditText(activity).apply {
-            setText(Store.displayName(activity, tag))
+            setText(nameDrafts[tag] ?: Store.displayName(activity, tag))
             hint = activity.getString(R.string.name_hint)
             setTextColor(ui.skin.text)
             setHintTextColor(ui.skin.dim)
             backgroundTintList = ColorStateList.valueOf(ui.skin.dim)
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PERSON_NAME
             importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+            addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) = Unit
+                override fun afterTextChanged(text: Editable?) {
+                    nameDrafts[tag] = text.toString()
+                }
+            })
         }
         addView(LinearLayout(activity).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -110,6 +121,7 @@ class SettingsCard(
             addView(name, ui.weighted())
             addView(ui.button(activity.getString(R.string.save_name), null, primary = false) {
                 Store.setDisplayName(activity, tag, name.text.toString().trim())
+                nameDrafts.remove(tag)
                 VillageWidget.requestRefresh(activity)
                 Toast.makeText(activity, R.string.name_saved, Toast.LENGTH_SHORT).show()
                 redraw()
@@ -128,6 +140,7 @@ class SettingsCard(
                 .setMessage(R.string.account_remove_message)
                 .setPositiveButton(R.string.account_remove_confirm) { _, _ ->
                     Store.removeAccount(activity, tag)
+                    nameDrafts.remove(tag)
                     VillageWidget.requestRefresh(activity)
                     redraw()
                 }

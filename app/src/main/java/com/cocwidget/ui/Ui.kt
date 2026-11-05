@@ -130,7 +130,7 @@ class Ui(private val activity: Activity, val skin: Skin) {
             gravity = Gravity.CENTER
             minimumHeight = dp(52) + raisedDrop
             background = buttonFace(primary)
-            setPadding(dp(12), 0, dp(12), raisedDrop)
+            setPadding(dp(12), dp(6), dp(12), dp(6) + raisedDrop)
             if (icon != null) {
                 addView(ImageView(activity).apply {
                     setImageResource(icon)
@@ -149,10 +149,11 @@ class Ui(private val activity: Activity, val skin: Skin) {
     // A secondary button with its icon above the label, for a row of tools.
     fun tile(label: CharSequence, icon: Int, onClick: () -> Unit) = LinearLayout(activity).apply {
         orientation = LinearLayout.VERTICAL
-        gravity = Gravity.CENTER
-        minimumHeight = dp(84) + raisedDrop
+        // From the top, so icons and first lines stay level when one label wraps.
+        gravity = Gravity.CENTER_HORIZONTAL
+        minimumHeight = dp(76) + raisedDrop
         background = buttonFace(primary = false)
-        setPadding(dp(6), dp(8), dp(6), dp(8) + raisedDrop)
+        setPadding(dp(6), dp(12), dp(6), dp(12) + raisedDrop)
         addView(ImageView(activity).apply {
             setImageResource(icon)
             imageTintList = ColorStateList.valueOf(skin.secondaryText)

@@ -16,6 +16,7 @@ import com.cocwidget.game.STUDY_SOUP_MULTIPLIER
 import com.cocwidget.game.Village
 import com.cocwidget.game.VillageParser
 import com.cocwidget.store.Store
+import com.cocwidget.ui.WhatsNew
 import kotlin.math.abs
 
 // Invisible screen opened by the widget's Sync button. Android only lets the app with
@@ -72,6 +73,9 @@ class SyncActivity : Activity() {
     }
 
     private fun save(json: String) {
+        if (WhatsNew.firstSyncOfFreshInstall(Store.whatsNewSeen(this), Store.hasExport(this))) {
+            Store.setWhatsNewSeen(this, packageManager.getPackageInfo(packageName, 0).versionName.orEmpty())
+        }
         val tag = Store.saveExport(this, json)
         VillageWidget.requestRefresh(this)
         // With more than one account, say which one the export belonged to.

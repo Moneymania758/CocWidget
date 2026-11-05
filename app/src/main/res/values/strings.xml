@@ -66,7 +66,7 @@
     <string name="main_steps">SET UP (ONCE)\n1. Add the widget: long-press the home screen, tap Widgets and drag Clash Timers on. Make it tall. If it doesn\'t all fit, tap a section title on the widget to fold it. There\'s also a small Next to finish widget showing only the next upgrade.\n2. Add the sync tile: pull the notification shade all the way down, tap edit (pencil, or ⋮ then Edit) and drag Clash Sync into your tiles.\n3. Settings &gt; Apps &gt; Clash Timers &gt; Battery &gt; Unrestricted, so the widget keeps updating.\n\nSYNC YOUR VILLAGE\n1. In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy.\n2. Pull down and tap Clash Sync. You stay in the game. (Or tap Sync on the widget, or in the app.)\n\nSync again whenever you start an upgrade, finish one early or use a potion. The widget only knows what was true at your last export.\n\nMORE THAN ONE ACCOUNT\nExport and sync each account the same way. Each one is added by itself. When you add a widget, you pick which account it shows.</string>
     <string name="event_switch">Event: 50% off upgrade times</string>
     <string name="event_explain">Turn on while Hammer Jam (or another event that halves upgrade times) is running, and off when it ends. Upgrades you start while it\'s on then get the right progress bar. Timers and notifications are right either way.</string>
-    <string name="name_hint">Name shown on the widget</string>
+    <string name="name_hint">Name</string>
     <string name="save_name">Save name</string>
     <string name="name_saved">Name saved</string>
     <string name="status_none">No export synced yet.</string>

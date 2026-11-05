@@ -45,7 +45,7 @@ class MainActivity : Screen() {
 
     override fun onResume() {
         super.onResume()
-        // Redraw only when an update turns up, so a name being typed isn't wiped.
+        // The screen was just built, so redraw only when an update turns up.
         val before = UpdateChecker.availableUpdate(this)
         thread {
             UpdateChecker.checkIfDue(applicationContext, UpdateChecker.OPEN_APP_INTERVAL_MS)

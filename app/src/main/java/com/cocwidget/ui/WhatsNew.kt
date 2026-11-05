@@ -35,4 +35,9 @@ object WhatsNew {
     // there being a synced export.
     fun showCard(installed: String, lastSeen: String?, hasSynced: Boolean): Boolean =
         installed != lastSeen && (lastSeen != null || hasSynced)
+
+    // Just before an export is saved. Once it is, a fresh install would look like an update from
+    // 1.6, so its first sync records the version as already seen.
+    fun firstSyncOfFreshInstall(lastSeen: String?, hasSynced: Boolean): Boolean =
+        lastSeen == null && !hasSynced
 }
