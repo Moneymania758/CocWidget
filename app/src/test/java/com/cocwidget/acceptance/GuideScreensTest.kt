@@ -185,6 +185,20 @@ class GuideScreensTest {
         assertFalse(troop.contains(app.getString(com.cocwidget.R.string.guide_how_to_beat)))
     }
 
+    // Defence pages once showed raw data in a chip: Prefers [{"h":17,"n":1,"l":2}].
+    @Test
+    fun noPageShowsRawData() {
+        val raw = listOf("{", "}", "[", "]", "\"", "null", "undefined", "NaN")
+        for (unit in units.values) {
+            val intent = android.content.Intent(app, GuideUnitActivity::class.java).putExtra(GuideScreen.EXTRA_ID, unit.id)
+            val controller = org.robolectric.Robolectric.buildActivity(GuideUnitActivity::class.java, intent).setup()
+            for (text in Screens.texts(Screens.root(controller.get()))) {
+                for (mark in raw) assertFalse("${unit.name} shows: $text", text.contains(mark))
+            }
+            controller.pause().stop().destroy()
+        }
+    }
+
     @Test
     fun everyAttackChipOpensItsOwnPage() {
         for (page in guide.content.townHalls) {

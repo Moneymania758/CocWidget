@@ -124,7 +124,7 @@ object GuideUnits {
                 resource = entry.optString("r"),
                 costs = longs(entry.optJSONArray("c")),
                 times = longs(entry.optJSONArray("tm")),
-                perTownHall = objects(entry.optJSONArray("pt")).map { PerTownHall(it.getInt("h"), it.getInt("n"), it.getInt("l")) },
+                perTownHall = objects(entry.optJSONArray("byTh")).map { PerTownHall(it.getInt("h"), it.getInt("n"), it.getInt("l")) },
             )
         }
         return map

@@ -189,7 +189,7 @@ class GuideUnitsTest {
         assertEquals("200 housing deployed", stats("Eagle Artillery")["Wakes up after"])
         assertEquals("7 tiles", stats("Eagle Artillery")["Can't hit closer than"])
         assertTrue(stats("Multi-Archer Tower").getValue("Merged from").contains("Archer Tower level 21"))
-        assertTrue(stats("X-Bow").getValue("Air and ground mode").contains("11.5 tiles range"))
+        assertTrue(stats("X-Bow").getValue("Air and ground mode").contains("11.5 tile range"))
         assertTrue(stats("Cannon").getValue("Gear up").contains("needs level 7"))
         assertEquals("From level 1: +60% damage, lasts 18s, recharges in 70s", stats("Spell Tower")["Rage"])
     }
@@ -202,6 +202,13 @@ class GuideUnitsTest {
         assertEquals(2, charge.stats.size)
         assertTrue(charge.stats.first().value.contains("+10 damage per second"))
         assertTrue(unit("Cannon").subs.isEmpty())
+    }
+
+    @Test
+    fun preferredTargetsAreWords() {
+        assertEquals("Heroes", unit("Headhunter").preferredTarget)
+        for (entry in units.values) assertFalse(entry.name, entry.preferredTarget.startsWith("["))
+        assertEquals("", unit("Multi-Gear Tower").preferredTarget)
     }
 
     @Test
