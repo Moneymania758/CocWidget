@@ -102,6 +102,7 @@
 
     <string name="whats_new_card">New in %1$s</string>
     <string name="whats_new_got_it">Got it</string>
+    <string name="whats_new_2_7_1">• Fixed: a running Study Soup was ignored. Research and pet upgrades now count down at 4x, and the widget shows a chip for it.\n• Sync no longer asks which boost you used. It can now tell from the export.</string>
     <string name="whats_new_2_7">• A shorter main screen: your village and its tools. Theme, Hammer Jam, your account name, help and Share your export have moved to Settings, the gear at the top right.\n• Fixed: a name you were typing could be lost if you left the app or turned your phone.\n• Fixed: a new install showed the What\'s New card straight after its first sync.</string>
     <string name="whats_new_2_6_1">• A Builder Bite running with a Builder Potion now counts: builders run at 11x, and the widget shows a chip for each.\n• Fixed: Time to max counted supercharges on plain Wizard Towers, which the game no longer has.</string>
     <string name="whats_new_2_6">• Share your export: help fix bugs and keep up with game updates by emailing your village export to the developer. Your email app opens with everything filled in, so you just press send. Your player tag is taken out first.</string>
