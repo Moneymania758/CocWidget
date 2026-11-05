@@ -408,7 +408,7 @@ const tiles = value => (value === 1 ? '1 tile' : `${value} tiles`);
 // One mode a defence can switch to, in a few words.
 function modeText(mode) {
   return [
-    typeof mode.range === 'number' ? `${tiles(mode.range)} range` : '',
+    typeof mode.range === 'number' ? `${mode.range} tile range` : '',
     typeof mode.attackSpeed === 'number' ? `hits every ${mode.attackSpeed}s` : '',
     mode.numberOfTargets ? `${mode.numberOfTargets} targets` : '',
   ].filter(Boolean).join(', ');
@@ -519,7 +519,7 @@ function buildDefences(data, root) {
       th: townHalls,
       charts,
       stats: [...defenceFacts(npm, entry), ...stats],
-      pt: perTownHall,
+      byTh: perTownHall,
       r: entry.upgrade_resource || npm.levels?.[0]?.buildCostResource || '',
       c: entry.levels.map(level => level.build_cost || 0),
       tm: entry.levels.map(level => level.build_time || 0),
