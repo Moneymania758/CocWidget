@@ -92,6 +92,54 @@ class WidgetFitTest {
         }
     }
 
+    // A line of text in the sizes the widget uses, roughly as a phone at normal font size.
+    private val normalText: (Int) -> Int = { sp -> sp + sp / 3 }
+    private val hugeText: (Int) -> Int = { sp -> 2 * (sp + sp / 3) }
+
+    @Test
+    fun theFrameTakesItsOptionalLinesOffTheRoom() {
+        val plain = WidgetFit.roomForRows(400, viewButtons = false, helpers = false, normalText)
+        assertEquals(plain - (6 + 14 + 6), WidgetFit.roomForRows(400, viewButtons = true, helpers = false, normalText))
+        assertEquals(plain - (4 + 14), WidgetFit.roomForRows(400, viewButtons = false, helpers = true, normalText))
+        assertEquals(plain + 100, WidgetFit.roomForRows(500, viewButtons = false, helpers = false, normalText))
+    }
+
+    @Test
+    fun theFrameMatchesItsSizesAtNormalText() {
+        // 12 + 12 padding, title row 28 (the Sync button: text 18 + 10), footer 4 + 14, safety 4.
+        assertEquals(400 - 24 - 28 - 18 - 4, WidgetFit.roomForRows(400, viewButtons = false, helpers = false, normalText))
+        // 8 + 4 padding, then the chip: 2 + 2 + its 16 tall text.
+        assertEquals(32, WidgetFit.headerDp(normalText))
+        assertEquals(26, WidgetFit.moreDp(normalText))
+    }
+
+    @Test
+    fun largerTextLeavesLessRoom() {
+        for (buttons in listOf(true, false)) for (helpers in listOf(true, false)) {
+            assertTrue(WidgetFit.roomForRows(400, buttons, helpers, hugeText) < WidgetFit.roomForRows(400, buttons, helpers, normalText))
+        }
+        assertTrue(WidgetFit.headerDp(hugeText) > WidgetFit.headerDp(normalText))
+        assertTrue(WidgetFit.moreDp(hugeText) > WidgetFit.moreDp(normalText))
+    }
+
+    // The sums above copy these sizes, so a layout change has to change them too.
+    @Test
+    fun theSumsMatchTheLayouts() {
+        val xml = { name: String -> File("src/main/res/layout/$name.xml").readText() }
+        val widget = xml("widget")
+        assertTrue(widget.contains("android:padding=\"12dp\""))
+        assertTrue(widget.contains("android:paddingTop=\"5dp\"") && widget.contains("android:paddingBottom=\"5dp\""))
+        assertTrue(widget.contains("android:layout_marginTop=\"6dp\""))
+        assertTrue(widget.contains("android:layout_marginTop=\"4dp\""))
+        val section = xml("widget_section")
+        assertTrue(section.contains("android:paddingTop=\"8dp\"") && section.contains("android:paddingBottom=\"4dp\""))
+        assertTrue(section.contains("android:paddingTop=\"2dp\"") && section.contains("android:paddingBottom=\"2dp\""))
+        assertTrue(section.contains("android:layout_height=\"16dp\""))
+        assertTrue(xml("widget_more").contains("android:minHeight=\"26dp\""))
+        val button = File("src/main/res/values/themes.xml").readText()
+        assertTrue(button.contains("<item name=\"android:paddingTop\">3dp</item>") && button.contains("<item name=\"android:paddingBottom\">3dp</item>"))
+    }
+
     @Test
     fun rowHeightMatchesTheLayout() {
         assertTrue(File("src/main/res/layout/widget_row.xml").readText().contains("android:layout_height=\"${WidgetFit.ROW_DP}dp\""))

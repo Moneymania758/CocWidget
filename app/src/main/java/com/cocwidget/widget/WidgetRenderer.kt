@@ -182,7 +182,7 @@ object WidgetRenderer {
         val order = listOf(Section.BUILDERS, Section.LAB, Section.PETS, Section.BUILDER_BASE).filter { it in sections }
         val folded = Store.collapsedSections(context, tag)
         val rows = order.map { section -> if (section.name in folded) 0 else village.upgrades.count { it.section == section } }
-        val room = WidgetMeasure.of(context, manager, widgetId, Section.BUILDER_BASE in sections, village.helpers.apprenticeLevel > 0 || village.helpers.assistantLevel > 0, update != null)
+        val room = WidgetMeasure.of(context, manager, widgetId, Section.BUILDER_BASE in sections, village.helpers.apprenticeLevel > 0 || village.helpers.assistantLevel > 0)
         val fits = if (room == null) rows else WidgetFit.rowsToShow(rows, room.rows, room.header, room.more)
         for ((index, section) in order.withIndex()) {
             val (title, slots) = when (section) {

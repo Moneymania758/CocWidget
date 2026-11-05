@@ -8,6 +8,25 @@ object WidgetFit {
     // The fixed height of a row in widget_row.xml.
     const val ROW_DP = 38
 
+    // Launchers round their sizes, so keep a little back rather than clip a row by a pixel.
+    private const val SAFETY_DP = 4
+
+    // The height left for headers, rows and more lines in a widget [height] tall, from widget.xml.
+    // [text] gives the height in dp of a line of text at a size in sp.
+    fun roomForRows(height: Int, viewButtons: Boolean, helpers: Boolean, text: (Int) -> Int): Int {
+        val titleRow = maxOf(text(18), maxOf(text(14), 16) + 10)
+        val buttons = if (viewButtons) 6 + text(11) + 6 else 0
+        val helperLine = if (helpers) 4 + text(11) else 0
+        val footer = 4 + text(11)
+        return height - 2 * 12 - titleRow - buttons - helperLine - footer - SAFETY_DP
+    }
+
+    // A section header in widget_section.xml, as tall as it gets with a boost chip showing.
+    fun headerDp(text: (Int) -> Int): Int = 8 + 4 + maxOf(text(14), 2 + 2 + maxOf(text(12), 16))
+
+    // A more line in widget_more.xml.
+    fun moreDp(text: (Int) -> Int): Int = maxOf(26, text(13))
+
     // How many rows to show in each section, given how many each has. A folded section has none.
     // [available] is the height for headers, rows and more lines, or null if it isn't known.
     fun rowsToShow(rows: List<Int>, available: Int?, headerDp: Int, moreDp: Int, rowDp: Int = ROW_DP): List<Int> {
