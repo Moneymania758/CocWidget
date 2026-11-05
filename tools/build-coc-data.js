@@ -11,6 +11,8 @@ const path = require('path');
 
 const SOURCE_URL = 'https://assets.clashk.ing/static_data.json';
 const OUTPUT = path.join(__dirname, '..', 'app', 'src', 'main', 'assets', 'coc_data.json');
+// The guide's game facts live apart, so the widget doesn't parse text it never shows.
+const GUIDE_OUTPUT = path.join(__dirname, '..', 'app', 'src', 'main', 'assets', 'guide_facts.json');
 const KINDS = {
   buildings: 'building',
   traps: 'trap',
@@ -56,6 +58,67 @@ const REQUIRED_BUILDINGS = {
   required_hero_tavern_level: 1000071,
   required_blacksmith_level: 1000070,
 };
+
+// Super Troops open at this Town Hall, whatever their base troop's level allows.
+const SUPER_TROOP_TOWN_HALL = 11;
+
+// Some game text holds a literal backslash and n where a line break was meant.
+const cleanInfo = text => (text || '').replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
+
+// A hero or pet: its game text, how it moves and hits, and its stats at its top level.
+function fighterFacts(entry) {
+  const top = entry.levels[entry.levels.length - 1];
+  return {
+    id: entry._id,
+    n: entry.name,
+    i: cleanInfo(entry.info),
+    f: entry.is_flying ? 1 : 0,
+    a: entry.is_air_targeting ? 1 : 0,
+    g: entry.is_ground_targeting ? 1 : 0,
+    r: entry.attack_range,
+    hp: top.hitpoints,
+    d: top.dps,
+  };
+}
+
+// The Town Hall each home village troop, siege machine and spell opens at. It comes from the level
+// of the building that makes it, as level 1's required_townhall doesn't say (Super Yeti has 3).
+// Seasonal and event units are left out, as nobody can plan around them.
+function armyFacts(data) {
+  const townHallOf = (buildingName, level) => {
+    const building = data.buildings.find(b => b.name === buildingName && (b.village || 'home') === 'home');
+    return building?.levels.find(l => l.level === level)?.required_townhall;
+  };
+  const opens = troop => townHallOf(troop.production_building, troop.production_building_level);
+  const out = [];
+  for (const troop of data.troops) {
+    if (troop.village !== 'home' || troop.is_seasonal) continue;
+    let th = opens(troop);
+    let kind = troop.production_building === 'Workshop' ? 'siege' : 'troop';
+    if (troop.super_troop) {
+      // It also needs its base troop researched far enough.
+      const base = data.troops.find(t => t._id === troop.super_troop.original_id);
+      const level = base.levels.find(l => l.level === troop.super_troop.original_min_level);
+      th = Math.max(SUPER_TROOP_TOWN_HALL, opens(base), level.required_townhall);
+      kind = 'super';
+    }
+    out.push({ id: troop._id, n: troop.name, k: kind, h: th });
+  }
+  for (const spell of data.spells) {
+    if (spell.is_seasonal) continue;
+    out.push({ id: spell._id, n: spell.name, k: 'spell', h: opens(spell) });
+  }
+  return out;
+}
+
+function guideFacts(data) {
+  return {
+    heroes: data.heroes.filter(hero => hero.village === 'home').map(fighterFacts),
+    pets: data.pets.map(fighterFacts),
+    equipment: data.equipment.map(entry => ({ id: entry._id, n: entry.name, i: cleanInfo(entry.info) })),
+    army: armyFacts(data),
+  };
+}
 
 function groupFor(category, entry) {
   if ((entry.village || 'home') !== 'home') return '';
@@ -176,6 +239,8 @@ async function main() {
 
   fs.writeFileSync(OUTPUT, JSON.stringify(out));
   console.log(`Wrote ${Object.keys(out).length} entries to ${OUTPUT}`);
+  fs.writeFileSync(GUIDE_OUTPUT, JSON.stringify(guideFacts(data)));
+  console.log(`Wrote ${GUIDE_OUTPUT}`);
 }
 
 main().catch(err => {

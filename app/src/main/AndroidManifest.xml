@@ -50,6 +50,31 @@
             android:label="@string/potions_open" />
 
         <activity
+            android:name=".GuideActivity"
+            android:exported="false"
+            android:label="@string/guide_open" />
+
+        <activity
+            android:name=".GuideTownHallActivity"
+            android:exported="false"
+            android:label="@string/guide_town_halls" />
+
+        <activity
+            android:name=".GuideHeroesActivity"
+            android:exported="false"
+            android:label="@string/guide_heroes" />
+
+        <activity
+            android:name=".GuidePetsActivity"
+            android:exported="false"
+            android:label="@string/guide_pets" />
+
+        <activity
+            android:name=".GuidePairingsActivity"
+            android:exported="false"
+            android:label="@string/guide_pairings" />
+
+        <activity
             android:name=".SettingsActivity"
             android:exported="false"
             android:label="@string/settings_title" />

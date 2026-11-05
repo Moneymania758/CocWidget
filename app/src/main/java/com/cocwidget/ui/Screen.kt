@@ -35,7 +35,9 @@ abstract class Screen : Activity() {
     protected abstract fun build()
 
     // A back arrow and the screen's title. Callers can add more to the end of the row.
-    protected fun backHeader(title: Int) = LinearLayout(this).apply {
+    protected fun backHeader(title: Int) = backHeader(getString(title))
+
+    protected fun backHeader(title: CharSequence) = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
         addView(LinearLayout(this@Screen).apply {
@@ -44,7 +46,7 @@ abstract class Screen : Activity() {
             addView(ui.icon(R.drawable.ic_back, ui.skin.text, 22))
             ui.pressable(this, 22f) { finish() }
         }, LinearLayout.LayoutParams(ui.dp(44), ui.dp(44)))
-        addView(ui.heading(getString(title), 22f, ui.skin.title), ui.weighted(4))
+        addView(ui.heading(title, 22f, ui.skin.title), ui.weighted(4))
     }
 
     protected fun installedVersion() = packageManager.getPackageInfo(packageName, 0).versionName.orEmpty()

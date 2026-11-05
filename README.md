@@ -160,6 +160,21 @@ covers, so it's fully used when every slot stays busy for the whole hour.
 - If a boost is already running, it says how long is left instead.
 - It works from your last sync, so sync first. Helpers and the event Goblin aren't counted.
 
+## Guide
+
+The Guide button on the main screen works with or without a synced village.
+
+- **Town Halls** (TH3 up): what the upgrade costs, what it adds, hero and pet level caps, and popular
+  attacks with the army, steps and rough difficulty.
+- **Heroes and Pets**: how each one moves and hits, what it unlocks at, its stats, and good pairings.
+- **Best pets for each hero**: picks with reasons, and a set for your Town Hall that uses each pet
+  once. A pet can only go with one hero at a time.
+
+With a synced village it marks your Town Hall and shows your hero and pet levels against the cap.
+
+Levels and stats come from the game data. Attack and pet picks are opinions from community guides,
+which often disagree, so each screen says when they were last checked and the sources are listed.
+
 ## Themes
 
 Open the app, tap the gear at the top right and pick a look under **Theme**:
@@ -257,6 +272,10 @@ starts to pick up the next hour.
   The builder estimate is the larger of the longest single item and total builder time divided
   by builders.
 - Icons download from ClashKing's asset host on first sync and are cached.
+- Guide: `guide_facts.json` is generated with `coc_data.json`. `guide_content.json` is written by
+  hand, in our own words, with its sources (research in `docs/guide-research.md`). `GuideTest` fails if a
+  strategy uses a troop, hero, pet or piece of equipment that doesn't exist or isn't open at that Town Hall.
+  A new Town Hall shows its facts straight away, and a "not checked yet" note until content is added.
 - Accounts: each export is filed under its `tag` in its own preferences file
   (`account_<tag>`), holding the export, boost answers, name, folded sections and notification
   record. Theme, event switch and update check stay app-wide in `village`. Each widget's account

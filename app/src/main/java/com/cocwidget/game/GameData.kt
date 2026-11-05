@@ -69,6 +69,9 @@ object Ids {
     const val BUILDER_HUT = 1000015
     const val BOB_HUT = 1000064
     const val PET_HOUSE = 1000068
+    const val LABORATORY = 1000007
+    const val BLACKSMITH = 1000070
+    const val HERO_HALL = 1000071
     const val BUILDERS_APPRENTICE = 93000000
     const val LAB_ASSISTANT = 93000001
 }

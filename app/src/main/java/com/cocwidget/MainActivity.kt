@@ -62,6 +62,9 @@ class MainActivity : Screen() {
         }
         whatsNewCard()?.let { content.addView(it, ui.matchWidth(16)) }
         content.addView(villageCard(), ui.matchWidth(16))
+        content.addView(ui.button(getString(R.string.guide_open), R.drawable.ic_book, primary = false) {
+            startActivity(Intent(this, GuideActivity::class.java))
+        }, ui.matchWidth(14))
         addNote(getString(R.string.footer))
     }
 
