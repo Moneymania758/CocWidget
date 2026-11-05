@@ -139,6 +139,7 @@ class Ui(private val activity: Activity, val skin: Skin) {
             }
             val size = if (skin.headingFont != null) 18f else 15f
             addView(heading(label, size, colour).apply {
+                gravity = Gravity.CENTER
                 if (skin.headingFont == null) typeface = Typeface.DEFAULT_BOLD
                 if (primary && skin.primaryShade != 0) setShadowLayer(0.01f, 0f, dp(2).toFloat(), skin.primaryShade) else setShadowLayer(0f, 0f, 0f, 0)
             })

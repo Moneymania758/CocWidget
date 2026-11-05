@@ -52,6 +52,7 @@ android {
 // tests as up to date after a layout or game data change and silently skips them.
 tasks.withType<Test>().configureEach {
     inputs.dir("src/main/res/layout").withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.file("src/main/res/values/strings.xml").withPathSensitivity(PathSensitivity.RELATIVE)
     inputs.file("src/main/assets/coc_data.json").withPathSensitivity(PathSensitivity.RELATIVE)
 }
 

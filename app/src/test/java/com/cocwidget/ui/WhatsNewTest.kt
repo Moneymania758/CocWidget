@@ -22,6 +22,16 @@ class WhatsNewTest {
         assertEquals(versions.size, versions.toSet().size)
     }
 
+    // Android turns a real line break in a string into a space, which runs two bullets together.
+    @Test
+    fun notesBreakLinesWithAnEscapeNotARealLineBreak() {
+        val notes = Regex("""<string name="(whats_new_\d[^"]*)">([^<]*)</string>""")
+            .findAll(File("src/main/res/values/strings.xml").readText())
+            .toList()
+        assertTrue("no notes found", notes.isNotEmpty())
+        for (note in notes) assertFalse(note.groupValues[1], "\n" in note.groupValues[2])
+    }
+
     @Test
     fun cardShowsOncePerUpdate() {
         assertTrue(WhatsNew.showCard("1.7", lastSeen = "1.6", hasSynced = true))
