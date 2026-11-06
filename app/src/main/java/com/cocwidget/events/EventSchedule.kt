@@ -39,17 +39,40 @@ object EventSchedule {
     private const val SEASON_HOUR = 8
     private const val RAID_HOUR = 7
     private const val RANKED_HOUR = 17
+    private const val RANKED_END_HOUR = 5
+    private const val CWL_SIGN_UP_DAYS = 2L
 
     class Occurrence(val id: String, val kind: EventKind, val start: Long, val end: Long?)
 
     class Reminder(val id: String, val kind: EventKind, val at: Long, val title: Int, val text: Int)
 
+    // What to count down to: the end of an event that's on ([running]), or the next one's start.
+    class Countdown(val kind: EventKind, val running: Boolean, val target: Long)
+
     // [notified] is what to remember as handled. [next] is the next reminder still to come.
     class Decision(val due: List<Reminder>, val notified: Set<String>, val next: Long?)
 
-    fun reminders(now: Long, dates: EventDates.Dates): List<Reminder> {
+    fun reminders(now: Long, dates: EventDates.Dates): List<Reminder> =
+        occurrences(now, dates).flatMap(::remindersFor).sortedBy { it.at }
+
+    // One per kind with a date, soonest first. A kind with nothing dated is left out.
+    fun countdowns(now: Long, dates: EventDates.Dates): List<Countdown> {
+        val events = occurrences(now, dates)
+        return EventKind.entries.mapNotNull { kind ->
+            val ofKind = events.filter { it.kind == kind }
+            val endOfRunning = ofKind.filter { it.start <= now && it.end != null && it.end > now }.minOfOrNull { it.end!! }
+            val nextStart = ofKind.filter { it.start > now }.minOfOrNull { it.start }
+            when {
+                endOfRunning != null -> Countdown(kind, true, endOfRunning)
+                nextStart != null -> Countdown(kind, false, nextStart)
+                else -> null
+            }
+        }.sortedBy { it.target }
+    }
+
+    private fun occurrences(now: Long, dates: EventDates.Dates): List<Occurrence> {
         val replaced = dates.events.map { it.id }.toSet() + dates.cancelled
-        return (rules(now).filter { it.id !in replaced } + dates.events).flatMap(::remindersFor).sortedBy { it.at }
+        return rules(now).filter { it.id !in replaced } + dates.events
     }
 
     fun decide(
@@ -74,14 +97,14 @@ object EventSchedule {
             val first = month.atDay(1)
             listOf(
                 Occurrence("${EventKind.CLAN_GAMES.key}:$month", EventKind.CLAN_GAMES, at(month.atDay(22), SEASON_HOUR), at(month.atDay(28), SEASON_HOUR)),
-                Occurrence("${EventKind.CWL.key}:$month", EventKind.CWL, at(first, SEASON_HOUR), null),
+                Occurrence("${EventKind.CWL.key}:$month", EventKind.CWL, at(first, SEASON_HOUR), at(first.plusDays(CWL_SIGN_UP_DAYS), SEASON_HOUR)),
                 Occurrence("${EventKind.GOLD_PASS.key}:$month", EventKind.GOLD_PASS, at(first, SEASON_HOUR), at(month.plusMonths(1).atDay(1), SEASON_HOUR)),
             )
         }
         val weekly = (-WEEKLY_DAYS_BACK..WEEKLY_DAYS_AHEAD).map(today::plusDays).mapNotNull { day ->
             when (day.dayOfWeek) {
                 DayOfWeek.FRIDAY -> Occurrence("${EventKind.RAID_WEEKEND.key}:$day", EventKind.RAID_WEEKEND, at(day, RAID_HOUR), at(day.plusDays(3), RAID_HOUR))
-                DayOfWeek.MONDAY -> Occurrence("${EventKind.RANKED.key}:$day", EventKind.RANKED, at(day, RANKED_HOUR), null)
+                DayOfWeek.MONDAY -> Occurrence("${EventKind.RANKED.key}:$day", EventKind.RANKED, at(day, RANKED_HOUR), at(day.plusDays(7), RANKED_END_HOUR))
                 else -> null
             }
         }

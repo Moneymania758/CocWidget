@@ -5,6 +5,7 @@ import android.app.Notification
 import android.app.NotificationManager
 import android.os.Looper
 import android.widget.Switch
+import com.cocwidget.MainActivity
 import com.cocwidget.R
 import com.cocwidget.SettingsActivity
 import com.cocwidget.TestData
@@ -249,6 +250,63 @@ class EventReminderTest {
         assertTrue(Screens.tappable(Screens.root(page), app.getString(R.string.event_notifications_open)) != null)
     }
 
+    private fun countdownTexts(page: MainActivity) =
+        Screens.texts(Screens.root(page)).filter { COUNTDOWN.containsMatchIn(it) }
+
+    @Test
+    fun theMainScreenCountsDownWithNoVillage() {
+        val page = Screens.open<MainActivity>()
+        assertTrue(app.getString(R.string.event_home_title) in Screens.texts(Screens.root(page)))
+        assertEquals(3, countdownTexts(page).size)
+    }
+
+    @Test
+    fun theMainScreenCountsDownWithAVillageToo() {
+        Store.saveExport(app, TestData.th18ExportJson())
+        val page = Screens.open<MainActivity>()
+        assertTrue(app.getString(R.string.event_home_title) in Screens.texts(Screens.root(page)))
+    }
+
+    @Test
+    fun showAllAddsTheRestAndShowFewerPutsThemBack() {
+        val page = Screens.open<MainActivity>()
+        val all = Screens.texts(Screens.root(page)).single { it.startsWith("Show all") }
+        Screens.tappable(Screens.root(page), all)!!.performClick()
+        val shown = countdownTexts(page).size
+        assertTrue("$shown", shown > 3)
+        assertEquals(all, app.getString(R.string.event_show_all, shown))
+        Screens.tappable(Screens.root(page), app.getString(R.string.event_show_fewer))!!.performClick()
+        assertEquals(3, countdownTexts(page).size)
+    }
+
+    @Test
+    fun theRemindersLinkOpensSettings() {
+        val page = Screens.open<MainActivity>()
+        Screens.tappable(Screens.root(page), app.getString(R.string.event_home_settings))!!.performClick()
+        assertEquals(SettingsActivity::class.java.name, shadowOf(page).nextStartedActivity.component?.className)
+    }
+
+    @Test
+    fun theCountdownTicksWithAVillageToo() {
+        Store.saveExport(app, TestData.th18ExportJson())
+        val page = Screens.open<MainActivity>()
+        val before = countdownTexts(page)
+        assertEquals(3, before.size)
+        Thread.sleep(1100)
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(3))
+        assertTrue(before != countdownTexts(page))
+    }
+
+    @Test
+    fun theCountdownTicks() {
+        val page = Screens.open<MainActivity>()
+        val before = countdownTexts(page)
+        // The clocks read the real time, and the screen ticks on its handler.
+        Thread.sleep(1100)
+        shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofSeconds(3))
+        assertTrue(before != countdownTexts(page))
+    }
+
     @Test
     fun settingsListsEveryEventWithItsSwitch() {
         val page = Screens.open<SettingsActivity>()
@@ -265,5 +323,10 @@ class EventReminderTest {
         assertFalse(switch.isChecked)
         switch.performClick()
         assertTrue(Store.eventReminderOn(app, EventKind.RAID_WEEKEND))
+    }
+
+    private companion object {
+        // Every wording an event row's clock can have, and nothing an upgrade's clock says.
+        val COUNTDOWN = Regex("^(Starts in|Ends in|Sign-up (opens|closes) in|Season (starts|ends) in|Battles (open|end) in|New Tournament in) ")
     }
 }

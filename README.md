@@ -78,10 +78,14 @@ Timers and notifications are right either way: they use the real time left from 
 Leaving the switch on by mistake does no harm, because a full-price upgrade has more time left
 than a discounted one could, so it's never halved.
 
-## Event reminders
+## Event countdowns and reminders
 
-The app can tell you when game events are due. Open **Settings** and use the switches under
-**Event reminders**. Each one shows when its next reminder goes off, in your own time.
+The **Events** card on the main screen counts down to each game event, soonest first: when the next
+one starts, or when the one that's on ends. Tap **Show all** for the rest.
+
+The app can also send a notification when events are due. Tap **Reminders** on that card, or open
+**Settings**, and use the switches under **Event reminders**. Each one shows when its next reminder
+goes off, in your own time.
 
 | Event | You're told | Starts |
 |---|---|---|

@@ -15,6 +15,7 @@ import android.widget.LinearLayout
 import com.cocwidget.game.Village
 import com.cocwidget.store.Store
 import com.cocwidget.store.UpdateChecker
+import com.cocwidget.ui.HomeEvents
 import com.cocwidget.ui.HomeUpgrades
 import com.cocwidget.ui.Pictures
 import com.cocwidget.ui.Screen
@@ -28,6 +29,7 @@ import kotlin.concurrent.thread
 class MainActivity : Screen() {
     private lateinit var pictures: Pictures
     private var clocks: List<HomeUpgrades.Clock> = emptyList()
+    private var allEvents = false
     private val handler = Handler(Looper.getMainLooper())
 
     // Counts down on the screen. Something ending changes more than its clock, so that rebuilds.
@@ -97,16 +99,23 @@ class MainActivity : Screen() {
         val now = System.currentTimeMillis()
         val list = village?.let { HomeUpgrades(this, ui, pictures, it, now) }
         content.addView(villageCard(tag, village, list, now), ui.matchWidth(16))
+        val events = HomeEvents(this, ui, allEvents) {
+            allEvents = !allEvents
+            show()
+        }
+        val eventsCard = events.card(now)
         if (village == null || list == null) {
             content.addView(ui.button(getString(R.string.guide_open), R.drawable.ic_book, primary = false) {
                 startActivity(Intent(this, GuideActivity::class.java))
             }, ui.matchWidth(14))
-            clocks = emptyList()
+            eventsCard?.let { content.addView(it, ui.matchWidth(14)) }
+            clocks = events.clocks
         } else {
             content.addView(tools(), ui.matchWidth(14))
+            eventsCard?.let { content.addView(it, ui.matchWidth(14)) }
             list.helpers()?.let { content.addView(it, ui.matchWidth(14)) }
             for (section in village.sections()) content.addView(list.section(section), ui.matchWidth(14))
-            clocks = list.clocks
+            clocks = list.clocks + events.clocks
         }
         pictures.load()
         addNote(getString(R.string.footer))
