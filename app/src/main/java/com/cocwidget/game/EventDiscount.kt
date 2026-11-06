@@ -64,7 +64,7 @@ object EventDiscount {
         if (discounted.isEmpty() || ids.size != village.upgrades.size) return village
         val upgrades = village.upgrades.mapIndexed { index, upgrade ->
             val total = upgrade.totalSec
-            if (ids[index] in discounted && total != null) upgrade.copy(totalSec = discountedTotal(total)) else upgrade
+            if (ids[index] in discounted && total != null && eligible(upgrade)) upgrade.copy(totalSec = discountedTotal(total)) else upgrade
         }
         return village.withUpgrades(upgrades)
     }
@@ -77,8 +77,13 @@ object EventDiscount {
     // More time left than the discounted total means it can't have been started at a discount.
     private fun couldBeDiscounted(upgrade: Upgrade): Boolean {
         val total = upgrade.totalSec ?: return false
-        return upgrade.workSec <= discountedTotal(total)
+        return eligible(upgrade) && upgrade.workSec <= discountedTotal(total)
     }
+
+    // Supercell's Hammer Jam post (1 Nov 2026) leaves supercharges, crafted defences and the
+    // Builder Base out of the discount.
+    private fun eligible(upgrade: Upgrade) =
+        upgrade.supercharge == 0 && upgrade.defence.isEmpty() && upgrade.section != Section.BUILDER_BASE
 
     private fun discountedTotal(total: Long) = total * (100 - PERCENT) / 100
 }

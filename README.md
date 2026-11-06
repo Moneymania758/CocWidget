@@ -71,7 +71,8 @@ which account it was, such as **Main imported** (or the tag, until you name it).
 
 Open the app and turn on **Event: 50% off upgrade times** when the event starts, and turn it off
 when it ends. Upgrades you start while it's on then get the right progress bar. Without it,
-their bar starts half full, because the widget expects the normal upgrade time.
+their bar starts half full, because the widget expects the normal upgrade time. Supercharges,
+crafted defences and the Builder Base aren't discounted, so the app keeps those at full time.
 
 Timers and notifications are right either way: they use the real time left from your export.
 Leaving the switch on by mistake does no harm, because a full-price upgrade has more time left

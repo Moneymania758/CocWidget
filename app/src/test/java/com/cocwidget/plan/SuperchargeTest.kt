@@ -76,4 +76,26 @@ class SuperchargeTest {
         val event = TestData.plan(TestData.th18ExportJson(), eventPercent = 50).group(Group.EQUIPMENT)!!.costs
         assertEquals(normal, event)
     }
+
+    // Supercell's Hammer Jam post (1 Nov 2026) leaves supercharges out of the discount.
+    @Test
+    fun theEventDoesNotDiscountSupercharges() {
+        val event = TestData.plan(TestData.th18ExportJson(), eventPercent = 50).item("Bomb Tower")
+        assertEquals(th18.item("Bomb Tower").seconds, event.seconds)
+        assertEquals(th18.item("Bomb Tower").costs, event.costs)
+    }
+
+    @Test
+    fun nextStepsKeepSuperchargesAtFullPriceDuringTheEvent() {
+        val normal = Planner.nextSteps(TestData.th18ExportJson(), TestData.gameData)!!
+        val event = Planner.nextSteps(TestData.th18ExportJson(), TestData.gameData, eventPercent = 50)!!
+        val charges = normal.filter { it.supercharge > 0 }
+        assertTrue(charges.isNotEmpty())
+        assertEquals(charges.map { it.seconds to it.costs }, event.filter { it.supercharge > 0 }.map { it.seconds to it.costs })
+
+        // Ordinary levels are still halved.
+        val level = normal.first { it.supercharge == 0 && it.seconds > 1 }
+        val halved = event.first { it.id == level.id && it.toLevel == level.toLevel && it.supercharge == 0 }
+        assertEquals(level.seconds / 2, halved.seconds)
+    }
 }

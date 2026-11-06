@@ -90,7 +90,7 @@ object Planner {
     )
 
     // Returns null when [text] isn't a village export. [eventPercent] comes off the time and cost
-    // of every upgrade not started yet, as during Hammer Jam.
+    // of every upgrade not started yet, as during Hammer Jam. Supercharges stay at full price.
     fun plan(text: String, items: Map<Int, GameItem>, builders: Int, eventPercent: Int = 0): Plan? {
         val export = read(text, items) ?: return null
         return summarise(items, export, builders, 100 - eventPercent)
@@ -119,8 +119,8 @@ object Planner {
                 val supercharge = item.supercharge ?: continue
                 steps += Step(
                     id, item.name, group, supercharge.level, same.size,
-                    at(supercharge.times[stage - 1].toLong(), pricePercent),
-                    mapOf(supercharge.resource to at(supercharge.costs[stage - 1].toLong(), pricePercent)),
+                    supercharge.times[stage - 1].toLong(),
+                    mapOf(supercharge.resource to supercharge.costs[stage - 1].toLong()),
                     stage,
                 )
             }
@@ -275,8 +275,8 @@ object Planner {
                             copySeconds += copy.timer
                             continue
                         }
-                        copySeconds += at(supercharge.times[stage - 1].toLong(), pricePercent)
-                        costs.merge(supercharge.resource, at(supercharge.costs[stage - 1].toLong(), pricePercent), Long::plus)
+                        copySeconds += supercharge.times[stage - 1].toLong()
+                        costs.merge(supercharge.resource, supercharge.costs[stage - 1].toLong(), Long::plus)
                     }
                 }
                 seconds += copySeconds

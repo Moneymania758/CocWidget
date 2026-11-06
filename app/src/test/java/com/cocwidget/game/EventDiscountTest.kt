@@ -82,6 +82,37 @@ class EventDiscountTest {
         assertTrue(tracked.discounted.isEmpty())
     }
 
+    // Started during the event with under half its time left, so only the kind of upgrade can
+    // rule it out.
+    private fun discountedAfterSync(upgrade: Upgrade): Set<String> {
+        val before = village(t0)
+        val after = village(t0 + hour * 1000, upgrade)
+        return EventDiscount.track(before, emptyList(), emptySet(), after, eventOn = true).discounted
+    }
+
+    // Supercell's Hammer Jam post (1 Nov 2026) leaves these out of the discount.
+    @Test
+    fun superchargesAreNotHalved() {
+        assertTrue(discountedAfterSync(airDefense(47 * hour).copy(supercharge = 1)).isEmpty())
+    }
+
+    @Test
+    fun builderBaseUpgradesAreNotHalved() {
+        assertTrue(discountedAfterSync(airDefense(47 * hour).copy(section = Section.BUILDER_BASE)).isEmpty())
+    }
+
+    @Test
+    fun craftedDefencesAreNotHalved() {
+        assertTrue(discountedAfterSync(airDefense(47 * hour).copy(defence = "Crafted")).isEmpty())
+    }
+
+    @Test
+    fun aSuperchargeSavedAsDiscountedBeforeThisFixShowsItsFullTime() {
+        val charging = village(t0, airDefense(47 * hour).copy(supercharge = 1))
+        val shown = EventDiscount.apply(charging, listOf("saved"), setOf("saved"))
+        assertEquals(96 * hour, shown.upgrades.single().totalSec)
+    }
+
     @Test
     fun upgradingFromVersionThreeWithoutIdsStillWorks() {
         // 1.3 saved no ids, so the previous export's ids are missing.
