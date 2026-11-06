@@ -29,6 +29,7 @@ class GuidePairingsActivity : GuideScreen() {
     }
 
     private fun heroCard(hero: HeroGuide) = ui.card().apply {
+        freshTerms()
         addView(titleRow(itemNamed(guide.facts.heroes, hero.hero), hero.hero, ""))
         for ((index, pick) in hero.picks.withIndex()) addView(pickRow(pick, index == 0), ui.matchWidth(10))
         for (pick in hero.avoid) {

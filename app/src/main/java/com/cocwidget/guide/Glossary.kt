@@ -36,10 +36,10 @@ class Glossary(val terms: List<GlossaryTerm>) {
     fun term(name: String): GlossaryTerm? = byName[name]
 
     // The first place each term appears in [text]. Marking every repeat would turn a line into a
-    // wall of links. [skip] is the term whose own page this text is on.
-    fun matches(text: String, skip: String? = null): List<TermMatch> {
+    // wall of links. [skip] is the term whose own page this text is on. [seen] carries the terms
+    // already marked, so a screen can mark each one once across all its text.
+    fun matches(text: String, skip: String? = null, seen: MutableSet<String> = HashSet()): List<TermMatch> {
         val found = pattern?.findAll(text) ?: return emptyList()
-        val seen = HashSet<String>()
         return found.mapNotNull { match ->
             val term = termFor(match.value)
             if (term == null || term.term == skip || !seen.add(term.term)) null

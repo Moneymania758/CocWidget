@@ -1,5 +1,7 @@
 package com.cocwidget
 
+import android.widget.LinearLayout
+import com.cocwidget.guide.Equipment
 import com.cocwidget.guide.Fighter
 import com.cocwidget.guide.Guide
 import com.cocwidget.ui.GuideScreen
@@ -20,6 +22,7 @@ class GuideHeroesActivity : GuideScreen() {
     }
 
     private fun heroCard(hero: Fighter) = ui.card().apply {
+        freshTerms()
         val item = items[hero.id]
         val first = item?.let(Guide::firstTownHall) ?: 0
         val hall = item?.requiredLevelFor(1) ?: 0
@@ -31,7 +34,7 @@ class GuideHeroesActivity : GuideScreen() {
         }
         val written = guide.heroGuide(hero.name)
         written?.let { addView(ui.text(it.role, 14f).withTerms(), ui.matchWidth(8)) }
-        guide.content.heroTactics[hero.name]?.let { addTactics(it) }
+        guide.content.heroTactics[hero.name]?.let { addTactics(it, opensAt = first) }
         addView(ui.flow().apply {
             addView(ui.chip(moves(hero)))
             addView(ui.chip(hits(hero)))
@@ -57,14 +60,27 @@ class GuideHeroesActivity : GuideScreen() {
             addView(ui.flow().apply {
                 for (pick in guideFor.picks) addView(namedChip(itemNamed(guide.facts.pets, pick.pet), pick.pet))
             }, ui.matchWidth(4))
+            val pieces = guide.facts.equipment.filter { items[it.id]?.hero == hero.id }
+            val usual = guideFor.gear.mapNotNull { name -> pieces.firstOrNull { it.name == name } }
             addView(ui.text(getString(R.string.guide_gear), 13f, bold = true), ui.matchWidth(12))
             addView(ui.text(getString(R.string.guide_gear_from), 13f, ui.skin.dim), ui.matchWidth(2))
-            addView(ui.flow().apply {
-                for (piece in guideFor.gear) {
-                    val gear = guide.facts.equipment.firstOrNull { it.name == piece }
-                    addView(namedChip(gear?.let { items[it.id] }, piece))
-                }
-            }, ui.matchWidth(4))
+            for (piece in usual) addView(gearRow(piece), ui.matchWidth(8))
+            val others = pieces - usual.toSet()
+            if (others.isNotEmpty()) {
+                addView(ui.text(getString(R.string.guide_gear_other), 13f, bold = true), ui.matchWidth(14))
+                for (piece in others) addView(gearRow(piece), ui.matchWidth(8))
+            }
+            addSources(pieces.flatMap { guide.content.equipmentTips[it.name]?.sources.orEmpty() }.distinct())
+        }
+    }
+
+    // A piece and what it's for.
+    private fun gearRow(piece: Equipment) = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        addView(namedChip(items[piece.id], piece.name), ui.wrap())
+        guide.content.equipmentTips[piece.name]?.let { written ->
+            val locked = viewTownHall > 0 && written.tip.isLaterThan(viewTownHall)
+            addView(ui.text(tipText(written.tip, viewTownHall), 14f, if (locked) ui.skin.dim else ui.skin.text).withTerms(), ui.matchWidth(3))
         }
     }
 }

@@ -268,7 +268,9 @@ function build(data, npm) {
     const isSpell = !troops.includes(entry);
     const extra = npm[entry.name] || {};
     if (!npm[entry.name]) console.warn(`No clash-of-clans-data entry for ${entry.name}`);
-    const superInfo = entry.super_troop;
+    // The data's original_min_level is one under the level the game asks for. Supercell has Super Hog
+    // Rider needing Hog Rider level 10, where the data says 9, and all 17 are out by the same one.
+    const superInfo = entry.super_troop && { ...entry.super_troop, original_min_level: entry.super_troop.original_min_level + 1 };
     const base = superInfo && data.troops.find(t => t._id === superInfo.original_id);
     let unlock = opens(entry);
     let kind = isSpell ? 'spell' : (entry.production_building === 'Workshop' ? 'siege' : 'troop');
@@ -302,11 +304,14 @@ function build(data, npm) {
         delete row[hitKey];
         if (ratio && level.dps > 0) row[hitKey] = level.dps * ratio;
       }
+      if (entry.name === 'Ruin Witch') {
+        for (const key of ['stats.normal.damagePerShot', 'damagePerHit', 'stats.normal.dps']) delete row[key];
+      }
       if (!isSpell) {
         row.hp = level.hitpoints;
         // The Furnace has a token figure here, and the other source rightly says it does no damage.
         const npmHasDamage = npmDps !== undefined || !npmLevels[level.level];
-        if (level.dps > 0 && npmHasDamage) row.dps = level.dps;
+        if (level.dps > 0 && npmHasDamage && entry.name !== 'Ruin Witch') row.dps = level.dps;
         if (level.dps < 0) row.heal = -level.dps;
         // The Stone Slammer's figure is flat here, while the other source splits it by distance.
         if (level.death_damage && row.damageWhenDestroyedHitbox1 === undefined) row.death = level.death_damage;

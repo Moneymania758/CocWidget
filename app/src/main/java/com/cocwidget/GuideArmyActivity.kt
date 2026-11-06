@@ -32,7 +32,10 @@ open class GuideArmyActivity : GuideScreen() {
                 }, ui.matchWidth(10))
             }, ui.matchWidth(14))
         }
+        addExtras()
     }
+
+    protected open fun addExtras() = Unit
 }
 
 // Every defence and trap, in the same way.
@@ -43,4 +46,13 @@ class GuideDefencesActivity : GuideArmyActivity() {
         "defence" to R.string.guide_group_defences,
         "trap" to R.string.guide_group_traps,
     )
+
+    override fun addExtras() {
+        val threats = guide.content.threats
+        if (threats.isEmpty()) return
+        content.addView(ui.card().apply {
+            addView(sectionTitle(getString(R.string.guide_group_threats)))
+            addView(ui.flow().apply { for (threat in threats) addView(threatChip(threat)) }, ui.matchWidth(10))
+        }, ui.matchWidth(14))
+    }
 }

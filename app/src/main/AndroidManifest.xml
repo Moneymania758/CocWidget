@@ -85,6 +85,11 @@
             android:label="@string/guide_sources" />
 
         <activity
+            android:name=".GuideThreatActivity"
+            android:exported="false"
+            android:label="@string/guide_group_threats" />
+
+        <activity
             android:name=".GuideGlossaryActivity"
             android:exported="false"
             android:label="@string/guide_glossary" />

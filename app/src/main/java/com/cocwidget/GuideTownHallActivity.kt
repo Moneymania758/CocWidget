@@ -25,6 +25,8 @@ class GuideTownHallActivity : GuideScreen() {
         outState.putInt(EXTRA_TOWN_HALL, townHall)
     }
 
+    override val viewTownHall: Int get() = townHall
+
     override fun buildGuide() {
         content.addView(backHeader(getString(R.string.guide_town_hall_title, townHall)).apply {
             if (townHall == myTownHall) addView(ui.chip(getString(R.string.guide_you), ui.skin.primaryBg, ui.skin.primaryText))
@@ -33,6 +35,8 @@ class GuideTownHallActivity : GuideScreen() {
         page?.summary?.let { addTermNote(it, 14f) }
         content.addView(upgradeCard(), ui.matchWidth(12))
         content.addView(newCard(), ui.matchWidth(14))
+        upgradeFirstCard()?.let { content.addView(it, ui.matchWidth(14)) }
+        threatCard()?.let { content.addView(it, ui.matchWidth(14)) }
         fighterCard(R.string.guide_heroes, guide.facts.heroes, GuideHeroesActivity::class.java)?.let { content.addView(it, ui.matchWidth(14)) }
         fighterCard(R.string.guide_pets, petsInUnlockOrder(), GuidePetsActivity::class.java)?.let { content.addView(it, ui.matchWidth(14)) }
         content.addView(sectionTitle(getString(R.string.guide_strategies)), ui.matchWidth(18).apply { marginStart = ui.dp(4) })
@@ -86,6 +90,25 @@ class GuideTownHallActivity : GuideScreen() {
         }
     }
 
+    // What to spend builders and the lab on after reaching this Town Hall.
+    private fun upgradeFirstCard() = guide.content.upgradeFirst[townHall]?.let { advice ->
+        ui.card().apply {
+            addView(sectionTitle(getString(R.string.guide_upgrade_first)))
+            for ((index, line) in advice.lines.withIndex()) {
+                addView(ui.text(getString(R.string.guide_step, index + 1, line), 14f).withTerms(), ui.matchWidth(if (index == 0) 8 else 4))
+            }
+            addSources(advice.sources)
+        }
+    }
+
+    // What guards the Town Hall itself here.
+    private fun threatCard() = guide.content.threats.filter { it.isAt(townHall) }.takeIf { it.isNotEmpty() }?.let { threats ->
+        ui.card().apply {
+            addView(sectionTitle(getString(R.string.guide_threats_here)))
+            addView(ui.flow().apply { for (threat in threats) addView(threatChip(threat)) }, ui.matchWidth(8))
+        }
+    }
+
     private fun withQuantity(name: String, quantity: Int) = if (quantity > 1) getString(R.string.guide_quantity, name, quantity) else name
 
     // Each hero or pet this Town Hall has, with its cap, or null when it has none. A tap opens its
@@ -111,6 +134,7 @@ class GuideTownHallActivity : GuideScreen() {
     }
 
     private fun strategyCard(strategy: Strategy) = ui.card().apply {
+        freshTerms()
         val (label, colour) = when (strategy.level) {
             "easy" -> R.string.guide_level_easy to ui.skin.green
             "medium" -> R.string.guide_level_medium to ui.skin.accent
@@ -123,8 +147,9 @@ class GuideTownHallActivity : GuideScreen() {
         })
         addView(ui.text(strategy.about, 14f, ui.skin.dim).withTerms(), ui.matchWidth(6))
         addView(ui.flow().apply {
-            for (name in strategy.army) addView(unitChip(guide.unit(name)?.id ?: 0, name))
+            for (name in strategy.army) addView(unitChip(guide.unit(name)?.id ?: 0, armyLabel(strategy, name)))
         }, ui.matchWidth(10))
+        armyFill(strategy)?.let { addView(ui.text(it, 12f, ui.skin.dim), ui.matchWidth(6)) }
         for ((index, step) in strategy.steps.withIndex()) {
             addView(ui.text(getString(R.string.guide_step, index + 1, step), 14f).withTerms(), ui.matchWidth(if (index == 0) 10 else 4))
         }
@@ -137,6 +162,22 @@ class GuideTownHallActivity : GuideScreen() {
         }
         val names = strategy.sources.mapNotNull { key -> guide.content.sources.firstOrNull { it.key == key }?.name }
         addView(ui.text(getString(R.string.guide_from, names.joinToString(", ")), 12f, ui.skin.dim), ui.matchWidth(10))
+    }
+
+    private fun armyLabel(strategy: Strategy, name: String) =
+        strategy.counts[name]?.let { getString(R.string.guide_quantity, name, it) } ?: name
+
+    // How full the example army is, so a player can tell how to adjust it.
+    private fun armyFill(strategy: Strategy): String? {
+        val size = guide.content.capacities[townHall] ?: return null
+        if (strategy.counts.isEmpty()) return null
+        val units = GuideUnits.load(this).values
+        val (army, spells) = Guide.armyHousing(
+            strategy,
+            units.associate { it.name to it.traits.housing },
+            units.associate { it.name to it.kind },
+        )
+        return getString(R.string.guide_army_fill, army, size.army, spells, size.spells)
     }
 
     private fun neighbours() = LinearLayout(this).apply {

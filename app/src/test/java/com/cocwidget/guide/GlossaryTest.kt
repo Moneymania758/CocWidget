@@ -86,11 +86,28 @@ class GlossaryTest {
     private fun realTerms(text: String) = real.matches(text).map { it.term.term }
 
     @Test
+    fun eachTermIsMarkedOnceAcrossAScreensText() {
+        val seen = HashSet<String>()
+        assertEquals(listOf("Funnel"), small.matches("A funnel.", seen = seen).map { it.term.term })
+        assertEquals(emptyList<String>(), small.matches("Another funnel.", seen = seen).map { it.term.term })
+    }
+
+    @Test
+    fun aPlainVerbIsNotMarkedAsJargon() {
+        for (line in listOf("Super Yetis carry the push.", "The Eagle merges into the Town Hall.")) {
+            assertFalse(line, realTerms(line).any { it == "Carry" || it == "Merged defence" })
+        }
+    }
+
+    @Test
     fun explainsTheWordsThisWorkWasFor() {
         assertTrue(real.term("Funnel") != null)
         assertTrue(realTerms("Make a funnel first.").contains("Funnel"))
         assertTrue(realTerms("Great at TH18.").isNotEmpty())
         assertTrue(realTerms("Lure the Clan Castle.").isNotEmpty())
+        for (word in listOf("a triple", "the back end", "an expo", "stacked defences", "Ranked Battles", "Regular Battles")) {
+            assertTrue(word, realTerms(word).isNotEmpty())
+        }
     }
 
     @Test
@@ -124,7 +141,7 @@ class GlossaryTest {
             if (term.group !in groups) problems += "${term.term}: group ${term.group}"
             if (term.short.isBlank() || term.means.isEmpty() || term.aliases.isEmpty()) problems += "${term.term}: incomplete"
             for (other in term.see) if (real.term(other) == null || other == term.term) problems += "${term.term}: see $other"
-            for (unit in term.units) if (unit !in unitNames) problems += "${term.term}: no unit called $unit"
+            for (unit in term.units) if (unit !in unitNames && guide.threat(unit) == null) problems += "${term.term}: no unit called $unit"
             for (key in term.sources) if (key !in sources) problems += "${term.term}: unknown source $key"
         }
         assertEquals(emptyList<String>(), problems)

@@ -13,6 +13,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.cocwidget.GuideTermActivity
+import com.cocwidget.GuideThreatActivity
 import com.cocwidget.GuideUnitActivity
 import com.cocwidget.R
 import com.cocwidget.game.GameData
@@ -22,6 +23,8 @@ import com.cocwidget.guide.Fighter
 import com.cocwidget.guide.Guide
 import com.cocwidget.guide.GuideUnits
 import com.cocwidget.guide.Tactics
+import com.cocwidget.guide.Threat
+import com.cocwidget.guide.Tip
 import com.cocwidget.store.Icons
 import com.cocwidget.store.Store
 
@@ -42,6 +45,7 @@ abstract class GuideScreen : Screen() {
         myTownHall = current?.village?.townHall ?: 0
         myLevels = current?.let { Guide.levels(it.json) }.orEmpty()
         pictures.clear()
+        freshTerms()
         buildGuide()
         pictures.load()
     }
@@ -80,18 +84,52 @@ abstract class GuideScreen : Screen() {
         ui.pressable(this, 8f) { openUnit(id) }
     }
 
+    // The Town Hall that advice on this screen is for. A screen opened from a Town Hall's page keeps
+    // that Town Hall, and otherwise it's the player's. 0 when neither is known.
+    protected open val viewTownHall: Int
+        get() = intent.getIntExtra(EXTRA_VIEW_TOWN_HALL, 0).takeIf { it > 0 } ?: myTownHall
+
     // How to use something, what stops it, what it works with, and where that came from. A defence
-    // or trap is on the other side, so the same parts read as how to beat it.
-    protected fun LinearLayout.addTactics(tactics: Tactics, defence: Boolean = false) {
+    // or trap is on the other side, so the same parts read as how to beat it. [opensAt] is when the
+    // thing itself opens, for saying when a partner comes later.
+    protected fun LinearLayout.addTactics(tactics: Tactics, defence: Boolean = false, opensAt: Int = 0) {
+        addTips(R.string.guide_meet, tactics.meet)
         addTips(if (defence) R.string.guide_how_to_beat else R.string.guide_how_to_use, tactics.use)
         addTips(if (defence) R.string.guide_punishes else R.string.guide_watch_out, tactics.beware)
         if (tactics.partners.isNotEmpty()) {
             addView(ui.text(getString(if (defence) R.string.guide_answers else R.string.guide_works_with), 13f, bold = true), ui.matchWidth(12))
             addView(ui.flow().apply {
-                for (name in tactics.partners) addView(unitChip(unitId(name), name))
+                for (name in partnersInOrder(tactics.partners)) addView(partnerChip(name, opensAt))
             }, ui.matchWidth(4))
         }
         addSources(tactics.sources)
+    }
+
+    private fun partnersInOrder(names: List<String>): List<String> {
+        val here = viewTownHall
+        if (here <= 0) return names
+        return names.sortedBy { opensAt(it) > here }
+    }
+
+    // A partner that isn't open yet says when it is, and looks it.
+    private fun partnerChip(name: String, entryOpens: Int): LinearLayout {
+        val opens = opensAt(name)
+        val here = viewTownHall
+        val locked = here > 0 && opens > here
+        val later = if (here > 0) locked else opens > entryOpens
+        return unitChip(unitId(name), if (later) getString(R.string.guide_partner_later, name, opens) else name).apply {
+            if (locked) alpha = LOCKED_ALPHA
+        }
+    }
+
+    private fun opensAt(name: String) = GuideUnits.load(this).values.firstOrNull { it.name == name }?.townHall ?: 0
+
+    protected fun threatItem(threat: Threat): GameItem? =
+        items.values.firstOrNull { it.name == threat.name } ?: items[Ids.TOWN_HALL]
+
+    protected fun threatChip(threat: Threat) = namedChip(threatItem(threat), threat.name).apply {
+        minimumHeight = ui.dp(40)
+        ui.pressable(this, 8f) { open(GuideThreatActivity::class.java) { putExtra(GuideThreatActivity.EXTRA_THREAT, threat.name) } }
     }
 
     protected fun LinearLayout.addSources(keys: List<String>) {
@@ -101,9 +139,22 @@ abstract class GuideScreen : Screen() {
         }
     }
 
-    private fun LinearLayout.addTips(title: Int, lines: List<String>) {
+    private fun LinearLayout.addTips(title: Int, lines: List<Tip>) {
+        val here = viewTownHall
+        val shown = Guide.tipsAt(lines, here)
+        if (shown.isEmpty()) return
         addView(ui.text(getString(title), 13f, bold = true), ui.matchWidth(12))
-        for (line in lines) addView(ui.text(getString(R.string.guide_tip, line), 14f).withTerms(), ui.matchWidth(3))
+        for (tip in shown) {
+            val locked = here > 0 && tip.isLaterThan(here)
+            addView(ui.text(getString(R.string.guide_tip, tipText(tip, here)), 14f, if (locked) ui.skin.dim else ui.skin.text).withTerms(), ui.matchWidth(3))
+        }
+    }
+
+    // A line says when it applies only if the reader might be outside that.
+    protected fun tipText(tip: Tip, here: Int): String = when {
+        tip.from > 0 && (here <= 0 || tip.isLaterThan(here)) -> getString(R.string.guide_tip_from, tip.from, tip.text)
+        tip.to > 0 && here <= 0 -> getString(R.string.guide_tip_to, tip.to, tip.text)
+        else -> tip.text
     }
 
     protected fun unitId(name: String): Int = GuideUnits.load(this).values.firstOrNull { it.name == name }?.id ?: 0
@@ -111,10 +162,16 @@ abstract class GuideScreen : Screen() {
     // The term whose page this is, so its own text doesn't link to itself.
     protected open val ownTerm: String? = null
 
+    private val markedTerms = HashSet<String>()
+
+    // Starts marking terms afresh. Each term is marked once in a stretch of text, so a page that
+    // lists separate things, like a Town Hall's attacks, calls this for each one.
+    protected fun freshTerms() = markedTerms.clear()
+
     // Marks the glossary's words in this text. A tap opens what the word means.
     protected fun <T : TextView> T.withTerms(): T {
         val value = text.toString()
-        val matches = guide.glossary.matches(value, ownTerm)
+        val matches = guide.glossary.matches(value, ownTerm, markedTerms)
         if (matches.isEmpty()) return this
         val marked = SpannableString(value)
         for (match in matches) {
@@ -166,7 +223,9 @@ abstract class GuideScreen : Screen() {
 
     protected fun open(screen: Class<*>, extras: Intent.() -> Unit = {}) = startActivity(Intent(this, screen).apply(extras))
 
-    protected fun openUnit(id: Int) = startActivity(Intent(this, GuideUnitActivity::class.java).putExtra(EXTRA_ID, id))
+    protected fun openUnit(id: Int) = startActivity(
+        Intent(this, GuideUnitActivity::class.java).putExtra(EXTRA_ID, id).putExtra(EXTRA_VIEW_TOWN_HALL, viewTownHall),
+    )
 
     protected fun itemNamed(fighters: List<Fighter>, name: String) = fighters.firstOrNull { it.name == name }?.let { items[it.id] }
 
@@ -174,5 +233,7 @@ abstract class GuideScreen : Screen() {
         const val EXTRA_ID = "id"
         const val EXTRA_TOWN_HALL = "town_hall"
         const val EXTRA_TERM = "term"
+        const val EXTRA_VIEW_TOWN_HALL = "view_town_hall"
+        private const val LOCKED_ALPHA = 0.55f
     }
 }

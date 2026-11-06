@@ -40,6 +40,8 @@ class Strategy(
     val about: String,
     val steps: List<String>,
     val army: List<String>,
+    // How many of each in the example army.
+    val counts: Map<String, Int>,
     val heroes: List<HeroSetup>,
     val sources: List<String>,
 )
@@ -59,16 +61,40 @@ class HeroGuide(
 
 class Source(val key: String, val name: String, val date: String, val url: String)
 
+// One line of advice. [from] and [to] are the Town Halls it applies between, and 0 means no limit.
+class Tip(val text: String, val from: Int = 0, val to: Int = 0) {
+    fun isLaterThan(townHall: Int) = from > townHall
+
+    fun isPast(townHall: Int) = to in 1 until townHall
+}
+
 // What something is for in an attack, how to use it and what stops it. Written by hand, in place of
 // the game's own text. Heroes and pets keep their role elsewhere, so theirs is empty here. [sources]
 // is empty for advice from general play that no guide backs.
 class Tactics(
     val role: String,
-    val use: List<String>,
-    val beware: List<String>,
+    // What a troop goes for first. Empty for spells, heroes, pets and defences.
+    val targets: String,
+    // How many of a merged defence, or what it merges from, a finished base has.
+    val meet: List<Tip>,
+    val use: List<Tip>,
+    val beware: List<Tip>,
     val partners: List<String>,
     val sources: List<String>,
-)
+) {
+    val allTips: List<Tip> get() = meet + use + beware
+}
+
+// A Town Hall's own weapon, or a Guardian, in the same form as a defence.
+class Threat(val name: String, val kind: String, val from: Int, val to: Int, val tactics: Tactics) {
+    fun isAt(townHall: Int) = townHall in from..to
+}
+
+class EquipmentTip(val tip: Tip, val sources: List<String>)
+
+class UpgradeAdvice(val lines: List<String>, val sources: List<String>)
+
+class Capacity(val army: Int, val spells: Int)
 
 // Written by hand in assets/guide_content.json. These picks are opinion, so they carry their sources
 // and the date they were checked. GuideTest checks them against the game facts.
@@ -84,6 +110,10 @@ class GuideContent(
     val heroTactics: Map<String, Tactics>,
     val petTactics: Map<String, Tactics>,
     val glossary: Glossary,
+    val threats: List<Threat>,
+    val equipmentTips: Map<String, EquipmentTip>,
+    val upgradeFirst: Map<Int, UpgradeAdvice>,
+    val capacities: Map<Int, Capacity>,
 )
 
 // One thing a Town Hall adds. [first] is false for more copies of something an earlier one added.
@@ -99,6 +129,8 @@ class Guide(val content: GuideContent, val facts: GuideFacts) {
     fun heroGuide(name: String): HeroGuide? = content.heroes.firstOrNull { it.hero == name }
 
     fun townHall(townHall: Int): TownHallGuide? = content.townHalls.firstOrNull { it.townHall == townHall }
+
+    fun threat(name: String): Threat? = content.threats.firstOrNull { it.name == name }
 
     fun unitsOpeningAt(townHall: Int): List<ArmyUnit> = facts.army.filter { it.townHall == townHall }
 
@@ -122,6 +154,22 @@ class Guide(val content: GuideContent, val facts: GuideFacts) {
 
     companion object {
         const val FIRST_TOWN_HALL = 3
+
+        // The tips to show at [townHall]: what applies now, then what's coming, and not what has
+        // passed. With no Town Hall known, 0, they all show in the order they were written.
+        fun tipsAt(tips: List<Tip>, townHall: Int): List<Tip> {
+            if (townHall <= 0) return tips
+            val (later, now) = tips.filterNot { it.isPast(townHall) }.partition { it.isLaterThan(townHall) }
+            return now + later.sortedBy { it.from }
+        }
+
+        // Housing and spell space an example army uses. A Siege Machine takes no army housing.
+        fun armyHousing(strategy: Strategy, housing: Map<String, Int>, kinds: Map<String, String>): Pair<Int, Int> {
+            val total = { wanted: (String) -> Boolean ->
+                strategy.army.filter { wanted(kinds[it].orEmpty()) }.sumOf { (strategy.counts[it] ?: 0) * (housing[it] ?: 0) }
+            }
+            return total { it != "spell" && it != "siege" } to total { it == "spell" }
+        }
 
         @Volatile
         private var loaded: Guide? = null
@@ -215,6 +263,24 @@ class Guide(val content: GuideContent, val facts: GuideFacts) {
                 heroTactics = tacticsByName(tactics.getJSONObject("heroes")),
                 petTactics = tacticsByName(tactics.getJSONObject("pets")),
                 glossary = Glossary(root.getJSONArray("glossary").objects().map(::glossaryTerm)),
+                threats = root.optJSONArray("threats")?.objects().orEmpty().map { threat ->
+                    Threat(threat.getString("name"), threat.getString("kind"), threat.getInt("from"), threat.getInt("to"), parseTactics(threat))
+                },
+                equipmentTips = root.optJSONObject("equipmentTips")?.let { tips ->
+                    tips.keys().asSequence().associateWith { name ->
+                        val entry = tips.getJSONObject(name)
+                        EquipmentTip(Tip(entry.getString("tip"), entry.optInt("from"), entry.optInt("to")), entry.getJSONArray("src").strings())
+                    }
+                }.orEmpty(),
+                upgradeFirst = root.optJSONArray("upgradeFirst")?.objects().orEmpty().associate { advice ->
+                    advice.getInt("th") to UpgradeAdvice(advice.getJSONArray("lines").strings(), advice.getJSONArray("src").strings())
+                },
+                capacities = root.optJSONObject("capacities")?.let { sizes ->
+                    sizes.keys().asSequence().associate { key ->
+                        val size = sizes.getJSONObject(key)
+                        key.toInt() to Capacity(size.getInt("army"), size.getInt("spells"))
+                    }
+                }.orEmpty(),
             )
         }
 
@@ -231,16 +297,24 @@ class Guide(val content: GuideContent, val facts: GuideFacts) {
         )
 
         private fun tacticsByName(json: JSONObject): Map<String, Tactics> =
-            json.keys().asSequence().associateWith { name ->
-                val entry = json.getJSONObject(name)
-                Tactics(
-                    role = entry.optString("role"),
-                    use = entry.getJSONArray("use").strings(),
-                    beware = entry.getJSONArray("beware").strings(),
-                    partners = entry.optJSONArray("with")?.strings().orEmpty(),
-                    sources = entry.getJSONArray("src").strings(),
-                )
-            }
+            json.keys().asSequence().associateWith { name -> parseTactics(json.getJSONObject(name)) }
+
+        private fun parseTactics(entry: JSONObject) = Tactics(
+            role = entry.optString("role"),
+            targets = entry.optString("targets"),
+            meet = entry.optJSONArray("meet")?.tips().orEmpty(),
+            use = entry.getJSONArray("use").tips(),
+            beware = entry.getJSONArray("beware").tips(),
+            partners = entry.optJSONArray("with")?.strings().orEmpty(),
+            sources = entry.getJSONArray("src").strings(),
+        )
+
+        // A line is plain text, or an object when it only applies at some Town Halls.
+        private fun JSONArray.tips(): List<Tip> = (0 until length()).map { index ->
+            val line = opt(index) as? JSONObject
+            if (line != null) Tip(line.getString("t"), line.optInt("from"), line.optInt("to")) else Tip(getString(index))
+        }
+
 
         private fun pick(json: JSONObject) = PetPick(json.getString("pet"), json.getString("why"))
 
@@ -250,6 +324,9 @@ class Guide(val content: GuideContent, val facts: GuideFacts) {
             about = json.getString("about"),
             steps = json.getJSONArray("steps").strings(),
             army = json.getJSONArray("army").strings(),
+            counts = json.optJSONObject("counts")?.let { counts ->
+                counts.keys().asSequence().associateWith { counts.getInt(it) }
+            }.orEmpty(),
             heroes = json.optJSONArray("heroes")?.objects().orEmpty().map {
                 HeroSetup(it.getString("hero"), it.optString("pet"), it.optJSONArray("gear")?.strings().orEmpty())
             },
