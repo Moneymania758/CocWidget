@@ -34,6 +34,8 @@
     <string name="channel_events">Game events</string>
     <string name="event_reminders_title">Event reminders</string>
     <string name="event_reminders_explain">A notification when each event is due, shown here in your own time. Supercell can move dates, and we correct them here when it does. The Event Hub in the game has the final word.</string>
+    <string name="event_notifications_off">Notifications are off for Clash Timers, so these reminders can\'t reach you.</string>
+    <string name="event_notifications_open">Turn on notifications</string>
     <string name="event_next">Next reminder: %1$s</string>
     <string name="event_no_date">No date yet</string>
     <string name="event_clan_games">Clan Games</string>
@@ -60,7 +62,7 @@
     <string name="event_hammer_jam_ending">Hammer Jam ends tomorrow</string>
     <string name="event_hammer_jam_ending_text">Start what you can while it\'s half price. Turn off the event switch in Clash Timers once it ends.</string>
     <string name="event_raid_started">Raid Weekend has started</string>
-    <string name="event_raid_started_text">You have five attacks until Monday.</string>
+    <string name="event_raid_started_text">You have five attacks this weekend.</string>
     <string name="event_ranked_open">Ranked battles are open</string>
     <string name="event_ranked_open_text">This week\'s Tournament has started. Sign up if you haven\'t already.</string>
     <string name="event_legend_started">New Legend League I Tournament</string>

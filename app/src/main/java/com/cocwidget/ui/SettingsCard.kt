@@ -2,7 +2,9 @@ package com.cocwidget.ui
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Intent
 import android.content.res.ColorStateList
+import android.provider.Settings
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
@@ -43,6 +45,7 @@ class SettingsCard(
         addView(ui.text(activity.getString(R.string.event_reminders_explain), 13f, ui.skin.dim).apply {
             setPadding(ui.dp(16), 0, ui.dp(16), ui.dp(10))
         })
+        if (!EventReminders.notificationsAllowed(activity)) addView(notificationsOffRow())
         val now = System.currentTimeMillis()
         for (kind in EventKind.entries) {
             addView(ui.divider())
@@ -51,6 +54,19 @@ class SettingsCard(
                 VillageWidget.requestRefresh(activity)
             })
         }
+    }
+
+    // Without this, the switches look on and nothing ever arrives. The screen is rebuilt on return,
+    // so this goes once they're allowed.
+    private fun notificationsOffRow() = LinearLayout(activity).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(ui.dp(16), 0, ui.dp(16), ui.dp(14))
+        addView(ui.text(activity.getString(R.string.event_notifications_off), 13f, ui.skin.accent))
+        addView(ui.button(activity.getString(R.string.event_notifications_open), null, primary = false) {
+            activity.startActivity(
+                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, activity.packageName),
+            )
+        }, ui.matchWidth(8))
     }
 
     private fun nextReminder(kind: EventKind, now: Long): String {

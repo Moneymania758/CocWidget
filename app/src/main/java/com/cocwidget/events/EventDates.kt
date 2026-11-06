@@ -28,9 +28,6 @@ object EventDates {
     // [cancelled] holds ids of rule events that aren't happening.
     class Dates(val updated: String, val events: List<EventSchedule.Occurrence>, val cancelled: Set<String>)
 
-    // Swapped in tests. Network call, so only call this off the main thread.
-    internal var download: () -> String? = ::fromGitHub
-
     // What the app knows now: the bundled file, or the saved download if it's at least as new.
     fun current(context: Context): Dates {
         val bundled = parse(bundledText(context)) ?: Dates("", emptyList(), emptySet())
@@ -38,13 +35,16 @@ object EventDates {
         return newest(saved, bundled)
     }
 
-    fun refreshIfDue(context: Context, now: Long) {
+    // True if a new file was saved. [download] is network, so only call this off the main thread.
+    fun refreshIfDue(context: Context, now: Long, download: () -> String? = ::fromGitHub): Boolean {
         val last = Store.lastEventDatesCheck(context)
-        if (now >= last && now - last < CHECK_INTERVAL_MS) return
+        if (now >= last && now - last < CHECK_INTERVAL_MS) return false
         // Recorded before the request so a failing network doesn't retry on every refresh.
         Store.setLastEventDatesCheck(context, now)
-        val text = download() ?: return
-        if (parse(text) != null) Store.setEventDates(context, text)
+        val text = download() ?: return false
+        if (parse(text) == null) return false
+        Store.setEventDates(context, text)
+        return true
     }
 
     fun newest(first: Dates, second: Dates?): Dates =

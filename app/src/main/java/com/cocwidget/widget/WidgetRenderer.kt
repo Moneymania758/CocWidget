@@ -22,6 +22,7 @@ import com.cocwidget.VillageWidget
 import com.cocwidget.game.Boost
 import com.cocwidget.game.Section
 import com.cocwidget.game.Upgrade
+import com.cocwidget.events.EventDates
 import com.cocwidget.events.EventReminders
 import com.cocwidget.game.Village
 import com.cocwidget.store.Icons
@@ -34,7 +35,7 @@ object WidgetRenderer {
     private const val FINISH_REQUEST = 1
     private const val EVENT_REQUEST = 2
 
-    fun update(context: Context) {
+    fun update(context: Context, download: () -> String? = EventDates::fromGitHub) {
         // Notifications work without a widget on the home screen, so they come first.
         val accounts = Store.accounts(context)
         val villages = accounts.mapNotNull { tag -> Store.village(context, tag)?.let { tag to it } }.toMap()
@@ -44,8 +45,13 @@ object WidgetRenderer {
             Notifier.notifyFinished(context, tag, village, checkedAt, label)
         }
         scheduleNextFinish(context, villages.values, checkedAt)
-        checkEvents(context, checkedAt)
+        postEvents(context, checkedAt)
+        drawWidgets(context, villages)
+        // Last, as it's the slow part and nothing above should wait for the network.
+        refreshEventDates(context, checkedAt, download)
+    }
 
+    private fun drawWidgets(context: Context, villages: Map<String, Village>) {
         val manager = AppWidgetManager.getInstance(context)
         val widgetIds = manager.getAppWidgetIds(ComponentName(context, VillageWidget::class.java))
         val nextIds = manager.getAppWidgetIds(ComponentName(context, NextWidget::class.java))
@@ -66,10 +72,23 @@ object WidgetRenderer {
         scheduleNext(context, shown.values.distinct().minOf { Countdown.nextRefresh(it?.let(villages::get), now) })
     }
 
-    // Posts any event reminders due and sets the alarm for the next check. Has its own alarm, as
-    // the finish alarm is cancelled when nothing is upgrading. Does network, so only call this off
-    // the main thread.
-    fun checkEvents(context: Context, now: Long = System.currentTimeMillis()) {
+    // Posts any event reminders due, sets the alarm, then looks for new dates. Does network, so only
+    // call this off the main thread.
+    fun checkEvents(
+        context: Context,
+        now: Long = System.currentTimeMillis(),
+        download: () -> String? = EventDates::fromGitHub,
+    ) {
+        postEvents(context, now)
+        refreshEventDates(context, now, download)
+    }
+
+    private fun refreshEventDates(context: Context, now: Long, download: () -> String?) {
+        if (EventReminders.refreshDates(context, now, download)) postEvents(context, now)
+    }
+
+    // Has its own alarm, as the finish alarm is cancelled when nothing is upgrading.
+    private fun postEvents(context: Context, now: Long) {
         val intent = refreshIntent(context, EVENT_REQUEST)
         val next = EventReminders.check(context, now)
         if (next == null) {

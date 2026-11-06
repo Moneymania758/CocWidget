@@ -89,8 +89,8 @@ The app can tell you when game events are due. Open **Settings** and use the swi
 | Clan War League sign-up | When sign-up opens | On |
 | Gold Pass season | A week before the season ends, and the day before | On |
 | Hammer Jam | When it starts, and the day before it ends | On |
-| Raid Weekend | Every Friday when it starts | Off |
-| Ranked battles | Every Monday when battles open | Off |
+| Raid Weekend | Every week when it starts | Off |
+| Ranked battles | Every week when battles open | Off |
 | Legend League I reset | When a new Tournament starts | Off |
 
 You don't need a widget or an imported village. Supercell can move dates, and the app picks up

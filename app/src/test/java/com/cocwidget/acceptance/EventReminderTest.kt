@@ -3,7 +3,6 @@ package com.cocwidget.acceptance
 import android.app.AlarmManager
 import android.app.Notification
 import android.app.NotificationManager
-import android.content.Intent
 import android.os.Looper
 import android.widget.Switch
 import com.cocwidget.R
@@ -15,11 +14,9 @@ import com.cocwidget.events.EventKind
 import com.cocwidget.store.Store
 import com.cocwidget.widget.WidgetRenderer
 import org.json.JSONObject
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -46,26 +43,21 @@ class EventReminderTest {
 
     private fun alarms() = shadowOf(app.getSystemService(AlarmManager::class.java)).scheduledAlarms
 
-    @Before
-    fun noNetwork() {
-        EventDates.download = { null }
-    }
-
-    @After
-    fun realNetwork() {
-        EventDates.download = EventDates::fromGitHub
+    // Offline unless a test says otherwise.
+    private fun check(now: Long, download: () -> String? = { null }) {
+        WidgetRenderer.checkEvents(app, now, download)
     }
 
     @Test
     fun theFirstCheckPostsNothingEvenOnAnEventsStart() {
-        WidgetRenderer.checkEvents(app, clanGames)
+        check(clanGames)
         assertTrue(posted().isEmpty())
     }
 
     @Test
     fun itRemindsWithNoAccountAndNoWidget() {
-        WidgetRenderer.checkEvents(app, before)
-        WidgetRenderer.checkEvents(app, clanGames)
+        check(before)
+        check(clanGames)
 
         val reminder = posted().single()
         assertEquals(app.getString(R.string.event_clan_games_started), reminder.title)
@@ -74,26 +66,26 @@ class EventReminderTest {
 
     @Test
     fun itOnlyRemindsOnce() {
-        WidgetRenderer.checkEvents(app, before)
-        WidgetRenderer.checkEvents(app, clanGames)
-        WidgetRenderer.checkEvents(app, clanGames + hour)
+        check(before)
+        check(clanGames)
+        check(clanGames + hour)
         assertEquals(1, posted().size)
     }
 
     @Test
     fun aSwitchedOffEventStaysQuiet() {
-        WidgetRenderer.checkEvents(app, before)
+        check(before)
         Store.setEventReminderOn(app, EventKind.CLAN_GAMES, false, before)
-        WidgetRenderer.checkEvents(app, clanGames)
+        check(clanGames)
         assertTrue(posted().isEmpty())
     }
 
     @Test
     fun switchingOnDoesntFireWhatHasAlreadyStarted() {
         val friday = at("2026-11-13T07:00:00Z")
-        WidgetRenderer.checkEvents(app, friday - 24 * hour)
+        check(friday - 24 * hour)
         Store.setEventReminderOn(app, EventKind.RAID_WEEKEND, true, friday + hour)
-        WidgetRenderer.checkEvents(app, friday + 2 * hour)
+        check(friday + 2 * hour)
         assertTrue(posted().none { it.title == app.getString(R.string.event_raid_started) })
     }
 
@@ -111,88 +103,85 @@ class EventReminderTest {
     @Test
     fun theAlarmIsSetForTheNextReminderWithinADay() {
         val now = clanGames - 2 * hour
-        WidgetRenderer.checkEvents(app, now)
+        check(now)
         assertEquals(clanGames, alarms().minOf { it.triggerAtTime })
     }
 
     @Test
     fun theAlarmStillWakesDailyToCheckForNewDates() {
         val now = at("2026-11-17T12:00:00Z")
-        WidgetRenderer.checkEvents(app, now)
+        check(now)
         assertEquals(now + 24 * hour, alarms().minOf { it.triggerAtTime })
     }
 
     @Test
     fun noAlarmWithEveryEventOff() {
         for (kind in EventKind.entries) Store.setEventReminderOn(app, kind, false, before)
-        WidgetRenderer.checkEvents(app, before)
+        check(before)
         assertTrue(alarms().isEmpty())
     }
 
     @Test
     fun aDownloadedDateIsUsed() {
         val friday = at("2026-12-05T08:00:00Z")
-        EventDates.download = {
+        check(friday - hour) {
             """{"version":1,"updated":"2099-01-01","events":[{"id":"clan_games:2026-12","kind":"clan_games","start":"2026-12-05T08:00:00Z","end":"2026-12-11T08:00:00Z"}]}"""
         }
-        WidgetRenderer.checkEvents(app, friday - hour)
-        WidgetRenderer.checkEvents(app, friday)
+        check(friday)
         assertEquals(app.getString(R.string.event_clan_games_started), posted().single().title)
     }
 
     @Test
     fun aBadDownloadKeepsTheDatesWeHave() {
-        EventDates.download = { "<html>rate limited</html>" }
-        WidgetRenderer.checkEvents(app, before)
-        WidgetRenderer.checkEvents(app, clanGames)
+        check(before) { "<html>rate limited</html>" }
+        check(clanGames)
         assertEquals(1, posted().size)
         assertTrue(EventDates.current(app).events.any { it.kind == EventKind.HAMMER_JAM })
     }
 
     @Test
     fun aBadDownloadDoesntReplaceAGoodOne() {
-        EventDates.download = { """{"version":1,"updated":"2099-01-01","events":[]}""" }
-        WidgetRenderer.checkEvents(app, before)
-        EventDates.download = { "<html>rate limited</html>" }
-        WidgetRenderer.checkEvents(app, before + 13 * hour)
+        check(before) { """{"version":1,"updated":"2099-01-01","events":[]}""" }
+        check(before + 13 * hour) { "<html>rate limited</html>" }
         assertEquals("2099-01-01", EventDates.current(app).updated)
     }
 
     @Test
     fun itOnlyDownloadsEveryTwelveHours() {
         var downloads = 0
-        EventDates.download = {
+        val counted = {
             downloads++
             null
         }
-        WidgetRenderer.checkEvents(app, before)
-        WidgetRenderer.checkEvents(app, before + hour)
+        check(before, counted)
+        check(before + hour, counted)
         assertEquals(1, downloads)
-        WidgetRenderer.checkEvents(app, before + 13 * hour)
+        check(before + 13 * hour, counted)
         assertEquals(2, downloads)
     }
 
     // The way in on a real phone: the alarm, a restart and an app update all end up in update().
     @Test
     fun theWidgetRefreshChecksEventsWithNoWidgetPlaced() {
-        WidgetRenderer.update(app)
+        WidgetRenderer.update(app) { null }
         val alarm = alarms().single()
         assertEquals(VillageWidget.ACTION_REFRESH, shadowOf(alarm.operation).savedIntent.action)
     }
 
     @Test
     fun theAlarmFiringPostsTheReminder() {
-        WidgetRenderer.checkEvents(app, System.currentTimeMillis() - 2 * hour)
+        check(System.currentTimeMillis() - 2 * hour)
         // A reminder an hour ago, so the real refresh finds it due.
         val soon = java.time.Instant.ofEpochMilli(System.currentTimeMillis() - hour).toString()
-        EventDates.download = { null }
+        // Downloading isn't due, so the real refresh below stays off the network.
+        Store.setLastEventDatesCheck(app, System.currentTimeMillis())
         Store.setEventDates(
             app,
             """{"version":1,"updated":"2099-01-01","events":[{"id":"test","kind":"legend","start":"$soon"}]}""",
         )
         Store.setEventReminderOn(app, EventKind.LEGEND, true, System.currentTimeMillis() - 2 * hour)
 
-        VillageWidget().onReceive(app, Intent(app, VillageWidget::class.java).setAction(VillageWidget.ACTION_REFRESH))
+        alarms().single().operation!!.send()
         shadowOf(Looper.getMainLooper()).idle()
         val deadline = System.currentTimeMillis() + 5000
         while (posted().isEmpty() && System.currentTimeMillis() < deadline) Thread.sleep(20)
@@ -206,8 +195,58 @@ class EventReminderTest {
         val json = TestData.exportJson()
         val exportedAt = now / 1000
         Store.saveExport(app, JSONObject(json).put("timestamp", exportedAt).toString())
-        WidgetRenderer.update(app)
+        WidgetRenderer.update(app) { null }
         assertTrue(alarms().size >= 2)
+    }
+
+    @Test
+    fun remindersAndTheAlarmDontWaitForTheDownload() {
+        check(before)
+        var postedFirst = false
+        var alarmSetFirst = false
+        // The first check's alarm is earlier than this, so a later one means it was set again.
+        check(clanGames) {
+            postedFirst = posted().isNotEmpty()
+            alarmSetFirst = alarms().minOf { it.triggerAtTime } > clanGames
+            null
+        }
+        assertTrue(postedFirst)
+        assertTrue(alarmSetFirst)
+    }
+
+    @Test
+    fun aDateThatArrivesInADownloadSetsTheAlarmStraightAway() {
+        val now = at("2026-11-17T12:00:00Z")
+        val soon = now + hour
+        check(now) {
+            """{"version":1,"updated":"2099-01-01","events":[{"id":"clan_games:2026-11","kind":"clan_games","start":"${Instant.ofEpochMilli(soon)}","end":"2026-11-28T08:00:00Z"}]}"""
+        }
+        assertEquals(soon, alarms().minOf { it.triggerAtTime })
+    }
+
+    @Test
+    fun withNotificationsRefusedNothingCountsAsSent() {
+        val manager = shadowOf(app.getSystemService(NotificationManager::class.java))
+        check(before)
+        manager.setNotificationsEnabled(false)
+        check(clanGames)
+        assertTrue(posted().isEmpty())
+
+        // Allowed again within the 12 hours, so it still arrives.
+        manager.setNotificationsEnabled(true)
+        check(clanGames + hour)
+        assertEquals(app.getString(R.string.event_clan_games_started), posted().single().title)
+    }
+
+    @Test
+    fun settingsSaysWhenNotificationsAreRefused() {
+        val warning = app.getString(R.string.event_notifications_off)
+        assertFalse(warning in Screens.texts(Screens.root(Screens.open<SettingsActivity>())))
+
+        shadowOf(app.getSystemService(NotificationManager::class.java)).setNotificationsEnabled(false)
+        val page = Screens.open<SettingsActivity>()
+        assertTrue(warning in Screens.texts(Screens.root(page)))
+        assertTrue(Screens.tappable(Screens.root(page), app.getString(R.string.event_notifications_open)) != null)
     }
 
     @Test
