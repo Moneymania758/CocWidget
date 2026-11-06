@@ -334,10 +334,7 @@
     <string name="guide_tips_note">Tips come from community guides and general play, and won\'t suit every base. Last checked %1$s.</string>
     <string name="guide_picks_note">Picks from community guides, last checked %1$s.</string>
     <string name="guide_gear_from">Common pieces come from the Blacksmith, epics from events or the Trader.</string>
-    <plurals name="widget_more">
-        <item quantity="one">+%1$d more ›</item>
-        <item quantity="other">+%1$d more ›</item>
-    </plurals>
+    <string name="widget_all_upgrades">All upgrades ›</string>
     <string name="guide_defences">Defences and traps</string>
     <string name="guide_defences_intro">Tap one for how to beat it, and its levels, damage, range and how many each Town Hall allows.</string>
     <string name="guide_group_defences">Defences</string>

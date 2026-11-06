@@ -145,7 +145,7 @@ class MainScreenTest {
         val manager = AppWidgetManager.getInstance(app)
         val id = shadowOf(manager).createWidget(VillageWidget::class.java, R.layout.widget)
         val village = Store.village(app, tag)!!
-        return WidgetRenderer.build(app, manager, id, tag, village, village.exportedAtMillis + 60_000).apply(app, FrameLayout(app))
+        return WidgetRenderer.build(app, id, tag, village, village.exportedAtMillis + 60_000).apply(app, FrameLayout(app))
     }
 
     @Test

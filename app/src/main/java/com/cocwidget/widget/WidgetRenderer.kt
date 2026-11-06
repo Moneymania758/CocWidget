@@ -54,7 +54,7 @@ object WidgetRenderer {
         val now = System.currentTimeMillis()
         for (widgetId in widgetIds) {
             val tag = shown[widgetId]
-            manager.updateAppWidget(widgetId, build(context, manager, widgetId, tag, tag?.let(villages::get), now))
+            manager.updateAppWidget(widgetId, build(context, widgetId, tag, tag?.let(villages::get), now))
         }
         for (widgetId in nextIds) {
             val tag = shown[widgetId]
@@ -124,7 +124,7 @@ object WidgetRenderer {
         return views
     }
 
-    internal fun build(context: Context, manager: AppWidgetManager, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {
+    internal fun build(context: Context, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget)
         views.setOnClickPendingIntent(R.id.sync, activityIntent(context, SyncActivity::class.java, 0))
         // Tapping anywhere opens the app's full list. The fold, view and Import controls keep their own taps.
@@ -135,7 +135,7 @@ object WidgetRenderer {
         // shown only sometimes start hidden on every update.
         views.setViewVisibility(R.id.helpers, View.GONE)
         views.setViewVisibility(R.id.views, View.GONE)
-        views.setViewVisibility(R.id.more, View.GONE)
+        views.setViewVisibility(R.id.all_upgrades, View.GONE)
 
         val update = UpdateChecker.availableUpdate(context)
         views.setViewVisibility(R.id.update, if (update != null) View.VISIBLE else View.GONE)
@@ -155,6 +155,12 @@ object WidgetRenderer {
 
         views.setViewVisibility(R.id.empty, View.GONE)
         views.setViewVisibility(R.id.footer, View.VISIBLE)
+        // A launcher can't be trusted to say how tall the widget is, so this never claims how much
+        // is cut off. It leaves the footer room for the update link when there is one.
+        if (update == null) {
+            views.setViewVisibility(R.id.all_upgrades, View.VISIBLE)
+            views.setOnClickPendingIntent(R.id.all_upgrades, openAppIntent(context, widgetId, tag))
+        }
         views.setTextViewText(R.id.title, Store.label(context, tag))
         views.setTextViewText(R.id.town_hall, if (village.townHall > 0) "TH${village.townHall}" else "")
         val footer = exportLine(context, village, now)
@@ -164,11 +170,10 @@ object WidgetRenderer {
 
         // Rows stay in a plain LinearLayout rather than a scrolling ListView: on One UI the
         // countdowns stop ticking inside a ListView. Sections fold to make room, and what still
-        // doesn't fit is cut off at the bottom, with a hint in the footer (WidgetFit).
+        // doesn't fit is cut off at the bottom. The app lists everything.
         val shown = Shown(widgetId, tag, village, now)
         val order = village.sections()
         showViews(context, views, shown, order.toSet())
-        val folded = Store.collapsedSections(context, tag)
         for (section in order) {
             val title = when (section) {
                 Section.BUILDERS -> "BUILDERS"
@@ -178,7 +183,6 @@ object WidgetRenderer {
             }
             addSection(context, views, shown, section, title)
         }
-        showMoreHint(context, views, shown, manager, order, folded)
         return views
     }
 
@@ -267,19 +271,6 @@ object WidgetRenderer {
         views.addView(R.id.rows, header)
         if (collapsed) return
         for (upgrade in upgrades) views.addView(R.id.rows, row(context, village, upgrade, now))
-    }
-
-    // Says how much is cut off. Every row is still drawn, so a launcher reporting the wrong height
-    // can only make this hint wrong, and can never hide an upgrade that would have fitted.
-    private fun showMoreHint(context: Context, views: RemoteViews, shown: Shown, manager: AppWidgetManager, order: List<Section>, folded: Set<String>) {
-        val village = shown.village
-        val helpers = village.helpers.apprenticeLevel > 0 || village.helpers.assistantLevel > 0
-        val room = WidgetMeasure.of(context, manager, shown.widgetId, Section.BUILDER_BASE in order, helpers) ?: return
-        val sections = order.map { section -> WidgetFit.Section(village.upgrades.count { it.section == section }, section.name in folded) }
-        val hint = WidgetFit.hint(sections, room.rows, room.header) ?: return
-        views.setTextViewText(R.id.more, context.resources.getQuantityString(R.plurals.widget_more, hint.hidden, hint.hidden))
-        views.setOnClickPendingIntent(R.id.more, showOnlyIntent(context, shown, order[hint.section]))
-        views.setViewVisibility(R.id.more, View.VISIBLE)
     }
 
     // The picture on a section's chips. Multipliers alone don't say which item is running.
@@ -374,10 +365,6 @@ object WidgetRenderer {
     // The data Uri is unique per widget and section, so each header's intent keeps its own extras.
     private fun toggleIntent(context: Context, shown: Shown, section: Section): PendingIntent =
         broadcast(context, 100 + section.ordinal, accountIntent(context, shown, VillageWidget.ACTION_TOGGLE_SECTION, "toggle", section.name)
-            .putExtra(VillageWidget.EXTRA_SECTION, section.name))
-
-    private fun showOnlyIntent(context: Context, shown: Shown, section: Section): PendingIntent =
-        broadcast(context, 300 + section.ordinal, accountIntent(context, shown, VillageWidget.ACTION_SHOW_ONLY, "only", section.name)
             .putExtra(VillageWidget.EXTRA_SECTION, section.name))
 
     private fun viewIntent(context: Context, shown: Shown, view: WidgetView): PendingIntent =

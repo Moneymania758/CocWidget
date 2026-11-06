@@ -4,7 +4,6 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
-import com.cocwidget.game.Section
 import com.cocwidget.store.Store
 import com.cocwidget.widget.WidgetRenderer
 import com.cocwidget.widget.WidgetView
@@ -20,15 +19,6 @@ class VillageWidget : AppWidgetProvider() {
                 if (tag != null && section != null) Store.toggleSection(context, tag, section)
                 refreshAsync(context)
             }
-            // A "more" line: everything else folds, so the rows it hid have the room.
-            ACTION_SHOW_ONLY -> {
-                val tag = intent.getStringExtra(EXTRA_ACCOUNT)
-                val section = intent.getStringExtra(EXTRA_SECTION)
-                if (tag != null && section != null) {
-                    Store.setCollapsedSections(context, tag, Section.entries.map { it.name }.filter { it != section }.toSet())
-                }
-                refreshAsync(context)
-            }
             ACTION_SET_VIEW -> {
                 val tag = intent.getStringExtra(EXTRA_ACCOUNT)
                 val view = WidgetView.entries.firstOrNull { it.name == intent.getStringExtra(EXTRA_VIEW) }
@@ -40,11 +30,6 @@ class VillageWidget : AppWidgetProvider() {
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        refreshAsync(context)
-    }
-
-    // A resize changes how many rows fit.
-    override fun onAppWidgetOptionsChanged(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, newOptions: android.os.Bundle) {
         refreshAsync(context)
     }
 
@@ -73,7 +58,6 @@ class VillageWidget : AppWidgetProvider() {
         const val ACTION_REFRESH = "com.cocwidget.action.REFRESH"
         const val ACTION_TOGGLE_SECTION = "com.cocwidget.action.TOGGLE_SECTION"
         const val ACTION_SET_VIEW = "com.cocwidget.action.SET_VIEW"
-        const val ACTION_SHOW_ONLY = "com.cocwidget.action.SHOW_ONLY"
         const val EXTRA_SECTION = "section"
         const val EXTRA_VIEW = "view"
         const val EXTRA_ACCOUNT = "account"

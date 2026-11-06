@@ -10,7 +10,6 @@ import com.cocwidget.R
 import com.cocwidget.TestData
 import com.cocwidget.game.Village
 import com.cocwidget.store.Store
-import com.cocwidget.widget.WidgetFit
 import com.cocwidget.widget.WidgetRenderer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -42,7 +41,7 @@ class BigWidgetTest {
                 putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, height)
             })
         }
-        val views = WidgetRenderer.build(app, manager, id, tag, village, village.exportedAtMillis + 60_000)
+        val views = WidgetRenderer.build(app, id, tag, village, village.exportedAtMillis + 60_000)
         return Shown(views.apply(app, FrameLayout(app)), village)
     }
 
@@ -60,14 +59,34 @@ class BigWidgetTest {
         }
     }
 
+    // A Xiaomi launcher reported far less than the widget's real height, so the widget said "+3 more"
+    // with nothing left to show. Nothing it says may depend on the height a launcher reports.
     @Test
-    fun theHintShowsOnlyWhenRowsDontFit() {
-        val more = { height: Int -> show(TestData.exportJson(), height).root.findViewById<TextView>(R.id.more) }
-        assertEquals(View.GONE, more(0).visibility)
-        assertEquals(View.GONE, more(2000).visibility)
-        val short = more(240)
-        assertEquals(View.VISIBLE, short.visibility)
-        assertTrue(short.text.toString(), short.text.startsWith("+") && short.text.endsWith("more ›"))
+    fun whateverHeightTheLauncherReportsTheWidgetClaimsNothingAboutIt() {
+        for (height in listOf(0, 110, 240, 360, 480, 720, 2000)) {
+            val root = show(TestData.exportJson(), height).root
+            val link = root.findViewById<TextView>(R.id.all_upgrades)
+            assertEquals("at $height dp", View.VISIBLE, link.visibility)
+            assertEquals("All upgrades ›", link.text.toString())
+            val claims = Screens.texts(root).filter { Regex("""\+\d+ more""").containsMatchIn(it) }
+            assertEquals("at $height dp", emptyList<String>(), claims)
+        }
+    }
+
+    @Test
+    fun theAllUpgradesLinkOpensTheMainScreenOnItsAccount() {
+        val shown = show(TestData.exportJson())
+        shown.root.findViewById<View>(R.id.all_upgrades).performClick()
+        val intent = shadowOf(app).nextStartedActivity
+        assertEquals(com.cocwidget.MainActivity::class.java.name, intent.component?.className)
+        assertEquals(shown.village.tag, intent.getStringExtra(com.cocwidget.MainActivity.EXTRA_ACCOUNT))
+    }
+
+    @Test
+    fun aWidgetWithNoAccountHasNoLink() {
+        val id = shadowOf(manager).createWidget(com.cocwidget.VillageWidget::class.java, R.layout.widget)
+        val root = WidgetRenderer.build(app, id, null, null, 0).apply(app, FrameLayout(app))
+        assertEquals(View.GONE, root.findViewById<View>(R.id.all_upgrades).visibility)
     }
 
     @Test
@@ -100,22 +119,8 @@ class BigWidgetTest {
     @Test
     fun aWidgetWithNoAccountShowsTheSetupText() {
         val id = shadowOf(manager).createWidget(com.cocwidget.VillageWidget::class.java, R.layout.widget)
-        val root = WidgetRenderer.build(app, manager, id, null, null, 0).apply(app, FrameLayout(app))
+        val root = WidgetRenderer.build(app, id, null, null, 0).apply(app, FrameLayout(app))
         assertEquals(View.VISIBLE, root.findViewById<View>(R.id.empty).visibility)
         assertEquals(View.GONE, root.findViewById<View>(R.id.footer).visibility)
-    }
-
-    // What a player can read at sizes people really use, with a real TH16 village. The table in the
-    // 2.7.4 fix: the rows a widget shows must never fall behind what 2.7.2 showed.
-    @Test
-    fun aNormalWidgetShowsAsManyWholeRowsAsFit() {
-        val text: (Int) -> Int = { sp -> kotlin.math.ceil(sp * 1.327).toInt() }
-        val sections = listOf(WidgetFit.Section(6, false), WidgetFit.Section(1, false), WidgetFit.Section(1, false), WidgetFit.Section(4, false))
-        val expectedRowsAtLeast = mapOf(240 to 1, 300 to 3, 360 to 4, 420 to 6, 480 to 7, 540 to 8, 600 to 9, 720 to 12)
-        for ((height, rows) in expectedRowsAtLeast) {
-            val room = WidgetFit.roomForRows(height, viewButtons = true, helpers = true, text)
-            val hidden = WidgetFit.hint(sections, room, WidgetFit.headerDp(text))?.hidden ?: 0
-            assertTrue("$height dp shows ${12 - hidden}", 12 - hidden >= rows)
-        }
     }
 }
