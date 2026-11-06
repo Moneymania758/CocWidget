@@ -86,6 +86,21 @@ class GuideScreensTest {
         }
     }
 
+    // The bar sat on top of the last row. One UI draws it about 10 dp up from the edge, so the table
+    // needs clear room below it, not just the bar's thickness.
+    @Test
+    fun everyTablesScrollBarSitsUnderTheLastRow() {
+        val density = app.resources.displayMetrics.density
+        for (unit in units.values) {
+            val page = Screens.open<GuideUnitActivity> { putExtra(GuideScreen.EXTRA_ID, unit.id) }
+            for (scroller in Screens.views<android.widget.HorizontalScrollView>(Screens.root(page))) {
+                val room = (scroller.height - scroller.getChildAt(0).bottom) / density
+                assertTrue("${unit.name}: $room dp under the table", room >= 16)
+                assertEquals(unit.name, android.view.View.SCROLLBARS_OUTSIDE_OVERLAY, scroller.scrollBarStyle)
+            }
+        }
+    }
+
     // Taps the highlighted [word] in any text on the screen, and returns what that opened.
     private fun tapWord(screen: GuideScreen, word: String): android.content.Intent {
         val view = Screens.views<TextView>(Screens.root(screen)).first { label ->

@@ -303,6 +303,10 @@ class GuideUnitActivity : GuideScreen() {
                 // Wider tables run past the card, so keep the bar showing to say they scroll.
                 isHorizontalScrollBarEnabled = true
                 isScrollbarFadingEnabled = false
+                // The bar goes under the last row, not over it. One UI draws it about 10 dp up from
+                // the edge, so the room has to be more than the bar's own thickness.
+                scrollBarStyle = View.SCROLLBARS_OUTSIDE_OVERLAY
+                setPadding(0, 0, 0, ui.dp(TABLE_BAR_ROOM))
                 addView(table)
             }, ui.matchWidth(8))
         }
@@ -317,5 +321,6 @@ class GuideUnitActivity : GuideScreen() {
         private const val KEY_SELECTED = "selected"
         // The table stays readable with this many stat columns. The charts have the rest.
         private const val TABLE_CHARTS = 3
+        private const val TABLE_BAR_ROOM = 20
     }
 }
