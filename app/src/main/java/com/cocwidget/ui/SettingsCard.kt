@@ -6,6 +6,7 @@ import android.content.res.ColorStateList
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.text.format.DateUtils
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,8 @@ import android.widget.Switch
 import android.widget.Toast
 import com.cocwidget.R
 import com.cocwidget.VillageWidget
+import com.cocwidget.events.EventKind
+import com.cocwidget.events.EventReminders
 import com.cocwidget.store.Store
 
 // The Settings screen's cards. [nameDrafts] holds names typed but not saved, by account, so they
@@ -30,6 +33,30 @@ class SettingsCard(
         addView(themePicker())
         addView(ui.divider())
         addView(eventRow())
+    }
+
+    // A switch for each game event, with when its next reminder is due.
+    fun eventReminders(): View = ui.card(0).apply {
+        addView(ui.heading(activity.getString(R.string.event_reminders_title), 16f, ui.skin.accent).apply {
+            setPadding(ui.dp(16), ui.dp(14), ui.dp(16), ui.dp(4))
+        })
+        addView(ui.text(activity.getString(R.string.event_reminders_explain), 13f, ui.skin.dim).apply {
+            setPadding(ui.dp(16), 0, ui.dp(16), ui.dp(10))
+        })
+        val now = System.currentTimeMillis()
+        for (kind in EventKind.entries) {
+            addView(ui.divider())
+            addView(switchRow(activity.getString(kind.label), nextReminder(kind, now), Store.eventReminderOn(activity, kind)) { on ->
+                Store.setEventReminderOn(activity, kind, on, System.currentTimeMillis())
+                VillageWidget.requestRefresh(activity)
+            })
+        }
+    }
+
+    private fun nextReminder(kind: EventKind, now: Long): String {
+        val next = EventReminders.nextFor(activity, kind, now) ?: return activity.getString(R.string.event_no_date)
+        val flags = DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_ABBREV_ALL
+        return activity.getString(R.string.event_next, DateUtils.formatDateTime(activity, next, flags))
     }
 
     // The selected account's name and removal. Hidden until there's an account.
@@ -78,22 +105,28 @@ class SettingsCard(
         }, ui.matchWidth(10))
     }
 
-    private fun eventRow() = LinearLayout(activity).apply {
+    private fun eventRow() = switchRow(
+        activity.getString(R.string.event_switch),
+        activity.getString(R.string.event_explain),
+        Store.eventOn(activity),
+    ) { on -> Store.setEventOn(activity, on) }
+
+    private fun switchRow(title: String, detail: String, checked: Boolean, onChange: (Boolean) -> Unit) = LinearLayout(activity).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
         setPadding(ui.dp(16), ui.dp(14), ui.dp(12), ui.dp(14))
         addView(LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
-            addView(ui.text(activity.getString(R.string.event_switch), 15f))
-            addView(ui.text(activity.getString(R.string.event_explain), 13f, ui.skin.dim), ui.matchWidth(3))
+            addView(ui.text(title, 15f))
+            addView(ui.text(detail, 13f, ui.skin.dim), ui.matchWidth(3))
         }, ui.weighted())
         addView(Switch(activity).apply {
-            contentDescription = activity.getString(R.string.event_switch)
-            isChecked = Store.eventOn(activity)
+            contentDescription = title
+            isChecked = checked
             val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
             thumbTintList = ColorStateList(states, intArrayOf(ui.skin.accent, ui.skin.dim))
             trackTintList = ColorStateList(states, intArrayOf(ui.skin.accent, ui.skin.divider))
-            setOnCheckedChangeListener { _, on -> Store.setEventOn(activity, on) }
+            setOnCheckedChangeListener { _, on -> onChange(on) }
         }, ui.wrap().apply { marginStart = ui.dp(12) })
     }
 

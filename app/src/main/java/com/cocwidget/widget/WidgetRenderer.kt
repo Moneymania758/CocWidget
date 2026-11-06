@@ -22,6 +22,7 @@ import com.cocwidget.VillageWidget
 import com.cocwidget.game.Boost
 import com.cocwidget.game.Section
 import com.cocwidget.game.Upgrade
+import com.cocwidget.events.EventReminders
 import com.cocwidget.game.Village
 import com.cocwidget.store.Icons
 import com.cocwidget.store.Store
@@ -31,6 +32,7 @@ import com.cocwidget.ui.TimeText
 object WidgetRenderer {
     private const val REFRESH_REQUEST = 0
     private const val FINISH_REQUEST = 1
+    private const val EVENT_REQUEST = 2
 
     fun update(context: Context) {
         // Notifications work without a widget on the home screen, so they come first.
@@ -42,6 +44,7 @@ object WidgetRenderer {
             Notifier.notifyFinished(context, tag, village, checkedAt, label)
         }
         scheduleNextFinish(context, villages.values, checkedAt)
+        checkEvents(context, checkedAt)
 
         val manager = AppWidgetManager.getInstance(context)
         val widgetIds = manager.getAppWidgetIds(ComponentName(context, VillageWidget::class.java))
@@ -61,6 +64,19 @@ object WidgetRenderer {
             manager.updateAppWidget(widgetId, buildNext(context, widgetId, tag, tag?.let(villages::get), now))
         }
         scheduleNext(context, shown.values.distinct().minOf { Countdown.nextRefresh(it?.let(villages::get), now) })
+    }
+
+    // Posts any event reminders due and sets the alarm for the next check. Has its own alarm, as
+    // the finish alarm is cancelled when nothing is upgrading. Does network, so only call this off
+    // the main thread.
+    fun checkEvents(context: Context, now: Long = System.currentTimeMillis()) {
+        val intent = refreshIntent(context, EVENT_REQUEST)
+        val next = EventReminders.check(context, now)
+        if (next == null) {
+            context.getSystemService(AlarmManager::class.java).cancel(intent)
+        } else {
+            setAlarm(context, AlarmManager.RTC_WAKEUP, next, intent)
+        }
     }
 
     // Only the redraw alarm, and only once neither kind of widget is left. The finish alarm

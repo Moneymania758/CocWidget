@@ -77,6 +77,8 @@ class MainActivity : Screen() {
         val before = UpdateChecker.availableUpdate(this)
         thread {
             UpdateChecker.checkIfDue(applicationContext, UpdateChecker.OPEN_APP_INTERVAL_MS)
+            // A new install has no alarm until now.
+            WidgetRenderer.checkEvents(applicationContext)
             runOnUiThread { if (!isDestroyed && UpdateChecker.availableUpdate(this) != before) show() }
         }
     }

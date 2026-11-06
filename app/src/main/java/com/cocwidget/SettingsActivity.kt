@@ -38,6 +38,7 @@ class SettingsActivity : Screen() {
         content.addView(backHeader(R.string.settings_title))
         val settings = SettingsCard(this, ui, nameDrafts, ::show)
         content.addView(settings.general(), ui.matchWidth(12))
+        content.addView(settings.eventReminders(), ui.matchWidth(16))
         settings.account()?.let { content.addView(it, ui.matchWidth(16)) }
         content.addView(HelpCard(this, ui, installedVersion(), open).build(), ui.matchWidth(16))
         ShareCard(this, ui, installedVersion()).build()?.let { content.addView(it, ui.matchWidth(16)) }

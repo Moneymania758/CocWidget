@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import com.cocwidget.MainActivity
 import com.cocwidget.R
+import com.cocwidget.events.EventSchedule
 import com.cocwidget.game.Section
 import com.cocwidget.game.Upgrade
 import com.cocwidget.game.Village
@@ -15,6 +16,7 @@ import com.cocwidget.store.Store
 
 object Notifier {
     private const val CHANNEL_FINISHED = "finished"
+    private const val CHANNEL_EVENTS = "events"
     private const val CLASH_PACKAGE = "com.supercell.clashofclans"
     // Anything that finished longer ago than this (phone off, app just installed) stays quiet.
     private const val MAX_LATENESS_MS = 2 * 60 * 60_000L
@@ -68,18 +70,41 @@ object Notifier {
             village.townHall > 0 -> context.getString(R.string.notify_account, account, village.townHall, freed)
             else -> context.getString(R.string.notify_account_no_town_hall, account, freed)
         }
-        val open = context.packageManager.getLaunchIntentForPackage(CLASH_PACKAGE)
-            ?: Intent(context, MainActivity::class.java)
-        val tap = PendingIntent.getActivity(context, 2, open, PendingIntent.FLAG_IMMUTABLE)
         return Notification.Builder(context, CHANNEL_FINISHED)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(text)
             .setWhen(village.endMillis(upgrade))
             .setShowWhen(true)
-            .setContentIntent(tap)
+            .setContentIntent(openGame(context))
             .setAutoCancel(true)
             .build()
+    }
+
+    // A game event. The words are the app's own, never from the downloaded dates.
+    fun notifyEvent(context: Context, reminder: EventSchedule.Reminder) {
+        val manager = context.getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(
+            NotificationChannel(CHANNEL_EVENTS, context.getString(R.string.channel_events), NotificationManager.IMPORTANCE_DEFAULT),
+        )
+        val text = context.getString(reminder.text)
+        val notification = Notification.Builder(context, CHANNEL_EVENTS)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(context.getString(reminder.title))
+            .setContentText(text)
+            .setStyle(Notification.BigTextStyle().bigText(text))
+            .setWhen(reminder.at)
+            .setShowWhen(true)
+            .setContentIntent(openGame(context))
+            .setAutoCancel(true)
+            .build()
+        manager.notify("event:${reminder.id}".hashCode(), notification)
+    }
+
+    private fun openGame(context: Context): PendingIntent {
+        val open = context.packageManager.getLaunchIntentForPackage(CLASH_PACKAGE)
+            ?: Intent(context, MainActivity::class.java)
+        return PendingIntent.getActivity(context, 2, open, PendingIntent.FLAG_IMMUTABLE)
     }
 
     private fun createChannel(context: Context, manager: NotificationManager) {

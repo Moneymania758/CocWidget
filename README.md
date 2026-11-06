@@ -78,6 +78,24 @@ Timers and notifications are right either way: they use the real time left from 
 Leaving the switch on by mistake does no harm, because a full-price upgrade has more time left
 than a discounted one could, so it's never halved.
 
+## Event reminders
+
+The app can tell you when game events are due. Open **Settings** and use the switches under
+**Event reminders**. Each one shows when its next reminder goes off, in your own time.
+
+| Event | You're told | Starts |
+|---|---|---|
+| Clan Games | When it starts, the day before it ends, and when it ends so you collect your rewards | On |
+| Clan War League sign-up | When sign-up opens | On |
+| Gold Pass season | A week before the season ends, and the day before | On |
+| Hammer Jam | When it starts, and the day before it ends | On |
+| Raid Weekend | Every Friday when it starts | Off |
+| Ranked battles | Every Monday when battles open | Off |
+| Legend League I reset | When a new Tournament starts | Off |
+
+You don't need a widget or an imported village. Supercell can move dates, and the app picks up
+corrections by itself. The Event Hub in the game has the final word.
+
 ## Reading the widget
 
 - **BUILDERS 6/6** is builders busy out of builders you have. An orange **idle** means a free
@@ -366,6 +384,21 @@ After a game update adds buildings, troops or levels:
 ```
 node tools/build-coc-data.js
 ```
+
+### Event dates
+
+`app/src/main/assets/events.json` ships in the app, and the app also downloads it from `main`
+every 12 hours when a reminder is on, so pushing a change corrects dates without a release. Bump
+`updated` with every change, or phones keep the copy they have. It holds kinds and dates only.
+The words are in `strings.xml`.
+
+- Add Hammer Jam and any extra event as a new entry. Legend I needs a new entry every 4 weeks.
+- Move a regular event by using its rule's id, such as `clan_games:2026-12`, `cwl:2026-12`,
+  `gold_pass:2026-12`, `raid_weekend:2026-11-13` or `ranked:2026-11-16`.
+- Cancel one with `"cancelled": true` in place of the dates.
+- Take dates from Supercell's own post for the event where there is one. The season calendar's
+  end dates can be a day out: it gave Hammer Jam 2026 as 1 to 15 November, and the post gave
+  08:00 UTC on the 16th.
 
 ## Credit
 

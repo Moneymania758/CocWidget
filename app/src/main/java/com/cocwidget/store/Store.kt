@@ -3,6 +3,7 @@ package com.cocwidget.store
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import com.cocwidget.events.EventKind
 import com.cocwidget.game.EventDiscount
 import com.cocwidget.game.Village
 import com.cocwidget.game.VillageParser
@@ -20,6 +21,12 @@ object Store {
     private const val KEY_LATEST_VERSION = "latest_version"
     private const val KEY_ASKED_NOTIFICATIONS = "asked_notifications"
     private const val KEY_EVENT_ON = "event_discount_on"
+    private const val KEY_REMINDER = "event_reminder_"
+    private const val KEY_REMINDER_SINCE = "event_reminder_since_"
+    private const val KEY_REMINDERS_STARTED = "event_reminders_started"
+    private const val KEY_REMINDERS_NOTIFIED = "event_reminders_notified"
+    private const val KEY_EVENT_DATES = "event_dates"
+    private const val KEY_LAST_DATES_CHECK = "last_event_dates_check"
     private const val KEY_WHATS_NEW_SEEN = "whats_new_seen"
     private const val KEY_SKIN = "skin"
     private const val KEY_BEDTIME = "bedtime_minute"
@@ -193,6 +200,46 @@ object Store {
 
     fun setEventOn(context: Context, on: Boolean) {
         prefs(context).edit().putBoolean(KEY_EVENT_ON, on).apply()
+    }
+
+    fun eventReminderOn(context: Context, kind: EventKind): Boolean =
+        prefs(context).getBoolean(KEY_REMINDER + kind.key, kind.onByDefault)
+
+    // Switching one on notes the time, so it doesn't announce what has already started.
+    fun setEventReminderOn(context: Context, kind: EventKind, on: Boolean, now: Long) {
+        prefs(context).edit().putBoolean(KEY_REMINDER + kind.key, on).apply {
+            if (on) putLong(KEY_REMINDER_SINCE + kind.key, now)
+        }.apply()
+    }
+
+    // Notes the first check, so an update or a new install stays quiet about what already began.
+    fun startEventReminders(context: Context, now: Long) {
+        if (!prefs(context).contains(KEY_REMINDERS_STARTED)) prefs(context).edit().putLong(KEY_REMINDERS_STARTED, now).apply()
+    }
+
+    // Reminders from this time or earlier stay quiet.
+    fun eventReminderSince(context: Context, kind: EventKind): Long = maxOf(
+        prefs(context).getLong(KEY_REMINDERS_STARTED, 0),
+        prefs(context).getLong(KEY_REMINDER_SINCE + kind.key, 0),
+    )
+
+    fun notifiedReminders(context: Context): Set<String> =
+        prefs(context).getStringSet(KEY_REMINDERS_NOTIFIED, emptySet()).orEmpty()
+
+    fun setNotifiedReminders(context: Context, ids: Set<String>) {
+        prefs(context).edit().putStringSet(KEY_REMINDERS_NOTIFIED, ids).apply()
+    }
+
+    fun eventDates(context: Context): String? = prefs(context).getString(KEY_EVENT_DATES, null)
+
+    fun setEventDates(context: Context, text: String) {
+        prefs(context).edit().putString(KEY_EVENT_DATES, text).apply()
+    }
+
+    fun lastEventDatesCheck(context: Context): Long = prefs(context).getLong(KEY_LAST_DATES_CHECK, 0)
+
+    fun setLastEventDatesCheck(context: Context, now: Long) {
+        prefs(context).edit().putLong(KEY_LAST_DATES_CHECK, now).apply()
     }
 
     // What the event switch takes off upgrades not started yet, 0 with it off.

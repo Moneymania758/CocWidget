@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "updated": "2026-11-06",
+  "events": [
+    { "id": "hammer-jam-2026", "kind": "hammer_jam", "start": "2026-11-01T08:00:00Z", "end": "2026-11-16T08:00:00Z" },
+    { "id": "legend-2026-11-23", "kind": "legend", "start": "2026-11-23T05:00:00Z" },
+    { "id": "legend-2026-12-21", "kind": "legend", "start": "2026-12-21T05:00:00Z" }
+  ]
+}
