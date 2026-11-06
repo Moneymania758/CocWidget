@@ -20,14 +20,14 @@ object Notifier {
     private const val MAX_LATENESS_MS = 2 * 60 * 60_000L
 
     // Posts one notification for each upgrade that has finished since the last check. [account]
-    // names the village when there's more than one.
+    // names the village when there's more than one, so people know which one to log into.
     fun notifyFinished(context: Context, tag: String, village: Village, now: Long, account: String?) {
         val decision = decide(village, Store.notifiedUpgrades(context, tag), now)
         if (decision.toNotify.isNotEmpty()) {
             val manager = context.getSystemService(NotificationManager::class.java)
             createChannel(context, manager)
             for ((key, upgrade) in decision.toNotify) {
-                manager.notify("$tag:$key".hashCode(), build(context, upgrade, village.endMillis(upgrade), account))
+                manager.notify("$tag:$key".hashCode(), build(context, upgrade, village, account))
             }
         }
         Store.setNotifiedUpgrades(context, tag, decision.notified)
@@ -46,13 +46,13 @@ object Notifier {
         return Decision(toNotify.toList(), (notified intersect current.keys) + finished.keys)
     }
 
-    private fun build(context: Context, upgrade: Upgrade, end: Long, account: String?): Notification {
+    private fun build(context: Context, upgrade: Upgrade, village: Village, account: String?): Notification {
         val title = if (upgrade.supercharge > 0) {
             context.getString(R.string.notify_supercharge_finished_title, upgrade.name, upgrade.supercharge)
         } else {
             context.getString(R.string.notify_finished_title, upgrade.name, upgrade.toLevel)
         }
-        val text = context.getString(
+        val freed = context.getString(
             when {
                 upgrade.section == Section.BUILDER_BASE -> R.string.notify_builder_base
                 upgrade.extra -> R.string.notify_goblin_free
@@ -61,6 +61,13 @@ object Notifier {
                 else -> R.string.notify_pet_house_free
             },
         )
+        // In the main text, as sub-text is small and easy to miss. The Town Hall is 0 if the export
+        // didn't list one.
+        val text = when {
+            account == null -> freed
+            village.townHall > 0 -> context.getString(R.string.notify_account, account, village.townHall, freed)
+            else -> context.getString(R.string.notify_account_no_town_hall, account, freed)
+        }
         val open = context.packageManager.getLaunchIntentForPackage(CLASH_PACKAGE)
             ?: Intent(context, MainActivity::class.java)
         val tap = PendingIntent.getActivity(context, 2, open, PendingIntent.FLAG_IMMUTABLE)
@@ -68,8 +75,7 @@ object Notifier {
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(text)
-            .setSubText(account)
-            .setWhen(end)
+            .setWhen(village.endMillis(upgrade))
             .setShowWhen(true)
             .setContentIntent(tap)
             .setAutoCancel(true)

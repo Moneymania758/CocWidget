@@ -28,6 +28,8 @@
     <string name="notify_lab_free">The lab is free</string>
     <string name="notify_pet_house_free">The Pet House is free</string>
     <string name="notify_builder_base">Builder Base upgrade done</string>
+    <string name="notify_account">%1$s (TH%2$d) · %3$s</string>
+    <string name="notify_account_no_town_hall">%1$s · %2$s</string>
 
     <string name="sync_not_export">The clipboard doesn\'t hold a village export. Copy it in Clash first (Settings &gt; More Settings &gt; Data Export).</string>
     <string name="sync_done">Village imported</string>
