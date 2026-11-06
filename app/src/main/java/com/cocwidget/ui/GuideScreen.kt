@@ -32,7 +32,7 @@ import com.cocwidget.store.Store
 abstract class GuideScreen : Screen() {
     protected val guide: Guide by lazy { Guide.load(this) }
     protected val items: Map<Int, GameItem> by lazy { GameData.all(this) }
-    private val pictures by lazy { Pictures(this) }
+    protected val pictures by lazy { Pictures(this) }
 
     // The selected village's Town Hall, and its hero and pet levels. 0 and none before a sync.
     protected var myTownHall = 0

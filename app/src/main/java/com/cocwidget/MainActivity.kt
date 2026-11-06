@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -12,10 +11,8 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
 import android.view.View
-import android.widget.ImageView
 import android.widget.LinearLayout
 import com.cocwidget.game.Village
-import com.cocwidget.store.Icons
 import com.cocwidget.store.Store
 import com.cocwidget.store.UpdateChecker
 import com.cocwidget.ui.HomeUpgrades
@@ -184,7 +181,7 @@ class MainActivity : Screen() {
     private fun villageTitle(village: Village, now: Long) = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
-        if (village.townHall > 0) addView(townHallPicture(village.townHall), LinearLayout.LayoutParams(ui.dp(104), ui.dp(112)))
+        if (village.townHall > 0) addView(ui.townHall(village.townHall, pictures), LinearLayout.LayoutParams(ui.dp(104), ui.dp(112)))
         addView(LinearLayout(this@MainActivity).apply {
             orientation = LinearLayout.VERTICAL
             if (village.townHall > 0) {
@@ -193,20 +190,6 @@ class MainActivity : Screen() {
             val summary = NextFinish.of(village, now)
             addView(ui.text(idleLine(summary), 13f, if (summary.anyIdle) getColor(R.color.idle) else ui.skin.green, bold = true), ui.matchWidth(6))
         }, ui.weighted(12))
-    }
-
-    private fun townHallPicture(level: Int) = ImageView(this).apply {
-        scaleType = ImageView.ScaleType.FIT_CENTER
-        contentDescription = getString(R.string.home_town_hall, level)
-        val glow = ui.skin.accent and 0x00FFFFFF
-        background = GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(glow or 0x40000000, glow)).apply {
-            gradientType = GradientDrawable.RADIAL_GRADIENT
-            gradientRadius = ui.dp(58).toFloat()
-        }
-        // Straight away if it's bundled, so it doesn't blink each time the screen is rebuilt.
-        val path = Icons.townHallPath(level)
-        val bitmap = Icons.load(this@MainActivity, path)
-        if (bitmap != null) setImageBitmap(bitmap) else pictures.add(path, this)
     }
 
     private fun idleLine(summary: NextFinish.Summary): String = if (summary.anyIdle) {

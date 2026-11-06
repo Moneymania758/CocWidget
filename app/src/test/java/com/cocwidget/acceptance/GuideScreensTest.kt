@@ -487,6 +487,28 @@ class GuideScreensTest {
     }
 
     @Test
+    fun everyTownHallButtonHasAPictureAndOpensItsPage() {
+        for (townHall in Guide.FIRST_TOWN_HALL..18) {
+            val hub = Screens.open<GuideActivity>()
+            val button = Screens.tappable(Screens.root(hub), "TH$townHall")!!
+            assertTrue("TH$townHall", Screens.views<android.widget.ImageView>(button).size == 1)
+            button.performClick()
+            val started = shadowOf(hub).nextStartedActivity
+            assertEquals(GuideTownHallActivity::class.java.name, started.component?.className)
+            assertEquals(townHall, started.getIntExtra(GuideScreen.EXTRA_TOWN_HALL, 0))
+        }
+    }
+
+    @Test
+    fun everyTownHallPageShowsItsOwnPicture() {
+        for (townHall in Guide.FIRST_TOWN_HALL..18) {
+            val page = Screens.open<GuideTownHallActivity> { putExtra(GuideScreen.EXTRA_TOWN_HALL, townHall) }
+            val picture = Screens.views<android.widget.ImageView>(Screens.root(page)).single { it.contentDescription == "Town Hall $townHall" }
+            assertTrue("TH$townHall", picture.drawable != null)
+        }
+    }
+
+    @Test
     fun aSyncedVillageMarksItsTownHall() {
         syncTh16()
         val hub = Screens.root(Screens.open<GuideActivity>())

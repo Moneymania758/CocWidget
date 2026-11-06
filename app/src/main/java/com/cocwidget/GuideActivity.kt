@@ -3,7 +3,11 @@ package com.cocwidget
 import android.content.Intent
 import android.net.Uri
 import android.view.Gravity
+import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
 import com.cocwidget.guide.Guide
+import com.cocwidget.store.Icons
 import com.cocwidget.ui.GuideScreen
 
 // The way into the guide. It works without a synced village, and offers the player's own Town Hall
@@ -17,21 +21,16 @@ class GuideActivity : GuideScreen() {
         }
         content.addView(ui.card().apply {
             addView(sectionTitle(getString(R.string.guide_town_halls)))
-            addView(ui.flow(8).apply {
-                for (townHall in Guide.FIRST_TOWN_HALL..maxTownHall) {
-                    val mine = townHall == myTownHall
-                    addView(ui.chip(
-                        getString(R.string.town_hall_chip, townHall),
-                        if (mine) ui.skin.primaryBg else ui.skin.chip,
-                        if (mine) ui.skin.primaryText else ui.skin.text,
-                    ).apply {
-                        minHeight = ui.dp(44)
-                        minWidth = ui.dp(56)
-                        gravity = Gravity.CENTER
-                        ui.pressable(this, 8f) { openTownHall(townHall) }
-                    })
-                }
-            }, ui.matchWidth(10))
+            // Four to a row, sharing its width, with blanks keeping a short last row in line.
+            for ((index, row) in (Guide.FIRST_TOWN_HALL..maxTownHall).chunked(4).withIndex()) {
+                addView(LinearLayout(this@GuideActivity).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    for (column in 0 until 4) {
+                        val share = ui.weighted(if (column == 0) 0 else 8)
+                        addView(row.getOrNull(column)?.let { townHallButton(it) } ?: View(this@GuideActivity), share)
+                    }
+                }, ui.matchWidth(if (index == 0) 10 else 8))
+            }
         }, ui.matchWidth(14))
         content.addView(ui.button(getString(R.string.guide_heroes), null, primary = false) { open(GuideHeroesActivity::class.java) }, ui.matchWidth(14))
         content.addView(ui.button(getString(R.string.guide_pets), null, primary = false) { open(GuidePetsActivity::class.java) }, ui.matchWidth(10))
@@ -41,6 +40,22 @@ class GuideActivity : GuideScreen() {
         content.addView(ui.button(getString(R.string.guide_glossary), null, primary = false) { open(GuideGlossaryActivity::class.java) }, ui.matchWidth(10))
         content.addView(ui.button(getString(R.string.guide_sources), null, primary = false) { open(GuideSourcesActivity::class.java) }, ui.matchWidth(10))
         addNote(getString(R.string.credit))
+    }
+
+    // Its picture over its number, marked in the skin's main colour if it's the player's own.
+    private fun townHallButton(townHall: Int) = LinearLayout(this).apply {
+        val mine = townHall == myTownHall
+        orientation = LinearLayout.VERTICAL
+        gravity = Gravity.CENTER_HORIZONTAL
+        background = ui.rounded(if (mine) ui.skin.primaryBg else ui.skin.chip, 10f)
+        setPadding(ui.dp(6), ui.dp(6), ui.dp(6), ui.dp(6))
+        addView(ImageView(this@GuideActivity).apply {
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            pictures.add(Icons.townHallPath(townHall), this)
+        }, LinearLayout.LayoutParams(ui.dp(56), ui.dp(62)))
+        addView(ui.text(getString(R.string.town_hall_chip, townHall), 13f, if (mine) ui.skin.primaryText else ui.skin.text, bold = true), ui.wrap(2))
+        ui.pressable(this, 10f) { openTownHall(townHall) }
     }
 
     private fun openTownHall(townHall: Int) = open(GuideTownHallActivity::class.java) { putExtra(EXTRA_TOWN_HALL, townHall) }

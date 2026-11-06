@@ -18,6 +18,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.cocwidget.R
+import com.cocwidget.store.Icons
 import kotlin.math.roundToInt
 
 // Builds the app's screens in the chosen skin. Views are made in code because the three skins
@@ -266,6 +267,21 @@ class Ui(private val activity: Activity, val skin: Skin) {
         outlineProvider = ViewOutlineProvider.BACKGROUND
         clipToOutline = true
         layoutParams = LinearLayout.LayoutParams(dp(sizeDp), dp(sizeDp))
+    }
+
+    // A Town Hall large, on a soft glow. Straight away if it's bundled, so it doesn't blink each time
+    // a screen is rebuilt.
+    fun townHall(level: Int, pictures: Pictures) = ImageView(activity).apply {
+        scaleType = ImageView.ScaleType.FIT_CENTER
+        contentDescription = activity.getString(R.string.home_town_hall, level)
+        val glow = skin.accent and 0x00FFFFFF
+        background = GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(glow or 0x40000000, glow)).apply {
+            gradientType = GradientDrawable.RADIAL_GRADIENT
+            gradientRadius = dp(58).toFloat()
+        }
+        val path = Icons.townHallPath(level)
+        val bitmap = Icons.load(activity, path)
+        if (bitmap != null) setImageBitmap(bitmap) else pictures.add(path, this)
     }
 
     fun flow(gapDp: Int = 6) = FlowLayout(activity, dp(gapDp), dp(gapDp))

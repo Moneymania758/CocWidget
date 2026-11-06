@@ -1,6 +1,7 @@
 package com.cocwidget
 
 import android.os.Bundle
+import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import com.cocwidget.game.Ids
@@ -32,7 +33,12 @@ class GuideTownHallActivity : GuideScreen() {
             if (townHall == myTownHall) addView(ui.chip(getString(R.string.guide_you), ui.skin.primaryBg, ui.skin.primaryText))
         })
         val page = guide.townHall(townHall)
-        page?.summary?.let { addTermNote(it, 14f) }
+        content.addView(LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            addView(ui.townHall(townHall, pictures), LinearLayout.LayoutParams(ui.dp(104), ui.dp(112)))
+            page?.summary?.let { addView(ui.text(it, 14f, ui.skin.dim).withTerms(), ui.weighted(10)) }
+        }, ui.matchWidth(10))
         content.addView(upgradeCard(), ui.matchWidth(12))
         content.addView(newCard(), ui.matchWidth(14))
         upgradeFirstCard()?.let { content.addView(it, ui.matchWidth(14)) }
