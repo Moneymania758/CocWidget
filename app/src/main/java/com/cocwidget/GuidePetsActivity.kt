@@ -17,6 +17,7 @@ class GuidePetsActivity : GuideScreen() {
 
     private fun petCard(pet: Fighter) = ui.card().apply {
         val item = items[pet.id]
+        freshTerms()
         val first = item?.let(Guide::firstTownHall) ?: 0
         val house = item?.requiredLevelFor(1) ?: 0
         addView(titleRow(item, pet.name, getString(R.string.guide_pet_unlock, first, house)))
@@ -26,7 +27,7 @@ class GuidePetsActivity : GuideScreen() {
             myTownHall in 1 until first -> addView(ui.text(getString(R.string.guide_not_yet, first), 14f, ui.skin.dim, bold = true), ui.matchWidth(8))
         }
         guide.content.pets[pet.name]?.let { addView(ui.text(it, 14f).withTerms(), ui.matchWidth(8)) }
-        guide.content.petTactics[pet.name]?.let { addTactics(it) }
+        guide.content.petTactics[pet.name]?.let { addTactics(it, opensAt = first) }
         addView(ui.flow().apply {
             addView(ui.chip(moves(pet)))
             addView(ui.chip(hits(pet)))

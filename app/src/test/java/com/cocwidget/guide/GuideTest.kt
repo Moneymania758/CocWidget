@@ -68,7 +68,10 @@ class GuideTest {
     @Test
     fun superTroopsWaitForTownHall11AndTheirBaseTroop() {
         assertEquals(11, guide.unit("Super Archer")?.townHall)
-        assertEquals(12, guide.unit("Super Yeti")?.townHall)
+        // Super Yeti needs Yeti level 3, which arrives at TH13.
+        assertEquals(13, guide.unit("Super Yeti")?.townHall)
+        assertEquals(13, guide.unit("Super Hog Rider")?.townHall)
+        assertEquals(12, guide.unit("Super Giant")?.townHall)
         assertTrue(guide.facts.army.filter { it.kind == "super" }.all { it.townHall >= 11 })
     }
 
@@ -112,11 +115,169 @@ class GuideTest {
         val banned = Regex("[\u2013\u2014]|\\bdefense|\\bcolor|behavior|favorite|armor|\\b(?!(?:size|sizes|prize|prizes|seize)\\b)\\w+iz(e|ed|es|ing|ation)\\b")
         val problems = mutableListOf<String>()
         for ((name, tactics) in guide.content.unitTactics + guide.content.defenceTactics + guide.content.heroTactics + guide.content.petTactics) {
-            for (line in listOf(tactics.role) + tactics.use + tactics.beware) {
+            for (line in listOf(tactics.role, tactics.targets) + tactics.allTips.map { it.text }) {
                 banned.find(line)?.let { problems += "$name: ${it.value} in \"$line\"" }
+                siteNames.find(line)?.let { problems += "$name names a website in \"$line\"" }
+            }
+        }
+        val other = guide.content.threats.flatMap { threat -> listOf(threat.tactics.role) + threat.tactics.allTips.map { it.text } } +
+            guide.content.equipmentTips.values.map { it.tip.text } +
+            guide.content.upgradeFirst.values.flatMap { it.lines }
+        for (line in other) {
+            banned.find(line)?.let { problems += "${it.value} in \"$line\"" }
+            siteNames.find(line)?.let { problems += "A website in \"$line\"" }
+        }
+        assertEquals(emptyList<String>(), problems)
+    }
+
+    private val siteNames = Regex("Base Drop|AllClash|Clash Ninja|Blueprint|Trophy Coach|1337wiki|COC Base Guide|Skycoach|EZ Arena|GameRant")
+    private val units = GuideUnits.parse(File("src/main/assets/guide_units.json").readText())
+    private fun opens(name: String) = units.values.first { it.name == name }.townHall
+
+    // Advice for a Town Hall has to be something that player can do, so a line naming something
+    // that opens later has to say when it applies.
+    @Test
+    fun linesNamingSomethingLaterSayWhenTheyApply() {
+        val problems = mutableListOf<String>()
+        val heroes = guide.facts.heroes.associate { it.name to cap2(it.id) }
+        val pets = guide.facts.pets.associate { it.name to cap2(it.id) }
+        val infernos = opens("Inferno Tower")
+        val allNames = (units.values.associate { it.name to it.townHall } + heroes + pets + mapOf("Inferno" to infernos))
+            .toList().sortedByDescending { it.first.length }
+        val check = { entry: String, entryOpens: Int, tactics: Tactics ->
+            for (tip in tactics.allTips) {
+                // "Until Sneezy opens" is fine when the line stops there. The guide starts at TH3.
+                if (tip.to > 0) continue
+                val floor = maxOf(entryOpens, tip.from, Guide.FIRST_TOWN_HALL)
+                // Longest first, so a Wizard Tower isn't also read as a Wizard.
+                var rest = tip.text
+                val named = mutableListOf<Pair<String, Int>>()
+                for ((name, townHall) in allNames) {
+                    val pattern = Regex("\\b${Regex.escape(name)}s?\\b")
+                    if (pattern.containsMatchIn(rest)) {
+                        if (name != entry) named += name to townHall
+                        rest = pattern.replace(rest, " ")
+                    }
+                }
+                // A line can offer alternatives, so it only needs one that's open.
+                if (named.isNotEmpty() && named.minOf { it.second } > floor) {
+                    problems += "$entry names ${named.map { it.first }} with no from: ${tip.text}"
+                }
+            }
+        }
+        for ((name, tactics) in guide.content.unitTactics + guide.content.defenceTactics) check(name, opens(name), tactics)
+        for ((name, tactics) in guide.content.heroTactics) check(name, heroes.getValue(name), tactics)
+        for ((name, tactics) in guide.content.petTactics) check(name, pets.getValue(name), tactics)
+        assertEquals(emptyList<String>(), problems)
+    }
+
+    private fun cap2(id: Int) = Guide.firstTownHall(items.getValue(id))
+
+    @Test
+    fun tipsShowWhatAppliesFirstAndDropWhatHasPassed() {
+        val always = Tip("always")
+        val early = Tip("early", to = 8)
+        val later = Tip("later", from = 9)
+        val latest = Tip("latest", from = 12)
+        val tips = listOf(latest, later, early, always)
+        assertEquals(listOf("early", "always", "later", "latest"), Guide.tipsAt(tips, 5).map { it.text })
+        assertEquals(listOf("later", "always", "latest"), Guide.tipsAt(tips, 10).map { it.text })
+        assertEquals(listOf("latest", "later", "always"), Guide.tipsAt(tips, 18).map { it.text })
+    }
+
+    @Test
+    fun withNoTownHallKnownEveryTipShowsAsWritten() {
+        val tips = listOf(Tip("later", from = 9), Tip("early", to = 8), Tip("always"))
+        assertEquals(listOf("later", "early", "always"), Guide.tipsAt(tips, 0).map { it.text })
+    }
+
+    @Test
+    fun everyTroopAndSiegeMachineSaysWhatItTargets() {
+        val needed = units.values.filter { it.kind in setOf("troop", "super", "siege") }.map { it.name }
+        assertEquals(emptyList<String>(), needed.filter { guide.content.unitTactics[it]?.targets.isNullOrBlank() })
+    }
+
+    @Test
+    fun threatsCoverTheTownHallsTheyShouldAndAreComplete() {
+        val threats = guide.content.threats
+        assertEquals(3, threats.count { it.kind == "guardian" })
+        for (name in listOf("Smasher", "Longshot", "Logger")) assertEquals(name, 18, guide.threat(name)?.from)
+        // A Town Hall has its own weapon from TH12 until TH18 replaces it with Guardians.
+        for (townHall in 12..17) assertTrue("TH$townHall", threats.any { it.kind == "weapon" && it.isAt(townHall) })
+        for (townHall in 3..11) assertTrue("TH$townHall", threats.none { it.isAt(townHall) })
+        assertTrue(threats.none { it.kind == "weapon" && it.isAt(18) })
+        val sources = guide.content.sources.map { it.key }.toSet()
+        for (threat in threats) {
+            assertTrue(threat.name, threat.tactics.role.isNotBlank() && threat.tactics.use.isNotEmpty() && threat.tactics.beware.isNotEmpty())
+            assertEquals(threat.name, emptyList<String>(), threat.tactics.sources.filter { it !in sources })
+            for (partner in threat.tactics.partners) assertNotNull("${threat.name}: $partner", guide.unit(partner))
+        }
+    }
+
+    @Test
+    fun everyPieceOfEquipmentSaysWhatItsFor() {
+        assertEquals(emptyList<String>(), guide.facts.equipment.map { it.name }.filter { guide.content.equipmentTips[it]?.tip?.text.isNullOrBlank() })
+        assertEquals(guide.facts.equipment.map { it.name }.toSet(), guide.content.equipmentTips.keys)
+    }
+
+    @Test
+    fun everyTownHallSaysWhatToUpgradeFirst() {
+        for (townHall in Guide.FIRST_TOWN_HALL..18) {
+            assertTrue("TH$townHall", guide.content.upgradeFirst[townHall]?.lines?.size in 2..4)
+        }
+    }
+
+    // Counts have to be trainable, or the plan isn't one anybody can follow.
+    @Test
+    fun everyArmyHasCountsThatFitItsTownHall() {
+        val problems = mutableListOf<String>()
+        val housing = units.values.associate { it.name to it.traits.housing }
+        val kinds = units.values.associate { it.name to it.kind }
+        for (page in guide.content.townHalls) {
+            val size = guide.content.capacities[page.townHall]
+            if (size == null) {
+                problems += "TH${page.townHall}: no capacity"
+                continue
+            }
+            for (strategy in page.strategies) {
+                val where = "TH${page.townHall} ${strategy.name}"
+                if (strategy.counts.keys != strategy.army.toSet()) problems += "$where: counts don't match the army"
+                if (strategy.counts.values.any { it < 1 }) problems += "$where: a count under 1"
+                if (strategy.army.count { kinds[it] == "siege" } > 1) problems += "$where: more than one Siege Machine"
+                if (strategy.army.count { kinds[it] == "super" } > 2) problems += "$where: more than two Super Troop types"
+                val (army, spells) = Guide.armyHousing(strategy, housing, kinds)
+                if (army > size.army) problems += "$where: army $army over ${size.army}"
+                if (spells > size.spells) problems += "$where: spells $spells over ${size.spells}"
+                if (army < size.army * 0.8) problems += "$where: army only $army of ${size.army}"
             }
         }
         assertEquals(emptyList<String>(), problems)
+    }
+
+    // What a finished base has left follows from how many it may build and what each merge uses.
+    @Test
+    fun mergedDefenceCountsAddUp() {
+        fun count(name: String, townHall: Int) = units.values.first { it.name == name }.perTownHall.last { it.townHall <= townHall }.count
+        val ricochet = { townHall: Int -> count("Ricochet Cannon", townHall) }
+        val multiArcher = { townHall: Int -> count("Multi-Archer Tower", townHall) }
+        assertEquals(3, count("Cannon", 16) - 2 * ricochet(16))
+        assertEquals(0, count("Cannon", 17) - 2 * ricochet(17) - count("Multi-Gear Tower", 17))
+        assertEquals(4, count("Archer Tower", 16) - 2 * multiArcher(16))
+        assertEquals(2, count("Archer Tower", 17) - 2 * multiArcher(17) - count("Multi-Gear Tower", 17))
+        assertEquals(2, count("Wizard Tower", 18) - 2 * count("Super Wizard Tower", 18))
+    }
+
+    @Test
+    fun everySourceListedIsUsed() {
+        val used = (guide.content.unitTactics + guide.content.defenceTactics + guide.content.heroTactics + guide.content.petTactics).values.flatMap { it.sources } +
+            guide.content.threats.flatMap { it.tactics.sources } +
+            guide.content.equipmentTips.values.flatMap { it.sources } +
+            guide.content.upgradeFirst.values.flatMap { it.sources } +
+            guide.glossary.terms.flatMap { it.sources } +
+            guide.content.townHalls.flatMap { page -> page.strategies.flatMap { it.sources } }
+        val pairingsAndPets = setOf("A", "P", "G", "N", "C")
+        assertEquals(emptyList<String>(), guide.content.sources.map { it.key }.filter { it !in used && it !in pairingsAndPets })
+        assertEquals(guide.content.sources.size, guide.content.sources.map { it.url }.toSet().size)
     }
 
     // Anything the guide recommends has to exist, and be available at the Town Hall it's listed for.

@@ -97,7 +97,8 @@ function armyFacts(data) {
     if (troop.super_troop) {
       // It also needs its base troop researched far enough.
       const base = data.troops.find(t => t._id === troop.super_troop.original_id);
-      const level = base.levels.find(l => l.level === troop.super_troop.original_min_level);
+      // The data's level is one under what the game asks for, as in build-guide-units.js.
+      const level = base.levels.find(l => l.level === troop.super_troop.original_min_level + 1);
       th = Math.max(SUPER_TROOP_TOWN_HALL, opens(base), level.required_townhall);
       kind = 'super';
     }

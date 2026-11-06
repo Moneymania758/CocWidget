@@ -58,7 +58,7 @@ class GuideTermActivity : GuideScreen() {
             if (term.units.isNotEmpty()) {
                 addView(ui.text(getString(R.string.guide_term_units), 13f, bold = true), ui.matchWidth(12))
                 addView(ui.flow().apply {
-                    for (name in term.units) addView(unitChip(unitId(name), name))
+                    for (name in term.units) addView(guide.threat(name)?.let(::threatChip) ?: unitChip(unitId(name), name))
                 }, ui.matchWidth(4))
             }
             if (term.see.isNotEmpty()) {

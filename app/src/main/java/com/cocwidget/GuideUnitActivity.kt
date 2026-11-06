@@ -99,7 +99,11 @@ class GuideUnitActivity : GuideScreen() {
         val tactics = if (defence) guide.content.defenceTactics[unit.name] else guide.content.unitTactics[unit.name]
         tactics?.let {
             addView(ui.text(it.role, 14f).withTerms(), ui.matchWidth(8))
-            addTactics(it, defence)
+            if (it.targets.isNotEmpty()) addView(ui.text(getString(R.string.guide_goes_for, it.targets), 13f, bold = true).withTerms(), ui.matchWidth(6))
+            if (viewTownHall > 0 && it.allTips.any { tip -> tip.isLaterThan(viewTownHall) || tip.isPast(viewTownHall) }) {
+                addView(ui.text(getString(R.string.guide_tips_for, viewTownHall), 12f, ui.skin.dim), ui.matchWidth(6))
+            }
+            addTactics(it, defence, unit.townHall)
         }
         val chips = traitChips(unit.traits, unit)
         addView(ui.flow().apply {
@@ -124,7 +128,10 @@ class GuideUnitActivity : GuideScreen() {
         if (traits.speed > 0) add(getString(R.string.guide_speed, ChartScale.number(traits.speed)))
         if (traits.attackSpeed > 0) add(getString(R.string.guide_attack_speed, ChartScale.number(traits.attackSpeed)))
         if (traits.damageType.isNotEmpty()) add(getString(R.string.guide_damage_type, traits.damageType))
-        if (unit != null && unit.preferredTarget.isNotEmpty()) add(getString(R.string.guide_prefers, unit.preferredTarget))
+        // A troop's page says what it goes for above these, in words.
+        if (unit != null && unit.preferredTarget.isNotEmpty() && guide.content.unitTactics[unit.name]?.targets.isNullOrEmpty()) {
+            add(getString(R.string.guide_prefers, unit.preferredTarget))
+        }
         if (unit != null && unit.ability.isNotEmpty()) add(unit.ability)
     }
 

@@ -10,6 +10,7 @@ import com.cocwidget.GuideDefencesActivity
 import com.cocwidget.GuideGlossaryActivity
 import com.cocwidget.GuideSourcesActivity
 import com.cocwidget.GuideTermActivity
+import com.cocwidget.GuideThreatActivity
 import com.cocwidget.GuideHeroesActivity
 import com.cocwidget.GuidePairingsActivity
 import com.cocwidget.GuidePetsActivity
@@ -128,7 +129,12 @@ class GuideScreensTest {
                 }
                 for (name in term.units) {
                     Screens.tappable(root, name)!!.performClick()
-                    assertEquals(where, unitId(name), shadowOf(screen).nextStartedActivity.getIntExtra(GuideScreen.EXTRA_ID, 0))
+                    val started = shadowOf(screen).nextStartedActivity
+                    if (guide.threat(name) != null) {
+                        assertEquals(where, name, started.getStringExtra(GuideThreatActivity.EXTRA_THREAT))
+                    } else {
+                        assertEquals(where, unitId(name), started.getIntExtra(GuideScreen.EXTRA_ID, 0))
+                    }
                 }
             }
         }
@@ -173,6 +179,110 @@ class GuideScreensTest {
         val screen = Screens.open<GuideActivity>()
         Screens.tappable(Screens.root(screen), app.getString(com.cocwidget.R.string.guide_glossary))!!.performClick()
         assertEquals(GuideGlossaryActivity::class.java.name, shadowOf(screen).nextStartedActivity.component?.className)
+    }
+
+    private fun openUnitAt(name: String, townHall: Int) = Screens.open<GuideUnitActivity> {
+        putExtra(GuideScreen.EXTRA_ID, unitId(name))
+        putExtra(GuideScreen.EXTRA_VIEW_TOWN_HALL, townHall)
+    }
+
+    private fun tipLine(text: String) = app.getString(com.cocwidget.R.string.guide_tip, text)
+
+    @Test
+    fun aLowTownHallSeesUsableTipsFirstAndLaterOnesLabelled() {
+        val balloon = guide.content.unitTactics.getValue("Balloon")
+        val later = balloon.use.first { it.from > 5 }
+        val texts = Screens.texts(Screens.root(openUnitAt("Balloon", 5)))
+        val label = tipLine(app.getString(com.cocwidget.R.string.guide_tip_from, later.from, later.text))
+        assertTrue(texts.toString(), texts.contains(label))
+        val first = balloon.use.first { !it.isLaterThan(5) && !it.isPast(5) }
+        assertTrue(texts.indexOf(tipLine(first.text)) < texts.indexOf(label))
+    }
+
+    @Test
+    fun aHighTownHallDoesNotSeeTipsItHasPassed() {
+        val past = guide.content.unitTactics.getValue("Balloon").use.first { it.to in 1..17 }
+        val texts = Screens.texts(Screens.root(openUnitAt("Balloon", 18)))
+        assertFalse(texts.any { it.contains(past.text) })
+    }
+
+    @Test
+    fun withNoTownHallKnownEveryTipSaysWhenItApplies() {
+        val balloon = guide.content.unitTactics.getValue("Balloon")
+        val texts = Screens.texts(Screens.root(openUnit("Balloon")))
+        val past = balloon.use.first { it.to > 0 }
+        assertTrue(texts.contains(tipLine(app.getString(com.cocwidget.R.string.guide_tip_to, past.to, past.text))))
+    }
+
+    @Test
+    fun aChipFromATownHallPageKeepsThatTownHall() {
+        val screen = Screens.open<GuideTownHallActivity> { putExtra(GuideScreen.EXTRA_TOWN_HALL, 9) }
+        val strategy = guide.townHall(9)!!.strategies.first()
+        val name = strategy.army.first()
+        Screens.tappable(Screens.root(screen), app.getString(com.cocwidget.R.string.guide_quantity, name, strategy.counts.getValue(name)))!!.performClick()
+        assertEquals(9, shadowOf(screen).nextStartedActivity.getIntExtra(GuideScreen.EXTRA_VIEW_TOWN_HALL, 0))
+    }
+
+    @Test
+    fun aPartnerThatOpensLaterSaysWhen() {
+        val texts = Screens.texts(Screens.root(openUnit("Balloon")))
+        val opens = units.values.first { it.name == "Lava Hound" }.townHall
+        assertTrue(texts.contains(app.getString(com.cocwidget.R.string.guide_partner_later, "Lava Hound", opens)))
+    }
+
+    @Test
+    fun aTroopSaysWhatItTargets() {
+        val targets = guide.content.unitTactics.getValue("Giant").targets
+        assertTrue(Screens.texts(Screens.root(openUnit("Giant"))).contains(app.getString(com.cocwidget.R.string.guide_goes_for, targets)))
+    }
+
+    @Test
+    fun everyThreatPageOpensInEverySkin() {
+        for (skin in skins) {
+            Store.setSkin(app, skin.key)
+            for (threat in guide.content.threats) {
+                val texts = Screens.texts(Screens.root(Screens.open<GuideThreatActivity> { putExtra(GuideThreatActivity.EXTRA_THREAT, threat.name) }))
+                assertTrue(threat.name, texts.contains(threat.tactics.role))
+            }
+        }
+    }
+
+    @Test
+    fun aTownHallPageLeadsToWhatGuardsIt() {
+        val screen = Screens.open<GuideTownHallActivity> { putExtra(GuideScreen.EXTRA_TOWN_HALL, 18) }
+        Screens.tappable(Screens.root(screen), "Logger")!!.performClick()
+        assertEquals("Logger", shadowOf(screen).nextStartedActivity.getStringExtra(GuideThreatActivity.EXTRA_THREAT))
+    }
+
+    @Test
+    fun theDefenceListLeadsToEveryThreat() {
+        val screen = Screens.open<GuideDefencesActivity>()
+        for (threat in guide.content.threats) {
+            Screens.tappable(Screens.root(screen), threat.name)!!.performClick()
+            assertEquals(threat.name, shadowOf(screen).nextStartedActivity.getStringExtra(GuideThreatActivity.EXTRA_THREAT))
+        }
+    }
+
+    @Test
+    fun aTownHallPageSaysWhatToUpgradeFirstAndHowFullEachArmyIs() {
+        val texts = Screens.texts(Screens.root(Screens.open<GuideTownHallActivity> { putExtra(GuideScreen.EXTRA_TOWN_HALL, 10) }))
+        assertTrue(texts.contains(app.getString(com.cocwidget.R.string.guide_upgrade_first)))
+        assertTrue(texts.any { it.contains("housing") })
+    }
+
+    @Test
+    fun aHeroPageExplainsItsEquipment() {
+        val hero = guide.facts.heroes.first { it.name == "Barbarian King" }
+        val texts = Screens.texts(Screens.root(Screens.open<GuideHeroesActivity> { putExtra(GuideScreen.EXTRA_ID, hero.id) }))
+        val tip = guide.content.equipmentTips.getValue("Spiky Ball").tip
+        assertTrue(texts.any { it.contains(tip.text) })
+        assertTrue(texts.contains(app.getString(com.cocwidget.R.string.guide_gear_other)))
+    }
+
+    @Test
+    fun aMergedDefenceSaysWhatYoullMeet() {
+        val texts = Screens.texts(Screens.root(openUnitAt("Cannon", 17)))
+        assertTrue(texts.contains(app.getString(com.cocwidget.R.string.guide_meet)))
     }
 
     @Test
@@ -228,7 +338,7 @@ class GuideScreensTest {
             val root = Screens.root(screen)
             for (strategy in page.strategies) for (name in strategy.army) {
                 val where = "TH${page.townHall} ${strategy.name}: $name"
-                val chip = Screens.tappable(root, name)
+                val chip = Screens.tappable(root, app.getString(com.cocwidget.R.string.guide_quantity, name, strategy.counts.getValue(name)))
                 assertNotNull(where, chip)
                 chip!!.performClick()
                 val started = shadowOf(screen).nextStartedActivity
