@@ -66,12 +66,14 @@ abstract class GuideScreen : Screen() {
     }
 
     // A small picture and a name, for lists of troops, spells and equipment.
-    protected fun namedChip(item: GameItem?, name: String) = LinearLayout(this).apply {
+    protected fun namedChip(item: GameItem?, name: String) = namedChip(picture(item, 24), name)
+
+    private fun namedChip(picture: ImageView, name: String) = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
         background = ui.rounded(ui.skin.chip, 8f)
         setPadding(ui.dp(4), ui.dp(4), ui.dp(9), ui.dp(4))
-        addView(picture(item, 24).apply {
+        addView(picture.apply {
             setPadding(0, 0, 0, 0)
             background = null
         })
@@ -124,10 +126,10 @@ abstract class GuideScreen : Screen() {
 
     private fun opensAt(name: String) = GuideUnits.load(this).values.firstOrNull { it.name == name }?.townHall ?: 0
 
-    protected fun threatItem(threat: Threat): GameItem? =
-        items.values.firstOrNull { it.name == threat.name } ?: items[Ids.TOWN_HALL]
+    protected fun threatPicture(threat: Threat, sizeDp: Int): ImageView =
+        picture(guide.threatPicture(threat, items, viewTownHall), sizeDp)
 
-    protected fun threatChip(threat: Threat) = namedChip(threatItem(threat), threat.name).apply {
+    protected fun threatChip(threat: Threat) = namedChip(threatPicture(threat, 24), threat.name).apply {
         minimumHeight = ui.dp(40)
         ui.pressable(this, 8f) { open(GuideThreatActivity::class.java) { putExtra(GuideThreatActivity.EXTRA_THREAT, threat.name) } }
     }
@@ -195,10 +197,12 @@ abstract class GuideScreen : Screen() {
     protected fun openTerm(name: String) = startActivity(Intent(this, GuideTermActivity::class.java).putExtra(EXTRA_TERM, name))
 
     // A picture beside a title and a line under it.
-    protected fun titleRow(item: GameItem?, title: String, line: String, pictureDp: Int = 44) = LinearLayout(this).apply {
+    protected fun titleRow(item: GameItem?, title: String, line: String, pictureDp: Int = 44) = titleRow(picture(item, pictureDp), title, line)
+
+    protected fun titleRow(picture: ImageView, title: String, line: String) = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
-        addView(picture(item, pictureDp))
+        addView(picture)
         addView(LinearLayout(this@GuideScreen).apply {
             orientation = LinearLayout.VERTICAL
             addView(ui.heading(title, 17f))

@@ -3,6 +3,7 @@ package com.cocwidget.guide
 import android.content.Context
 import com.cocwidget.game.GameItem
 import com.cocwidget.game.Ids
+import com.cocwidget.store.Icons
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Locale
@@ -131,6 +132,17 @@ class Guide(val content: GuideContent, val facts: GuideFacts) {
     fun townHall(townHall: Int): TownHallGuide? = content.townHalls.firstOrNull { it.townHall == townHall }
 
     fun threat(name: String): Threat? = content.threats.firstOrNull { it.name == name }
+
+    // A Guardian has its own picture. A Town Hall's weapon has none, so it shows the Town Hall that
+    // carries it: the one being looked at if it's among them, otherwise the first.
+    fun threatPicture(threat: Threat, items: Map<Int, GameItem>, viewing: Int): String {
+        val own = items.values.firstOrNull { it.name == threat.name }
+        return if (own != null) {
+            Icons.path(own, 1).orEmpty()
+        } else {
+            Icons.townHallPath(if (viewing in threat.from..threat.to) viewing else threat.from)
+        }
+    }
 
     fun unitsOpeningAt(townHall: Int): List<ArmyUnit> = facts.army.filter { it.townHall == townHall }
 

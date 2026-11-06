@@ -18,6 +18,9 @@ object Icons {
     private const val BASE_URL = "https://assets.clashk.ing/"
     private const val SIZE_PX = 96
 
+    // Buildings whose top levels ClashKing has no picture for yet. They show the highest it has.
+    private val LAST_PICTURE = mapOf("blacksmith" to 9)
+
     @Volatile
     private var bundled: Set<String>? = null
 
@@ -97,7 +100,7 @@ object Icons {
         val name = clean(rawName)
         val village = if (rawVillage == "builderBase") "builder-base" else "home-village"
         return when (kind) {
-            "building" -> "buildings/$village/$name/level_$level.webp"
+            "building" -> "buildings/$village/$name/level_${minOf(level, LAST_PICTURE[name] ?: level)}.webp"
             "trap" -> "traps/$village/$name/level_$level.webp"
             "troop" -> "troops/$name/icon.webp"
             "spell" -> "spells/$name.webp"

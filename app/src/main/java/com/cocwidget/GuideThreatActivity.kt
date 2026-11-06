@@ -15,7 +15,7 @@ class GuideThreatActivity : GuideScreen() {
         }
         content.addView(backHeader(threat.name))
         content.addView(ui.card().apply {
-            addView(titleRow(threatItem(threat), threat.name, whenItAppears(threat)))
+            addView(titleRow(threatPicture(threat, 44), threat.name, whenItAppears(threat)))
             addView(ui.text(threat.tactics.role, 14f).withTerms(), ui.matchWidth(8))
             addTactics(threat.tactics, defence = true, opensAt = threat.from)
         })

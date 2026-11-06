@@ -508,6 +508,46 @@ class GuideScreensTest {
         }
     }
 
+    // They all fell back to the Town Hall's level 1 picture, the thatched hut, so the Inferno
+    // Artillery looked like a Town Hall 1.
+    @Test
+    fun aTownHallWeaponShowsTheTownHallThatCarriesIt() {
+        val guide = com.cocwidget.guide.Guide.load(app)
+        val items = com.cocwidget.game.GameData.all(app)
+        val picture = { name: String, viewing: Int -> guide.threatPicture(guide.threat(name)!!, items, viewing) }
+        assertEquals(com.cocwidget.store.Icons.townHallPath(12), picture("Giga Tesla", 0))
+        assertEquals(com.cocwidget.store.Icons.townHallPath(13), picture("Giga Inferno", 0))
+        assertEquals(com.cocwidget.store.Icons.townHallPath(15), picture("Giga Inferno", 15))
+        assertEquals(com.cocwidget.store.Icons.townHallPath(13), picture("Giga Inferno", 18))
+        assertEquals(com.cocwidget.store.Icons.townHallPath(17), picture("Inferno Artillery", 16))
+        assertEquals(com.cocwidget.store.Icons.townHallPath(18), picture("Town Hall 18", 0))
+    }
+
+    @Test
+    fun aGuardianShowsItsOwnPicture() {
+        val guide = com.cocwidget.guide.Guide.load(app)
+        val items = com.cocwidget.game.GameData.all(app)
+        for (name in listOf("Smasher", "Longshot", "Logger")) {
+            assertEquals("guardians/${name.lowercase()}/icon.webp", guide.threatPicture(guide.threat(name)!!, items, 18))
+        }
+    }
+
+    @Test
+    fun noThreatFallsBackToAPictureOfSomethingElse() {
+        val guide = com.cocwidget.guide.Guide.load(app)
+        val items = com.cocwidget.game.GameData.all(app)
+        for (threat in guide.content.threats) {
+            assertFalse(threat.name, guide.threatPicture(threat, items, 0).endsWith("town_hall/level_1.webp"))
+        }
+    }
+
+    @Test
+    fun aMaxedBlacksmithStillHasAPicture() {
+        val blacksmith = com.cocwidget.game.GameData.all(app).values.first { it.name == "Blacksmith" }
+        assertEquals("buildings/home-village/blacksmith/level_9.webp", com.cocwidget.store.Icons.path(blacksmith, 10))
+        assertEquals("buildings/home-village/blacksmith/level_3.webp", com.cocwidget.store.Icons.path(blacksmith, 3))
+    }
+
     @Test
     fun aSyncedVillageMarksItsTownHall() {
         syncTh16()
