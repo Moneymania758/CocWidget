@@ -8,6 +8,7 @@ object WhatsNew {
     class Release(val version: String, val notes: Int)
 
     val RELEASES = listOf(
+        Release("2.12", R.string.whats_new_2_12),
         Release("2.11.2", R.string.whats_new_2_11_2),
         Release("2.11.1", R.string.whats_new_2_11_1),
         Release("2.11", R.string.whats_new_2_11),
