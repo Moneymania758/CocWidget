@@ -366,4 +366,155 @@ class GuideUnitsTest {
         assertEquals(1, ChartScale.labelStep(5, 300f, 30f))
         assertEquals(5, ChartScale.labelStep(15, 100f, 25f))
     }
+
+    @Test
+    fun everyHeroHasHealthAndDamageCharts() {
+        for (hero in guide.facts.heroes) {
+            val entry = units.getValue(hero.id)
+            assertEquals(hero.name, "hero", entry.kind)
+            assertEquals(hero.name, hero.hitpoints.toDouble(), last(chart(entry.charts, "Health")))
+            assertEquals(hero.name, hero.dps.toDouble(), last(chart(entry.charts, "Damage per second")))
+        }
+    }
+
+    @Test
+    fun everyPieceOfEquipmentHasCharts() {
+        assertEquals(43, guide.facts.equipment.size)
+        for (piece in guide.facts.equipment) {
+            val entry = units.getValue(piece.id)
+            assertEquals(piece.name, "equipment", entry.kind)
+            assertTrue(piece.name, entry.charts.isNotEmpty())
+        }
+    }
+
+    @Test
+    fun heroCapsAndCostsMatchTheTimeToMaxData() {
+        for (hero in guide.facts.heroes) {
+            val entry = units.getValue(hero.id)
+            val item = TestData.gameData.getValue(hero.id)
+            for (townHall in entry.townHall..18) assertEquals("${hero.name} TH$townHall", item.maxLevelAt(townHall), entry.levels[entry.capIndex(townHall)])
+            for ((index, level) in entry.levels.withIndex().drop(1)) {
+                assertEquals("${hero.name} level $level", item.costToReach(level), entry.costs[index])
+            }
+        }
+    }
+
+    // The data lets most epics in at TH8, whichever hero they're for.
+    @Test
+    fun equipmentCapsFollowTheGameOnceItsHeroHasOpened() {
+        for (piece in guide.facts.equipment) {
+            val entry = units.getValue(piece.id)
+            val item = TestData.gameData.getValue(piece.id)
+            val hero = units.getValue(item.hero)
+            assertTrue(piece.name, entry.townHall >= hero.townHall)
+            assertEquals(piece.name, -1, entry.capIndex(hero.townHall - 1))
+            for (townHall in entry.townHall..18) assertEquals("${piece.name} TH$townHall", item.maxLevelAt(townHall), entry.levels[entry.capIndex(townHall)])
+        }
+    }
+
+    // Supercell's balance table of 22 May 2026. The other source still has the old 2,000 and 2,200.
+    @Test
+    fun equipmentFollowsTheNewerDamage() {
+        val arrow = chart(unit("Giant Arrow").charts, "Ability damage").series.first().values
+        assertEquals(listOf(1100.0, 1200.0, 1350.0, 1500.0), listOf(8, 11, 14, 17).map { arrow[it] })
+        assertEquals(2150.0, last(chart(unit("Rocket Backpack").charts, "Ability damage")))
+    }
+
+    // The other source has these two pieces' ids swapped, so each could show the other's numbers.
+    @Test
+    fun monolithArrowAndElectroFangsKeepTheirOwnNumbers() {
+        assertEquals(27, unit("Monolith Arrow").levels.size)
+        assertEquals(1160.0, last(chart(unit("Monolith Arrow").charts, "Extra hero health")))
+        assertEquals(18, unit("Electro Fangs").levels.size)
+        assertEquals(2400.0, last(chart(unit("Electro Fangs").charts, "Extra hero health")))
+    }
+
+    @Test
+    fun aPieceWithoutABonusHasNoLineOfZeros() {
+        assertEquals(listOf("Lasts"), unit("Eternal Tome").charts.map { it.title })
+    }
+
+    // The other source has 2,700 at level 15, but levels 15 to 17 share one ability level.
+    @Test
+    fun theFlameBlowerHasNoSpikeAtLevel15() {
+        val damage = chart(unit("Flame Blower").charts, "Ability damage").series.first().values
+        assertEquals(listOf(2250.0, 2250.0, 2250.0), damage.subList(14, 17))
+    }
+
+    // A fall is nearly always a typo in a source, and it shows on a chart as a spike.
+    @Test
+    fun heroAndEquipmentLinesNeverFallAsLevelsRise() {
+        val falls = setOf("Time between strikes")
+        for (entry in units.values.filter { it.kind == "hero" || it.kind == "equipment" }) {
+            for (chart in entry.charts.filter { it.title !in falls }) {
+                for (line in chart.series) {
+                    val values = line.values.filterNotNull()
+                    assertEquals("${entry.name} ${chart.title}", values.sorted(), values)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun thePiecesThatGetFasterGetFaster() {
+        val times = chart(unit("Meteor Staff").charts, "Time between strikes").series.first().values.filterNotNull()
+        assertEquals(times.sortedDescending(), times)
+    }
+
+    @Test
+    fun noLineIsFlatOrEmpty() {
+        for (entry in units.values.filter { it.kind == "hero" || it.kind == "equipment" }) {
+            for (chart in entry.charts) {
+                for (line in chart.series) {
+                    val values = line.values.filterNotNull()
+                    assertTrue("${entry.name} ${chart.title}", values.toSet().size > 1)
+                    assertTrue("${entry.name} ${chart.title}", values.max() > 0)
+                }
+            }
+        }
+    }
+
+    // Pages are found by name, so two things sharing one would open the wrong page.
+    @Test
+    fun noTwoPagesShareAName() {
+        val names = units.values.map { it.name }
+        assertEquals(names.toSet().size, names.size)
+    }
+
+    @Test
+    fun aHeroesDamagePerHitIsItsDamagePerSecondTimesItsAttackTime() {
+        for (hero in units.values.filter { it.kind == "hero" }) {
+            val perSecond = chart(hero.charts, "Damage per second").series.first().values
+            val perHit = chart(hero.charts, "Damage per hit").series.first().values
+            for (index in hero.levels.indices) {
+                assertEquals("${hero.name} level ${hero.levels[index]}", perSecond[index]!! * hero.traits.attackSpeed, perHit[index]!!, 0.01)
+            }
+        }
+    }
+
+    @Test
+    fun everyHeroLevelPastTheFirstHasACostAndATime() {
+        for (hero in units.values.filter { it.kind == "hero" }) {
+            assertEquals(hero.name, 0L, hero.costs.first())
+            assertEquals(hero.name, 0L, hero.times.first())
+            assertTrue(hero.name, hero.costs.drop(1).all { it > 0 })
+            assertTrue(hero.name, hero.times.drop(1).all { it > 0 })
+            assertTrue(hero.name, hero.resource.isNotEmpty())
+        }
+    }
+
+    @Test
+    fun everyPieceBelongsToAHeroWithAPage() {
+        for (piece in units.values.filter { it.kind == "equipment" }) {
+            val hero = units[TestData.gameData.getValue(piece.id).hero]
+            assertEquals(piece.name, "hero", hero?.kind)
+        }
+    }
+
+    @Test
+    fun everyPieceHasOurOwnWordsForIt() {
+        for (piece in units.values.filter { it.kind == "equipment" }) {
+            assertTrue(piece.name, guide.content.equipmentTips.getValue(piece.name).tip.text.isNotBlank())
+        }
+    }
 }

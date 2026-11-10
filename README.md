@@ -313,7 +313,7 @@ starts to pick up the next hour.
   hand, in our own words, with its sources (research in `docs/guide-research.md`). `GuideTest` fails if a
   strategy uses a troop, hero, pet or piece of equipment that doesn't exist or isn't open at that Town Hall.
   A new Town Hall shows its facts straight away, and a "not checked yet" note until content is added.
-- Guide troops and spells: `guide_units.json` comes from `tools/build-guide-units.js`, which merges ClashKing with
+- Guide troops, spells, defences, heroes and equipment: `guide_units.json` comes from `tools/build-guide-units.js`, which merges ClashKing with
   [clash-of-clans-data](https://www.npmjs.com/package/clash-of-clans-data) (MIT, see `licenses/`). ClashKing wins on
   health and damage, as it has been the newer of the two. Charts are drawn by `LevelChart` on a fixed dark panel, in
   three colours checked for colour blindness and contrast against it.

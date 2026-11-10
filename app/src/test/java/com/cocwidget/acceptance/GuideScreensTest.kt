@@ -375,7 +375,7 @@ class GuideScreensTest {
     @Test
     fun everyChipInTheTroopsAndSpellsListOpensItsPage() {
         val screen = Screens.open<GuideArmyActivity>()
-        for (unit in units.values.filter { it.group !in setOf("defence", "trap") }) {
+        for (unit in units.values.filter { it.group !in setOf("defence", "trap", "hero", "equipment") }) {
             val chip = Screens.tappable(Screens.root(screen), unit.name)
             assertNotNull(unit.name, chip)
             chip!!.performClick()
@@ -592,5 +592,80 @@ class GuideScreensTest {
         syncTh16()
         val synced = Screens.open<com.cocwidget.MainActivity>()
         assertNotNull(Screens.tappable(Screens.root(synced), "Guide"))
+    }
+
+    private fun openHero(name: String) = Screens.open<GuideHeroesActivity> { putExtra(GuideScreen.EXTRA_ID, unitId(name)) }
+
+    @Test
+    fun aHeroCardOpensItsCharts() {
+        val screen = openHero("Archer Queen")
+        Screens.tappable(Screens.root(screen), app.getString(com.cocwidget.R.string.guide_hero_charts))!!.performClick()
+        val started = shadowOf(screen).nextStartedActivity
+        assertEquals(GuideUnitActivity::class.java.name, started.component?.className)
+        assertEquals(unitId("Archer Queen"), started.getIntExtra(GuideScreen.EXTRA_ID, 0))
+    }
+
+    @Test
+    fun aHeroPageChartsHealthAndDamage() {
+        val root = Screens.root(openUnit("Archer Queen"))
+        val texts = Screens.texts(root)
+        assertTrue(texts.contains("Health"))
+        assertTrue(texts.contains("Damage per second"))
+        assertEquals(3, Screens.views<LevelChart>(root).size)
+    }
+
+    @Test
+    fun everyGearChipOnAHeroCardOpensThatPiece() {
+        val screen = openHero("Barbarian King")
+        for (name in listOf("Spiky Ball", "Barbarian Puppet")) {
+            Screens.tappable(Screens.root(screen), name)!!.performClick()
+            assertEquals(name, unitId(name), shadowOf(screen).nextStartedActivity.getIntExtra(GuideScreen.EXTRA_ID, 0))
+        }
+    }
+
+    @Test
+    fun aHeroAndItsEquipmentLinkBothWays() {
+        val hero = openUnit("Archer Queen")
+        Screens.tappable(Screens.root(hero), "Frozen Arrow")!!.performClick()
+        assertEquals(unitId("Frozen Arrow"), shadowOf(hero).nextStartedActivity.getIntExtra(GuideScreen.EXTRA_ID, 0))
+        val piece = openUnit("Frozen Arrow")
+        Screens.tappable(Screens.root(piece), "Archer Queen")!!.performClick()
+        assertEquals(unitId("Archer Queen"), shadowOf(piece).nextStartedActivity.getIntExtra(GuideScreen.EXTRA_ID, 0))
+    }
+
+    @Test
+    fun aPieceSaysWhatItIsAndWhatItsFor() {
+        val epic = Screens.texts(Screens.root(openUnit("Spiky Ball")))
+        assertTrue(epic.contains(app.getString(com.cocwidget.R.string.guide_epic_for, "Barbarian King")))
+        assertFalse(epic.contains(app.getString(com.cocwidget.R.string.guide_opens_at, unitsTownHall("Spiky Ball"))))
+        assertTrue(epic.any { it.contains(guide.content.equipmentTips.getValue("Spiky Ball").tip.text) })
+        val common = Screens.texts(Screens.root(openUnit("Rage Vial")))
+        assertTrue(common.contains(app.getString(com.cocwidget.R.string.guide_common_for, "Barbarian King")))
+    }
+
+    private fun unitsTownHall(name: String) = units.values.first { it.name == name }.townHall
+
+    @Test
+    fun aPiecePageShowsTheLevelYouHave() {
+        syncTh16()
+        val texts = Screens.texts(Screens.root(openUnit("Barbarian Puppet")))
+        assertTrue(texts.toString(), texts.contains(app.getString(com.cocwidget.R.string.guide_you_level, 7, 18, 16)))
+    }
+
+    // Exports list epics the player doesn't own at level 1, so that says nothing about having one.
+    @Test
+    fun anEpicAtLevelOneIsNotCountedAsOwned() {
+        syncTh16()
+        val texts = Screens.texts(Screens.root(openUnit("Monolith Arrow")))
+        assertFalse(texts.toString(), texts.contains(app.getString(com.cocwidget.R.string.guide_you_level, 1, 27, 16)))
+        assertTrue(texts.toString(), texts.contains(app.getString(com.cocwidget.R.string.guide_cap_at, 27, 16)))
+    }
+
+    @Test
+    fun aHeroPageShowsTheLevelYouHave() {
+        syncTh16()
+        val texts = Screens.texts(Screens.root(openUnit("Barbarian King")))
+        val cap = units.values.first { it.name == "Barbarian King" }.let { it.levels[it.capIndex(16)] }
+        assertTrue(texts.toString(), texts.contains(app.getString(com.cocwidget.R.string.guide_you_level, 61, cap, 16)))
     }
 }

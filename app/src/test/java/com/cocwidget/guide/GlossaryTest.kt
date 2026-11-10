@@ -126,7 +126,8 @@ class GlossaryTest {
 
     @Test
     fun officialNamesHaveTheirOwnPagesNotTerms() {
-        val names = units.values.map { it.name.lowercase() }.toSet()
+        // Some equipment is a term too: its page has the numbers, and the term says how armies use it.
+        val names = units.values.filter { it.kind != "equipment" }.map { it.name.lowercase() }.toSet()
         val clashes = real.terms.flatMap { term -> term.aliases.filter { it.lowercase() in names }.map { "${term.term}: $it" } }
         assertEquals(emptyList<String>(), clashes)
     }

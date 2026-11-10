@@ -394,6 +394,10 @@
     <string name="guide_tip_to">Up to TH%1$d: %2$s</string>
     <string name="guide_partner_later">%1$s (TH%2$d)</string>
     <string name="guide_gear_other">Other equipment</string>
+    <string name="guide_hero_charts">Health and damage by level</string>
+    <string name="guide_hero_gear">Equipment</string>
+    <string name="guide_common_for">Common equipment for the %1$s</string>
+    <string name="guide_epic_for">Epic equipment for the %1$s</string>
     <string name="guide_upgrade_first">What to upgrade first</string>
     <string name="guide_threats_here">Guarding the Town Hall</string>
     <string name="guide_group_threats">Town Hall weapons and Guardians</string>

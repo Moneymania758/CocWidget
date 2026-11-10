@@ -48,7 +48,7 @@ class GuideUnit(
     val id: Int,
     val name: String,
     val kind: String,
-    // Which list it's in: elixir, dark, super, siege, spell, defence or trap.
+    // Which list it's in: elixir, dark, super, siege, spell, defence, trap, hero or equipment.
     val group: String,
     val townHall: Int,
     val levels: IntArray,
@@ -57,7 +57,7 @@ class GuideUnit(
     val stats: List<UnitStat>,
     val subs: List<SubUnit>,
     val traits: UnitTraits,
-    // Spells and defences don't move, so this and flying are false for them.
+    // Spells, defences and equipment don't move, so this and flying are false for them.
     val isTroop: Boolean,
     val flying: Boolean,
     val hitsAir: Boolean,
@@ -112,7 +112,7 @@ object GuideUnits {
                 stats = stats(entry.optJSONArray("stats")),
                 subs = objects(entry.optJSONArray("subs")).map(::subUnit),
                 traits = traits(entry, "as", "tt"),
-                isTroop = entry.getString("k") in setOf("troop", "super", "siege"),
+                isTroop = entry.getString("k") in setOf("troop", "super", "siege", "hero"),
                 flying = entry.optInt("f") == 1,
                 hitsAir = entry.optInt("a") == 1,
                 hitsGround = entry.optInt("gr") == 1,

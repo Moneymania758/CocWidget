@@ -220,6 +220,34 @@ Supercell's Fan Content Policy (last updated 27 Sep 2023):
   them by hand.
 - `info` text holds a literal `\n` to clean up.
 
+## Hero and equipment charts (added 2026-11-06)
+
+Built by `tools/build-guide-units.js` from ClashKing and clash-of-clans-data 0.19.1.
+
+- Heroes: both sources agree on health and damage at every level of all six. Damage per hit is damage
+  per second times attack time, which matches the other source. Costs differ for the King (7 levels) and
+  Warden (5 levels). ClashKing's are used, as the planner's are.
+- Equipment is matched by name: clash-of-clans-data has the ids of Monolith Arrow and Electro Fangs swapped.
+- ClashKing wins where both have a stat, and the build prints each disagreement. Supercell's
+  [balance table of 22 May 2026](https://supercell.com/en/games/clashofclans/blog/news/state-of-gameplay-part-2/)
+  backs it on the Giant Arrow (1,500 at level 18, was 2,000) and Rocket Backpack (2,150 at level 27, was 2,200).
+- Corrected: clash-of-clans-data has the Flame Blower at 2,700 at level 15. ClashKing puts levels 15 to 17 on one
+  ability level and the other two have 2,250, so level 15 is 2,250. That's inferred, not read in-game.
+- Unresolved, using ClashKing's figure, and worth an in-game check:
+  - Eternal Tome and Heroic Torch last exactly 1s less than the other source says, at every level. Search
+    results describe 1s of immunity after leaving the aura, which may be the gap. Not confirmed.
+  - Heroic Torch: ClashKing has 35 to 137 as hit points. The other source calls those numbers damage reduction.
+  - Stun Blaster: only ClashKing has it healing the hero, 150 to 1,300.
+  - Noble Iron levels 15 to 17: 9 attacks, against 8. Dark Orb level 8: 690 health, against 600.
+  - Portal Pendant: ClashKing's healing (558 to 1,381) is the same line as Meteor Staff's health. Both are for the
+    Minion Prince. It may be shared by design or a slip in the source. Only ClashKing has it.
+- Stats ClashKing has no field for come from the other source alone, and may lag a balance change. These
+  include Flame Blower and Meteor Staff damage, Earthquake Boots percentages, and attack speed bonuses.
+- Epics are in the data from TH8, so a piece's page gives its rarity, not an unlock level, and no level
+  counts as reachable before its hero opens. An epic at level 1 isn't shown as owned, as exports list unowned
+  pieces at level 1.
+- The game's own equipment text still isn't shown. Pages use our lines from `equipmentTips`.
+
 ## Tactics text (added 2026-11-05)
 
 Replaces the game's own descriptions on troop, spell, siege, hero and pet pages. It lives in
