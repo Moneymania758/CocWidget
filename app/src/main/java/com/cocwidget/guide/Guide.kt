@@ -205,12 +205,12 @@ class Guide(val content: GuideContent, val facts: GuideFacts) {
             }.sortedByDescending { it.first }
         }
 
-        // The current level of every hero, pet, troop, spell, siege machine, defence and trap in an export,
-        // by id. With several copies of a defence, it's the highest.
+        // The current level of every hero, pet, troop, spell, siege machine, defence, trap and piece of
+        // equipment in an export, by id. With several copies of a defence, it's the highest.
         fun levels(export: String): Map<Int, Int> {
             val root = JSONObject(export)
             val levels = HashMap<Int, Int>()
-            for (section in listOf("heroes", "pets", "units", "spells", "siege_machines", "buildings", "traps")) {
+            for (section in listOf("heroes", "pets", "units", "spells", "siege_machines", "buildings", "traps", "equipment")) {
                 val entries = root.optJSONArray(section) ?: continue
                 for (index in 0 until entries.length()) {
                     val entry = entries.optJSONObject(index) ?: continue

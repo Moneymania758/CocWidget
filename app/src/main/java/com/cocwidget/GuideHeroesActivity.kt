@@ -43,6 +43,7 @@ class GuideHeroesActivity : GuideScreen() {
         }, ui.matchWidth(10))
         val number = NumberFormat.getIntegerInstance()
         addView(ui.text(getString(R.string.guide_top_stats, item?.levelCount ?: 0, number.format(hero.hitpoints), number.format(hero.dps)), 13f, ui.skin.dim), ui.matchWidth(8))
+        addView(ui.button(getString(R.string.guide_hero_charts), null, primary = false) { openUnit(hero.id) }, ui.matchWidth(8))
         addView(ui.text(getString(R.string.guide_caps), 13f, bold = true), ui.matchWidth(10))
         addView(ui.flow(4).apply {
             var last = 0
@@ -74,10 +75,10 @@ class GuideHeroesActivity : GuideScreen() {
         }
     }
 
-    // A piece and what it's for.
+    // A piece and what it's for. A tap opens its charts.
     private fun gearRow(piece: Equipment) = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
-        addView(namedChip(items[piece.id], piece.name), ui.wrap())
+        addView(unitChip(piece.id, piece.name), ui.wrap())
         guide.content.equipmentTips[piece.name]?.let { written ->
             val locked = viewTownHall > 0 && written.tip.isLaterThan(viewTownHall)
             addView(ui.text(tipText(written.tip, viewTownHall), 14f, if (locked) ui.skin.dim else ui.skin.text).withTerms(), ui.matchWidth(3))

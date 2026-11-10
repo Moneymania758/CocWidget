@@ -1,5 +1,6 @@
-// Builds app/src/main/assets/guide_units.json: every troop, siege machine and spell level by level,
-// with what the guide's charts need. It takes two sources, as neither has everything.
+// Builds app/src/main/assets/guide_units.json: every troop, siege machine, spell, defence, trap, hero
+// and piece of equipment level by level, with what the guide's charts need. It takes two sources, as
+// neither has everything.
 //
 // ClashKing's static data has the base health and damage. Where the two disagree it has been the
 // newer (it has July 2026's Dragon Rider nerf, for one), so its numbers win. clash-of-clans-data
@@ -567,12 +568,202 @@ function buildDefences(data, root) {
   return out;
 }
 
+// Mistakes in the other source. It has the Flame Blower at 2,700 at level 15, but ClashKing puts levels 15
+// to 17 on one ability level and the other two have 2,250.
+const EQUIPMENT_CORRECTIONS = { 'Flame Blower': { 15: { abilityDamage: 2250 } } };
+
+// Equipment. Health, damage and healing are ClashKing's. The rest are the other source's labels for
+// what each piece's ability does.
+const EQUIPMENT_CHARTS = [
+  { title: 'Extra hero health', series: [['hp', 'Health']] },
+  { title: 'Extra hero damage per second', series: [['dps', 'Damage']] },
+  { title: 'Heals the hero when used', series: [['heal', 'Healing'], ['stats.healthRecovery', 'Healing']] },
+  { title: 'Hero heals per second', series: [['stats.selfHealingPerSecond', 'Healing']] },
+  { title: 'Hero heals per hit', series: [['stats.healPerHit', 'Healing']] },
+  { title: 'Hero heals per counter', series: [['stats.healPerCounter', 'Healing']] },
+  { title: 'Aura heals per second', series: [['stats.healingPerSecond', 'Healing']] },
+  { title: 'Hero attack speed', unit: '%', series: [['stats.attackSpeedIncrease', 'Attack speed']] },
+  { title: 'Attack speed while active', unit: '%', series: [['stats.abilityAttackSpeedIncrease', 'Attack speed']] },
+  { title: 'Extra damage per hit', series: [['stats.damagePerShotIncrease', 'Damage']] },
+  { title: 'Damage per hit', series: [['stats.damagePerHit', 'Damage']] },
+  { title: 'Ability damage', series: [['stats.projectileDamage', 'Damage'], ['stats.abilityDamage', 'Damage']] },
+  { title: 'Ability damage, in total', series: [['stats.abilityTotalDamage', 'Damage']] },
+  { title: 'Damage per target', series: [['stats.projectileDamagePerTarget', 'Damage']] },
+  { title: 'Counter damage', series: [['stats.counterDamage', 'Damage']] },
+  { title: 'Damage when the hero falls', series: [['stats.damageOnDefeat', 'Damage']] },
+  { title: 'Aura damage per second', series: [['stats.auraDps', 'Damage']] },
+  { title: 'Aura damage per hit', series: [['stats.auraDamagePerHit', 'Damage']] },
+  { title: 'Extra damage, share of target health', unit: '%', series: [
+    ['stats.extraDamageBelow180', 'Up to 180 housing'], ['stats.extraDamage181To250', '181 to 250 housing'], ['stats.extraDamage251Plus', 'Over 250 housing'],
+  ] },
+  { title: 'Earthquake damage', unit: '%', series: [['stats.buildingDamagePercent', 'Buildings'], ['stats.troopDamagePercent', 'Troops']] },
+  { title: 'Damage boost', unit: '%', series: [['stats.damageIncrease', 'Damage'], ['stats.damageIncreasePercent', 'Damage']] },
+  { title: 'Damage boost, at most', unit: '%', series: [['stats.maxDamageIncrease', 'Damage']] },
+  { title: 'Health boost', unit: '%', series: [['stats.hpIncreasePercent', 'Health']] },
+  { title: 'Health boost, at most', series: [['stats.maxHpIncrease', 'Health']] },
+  { title: 'Health boost, at most', unit: '%', series: [['stats.maxHealthIncrease', 'Health']] },
+  { title: 'Damage taken reduced', unit: '%', series: [['stats.incomingDamageReduction', 'Reduction']] },
+  { title: 'Speed boost', series: [['stats.speedIncrease', 'Speed'], ['stats.movementSpeedIncrease', 'Speed']] },
+  { title: 'Lasts', unit: 's', series: [['stats.abilityDuration', 'Lasts']] },
+  { title: 'Attacks it lasts', series: [['stats.numberOfAttacks', 'Attacks']] },
+  { title: 'Time between strikes', unit: 's', series: [['stats.cooldownTime', 'Time']] },
+  { title: 'Attack range', unit: ' tiles', series: [['stats.attackRange', 'Range']] },
+  { title: 'Targets', series: [['stats.numberOfTargets', 'Targets']] },
+  { title: 'Damage radius', unit: ' tiles', series: [['stats.damageRadius', 'Radius']] },
+  { title: 'Slows', unit: '%', series: [['stats.slowDown', 'Slows'], ['stats.slowDownPercent', 'Slows']] },
+  { title: 'Slow lasts', unit: 's', series: [['stats.slowDownDuration', 'Lasts']] },
+  { title: 'Stun lasts', unit: 's', series: [['stats.stunDuration', 'Lasts']] },
+  { title: 'Barbarians summoned', series: [['stats.summonedBarbarians', 'Barbarians']] },
+  { title: 'Barbarian damage boost', unit: '%', series: [['stats.barbarianDamageIncrease', 'Damage']] },
+  { title: 'Barbarian speed boost', series: [['stats.barbarianSpeedIncrease', 'Speed']] },
+  { title: 'Archers summoned', series: [['stats.summonedArchers', 'Archers']] },
+  { title: 'Archers stay invisible', unit: 's', series: [['stats.archerInvisibilityDuration', 'Lasts']] },
+  { title: 'Hog Riders summoned', series: [['stats.summonedHogRiders', 'Hog Riders']] },
+  { title: "Hog Riders' level", series: [['stats.hogRiderLevel', 'Level']] },
+  { title: 'Healers summoned', series: [['stats.summonedHealers', 'Healers']] },
+  { title: "Healers' level", series: [['stats.healerLevel', 'Level']] },
+  { title: 'Lavaloons summoned', series: [['stats.summonedLavaloons', 'Lavaloons']] },
+  { title: "Lavaloons' level", series: [['stats.lavaloonLevel', 'Level']] },
+  { title: "Henchmen's level", series: [['stats.henchmenLevel', 'Level']] },
+  { title: "Giant Giant's level", series: [['stats.giantGiantLevel', 'Level']] },
+  { title: 'Snakes, at most', series: [['stats.maxSummonedSnakes', 'Snakes']] },
+  { title: "Snakes' level", series: [['stats.snakeLevel', 'Level']] },
+  { title: 'Clones', series: [['stats.clones', 'Clones']] },
+  { title: 'Clones last', unit: 's', series: [['stats.cloneDuration', 'Lasts']] },
+  { title: 'Clone damage per second', series: [['stats.cloneDps', 'Damage']] },
+  { title: 'Clone health', series: [['stats.cloneHealth', 'Health']] },
+  { title: 'Portal radius', unit: ' tiles', series: [['stats.portalTileRadius', 'Radius']] },
+  { title: 'Recalls this much housing', series: [['stats.recallCapacity', 'Housing']] },
+  { title: 'Recalled troops heal', unit: '%', series: [['stats.healingOnRedeploy', 'Healing']] },
+  { title: 'Recalled troops speed up for', unit: 's', series: [['stats.hasteOnRedeploy', 'Lasts']] },
+];
+// Already charted from ClashKing, under its own field names.
+const EQUIPMENT_NOT_STATS = new Set(['dpsIncrease', 'damageReductionIncrease']);
+// The same stats in ClashKing's ability fields, with what turns them into the other source's unit.
+// ClashKing wins where both have a stat. Supercell's 22 May 2026 balance table matches it, not the
+// other source, on the Giant Arrow (1,500 at level 18) and Rocket Backpack (2,150 at level 27).
+const EQUIPMENT_ABILITY_FIELDS = {
+  summonedBarbarians: ['TroopCount', 1], summonedArchers: ['TroopCount', 1], summonedHogRiders: ['TroopCount', 1],
+  summonedHealers: ['TroopCount', 1], summonedLavaloons: ['TroopCount', 1], clones: ['TroopCount', 1],
+  hogRiderLevel: ['TroopLevel', 1], healerLevel: ['TroopLevel', 1], lavaloonLevel: ['TroopLevel', 1],
+  henchmenLevel: ['TroopLevel', 1], giantGiantLevel: ['TroopLevel', 1],
+  abilityDuration: ['DeactivateAfterTime', 0.001], numberOfAttacks: ['DeactivateAfterNumberOfHits', 1],
+  damagePerShotIncrease: ['ExtraDamageFlat', 1], projectileDamage: ['Damage', 1], projectileDamagePerTarget: ['Damage', 1],
+  damagePerHit: ['Damage', 1], abilityDamage: ['ActAsPenetratingDamage', 1], counterDamage: ['ReflectedDamage', 1],
+  incomingDamageReduction: ['ShieldProtectionPercent', 1], slowDown: ['FrostOnHitPercent', 1], slowDownPercent: ['FrostOnHitPercent', 1],
+  slowDownDuration: ['FrostOnHitTime', 0.001], damageIncrease: ['BoostDamagePercentage', 1], maxDamageIncrease: ['BoostDamagePercentage', 1],
+  maxHealthIncrease: ['PercentHealthIncrease', 1], healthRecovery: ['HealOnActivation', 1], selfHealingPerSecond: ['Regeneration', 1],
+  healPerCounter: ['HealOnReflect', 1], healPerHit: ['SelfDamagePerHit', -1], attackRange: ['AttackRange', 0.01], cooldownTime: ['ActivationCooldown', 0.001],
+  healingOnRedeploy: ['RecallHealPercent', 1], recallCapacity: ['RecallHousing', 1], hasteOnRedeploy: ['RecallSpeedBoostTimeMS', 0.001],
+  portalTileRadius: ['RecallTroopsRadius', 0.01], damageRadius: ['DamageRadius', 0.01], maxSummonedSnakes: ['MaxActivations', 1],
+};
+const HERO_CHARTS = [
+  { title: 'Damage per second', series: [['dps', 'Damage']] },
+  { title: 'Damage per hit', series: [['perHit', 'Damage']] },
+  { title: 'Health', series: [['hp', 'Health']] },
+];
+
+// A stat from the other source, which can be a number or text like "+5%" or "4 tiles".
+const statNumber = value => (typeof value === 'number' ? value : parseFloat(String(value).replace('+', '')));
+
+const readAll = dir => fs.readdirSync(dir).map(file => JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8')));
+
+function buildHeroes(data, root) {
+  const speeds = Object.fromEntries(readAll(path.join(root, 'data', 'home', 'heroes')).map(hero => [hero.name, hero.movementSpeed]));
+  return data.heroes.filter(hero => hero.village === 'home').map(hero => {
+    const levels = hero.levels;
+    const attackTime = hero.attack_speed / 1000;
+    const rows = levels.map(level => ({ dps: level.dps, perHit: level.dps * attackTime, hp: level.hitpoints }));
+    const { charts, stats } = chartsAndStats(HERO_CHARTS, rows);
+    const unit = {
+      id: hero._id,
+      n: hero.name,
+      k: 'hero',
+      g: 'hero',
+      h: levels[0].required_townhall,
+      lv: levels.map(level => level.level),
+      th: levels.map(level => level.required_townhall),
+      charts,
+    };
+    if (stats.length) unit.stats = stats;
+    unit.f = hero.is_flying ? 1 : 0;
+    unit.a = hero.is_air_targeting ? 1 : 0;
+    unit.gr = hero.is_ground_targeting ? 1 : 0;
+    unit.rg = hero.attack_range / 100;
+    unit.sp = speeds[hero.name] ?? hero.movement_speed;
+    unit.as = attackTime;
+    // Upgrade costs are stored on the level you leave, so they shift up by one.
+    unit.r = hero.upgrade_resource;
+    unit.c = levels.map((_, index) => (index === 0 ? 0 : levels[index - 1].upgrade_cost));
+    unit.tm = levels.map((_, index) => (index === 0 ? 0 : levels[index - 1].upgrade_time));
+    return unit;
+  });
+}
+
+function buildEquipment(data, root) {
+  // Matched by name, as the other source has the ids of Monolith Arrow and Electro Fangs swapped.
+  const byName = Object.fromEntries(readAll(path.join(root, 'data', 'home', 'hero-equipment')).map(piece => [piece.name, piece]));
+  const known = new Set(usedKeys(EQUIPMENT_CHARTS));
+  return data.equipment.map(entry => {
+    const extra = byName[entry.name];
+    if (!extra) throw new Error(`No clash-of-clans-data entry for ${entry.name}`);
+    const levels = entry.levels;
+    const extras = Object.fromEntries(extra.levels.map(level => [level.level, level]));
+    const rows = levels.map(level => {
+      const row = {};
+      // A piece with none of one of these has no such line, rather than a line of zeros.
+      if (level.hitpoints) row.hp = level.hitpoints;
+      if (level.dps) row.dps = level.dps;
+      if (level.heal_on_activation) row.heal = level.heal_on_activation;
+      const fixes = EQUIPMENT_CORRECTIONS[entry.name]?.[level.level];
+      for (const [name, value] of Object.entries({ ...extras[level.level]?.stats, ...fixes })) {
+        if (EQUIPMENT_NOT_STATS.has(name)) continue;
+        const key = `stats.${name}`;
+        if (!known.has(key)) throw new Error(`No label for ${entry.name}'s level field ${name}`);
+        const field = EQUIPMENT_ABILITY_FIELDS[name];
+        const own = field && level.abilities.map(ability => ability[field[0]]).find(found => typeof found === 'number');
+        const other = statNumber(value);
+        if (typeof own === 'number') {
+          const converted = round(own * field[1]);
+          if (Math.abs(converted - other) > 0.001) console.warn(`${entry.name} level ${level.level} ${name}: ${converted} from ClashKing, ${other} from the other source`);
+          row[key] = converted;
+        } else {
+          row[key] = other;
+        }
+      }
+      return row;
+    });
+    const { charts, stats } = chartsAndStats(EQUIPMENT_CHARTS, rows);
+    // The data lets most epics in at TH8, but a piece is no use before its hero opens.
+    const hero = data.heroes.find(found => found.name === entry.hero);
+    const heroOpens = hero.levels[0].required_townhall;
+    const unit = {
+      id: entry._id,
+      n: entry.name,
+      k: 'equipment',
+      g: 'equipment',
+      h: Math.max(heroOpens, levels[0].required_townhall),
+      lv: levels.map(level => level.level),
+      th: levels.map(level => Math.max(heroOpens, level.required_townhall)),
+      charts,
+    };
+    if (stats.length) unit.stats = stats;
+    unit.ab = `${extra.abilityType} ability`;
+    return unit;
+  });
+}
+
 const [staticPath, npmPath] = process.argv.slice(2);
 if (!staticPath || !npmPath) {
   console.error('Usage: node tools/build-guide-units.js path/to/static_data.json path/to/clash-of-clans-data/package');
   process.exit(1);
 }
 const staticData = JSON.parse(fs.readFileSync(staticPath, 'utf8'));
-const units = [...build(staticData, readNpm(npmPath)), ...buildDefences(staticData, npmPath)];
+const units = [
+  ...build(staticData, readNpm(npmPath)),
+  ...buildDefences(staticData, npmPath),
+  ...buildHeroes(staticData, npmPath),
+  ...buildEquipment(staticData, npmPath),
+];
 fs.writeFileSync(OUTPUT, JSON.stringify(units));
 console.log(`Wrote ${units.length} units to ${OUTPUT}`);

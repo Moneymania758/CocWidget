@@ -179,7 +179,7 @@ object Planner {
     // Exports list every piece of equipment, owned or not, the ones not owned at level 1. The
     // Blacksmith unlocks common pieces, so those are owned once it and the hero are there. Epics
     // come from events, so one at level 1 can't be told apart from one not owned.
-    private fun owned(item: GameItem, level: Int, built: Map<Int, Int>): Boolean =
+    fun owned(item: GameItem, level: Int, built: Map<Int, Int>): Boolean =
         if (item.epic) {
             level > 1
         } else {

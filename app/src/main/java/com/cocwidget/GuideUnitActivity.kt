@@ -17,12 +17,13 @@ import com.cocwidget.guide.UnitChart
 import com.cocwidget.guide.UnitStat
 import com.cocwidget.guide.UnitTraits
 import com.cocwidget.plan.PlanFormat
+import com.cocwidget.plan.Planner
 import com.cocwidget.ui.GuideScreen
 import com.cocwidget.ui.LevelChart
 import java.text.NumberFormat
 
-// One troop, siege machine or spell: how to use it, and how it grows level by level. Picking a level on
-// any chart moves every chart and the table with it.
+// One troop, siege machine, spell, defence, trap, hero or piece of equipment: how to use it, and how it
+// grows level by level. Picking a level on any chart moves every chart and the table with it.
 class GuideUnitActivity : GuideScreen() {
     private val units by lazy { GuideUnits.load(this) }
     private val unit: GuideUnit? by lazy { units[intent.getIntExtra(EXTRA_ID, 0)] }
@@ -58,6 +59,7 @@ class GuideUnitActivity : GuideScreen() {
         content.addView(backHeader(unit.name))
         content.addView(aboutCard(unit, owned, cap), ui.matchWidth(12))
         linkCard(unit)?.let { content.addView(it, ui.matchWidth(10)) }
+        heroGearCard(unit)?.let { content.addView(it, ui.matchWidth(10)) }
         perTownHallCard(unit)?.let { content.addView(it, ui.matchWidth(10)) }
         content.addView(selectedCard(unit), ui.matchWidth(14))
         for (chart in unit.charts) content.addView(chartCard(unit, chart, reach, mine), ui.matchWidth(10))
@@ -76,6 +78,8 @@ class GuideUnitActivity : GuideScreen() {
     // A Super Troop has no level of its own in an export, so it follows its base troop's.
     private fun myLevel(unit: GuideUnit): Int? {
         val level = myLevels[if (unit.baseId != 0) unit.baseId else unit.id] ?: return null
+        // Exports list equipment the player doesn't own, at level 1.
+        if (unit.kind == KIND_EQUIPMENT && items[unit.id]?.let { Planner.owned(it, level, myLevels) } != true) return null
         return level.takeIf { unit.indexOf(it) >= 0 }
     }
 
@@ -87,7 +91,7 @@ class GuideUnitActivity : GuideScreen() {
 
     private fun aboutCard(unit: GuideUnit, owned: Int?, cap: Int) = ui.card().apply {
         val item = items[unit.id]
-        addView(titleRow(item, unit.name, getString(R.string.guide_opens_at, unit.townHall)))
+        addView(titleRow(item, unit.name, subtitle(unit)))
         val status = when {
             myTownHall == 0 -> null
             cap < 0 -> getString(R.string.guide_not_yet, unit.townHall)
@@ -105,11 +109,27 @@ class GuideUnitActivity : GuideScreen() {
             }
             addTactics(it, defence, unit.townHall)
         }
+        if (unit.kind == KIND_EQUIPMENT) {
+            guide.content.equipmentTips[unit.name]?.let { written ->
+                val locked = viewTownHall > 0 && written.tip.isLaterThan(viewTownHall)
+                addView(ui.text(tipText(written.tip, viewTownHall), 14f, if (locked) ui.skin.dim else ui.skin.text).withTerms(), ui.matchWidth(8))
+                addSources(written.sources)
+            }
+        }
         val chips = traitChips(unit.traits, unit)
         addView(ui.flow().apply {
             for (chip in chips) addView(ui.chip(chip).withTerms())
             for (stat in unit.stats) addView(ui.chip(getString(R.string.guide_stat, stat.name, stat.value)).withTerms())
         }, ui.matchWidth(10))
+    }
+
+    // Most epics are in the data from TH8, though they really come from events. So a piece says what
+    // it is and who it's for, not when it opens.
+    private fun subtitle(unit: GuideUnit): String {
+        if (unit.kind != KIND_EQUIPMENT) return getString(R.string.guide_opens_at, unit.townHall)
+        val item = items[unit.id]
+        val hero = units[item?.hero ?: 0]?.name.orEmpty()
+        return getString(if (item?.epic == true) R.string.guide_epic_for else R.string.guide_common_for, hero)
     }
 
     private fun traitChips(traits: UnitTraits, unit: GuideUnit?) = buildList {
@@ -167,6 +187,20 @@ class GuideUnitActivity : GuideScreen() {
             addView(ui.flow().apply {
                 for (linked in listOfNotNull(base) + supers) addView(unitChip(linked.id, linked.name))
             }, ui.matchWidth(if (base != null) 8 else 0))
+        }
+    }
+
+    // From a hero to its equipment and back.
+    private fun heroGearCard(unit: GuideUnit): View? {
+        if (unit.kind == KIND_EQUIPMENT) {
+            val hero = units[items[unit.id]?.hero ?: 0] ?: return null
+            return ui.card().apply { addView(ui.flow().apply { addView(unitChip(hero.id, hero.name)) }) }
+        }
+        if (unit.kind != KIND_HERO) return null
+        val pieces = units.values.filter { it.kind == KIND_EQUIPMENT && items[it.id]?.hero == unit.id }
+        return ui.card().apply {
+            addView(ui.heading(getString(R.string.guide_hero_gear), 15f))
+            addView(ui.flow().apply { for (piece in pieces) addView(unitChip(piece.id, piece.name)) }, ui.matchWidth(8))
         }
     }
 
@@ -319,6 +353,8 @@ class GuideUnitActivity : GuideScreen() {
 
     companion object {
         private const val KEY_SELECTED = "selected"
+        private const val KIND_HERO = "hero"
+        private const val KIND_EQUIPMENT = "equipment"
         // The table stays readable with this many stat columns. The charts have the rest.
         private const val TABLE_CHARTS = 3
         private const val TABLE_BAR_ROOM = 20
