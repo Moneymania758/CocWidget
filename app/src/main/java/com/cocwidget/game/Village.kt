@@ -107,8 +107,9 @@ class Village(
     fun withUpgrades(upgrades: List<Upgrade>) =
         Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, labBoost, petBoost, helpers, clockTowerBoost, hasBuilderBase, builderSnack, labSnack)
 
-    // The village less every upgrade finished by [millis], for when the player has cleared them.
-    fun withoutFinishedBy(millis: Long) = withUpgrades(upgrades.filter { endMillis(it) > millis })
+    // The village less every upgrade finished by its section's clear time, for when the player
+    // has cleared them.
+    fun withoutFinishedBy(clearedAt: (Section) -> Long) = withUpgrades(upgrades.filter { endMillis(it) > clearedAt(it.section) })
 
     fun endMillis(upgrade: Upgrade): Long =
         exportedAtMillis + paceFor(upgrade).realSecondsFor(upgrade.workSec) * 1000

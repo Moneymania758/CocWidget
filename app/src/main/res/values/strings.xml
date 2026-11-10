@@ -14,6 +14,10 @@
     <string name="exported_at">Exported %1$s</string>
     <string name="exported_finished_since">Exported %1$s · %2$d finished since, import again</string>
     <string name="exported_out_of_date">Exported %1$s · out of date, import again</string>
+    <plurals name="widget_clear_finished">
+        <item quantity="one">Clear %d done</item>
+        <item quantity="other">Clear %d done</item>
+    </plurals>
     <plurals name="clear_finished">
         <item quantity="one">Clear %d finished upgrade</item>
         <item quantity="other">Clear %d finished upgrades</item>

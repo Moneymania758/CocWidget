@@ -8,10 +8,13 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.cocwidget.R
 import com.cocwidget.TestData
+import com.cocwidget.game.Section
 import com.cocwidget.game.Village
 import com.cocwidget.store.Store
 import com.cocwidget.widget.WidgetRenderer
+import com.cocwidget.widget.WidgetView
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,7 +34,7 @@ class BigWidgetTest {
     private class Shown(val root: View, val village: Village)
 
     // A minute after the export, as if just synced, at a height in dp. 0 leaves the height unknown.
-    private fun show(json: String, height: Int = 0): Shown {
+    private fun show(json: String, height: Int = 0, at: (Village) -> Long = { it.exportedAtMillis + 60_000 }): Shown {
         val tag = Store.saveExport(app, json)
         val village = Store.village(app, tag)!!
         val id = shadowOf(manager).createWidget(com.cocwidget.VillageWidget::class.java, R.layout.widget)
@@ -41,7 +44,7 @@ class BigWidgetTest {
                 putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, height)
             })
         }
-        val views = WidgetRenderer.build(app, id, tag, village, village.exportedAtMillis + 60_000)
+        val views = WidgetRenderer.build(app, id, tag, village, at(village))
         return Shown(views.apply(app, FrameLayout(app)), village)
     }
 
@@ -107,6 +110,115 @@ class BigWidgetTest {
     @Test
     fun viewButtonsShowWhenThereIsABuilderBase() {
         assertEquals(View.VISIBLE, show(TestData.exportJson()).root.findViewById<View>(R.id.views).visibility)
+    }
+
+    private fun headers(shown: Shown) = Screens.all(rows(shown)).filter { it.id == R.id.label }.map { (it as TextView).text.toString() }
+
+    private fun showIn(view: WidgetView, json: String = TestData.exportJson(), at: (Village) -> Long = { it.exportedAtMillis + 60_000 }): Shown {
+        Store.setWidgetView(app, Store.saveExport(app, json), view)
+        return show(json, at = at)
+    }
+
+    @Test
+    fun homeShowsOnlyTheHomeVillage() {
+        val shown = showIn(WidgetView.HOME)
+        val home = shown.village.upgrades.filter { it.section != Section.BUILDER_BASE }
+        assertTrue("the fixture has the Builder Base", shown.village.upgrades.any { it.section == Section.BUILDER_BASE })
+        assertFalse(headers(shown).any { it.startsWith("BUILDER BASE") })
+        assertTrue(headers(shown).any { it.startsWith("BUILDERS") })
+        assertEquals(home.size, Screens.all(rows(shown)).count { it.id == R.id.name })
+        assertEquals(View.VISIBLE, shown.root.findViewById<View>(R.id.helpers).visibility)
+    }
+
+    @Test
+    fun builderBaseShowsOnlyTheBuilderBase() {
+        val shown = showIn(WidgetView.BUILDER_BASE)
+        assertEquals(listOf(true), headers(shown).map { it.startsWith("BUILDER BASE") })
+        assertEquals(shown.village.upgrades.count { it.section == Section.BUILDER_BASE }, Screens.all(rows(shown)).count { it.id == R.id.name })
+        assertEquals(View.GONE, shown.root.findViewById<View>(R.id.helpers).visibility)
+    }
+
+    // The footer's finished count is for what's on screen, so home timers don't nag on the Builder Base.
+    @Test
+    fun theFooterCountsOnlyTheViewsFinishedUpgrades() {
+        val village = TestData.village()
+        val late = village.upgrades.maxOf { village.endMillis(it) } + 1
+        val home = village.upgrades.count { it.section != Section.BUILDER_BASE }
+        val line = WidgetRenderer.exportLine(app, village, late, WidgetView.HOME.shows)
+        assertTrue(line.text, line.text.contains("$home finished since"))
+    }
+
+    @Test
+    fun aViewPickedBeforeTheUpdateStays() {
+        val tag = Store.saveExport(app, TestData.exportJson())
+        Store.setCollapsedSections(app, tag, WidgetView.BUILDER_BASE.folded.map { it.name }.toSet())
+        assertEquals(listOf(true), headers(show(TestData.exportJson())).map { it.startsWith("BUILDER BASE") })
+    }
+
+    // Folding by hand used to unlight the view and bring every other section back.
+    @Test
+    fun foldingASectionByHandKeepsTheView() {
+        val tag = Store.saveExport(app, TestData.exportJson())
+        Store.setWidgetView(app, tag, WidgetView.HOME)
+        Store.toggleSection(app, tag, Section.LAB.name)
+        val shown = show(TestData.exportJson())
+        assertFalse(headers(shown).any { it.startsWith("BUILDER BASE") })
+        assertTrue(headers(shown).any { it.startsWith("LAB") && it.contains("▸") })
+    }
+
+    @Test
+    fun pickingAViewUnfoldsItsSections() {
+        val tag = Store.saveExport(app, TestData.exportJson())
+        Store.setCollapsedSections(app, tag, setOf(Section.BUILDER_BASE.name, Section.LAB.name))
+        Store.setWidgetView(app, tag, WidgetView.BUILDER_BASE)
+        assertEquals(setOf(Section.LAB.name), Store.collapsedSections(app, tag))
+    }
+
+    // Late enough for some home and some Builder Base upgrades to have finished, early enough for some to run.
+    private fun halfway(village: Village): Long {
+        val ends = village.upgrades.map { village.endMillis(it) }.sorted()
+        return ends[ends.size / 2]
+    }
+
+    private fun clear(shown: Shown) = shown.root.findViewById<TextView>(R.id.clear)
+
+    @Test
+    fun theClearChipCountsWhatHasFinishedInTheView() {
+        val village = TestData.village()
+        val at = halfway(village)
+        val home = village.upgrades.count { it.section != Section.BUILDER_BASE && village.endMillis(it) <= at }
+        assertTrue("the fixture has home upgrades finished halfway", home > 0)
+        val chip = clear(showIn(WidgetView.HOME, at = { at }))
+        assertEquals(View.VISIBLE, chip.visibility)
+        assertEquals(app.resources.getQuantityString(R.plurals.widget_clear_finished, home, home), chip.text.toString())
+    }
+
+    @Test
+    fun noClearChipWhenNothingHasFinished() {
+        assertEquals(View.GONE, clear(show(TestData.exportJson())).visibility)
+    }
+
+    @Test
+    fun clearingOneViewKeepsTheOthersFinishedUpgrades() {
+        val tag = Store.saveExport(app, TestData.exportJson())
+        val village = Store.village(app, tag)!!
+        val at = village.upgrades.maxOf { village.endMillis(it) }
+        Store.clearFinished(app, tag, at, WidgetView.BUILDER_BASE.shows)
+        val left = Store.village(app, tag)!!.upgrades
+        assertFalse(left.any { it.section == Section.BUILDER_BASE })
+        assertEquals(village.upgrades.count { it.section != Section.BUILDER_BASE }, left.size)
+    }
+
+    // 2.12.1 kept one clear time for the whole village. A clear made there must still hold.
+    @Test
+    fun aClearFromVersionTwoTwelveOneStillHolds() {
+        val tag = Store.saveExport(app, TestData.exportJson())
+        val village = Store.village(app, tag)!!
+        val at = village.upgrades.maxOf { village.endMillis(it) }
+        app.getSharedPreferences(Store.fileName(tag), android.content.Context.MODE_PRIVATE).edit().putLong("cleared_finished_at", at).commit()
+        assertTrue(Store.village(app, tag)!!.upgrades.isEmpty())
+        Store.saveExport(app, TestData.exportJson())
+        assertEquals(village.upgrades.size, Store.village(app, tag)!!.upgrades.size)
     }
 
     @Test

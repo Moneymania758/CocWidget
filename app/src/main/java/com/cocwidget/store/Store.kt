@@ -5,9 +5,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.cocwidget.events.EventKind
 import com.cocwidget.game.EventDiscount
+import com.cocwidget.game.Section
 import com.cocwidget.game.Village
 import com.cocwidget.game.VillageParser
 import com.cocwidget.plan.Bedtime
+import com.cocwidget.widget.WidgetView
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -42,8 +44,13 @@ object Store {
     private const val KEY_NOTIFIED = "notified_upgrades"
     private const val KEY_DISCOUNTED = "discounted_upgrades"
     private const val KEY_UPGRADE_IDS = "upgrade_ids"
-    // When the player last cleared finished upgrades. Newer than any 1.9.1 install, so not moved.
+    // The big widget's view, by WidgetView name. Newer than any 1.9.1 install, so not moved.
+    private const val KEY_WIDGET_VIEW = "widget_view"
+    // When the player last cleared finished upgrades. 2.12.1 kept one time for every section,
+    // later versions keep one per section, as the widget clears only its view. Newer than any
+    // 1.9.1 install, so not moved.
     private const val KEY_CLEARED_AT = "cleared_finished_at"
+    private const val KEY_CLEARED_AT_SECTION = "cleared_finished_at_"
     private val ACCOUNT_KEYS = listOf(
         KEY_EXPORT, KEY_BUILDER_MULTIPLIER, KEY_LAB_MULTIPLIER, KEY_NAME, KEY_COLLAPSED,
         KEY_NOTIFIED, KEY_DISCOUNTED, KEY_UPGRADE_IDS,
@@ -160,6 +167,7 @@ object Store {
             .putString(KEY_UPGRADE_IDS, tracked?.ids.orEmpty().joinToString("\n"))
             .putStringSet(KEY_DISCOUNTED, tracked?.discounted.orEmpty())
             .remove(KEY_CLEARED_AT)
+            .apply { Section.entries.forEach { remove(KEY_CLEARED_AT_SECTION + it.name) } }
             .apply()
         val global = prefs(context)
         global.edit()
@@ -185,14 +193,17 @@ object Store {
     fun village(context: Context, tag: String): Village? {
         val village = rawVillage(context, tag) ?: return null
         val discounted = EventDiscount.apply(village, upgradeIds(context, tag), discountedUpgrades(context, tag))
-        val clearedAt = account(context, tag).getLong(KEY_CLEARED_AT, 0)
-        return if (clearedAt > 0) discounted.withoutFinishedBy(clearedAt) else discounted
+        val prefs = account(context, tag)
+        val clearedAt = Section.entries.associateWith { maxOf(prefs.getLong(KEY_CLEARED_AT, 0), prefs.getLong(KEY_CLEARED_AT_SECTION + it.name, 0)) }
+        return if (clearedAt.values.any { it > 0 }) discounted.withoutFinishedBy { clearedAt.getValue(it) } else discounted
     }
 
-    // Hides what has finished by [now] until the next sync, which brings back the full export.
-    // The export itself is kept as copied, so the planner still sees it.
-    fun clearFinished(context: Context, tag: String, now: Long) {
-        account(context, tag).edit().putLong(KEY_CLEARED_AT, now).apply()
+    // Hides what has finished by [now] in [sections] until the next sync, which brings back the
+    // full export. The export itself is kept as copied, so the planner still sees it.
+    fun clearFinished(context: Context, tag: String, now: Long, sections: Set<Section> = Section.entries.toSet()) {
+        val editor = account(context, tag).edit()
+        for (section in sections) editor.putLong(KEY_CLEARED_AT_SECTION + section.name, now)
+        editor.apply()
     }
 
     // The last synced export as copied from the game, for the planner.
@@ -269,6 +280,18 @@ object Store {
 
     fun setCollapsedSections(context: Context, tag: String, sections: Set<String>) {
         account(context, tag).edit().putStringSet(KEY_COLLAPSED, sections).apply()
+    }
+
+    // Null until a view is picked on 2.12.2 or later.
+    fun widgetView(context: Context, tag: String): WidgetView? {
+        val name = account(context, tag).getString(KEY_WIDGET_VIEW, null)
+        return WidgetView.entries.firstOrNull { it.name == name }
+    }
+
+    // Picking a view also unfolds its sections, so the tap always shows something.
+    fun setWidgetView(context: Context, tag: String, view: WidgetView) {
+        val collapsed = collapsedSections(context, tag) - view.shows.map { it.name }.toSet()
+        account(context, tag).edit().putString(KEY_WIDGET_VIEW, view.name).putStringSet(KEY_COLLAPSED, collapsed).apply()
     }
 
     fun lastUpdateCheck(context: Context): Long = prefs(context).getLong(KEY_LAST_UPDATE_CHECK, 0)
