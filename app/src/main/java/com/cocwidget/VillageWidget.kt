@@ -25,6 +25,11 @@ class VillageWidget : AppWidgetProvider() {
                 if (tag != null && view != null) Store.setCollapsedSections(context, tag, view.folded.map { it.name }.toSet())
                 refreshAsync(context)
             }
+            ACTION_SWITCH_ACCOUNT -> {
+                val widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+                if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) Store.switchWidgetAccount(context, widgetId)
+                refreshAsync(context)
+            }
             else -> super.onReceive(context, intent)
         }
     }
@@ -58,6 +63,7 @@ class VillageWidget : AppWidgetProvider() {
         const val ACTION_REFRESH = "com.cocwidget.action.REFRESH"
         const val ACTION_TOGGLE_SECTION = "com.cocwidget.action.TOGGLE_SECTION"
         const val ACTION_SET_VIEW = "com.cocwidget.action.SET_VIEW"
+        const val ACTION_SWITCH_ACCOUNT = "com.cocwidget.action.SWITCH_ACCOUNT"
         const val EXTRA_SECTION = "section"
         const val EXTRA_VIEW = "view"
         const val EXTRA_ACCOUNT = "account"

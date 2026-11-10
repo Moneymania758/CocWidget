@@ -130,6 +130,18 @@ object Store {
         prefs(context).edit().putString(KEY_WIDGET + widgetId, tag).apply()
     }
 
+    // A tap on a widget's account chip moves that widget, and only that one, to the next account.
+    fun switchWidgetAccount(context: Context, widgetId: Int) {
+        val accounts = accounts(context)
+        nextAccount(widgetAccount(context, widgetId), accounts)?.let { setWidgetAccount(context, widgetId, it) }
+    }
+
+    // The account after this one, back to the first after the last. Null when there's nothing to switch to.
+    internal fun nextAccount(current: String?, accounts: List<String>): String? {
+        if (accounts.size < 2) return null
+        return accounts[(accounts.indexOf(current) + 1) % accounts.size]
+    }
+
     fun forgetWidgets(context: Context, widgetIds: IntArray) {
         val editor = prefs(context).edit()
         for (id in widgetIds) editor.remove(KEY_WIDGET + id)

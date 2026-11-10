@@ -109,12 +109,13 @@ object WidgetRenderer {
 
     // The small widget: the next upgrade to finish, and what's idle. Every view is set on every
     // update, as the launcher applies it on top of the last one.
-    private fun buildNext(context: Context, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {
+    internal fun buildNext(context: Context, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_next)
         views.setOnClickPendingIntent(R.id.next_root, openAppIntent(context, widgetId, tag))
         views.setViewVisibility(R.id.days, View.GONE)
         views.setViewVisibility(R.id.timer, View.GONE)
         views.setViewVisibility(R.id.goblin, View.GONE)
+        showAccountChip(context, views, widgetId, tag)
         if (tag == null || village == null) {
             views.setViewVisibility(R.id.icon, View.GONE)
             views.setTextViewText(R.id.name, context.getString(R.string.app_name))
@@ -171,6 +172,7 @@ object WidgetRenderer {
         views.setViewVisibility(R.id.helpers, View.GONE)
         views.setViewVisibility(R.id.views, View.GONE)
         views.setViewVisibility(R.id.all_upgrades, View.GONE)
+        showTitleSwitch(context, views, widgetId, null)
 
         val update = UpdateChecker.availableUpdate(context)
         views.setViewVisibility(R.id.update, if (update != null) View.VISIBLE else View.GONE)
@@ -197,6 +199,7 @@ object WidgetRenderer {
             views.setOnClickPendingIntent(R.id.all_upgrades, openAppIntent(context, widgetId, tag))
         }
         views.setTextViewText(R.id.title, Store.label(context, tag))
+        showTitleSwitch(context, views, widgetId, tag)
         views.setTextViewText(R.id.town_hall, if (village.townHall > 0) "TH${village.townHall}" else "")
         val footer = exportLine(context, village, now)
         views.setTextViewText(R.id.footer, footer.text)
@@ -220,6 +223,40 @@ object WidgetRenderer {
         }
         return views
     }
+
+    // With two or more accounts the big widget's title is a chip, and a tap moves the widget to the
+    // next account. With one, it's plain text that opens the app like the rest of the widget.
+    private fun showTitleSwitch(context: Context, views: RemoteViews, widgetId: Int, tag: String?) {
+        val switchable = tag != null && Store.accounts(context).size > 1
+        if (!switchable) {
+            views.setInt(R.id.title, "setBackgroundResource", 0)
+            views.setViewPadding(R.id.title, 0, 0, 0, 0)
+            views.setContentDescription(R.id.title, null)
+            views.setOnClickPendingIntent(R.id.title, openAppIntent(context, widgetId, tag))
+            return
+        }
+        val label = Store.label(context, tag!!)
+        val side = dp(context, 9)
+        val top = dp(context, 2)
+        views.setInt(R.id.title, "setBackgroundResource", R.drawable.chip_view)
+        views.setViewPadding(R.id.title, side, top, side, top)
+        views.setTextViewText(R.id.title, context.getString(R.string.widget_account_chip, label))
+        views.setContentDescription(R.id.title, context.getString(R.string.widget_switch_account, label))
+        views.setOnClickPendingIntent(R.id.title, switchIntent(context, widgetId))
+    }
+
+    // The small widget has no title, so with two or more accounts it gets a chip beside the status line.
+    private fun showAccountChip(context: Context, views: RemoteViews, widgetId: Int, tag: String?) {
+        val switchable = tag != null && Store.accounts(context).size > 1
+        views.setViewVisibility(R.id.account, if (switchable) View.VISIBLE else View.GONE)
+        if (!switchable) return
+        val label = Store.label(context, tag!!)
+        views.setTextViewText(R.id.account_name, label)
+        views.setContentDescription(R.id.account, context.getString(R.string.widget_switch_account, label))
+        views.setOnClickPendingIntent(R.id.account, switchIntent(context, widgetId))
+    }
+
+    private fun dp(context: Context, value: Int): Int = (value * context.resources.displayMetrics.density).toInt()
 
     // Without the Builder Base on the widget, Home and All would be the same, so no buttons.
     private fun showViews(context: Context, views: RemoteViews, shown: Shown, sections: Set<Section>) {
@@ -405,6 +442,14 @@ object WidgetRenderer {
     private fun viewIntent(context: Context, shown: Shown, view: WidgetView): PendingIntent =
         broadcast(context, 200 + view.ordinal, accountIntent(context, shown, VillageWidget.ACTION_SET_VIEW, "view", view.name)
             .putExtra(VillageWidget.EXTRA_VIEW, view.name))
+
+    // Both kinds of widget switch through VillageWidget, which draws them all. The data Uri keeps
+    // each widget's id.
+    private fun switchIntent(context: Context, widgetId: Int): PendingIntent =
+        broadcast(context, 300, Intent(context, VillageWidget::class.java)
+            .setAction(VillageWidget.ACTION_SWITCH_ACCOUNT)
+            .setData(Uri.parse("cocwidget://switch/$widgetId"))
+            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId))
 
     // A tap on one widget's control, for its account.
     private fun accountIntent(context: Context, shown: Shown, action: String, kind: String, name: String): Intent =
