@@ -42,6 +42,8 @@ object Store {
     private const val KEY_NOTIFIED = "notified_upgrades"
     private const val KEY_DISCOUNTED = "discounted_upgrades"
     private const val KEY_UPGRADE_IDS = "upgrade_ids"
+    // When the player last cleared finished upgrades. Newer than any 1.9.1 install, so not moved.
+    private const val KEY_CLEARED_AT = "cleared_finished_at"
     private val ACCOUNT_KEYS = listOf(
         KEY_EXPORT, KEY_BUILDER_MULTIPLIER, KEY_LAB_MULTIPLIER, KEY_NAME, KEY_COLLAPSED,
         KEY_NOTIFIED, KEY_DISCOUNTED, KEY_UPGRADE_IDS,
@@ -157,6 +159,7 @@ object Store {
             .putString(KEY_EXPORT, json)
             .putString(KEY_UPGRADE_IDS, tracked?.ids.orEmpty().joinToString("\n"))
             .putStringSet(KEY_DISCOUNTED, tracked?.discounted.orEmpty())
+            .remove(KEY_CLEARED_AT)
             .apply()
         val global = prefs(context)
         global.edit()
@@ -177,9 +180,19 @@ object Store {
         return Current(tag, village, json)
     }
 
+    // Without the upgrades cleared since the last sync. The discount goes on first, as it matches
+    // upgrades by their place in the export.
     fun village(context: Context, tag: String): Village? {
         val village = rawVillage(context, tag) ?: return null
-        return EventDiscount.apply(village, upgradeIds(context, tag), discountedUpgrades(context, tag))
+        val discounted = EventDiscount.apply(village, upgradeIds(context, tag), discountedUpgrades(context, tag))
+        val clearedAt = account(context, tag).getLong(KEY_CLEARED_AT, 0)
+        return if (clearedAt > 0) discounted.withoutFinishedBy(clearedAt) else discounted
+    }
+
+    // Hides what has finished by [now] until the next sync, which brings back the full export.
+    // The export itself is kept as copied, so the planner still sees it.
+    fun clearFinished(context: Context, tag: String, now: Long) {
+        account(context, tag).edit().putLong(KEY_CLEARED_AT, now).apply()
     }
 
     // The last synced export as copied from the game, for the planner.

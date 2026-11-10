@@ -175,6 +175,14 @@ class MainActivity : Screen() {
             addView(ui.text(line.text, 12f, if (line.stale) getColor(R.color.idle) else ui.skin.dim).apply {
                 gravity = Gravity.CENTER
             }, ui.matchWidth(12))
+            val finished = village.upgrades.count { village.endMillis(it) <= now }
+            if (tag != null && finished > 0) {
+                addView(ui.button(resources.getQuantityString(R.plurals.clear_finished, finished, finished), null, primary = false) {
+                    Store.clearFinished(this@MainActivity, tag, System.currentTimeMillis())
+                    VillageWidget.requestRefresh(this@MainActivity)
+                    show()
+                }, ui.matchWidth(10))
+            }
         }
         addView(ui.button(getString(R.string.import_village), R.drawable.ic_import_line, primary = true) {
             startActivity(Intent(this@MainActivity, SyncActivity::class.java))

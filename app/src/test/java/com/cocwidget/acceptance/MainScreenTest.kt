@@ -19,6 +19,7 @@ import com.cocwidget.store.Icons
 import com.cocwidget.store.Store
 import com.cocwidget.ui.Skin
 import com.cocwidget.widget.WidgetRenderer
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -85,6 +86,48 @@ class MainScreenTest {
         val now = System.currentTimeMillis()
         val finished = village.upgrades.count { village.endMillis(it) <= now }
         assertEquals(finished, Screens.texts(Screens.root(open())).count { it == app.getString(R.string.done) })
+    }
+
+    // Exported part way through the village's timers, so some rows are done and some still run.
+    private fun halfFinishedExport(): String {
+        val json = TestData.th18ExportJson()
+        val now = System.currentTimeMillis() / 1000
+        val fresh = TestData.th18Village(JSONObject(json).put("timestamp", now).toString())
+        val ends = fresh.upgrades.map { fresh.endMillis(it) / 1000 - now }.sorted()
+        return JSONObject(json).put("timestamp", now - ends[ends.size / 2]).toString()
+    }
+
+    @Test
+    fun clearingFinishedUpgradesHidesThemUntilTheNextImport() {
+        val json = halfFinishedExport()
+        val tag = Store.saveExport(app, json)
+        val before = Store.village(app, tag)!!
+        val now = System.currentTimeMillis()
+        val finished = before.upgrades.count { before.endMillis(it) <= now }
+        val running = before.upgrades.size - finished
+        assertTrue("the export has finished and running upgrades", finished > 0 && running > 0)
+
+        val activity = open()
+        val label = app.resources.getQuantityString(R.plurals.clear_finished, finished, finished)
+        Screens.tappable(Screens.root(activity), label)!!.performClick()
+
+        val after = Store.village(app, tag)!!
+        assertEquals(running, after.upgrades.size)
+        val texts = Screens.texts(Screens.root(activity))
+        assertFalse(app.getString(R.string.done) in texts)
+        assertFalse(label in texts)
+        for (upgrade in after.upgrades) assertTrue(WidgetRenderer.upgradeName(upgrade).toString() in texts)
+        assertFalse(WidgetRenderer.exportLine(app, after, System.currentTimeMillis()).text.contains("finished since"))
+
+        Store.saveExport(app, json)
+        assertEquals(before.upgrades.size, Store.village(app, tag)!!.upgrades.size)
+    }
+
+    @Test
+    fun nothingToClearWhenNothingHasFinished() {
+        val json = JSONObject(TestData.th18ExportJson()).put("timestamp", System.currentTimeMillis() / 1000).toString()
+        Store.saveExport(app, json)
+        assertFalse(Screens.texts(Screens.root(open())).any { it.startsWith("Clear ") })
     }
 
     @Test

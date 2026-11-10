@@ -14,6 +14,10 @@
     <string name="exported_at">Exported %1$s</string>
     <string name="exported_finished_since">Exported %1$s · %2$d finished since, import again</string>
     <string name="exported_out_of_date">Exported %1$s · out of date, import again</string>
+    <plurals name="clear_finished">
+        <item quantity="one">Clear %d finished upgrade</item>
+        <item quantity="other">Clear %d finished upgrades</item>
+    </plurals>
     <string name="update_available">Update %1$s ›</string>
     <string name="view_home">HOME</string>
     <string name="view_builder_base">BUILDER BASE</string>
@@ -165,6 +169,7 @@
 
     <string name="whats_new_card">New in %1$s</string>
     <string name="whats_new_got_it">Got it</string>
+    <string name="whats_new_2_12_1">• Finished upgrades can now be cleared from the main screen without importing again. Tap Clear finished upgrades under the export time. They come back with your next import.\n• Also in 2.12: an Events card with live countdowns, and event reminders. See Settings to choose which ones notify you.</string>
     <string name="whats_new_2_12">• A new Events card on the main screen counts down to Clan Games, Clan War League sign-up, the Gold Pass season, Hammer Jam, Raid Weekend, Ranked battles and the Legend League I reset, soonest first.\n• Event reminders: a notification when each one is due, in your own time. Clan Games, Clan War League sign-up, Gold Pass and Hammer Jam are on. Raid Weekend, Ranked and Legend League I are off. Change them in Settings.\n• Supercell can move dates. We correct them here when it does, and the Event Hub in the game has the final word.</string>
     <string name="whats_new_2_11_2">• Hammer Jam: with the event switch on, supercharges now stay at full time and cost in Time to max and the bedtime planner. Supercharges, crafted defences and the Builder Base aren\'t discounted, so their progress bars stay right too.\n• With more than one account, finish notifications now say which village and Town Hall.\n• Fixed: in the Guide, a table\'s scroll bar sat on top of its last row.</string>
     <string name="whats_new_2_11_1">• A new main screen: your Town Hall, your helpers and every upgrade counting down. Tap the widget to open it, however little fits on your home screen.\n• Sync is now Import my village. It works the same, and the Quick Settings tile has the new name too.\n• New faces for the Goblin and the helpers, on the widget and in the app.\n• Fixed: the widget could say +3 more with nothing left to show. It now has an All upgrades link instead.\n• The Guide advises by Town Hall: what to upgrade first, army counts on every plan, tips for your Town Hall first, what each troop targets, and pages for Town Hall weapons and Guardians. Town Hall buttons show their pictures.\n• Fixed: many Guide corrections, including Super Troops, 13 of which open a Town Hall later than it said. The Inferno Artillery, Giga Tesla, Giga Inferno and Town Hall 18 pages showed the wrong picture.</string>
