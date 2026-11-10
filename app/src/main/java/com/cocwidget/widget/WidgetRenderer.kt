@@ -228,7 +228,6 @@ object WidgetRenderer {
         return views
     }
 
-
     // With two or more accounts the big widget's title is a chip, and a tap moves the widget to the
     // next account. With one, it's plain text that opens the app like the rest of the widget.
     private fun showTitleSwitch(context: Context, views: RemoteViews, widgetId: Int, tag: String?) {
