@@ -99,6 +99,14 @@ class GlossaryTest {
         }
     }
 
+    // "Raid" alone means farming, but not inside the Clan Capital's names.
+    @Test
+    fun raidMedalsAreNotFarming() {
+        assertEquals("Raid Medals", realTerms("Raid Medals go on ore first.").first())
+        assertEquals(listOf("Raid Medals"), realTerms("Raid Weekend ends on Monday."))
+        assertEquals(listOf("Farming"), realTerms("A quick raid for Gold."))
+    }
+
     @Test
     fun explainsTheWordsThisWorkWasFor() {
         assertTrue(real.term("Funnel") != null)

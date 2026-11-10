@@ -3,6 +3,7 @@ package com.cocwidget.guide
 import android.content.Context
 import com.cocwidget.game.GameItem
 import com.cocwidget.game.Ids
+import com.cocwidget.game.Merge
 import com.cocwidget.store.Icons
 import org.json.JSONArray
 import org.json.JSONObject
@@ -97,6 +98,44 @@ class UpgradeAdvice(val lines: List<String>, val sources: List<String>)
 
 class Capacity(val army: Int, val spells: Int)
 
+// Rushing advice for some Town Halls. The [top] band is for the highest Town Hall the advice was
+// written for, and any above it.
+class RushBand(val from: Int, val to: Int, val top: Boolean, val lines: List<Tip>) {
+    fun covers(townHall: Int, writtenFor: Int) = if (top) townHall >= writtenFor else townHall in from..to
+}
+
+// How to rush, in our own words from the guides in [sources]. [writtenFor] is the highest Town Hall
+// when it was written, so the page can say when a newer one has come out.
+class RushGuide(
+    val writtenFor: Int,
+    val about: String,
+    val careful: List<String>,
+    val rules: List<String>,
+    val order: List<Tip>,
+    val upgradeNow: List<String>,
+    val bands: List<RushBand>,
+    val equipment: List<Tip>,
+    val heroes: List<Tip>,
+    val items: List<Tip>,
+    val sources: List<String>,
+) {
+    fun bandsFor(townHall: Int): List<RushBand> = if (townHall <= 0) bands else bands.filter { it.covers(townHall, writtenFor) }
+
+    val allLines: List<String>
+        get() = listOf(about) + careful + rules + upgradeNow + (order + equipment + heroes + items + bands.flatMap { it.lines }).map { it.text }
+}
+
+// Something a Town Hall brings that's made from buildings you already have: a merged defence, or the
+// Town Hall itself taking one in. [sources] holds each building it uses up, with the level it needs.
+class MergeNeed(val item: GameItem, val quantity: Int, val sources: List<Pair<GameItem, Int>>, val intoTownHall: Boolean)
+
+// Where a hero's longest upgrades start: from [firstLevel], [count] of them, opening at [townHall].
+class HeroStretch(val heroId: Int, val name: String, val firstLevel: Int, val count: Int, val townHall: Int)
+
+// How far a hero is from its longest upgrades: [left] seconds at normal speed. [maxedHere] means it
+// can't go further until the next Town Hall. [someLocked] means part of [left] needs a higher one.
+class StretchProgress(val left: Long, val maxedHere: Boolean, val someLocked: Boolean)
+
 // Written by hand in assets/guide_content.json. These picks are opinion, so they carry their sources
 // and the date they were checked. GuideTest checks them against the game facts.
 class GuideContent(
@@ -115,6 +154,7 @@ class GuideContent(
     val equipmentTips: Map<String, EquipmentTip>,
     val upgradeFirst: Map<Int, UpgradeAdvice>,
     val capacities: Map<Int, Capacity>,
+    val rushing: RushGuide?,
 )
 
 // One thing a Town Hall adds. [first] is false for more copies of something an earlier one added.
@@ -205,6 +245,42 @@ class Guide(val content: GuideContent, val facts: GuideFacts) {
             }.sortedByDescending { it.first }
         }
 
+        // What reaching [townHall] needs merged: the Town Hall taking a building in, then each merged
+        // defence it adds. Empty for a Town Hall the data doesn't have.
+        fun mergesFor(townHall: Int, items: Map<Int, GameItem>): List<MergeNeed> {
+            val hall = items[Ids.TOWN_HALL] ?: return emptyList()
+            if (townHall !in 1..hall.levelCount) return emptyList()
+            fun sources(merge: Merge) = merge.sources.mapNotNull { (id, level) -> items[id]?.let { it to level } }
+            val intoHall = hall.merge?.takeIf { it.level == townHall }?.let { listOf(MergeNeed(hall, 1, sources(it), true)) }.orEmpty()
+            val merged = additions(townHall, items).mapNotNull { addition ->
+                addition.item.merge?.let { MergeNeed(addition.item, addition.quantity, sources(it), false) }
+            }
+            return intoHall + merged
+        }
+
+        // The longest any hero upgrade takes, in seconds. Books of Heroes save the most there.
+        fun longestHeroUpgrade(heroes: List<GameItem>): Long =
+            heroes.maxOfOrNull { hero -> (1..hero.levelCount).maxOfOrNull { hero.secondsToReach(it) } ?: 0 } ?: 0
+
+        // Where [hero]'s upgrades of [longest] seconds start, or null if it has none.
+        fun stretch(heroId: Int, hero: GameItem, name: String, longest: Long): HeroStretch? {
+            val levels = (1..hero.levelCount).filter { longest > 0 && hero.secondsToReach(it) >= longest }
+            val first = levels.firstOrNull() ?: return null
+            return HeroStretch(heroId, name, first, levels.size, (1..100).firstOrNull { hero.maxLevelAt(it) >= first } ?: 0)
+        }
+
+        // Seconds of upgrades from [level] until the next upgrade is one of the longest. 0 once there.
+        fun timeToStretch(hero: GameItem, level: Int, stretch: HeroStretch): Long =
+            (level + 1 until stretch.firstLevel).sumOf { hero.secondsToReach(it) }
+
+        // How far [hero] at [level] is from its longest upgrades, in a village at [townHall]. The Town
+        // Hall caps how far it can go now.
+        fun progress(hero: GameItem, level: Int, townHall: Int, stretch: HeroStretch): StretchProgress {
+            val cap = hero.maxLevelAt(townHall)
+            val locked = stretch.townHall > townHall
+            return StretchProgress(timeToStretch(hero, level, stretch), locked && level >= cap, locked && stretch.firstLevel - 1 > cap)
+        }
+
         // The current level of every hero, pet, troop, spell, siege machine, defence, trap and piece of
         // equipment in an export, by id. With several copies of a defence, it's the highest.
         fun levels(export: String): Map<Int, Int> {
@@ -293,8 +369,25 @@ class Guide(val content: GuideContent, val facts: GuideFacts) {
                         key.toInt() to Capacity(size.getInt("army"), size.getInt("spells"))
                     }
                 }.orEmpty(),
+                rushing = root.optJSONObject("rushing")?.let(::rushGuide),
             )
         }
+
+        private fun rushGuide(json: JSONObject) = RushGuide(
+            writtenFor = json.getInt("writtenFor"),
+            about = json.getString("about"),
+            careful = json.getJSONArray("careful").strings(),
+            rules = json.getJSONArray("rules").strings(),
+            order = json.getJSONArray("order").tips(),
+            upgradeNow = json.getJSONArray("upgradeNow").strings(),
+            bands = json.getJSONArray("bands").objects().map { band ->
+                RushBand(band.optInt("from"), band.optInt("to"), band.optBoolean("top"), band.getJSONArray("lines").tips())
+            },
+            equipment = json.getJSONArray("equipment").tips(),
+            heroes = json.getJSONArray("heroes").tips(),
+            items = json.getJSONArray("items").tips(),
+            sources = json.getJSONArray("src").strings(),
+        )
 
         private fun glossaryTerm(json: JSONObject) = GlossaryTerm(
             term = json.getString("term"),

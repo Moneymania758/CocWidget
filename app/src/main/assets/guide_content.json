@@ -840,6 +840,11 @@
       "name": "Base Drop, TH18 upgrade order",
       "date": "Oct 2026",
       "url": "https://cocbasedrop.com/blog/coc-upgrade-priority-th18-what-to-upgrade-first-2026"
+    },
+    "CMT": {
+      "name": "CallMeTee's Rush Bible",
+      "date": "Aug 2026",
+      "url": "https://docs.google.com/document/d/1zP792qWKVN14hVX_RW4Mui65yRTqqtHaEaj_jwUY-us/edit"
     }
   },
   "heroes": [
@@ -9856,6 +9861,29 @@
         "maxed",
         "maxed out"
       ]
+    },
+    {
+      "term": "Raid Medals",
+      "group": "game",
+      "short": "Medals from Raid Weekend in the Clan Capital, spent at the Trader.",
+      "means": [
+        "Raid Weekend runs every weekend in the Clan Capital, where clans attack each other's capitals. When it ends, players earn Raid Medals for how their clan did.",
+        "The Trader sells ore, magic items and other things for Raid Medals. Rushed players often spend them on ore, which is slow to earn any other way."
+      ],
+      "example": "Spend your Raid Medals on ore while your equipment is behind.",
+      "aliases": [
+        "Raid Medal",
+        "Raid Medals",
+        "Raid Weekend",
+        "Raid Weekends"
+      ],
+      "see": [
+        "Hero equipment"
+      ],
+      "units": [],
+      "src": [
+        "CMT"
+      ]
     }
   ],
   "equipmentTips": {
@@ -10723,5 +10751,117 @@
       "army": 352,
       "spells": 11
     }
+  },
+  "rushing": {
+    "writtenFor": 18,
+    "src": [
+      "CMT"
+    ],
+    "about": "Rushing means taking your Town Hall up before everything else is done. Done well, it puts offence, heroes and equipment first and leaves most defences for later, so you reach the top Town Hall sooner and spend magic items on its longest upgrades.",
+    "careful": [
+      "This is about what to upgrade and when, not how to attack. Done this way, rushing suits a new account as well as an old one.",
+      "Your base will be weak on defence, and some clans turn rushed players away. Look for a clan that lets heroes upgrade during war."
+    ],
+    "rules": [
+      "Offence before defence. Heroes, army space, troops and spells make every attack stronger. A defence level only helps when someone attacks you.",
+      "New before old. A new building or troop gives you something you did not have. One more level on an old one adds a little.",
+      "Upgrade a defence only when the next Town Hall needs it, or a new merged defence is made from it.",
+      "On a new Town Hall, a builder or two can give each new defence its first quick levels, about a day of building each."
+    ],
+    "order": [
+      "One hero, upgrading all the time. Pick the one closest to its longest upgrades, usually the Archer Queen, and keep the Builder's Apprentice on it.",
+      "Army Camps, the Clan Castle and the Blacksmith, and the Hero Hall until Town Hall 13.",
+      "Whatever stops the next Town Hall. This can come ahead of everything below it.",
+      "Laboratory, Barracks and Spell Factories, when they open something new. Time the Laboratory to finish as you need its next levels.",
+      {
+        "t": "The Pet House, level with storages and new buildings. Even low level pets make attacks much stronger.",
+        "from": 14
+      },
+      "Storages, as far as you need to afford the next upgrades, and new buildings.",
+      "A second hero: the lowest, or the next closest to its longest upgrades."
+    ],
+    "upgradeNow": [
+      "A builder has nothing to do.",
+      "A hero has reached its cap.",
+      "The Laboratory has nothing left to research.",
+      "Your Walls are done for this Town Hall.",
+      "You are full of ore and cannot store any more."
+    ],
+    "bands": [
+      {
+        "from": 3,
+        "to": 12,
+        "lines": [
+          {
+            "t": "Aim for Town Hall 11, which brings the Grand Warden, the Eagle Artillery and Super Troops.",
+            "to": 10
+          },
+          "Move up once the Army Camps and Clan Castle are done and the new buildings are placed.",
+          "While the Town Hall upgrades, research farming troops and the troops your clan asks for, start each hero as it opens, and build only the storage you need.",
+          "You will not carry much weight in war yet, so help your clan in other ways: attack early, and donate."
+        ]
+      },
+      {
+        "from": 13,
+        "to": 15,
+        "lines": [
+          "Do not linger. These Town Halls earn little ore, and you are a hard pick for a CWL roster."
+        ]
+      },
+      {
+        "from": 16,
+        "to": 16,
+        "lines": [
+          "The first real stop. Town Hall 17 takes in your Eagle Artillery, so max it, and finish the merged defences.",
+          "Regular wars pay their most ore from here, but do not stay long.",
+          "With offence done and the Town Hall waiting, a spare Book of Building can go on the Eagle Artillery. It is often one of the longest upgrades here."
+        ]
+      },
+      {
+        "from": 17,
+        "to": 17,
+        "lines": [
+          "Lots of new things to use, but magic items are still poor value here. Keep moving.",
+          "Put a builder on the Town Hall weapon early, so it is not the last thing left before Town Hall 18."
+        ]
+      },
+      {
+        "top": true,
+        "lines": [
+          "Open every new offensive building and troop first.",
+          "Then put as many heroes to sleep as you can manage.",
+          "Spend magic items on offence first, then the strongest defences.",
+          "Spare builders take the quick, cheap levels first, then the defences."
+        ]
+      }
+    ],
+    "equipment": [
+      "Pick your first eight pieces of equipment early and put all your ore into them. Two epics and six commons cover what the strongest attacks use now.",
+      "This comes before getting heroes to their longest upgrades. Levelled equipment counts in every attack.",
+      "Keep the Blacksmith ahead of your ore. It caps how much you can store, and ore that overflows is gone.",
+      "Raid Medals go on ore first: Starry Ore, then Glowy Ore. Ore is the slowest thing to catch up on, above all for a returning player.",
+      "Join a clan that lets heroes upgrade during war and wins more than half its wars, as war ore is a large part of your income.",
+      "Each new Town Hall raises the ore you earn each day, one more reason not to linger.",
+      "Open Hero Journey chests as late as the free timer allows. They should be worth more at a higher Town Hall."
+    ],
+    "heroes": [
+      "Keep one hero upgrading all the time, the same one throughout. The Archer Queen is the usual pick, then the Grand Warden. The Royal Champion gets to her longest upgrades quickly.",
+      "Keep the Archer Queen upgrading through the Hero Journey too. Leaving her low costs far more time than the ore it saves.",
+      "Save Books of Heroes for the longest upgrades. That is where a book skips the most time.",
+      "Once a hero reaches its longest upgrades, start bringing the next one up behind it.",
+      {
+        "t": "The Dragon Duke is easy to catch up later. Most of his strength is in his equipment.",
+        "from": 15
+      },
+      "At the top Town Hall, upgrade as many heroes at once as you can stand, and use Hero Potions for wars."
+    ],
+    "items": [
+      "Spend magic items on the longest upgrades. A book on a 15-day upgrade saves far more than one on a 2-day one.",
+      "Do not book a Town Hall upgrade. Start it, and spend its time on heroes and offence. Two exceptions: Town Hall 17 to 18, which takes as long as most Town Hall 18 upgrades, and a brand new top Town Hall, if your clan wants you ready for CWL.",
+      "Save CWL medals for Hammers of Building on upgrades of 14 days or more. Do not buy Hammers of Heroes until you are close to maxed.",
+      "A higher CWL league pays more medals even for a worse finish, so a roster spot in a higher league is worth reaching early.",
+      "Keep about five Builder Potions for events that cut upgrade times, and use them all then.",
+      "Never leave a builder idle to save loot for Walls. Put spare loot into Walls each time a builder frees up."
+    ]
   }
 }

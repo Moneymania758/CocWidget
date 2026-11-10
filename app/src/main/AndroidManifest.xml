@@ -105,6 +105,11 @@
             android:label="@string/guide_army" />
 
         <activity
+            android:name=".GuideRushActivity"
+            android:exported="false"
+            android:label="@string/guide_rush" />
+
+        <activity
             android:name=".GuidePairingsActivity"
             android:exported="false"
             android:label="@string/guide_pairings" />

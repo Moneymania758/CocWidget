@@ -104,6 +104,11 @@ class GuideTownHallActivity : GuideScreen() {
                 addView(ui.text(getString(R.string.guide_step, index + 1, line), 14f).withTerms(), ui.matchWidth(if (index == 0) 8 else 4))
             }
             addSources(advice.sources)
+            if (guide.content.rushing != null) {
+                addView(ui.button(getString(R.string.guide_rush_instead), null, primary = false) {
+                    open(GuideRushActivity::class.java) { putExtra(EXTRA_VIEW_TOWN_HALL, townHall) }
+                }, ui.matchWidth(10))
+            }
         }
     }
 
