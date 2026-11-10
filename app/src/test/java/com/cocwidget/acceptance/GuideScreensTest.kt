@@ -14,6 +14,7 @@ import com.cocwidget.GuideThreatActivity
 import com.cocwidget.GuideHeroesActivity
 import com.cocwidget.GuidePairingsActivity
 import com.cocwidget.GuidePetsActivity
+import com.cocwidget.GuideRushActivity
 import com.cocwidget.GuideTownHallActivity
 import com.cocwidget.GuideUnitActivity
 import com.cocwidget.TestData
@@ -194,6 +195,66 @@ class GuideScreensTest {
         val screen = Screens.open<GuideActivity>()
         Screens.tappable(Screens.root(screen), app.getString(com.cocwidget.R.string.guide_glossary))!!.performClick()
         assertEquals(GuideGlossaryActivity::class.java.name, shadowOf(screen).nextStartedActivity.component?.className)
+    }
+
+    private fun string(id: Int, vararg args: Any) = app.getString(id, *args)
+
+    @Test
+    fun theRushPageOpensInEverySkinAndWithNoTownHallShowsEveryBand() {
+        val rush = guide.content.rushing!!
+        for (skin in skins) {
+            Store.setSkin(app, skin.key)
+            val texts = Screens.texts(Screens.root(Screens.open<GuideRushActivity>()))
+            assertTrue(skin.key, texts.contains(string(com.cocwidget.R.string.guide_rush_band, 3, 12)))
+            assertTrue(skin.key, texts.contains(string(com.cocwidget.R.string.guide_rush_band_one, rush.writtenFor)))
+            for (townHall in 16..18) assertTrue("TH$townHall", texts.contains(string(com.cocwidget.R.string.guide_rush_before, townHall)))
+            assertTrue(texts.contains(string(com.cocwidget.R.string.guide_rush_heroes, 8)))
+            assertTrue(texts.contains(string(com.cocwidget.R.string.guide_rush_equipment)))
+            assertFalse(texts.any { it.contains("You: level") })
+            assertFalse(texts.contains(string(com.cocwidget.R.string.guide_rush_stale, 18)))
+        }
+    }
+
+    @Test
+    fun aSyncedVillageSeesItsOwnTownHallAndHowFarEachHeroIs() {
+        syncTh16()
+        val texts = Screens.texts(Screens.root(Screens.open<GuideRushActivity>()))
+        assertTrue(texts.contains(string(com.cocwidget.R.string.guide_rush_at, 16)))
+        assertFalse(texts.contains(string(com.cocwidget.R.string.guide_rush_band, 3, 12)))
+        assertTrue(texts.contains(string(com.cocwidget.R.string.guide_rush_before, 17)))
+        assertFalse(texts.contains(string(com.cocwidget.R.string.guide_rush_before, 18)))
+        assertTrue(texts.contains(string(com.cocwidget.R.string.guide_rush_takes_in, 17, 7)))
+        assertTrue(texts.any { it.contains("You: level") && it.contains("to go") })
+        assertTrue(texts.contains(string(com.cocwidget.R.string.guide_rush_closest)))
+        // The export's Queen is 95, as far as Town Hall 16 goes. Her 8-day upgrades open at 17.
+        assertTrue(texts.any { it.contains("You: level 95, maxed for Town Hall 16.") })
+        assertFalse(texts.any { it.contains("already there") })
+    }
+
+    @Test
+    fun aTownHallPageLeadsToRushingAtThatTownHall() {
+        syncTh16()
+        val page = Screens.open<GuideTownHallActivity> { putExtra(GuideScreen.EXTRA_TOWN_HALL, 15) }
+        Screens.tappable(Screens.root(page), string(com.cocwidget.R.string.guide_rush_instead))!!.performClick()
+        val started = shadowOf(page).nextStartedActivity
+        assertEquals(GuideRushActivity::class.java.name, started.component?.className)
+        assertEquals(15, started.getIntExtra(GuideScreen.EXTRA_VIEW_TOWN_HALL, 0))
+        val texts = Screens.texts(Screens.root(Screens.open<GuideRushActivity> { putExtra(GuideScreen.EXTRA_VIEW_TOWN_HALL, 15) }))
+        assertTrue(texts.contains(string(com.cocwidget.R.string.guide_rush_at, 15)))
+        assertTrue(texts.contains(string(com.cocwidget.R.string.guide_rush_before, 16)))
+        // The player is TH16, so a TH15 page doesn't show their hero levels.
+        assertFalse(texts.any { it.contains("You: level") })
+    }
+
+    @Test
+    fun theGuideLeadsToRushingAndRushingToItsSource() {
+        val guideScreen = Screens.open<GuideActivity>()
+        Screens.tappable(Screens.root(guideScreen), string(com.cocwidget.R.string.guide_rush))!!.performClick()
+        assertEquals(GuideRushActivity::class.java.name, shadowOf(guideScreen).nextStartedActivity.component?.className)
+        val screen = Screens.open<GuideRushActivity>()
+        Screens.tappable(Screens.root(screen), string(com.cocwidget.R.string.guide_rush_read))!!.performClick()
+        val source = guide.content.sources.first { it.key == guide.content.rushing!!.sources.first() }
+        assertEquals(source.url, shadowOf(screen).nextStartedActivity.dataString)
     }
 
     private fun openUnitAt(name: String, townHall: Int) = Screens.open<GuideUnitActivity> {

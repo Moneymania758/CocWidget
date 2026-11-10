@@ -122,7 +122,8 @@ class GuideTest {
         }
         val other = guide.content.threats.flatMap { threat -> listOf(threat.tactics.role) + threat.tactics.allTips.map { it.text } } +
             guide.content.equipmentTips.values.map { it.tip.text } +
-            guide.content.upgradeFirst.values.flatMap { it.lines }
+            guide.content.upgradeFirst.values.flatMap { it.lines } +
+            guide.content.rushing!!.allLines
         for (line in other) {
             banned.find(line)?.let { problems += "${it.value} in \"$line\"" }
             siteNames.find(line)?.let { problems += "A website in \"$line\"" }
@@ -227,6 +228,83 @@ class GuideTest {
         }
     }
 
+    // The rushing advice names Town Halls, so a new top Town Hall in the data has to fail here until
+    // someone rewrites it. Then raise writtenFor and give the old top its own band.
+    @Test
+    fun rushingIsWrittenForTheTopTownHallAndCoversEveryOneBelow() {
+        val rush = guide.content.rushing!!
+        assertEquals(items.getValue(Ids.TOWN_HALL).levelCount, rush.writtenFor)
+        assertEquals(1, rush.bands.count { it.top })
+        for (townHall in Guide.FIRST_TOWN_HALL..rush.writtenFor + 1) {
+            assertEquals("TH$townHall", 1, rush.bandsFor(townHall).size)
+        }
+        assertTrue(rush.bandsFor(rush.writtenFor).single().top)
+        assertEquals(rush.bands.size, rush.bandsFor(0).size)
+        for (band in rush.bands) {
+            assertTrue(band.lines.isNotEmpty())
+            for (tip in band.lines) {
+                assertTrue("\"${tip.text}\" applies outside its band", band.top || (tip.from == 0 || tip.from in band.from..band.to) && (tip.to == 0 || tip.to in band.from..band.to))
+            }
+        }
+    }
+
+    // The Rush Bible's priority list: a hero, then camps and the Clan Castle, then whatever stops
+    // the next Town Hall, ahead of the Laboratory and the rest.
+    @Test
+    fun rushingFollowsTheBiblesPriorities() {
+        val order = guide.content.rushing!!.order.map { it.text }
+        assertTrue(order[0].startsWith("One hero"))
+        assertTrue(order[1].startsWith("Army Camps"))
+        assertTrue(order[2].contains("stops the next Town Hall"))
+        assertTrue(order[3].startsWith("Laboratory"))
+        assertTrue(order.last().startsWith("A second hero"))
+        assertTrue(guide.content.rushing!!.equipment.isNotEmpty())
+    }
+
+    @Test
+    fun theNextTownHallsMergesComeFromTheData() {
+        fun describe(townHall: Int) = Guide.mergesFor(townHall, items).map { need ->
+            "${need.item.name} x${need.quantity}${if (need.intoTownHall) " (into Town Hall)" else ""}: " +
+                need.sources.joinToString { "${it.first.name} ${it.second}" }
+        }
+        assertEquals(emptyList<String>(), describe(15))
+        assertEquals(listOf("Multi-Archer Tower x2: Archer Tower 21, Archer Tower 21", "Ricochet Cannon x2: Cannon 21, Cannon 21"), describe(16).sorted())
+        assertEquals("Town Hall x1 (into Town Hall): Eagle Artillery 7", describe(17).first())
+        assertEquals(
+            listOf("Multi-Archer Tower x1: Archer Tower 21, Archer Tower 21", "Multi-Gear Tower x1: Archer Tower 21, Cannon 21", "Ricochet Cannon x1: Cannon 21, Cannon 21"),
+            describe(17).drop(1).sorted(),
+        )
+        assertEquals(listOf("Super Wizard Tower x2: Wizard Tower 17, Wizard Tower 17"), describe(18))
+        assertEquals(emptyList<String>(), describe(items.getValue(Ids.TOWN_HALL).levelCount + 1))
+    }
+
+    // Checked by hand against the hero data on 10 November 2026: every hero's last levels take 8 days.
+    @Test
+    fun heroesLongestUpgradesComeFromTheData() {
+        val heroes = guide.facts.heroes.map { it to items.getValue(it.id) }
+        val longest = Guide.longestHeroUpgrade(heroes.map { it.second })
+        assertEquals(8 * 86_400L, longest)
+        val stretches = heroes.associate { (fighter, item) -> fighter.name to Guide.stretch(fighter.id, item, fighter.name, longest)!! }
+        val queen = stretches.getValue("Archer Queen")
+        assertEquals(listOf(96, 15, 17), listOf(queen.firstLevel, queen.count, queen.townHall))
+        assertEquals(10, stretches.getValue("Royal Champion").count)
+        assertEquals(78, stretches.values.sumOf { it.count })
+        val item = items.getValue(queen.heroId)
+        assertEquals(0L, Guide.timeToStretch(item, 95, queen))
+        assertEquals(0L, Guide.timeToStretch(item, 100, queen))
+        assertEquals(item.secondsToReach(95), Guide.timeToStretch(item, 94, queen))
+        assertEquals(item.secondsToReach(94) + item.secondsToReach(95), Guide.timeToStretch(item, 93, queen))
+        // Maxed at Town Hall 16 isn't there yet, as the longest upgrades open at 17.
+        val maxed = Guide.progress(item, item.maxLevelAt(16), 16, queen)
+        assertTrue(maxed.maxedHere)
+        assertEquals(0L, maxed.left)
+        assertFalse(Guide.progress(item, 95, 17, queen).maxedHere)
+        val belowCap = Guide.progress(item, item.maxLevelAt(15) - 1, 15, queen)
+        assertFalse(belowCap.maxedHere)
+        assertTrue(belowCap.someLocked)
+        assertFalse(Guide.progress(item, 80, 16, queen).someLocked)
+    }
+
     // Counts have to be trainable, or the plan isn't one anybody can follow.
     @Test
     fun everyArmyHasCountsThatFitItsTownHall() {
@@ -273,6 +351,7 @@ class GuideTest {
             guide.content.threats.flatMap { it.tactics.sources } +
             guide.content.equipmentTips.values.flatMap { it.sources } +
             guide.content.upgradeFirst.values.flatMap { it.sources } +
+            guide.content.rushing!!.sources +
             guide.glossary.terms.flatMap { it.sources } +
             guide.content.townHalls.flatMap { page -> page.strategies.flatMap { it.sources } }
         val pairingsAndPets = setOf("A", "P", "G", "N", "C")

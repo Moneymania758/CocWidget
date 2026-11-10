@@ -37,6 +37,7 @@ class GuideActivity : GuideScreen() {
         content.addView(ui.button(getString(R.string.guide_army), null, primary = false) { open(GuideArmyActivity::class.java) }, ui.matchWidth(10))
         content.addView(ui.button(getString(R.string.guide_defences), null, primary = false) { open(GuideDefencesActivity::class.java) }, ui.matchWidth(10))
         content.addView(ui.button(getString(R.string.guide_pairings), null, primary = false) { open(GuidePairingsActivity::class.java) }, ui.matchWidth(10))
+        content.addView(ui.button(getString(R.string.guide_rush), null, primary = false) { open(GuideRushActivity::class.java) }, ui.matchWidth(10))
         content.addView(ui.button(getString(R.string.guide_glossary), null, primary = false) { open(GuideGlossaryActivity::class.java) }, ui.matchWidth(10))
         content.addView(ui.button(getString(R.string.guide_sources), null, primary = false) { open(GuideSourcesActivity::class.java) }, ui.matchWidth(10))
         addNote(getString(R.string.credit))
