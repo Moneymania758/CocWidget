@@ -284,17 +284,21 @@ object Store {
     fun collapsedSections(context: Context, tag: String): Set<String> =
         account(context, tag).getStringSet(KEY_COLLAPSED, emptySet()).orEmpty()
 
-    fun toggleSection(context: Context, tag: String, section: String) {
+    // [shown] is the view the widget had when the header was tapped. With no view picked yet the
+    // widget works it out from the folds, so that view is kept first, or this fold would change it.
+    fun toggleSection(context: Context, tag: String, section: String, shown: WidgetView? = null) {
         val collapsed = collapsedSections(context, tag).toMutableSet()
         if (!collapsed.remove(section)) collapsed += section
-        account(context, tag).edit().putStringSet(KEY_COLLAPSED, collapsed).apply()
+        val editor = account(context, tag).edit().putStringSet(KEY_COLLAPSED, collapsed)
+        if (shown != null && widgetView(context, tag) == null) editor.putString(KEY_WIDGET_VIEW, shown.name)
+        editor.apply()
     }
 
     fun setCollapsedSections(context: Context, tag: String, sections: Set<String>) {
         account(context, tag).edit().putStringSet(KEY_COLLAPSED, sections).apply()
     }
 
-    // Null until a view is picked on 2.12.2 or later.
+    // Null until a view is picked, or a section folded, on 2.13 or later.
     fun widgetView(context: Context, tag: String): WidgetView? {
         val name = account(context, tag).getString(KEY_WIDGET_VIEW, null)
         return WidgetView.entries.firstOrNull { it.name == name }

@@ -185,6 +185,8 @@ object WidgetRenderer {
 
         if (tag == null || village == null) {
             views.setTextViewText(R.id.title, context.getString(R.string.app_name))
+            // An account whose export can't be read can still be switched away from.
+            showTitleSwitch(context, views, widgetId, tag)
             views.setTextViewText(R.id.town_hall, "")
             views.setViewVisibility(R.id.empty, View.VISIBLE)
             views.setViewVisibility(R.id.footer, View.GONE)
@@ -235,16 +237,17 @@ object WidgetRenderer {
         if (!switchable) {
             views.setInt(R.id.title, "setBackgroundResource", 0)
             views.setViewPadding(R.id.title, 0, 0, 0, 0)
+            views.setTextViewCompoundDrawablesRelative(R.id.title, 0, 0, 0, 0)
             views.setContentDescription(R.id.title, null)
             views.setOnClickPendingIntent(R.id.title, openAppIntent(context, widgetId, tag))
             return
         }
         val label = Store.label(context, tag!!)
-        val side = dp(context, 9)
         val top = dp(context, 2)
         views.setInt(R.id.title, "setBackgroundResource", R.drawable.chip_view)
-        views.setViewPadding(R.id.title, side, top, side, top)
-        views.setTextViewText(R.id.title, context.getString(R.string.widget_account_chip, label))
+        views.setViewPadding(R.id.title, dp(context, 9), top, dp(context, 7), top)
+        views.setTextViewText(R.id.title, label)
+        views.setTextViewCompoundDrawablesRelative(R.id.title, 0, 0, R.drawable.ic_switch, 0)
         views.setContentDescription(R.id.title, context.getString(R.string.widget_switch_account, label))
         views.setOnClickPendingIntent(R.id.title, switchIntent(context, widgetId))
     }
@@ -291,8 +294,10 @@ object WidgetRenderer {
         if (finished == 0) return
         views.setViewVisibility(R.id.clear, View.VISIBLE)
         views.setTextViewText(R.id.clear, context.resources.getQuantityString(R.plurals.widget_clear_finished, finished, finished))
+        // Clears up to the time this count was drawn, so a tap hides no more than the button says.
         views.setOnClickPendingIntent(R.id.clear, broadcast(context, 400, accountIntent(context, shown, VillageWidget.ACTION_CLEAR_FINISHED, "clear", view.name)
-            .putExtra(VillageWidget.EXTRA_VIEW, view.name)))
+            .putExtra(VillageWidget.EXTRA_VIEW, view.name)
+            .putExtra(VillageWidget.EXTRA_AT, shown.now)))
     }
 
     // Ready is orange like an idle builder: a free shift goes to waste.
@@ -461,7 +466,8 @@ object WidgetRenderer {
     // The data Uri is unique per widget and section, so each header's intent keeps its own extras.
     private fun toggleIntent(context: Context, shown: Shown, section: Section): PendingIntent =
         broadcast(context, 100 + section.ordinal, accountIntent(context, shown, VillageWidget.ACTION_TOGGLE_SECTION, "toggle", section.name)
-            .putExtra(VillageWidget.EXTRA_SECTION, section.name))
+            .putExtra(VillageWidget.EXTRA_SECTION, section.name)
+            .putExtra(VillageWidget.EXTRA_VIEW, currentView(context, shown).name))
 
     private fun viewIntent(context: Context, shown: Shown, view: WidgetView): PendingIntent =
         broadcast(context, 200 + view.ordinal, accountIntent(context, shown, VillageWidget.ACTION_SET_VIEW, "view", view.name)

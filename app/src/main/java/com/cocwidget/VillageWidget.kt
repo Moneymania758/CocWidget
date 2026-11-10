@@ -16,7 +16,8 @@ class VillageWidget : AppWidgetProvider() {
             ACTION_TOGGLE_SECTION -> {
                 val tag = intent.getStringExtra(EXTRA_ACCOUNT)
                 val section = intent.getStringExtra(EXTRA_SECTION)
-                if (tag != null && section != null) Store.toggleSection(context, tag, section)
+                val shown = WidgetView.entries.firstOrNull { it.name == intent.getStringExtra(EXTRA_VIEW) }
+                if (tag != null && section != null) Store.toggleSection(context, tag, section, shown)
                 refreshAsync(context)
             }
             ACTION_SET_VIEW -> {
@@ -28,7 +29,8 @@ class VillageWidget : AppWidgetProvider() {
             ACTION_CLEAR_FINISHED -> {
                 val tag = intent.getStringExtra(EXTRA_ACCOUNT)
                 val view = WidgetView.entries.firstOrNull { it.name == intent.getStringExtra(EXTRA_VIEW) }
-                if (tag != null && view != null) Store.clearFinished(context, tag, System.currentTimeMillis(), view.shows)
+                val at = intent.getLongExtra(EXTRA_AT, System.currentTimeMillis())
+                if (tag != null && view != null) Store.clearFinished(context, tag, at, view.shows)
                 refreshAsync(context)
             }
             ACTION_SWITCH_ACCOUNT -> {
@@ -74,6 +76,7 @@ class VillageWidget : AppWidgetProvider() {
         const val EXTRA_SECTION = "section"
         const val EXTRA_VIEW = "view"
         const val EXTRA_ACCOUNT = "account"
+        const val EXTRA_AT = "at"
 
         fun requestRefresh(context: Context) {
             context.sendBroadcast(Intent(context, VillageWidget::class.java).setAction(ACTION_REFRESH))

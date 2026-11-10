@@ -14,12 +14,14 @@ import com.cocwidget.widget.WidgetRenderer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 // Switching a widget between accounts with a tap, so one widget can serve several villages.
 @RunWith(RobolectricTestRunner::class)
@@ -60,7 +62,7 @@ class WidgetSwitchTest {
         Store.saveExport(app, TestData.exportJson())
         val id = shadowOf(manager).createWidget(VillageWidget::class.java, R.layout.widget)
         val title = big(id).findViewById<TextView>(R.id.title)
-        assertFalse(title.text.toString(), title.text.contains("⇄"))
+        assertFalse(hasSwitch(title))
         title.performClick()
         assertEquals(MainActivity::class.java.name, shadowOf(app).nextStartedActivity.component?.className)
     }
@@ -73,12 +75,14 @@ class WidgetSwitchTest {
         Store.setWidgetAccount(app, id, first)
 
         val title = big(id).findViewById<TextView>(R.id.title)
-        assertEquals("${Store.label(app, first)} ⇄", title.text.toString())
+        assertEquals(Store.label(app, first), title.text.toString())
+        assertTrue(hasSwitch(title))
         tapSwitch(title, id)
         assertEquals(second, Store.widgetAccount(app, id))
         // The redrawn widget shows the second account and switches back to the first.
         val after = big(id)
-        assertEquals("${Store.label(app, second)} ⇄", after.findViewById<TextView>(R.id.title).text.toString())
+        assertEquals(Store.label(app, second), after.findViewById<TextView>(R.id.title).text.toString())
+        assertTrue(hasSwitch(after.findViewById(R.id.title)))
         assertEquals("TH18", after.findViewById<TextView>(R.id.town_hall).text.toString())
         tapSwitch(after.findViewById(R.id.title), id)
         assertEquals(first, Store.widgetAccount(app, id))
@@ -127,7 +131,48 @@ class WidgetSwitchTest {
         Store.setWidgetAccount(app, id, second)
         Store.removeAccount(app, second)
         assertEquals(first, Store.widgetAccount(app, id))
-        val title = big(id).findViewById<TextView>(R.id.title)
-        assertFalse(title.text.toString(), title.text.contains("⇄"))
+        assertFalse(hasSwitch(big(id).findViewById(R.id.title)))
     }
+
+    // An account whose export can't be read must not trap the widget on it.
+    @Test
+    fun theBigWidgetCanSwitchAwayFromAnAccountItCannotRead() {
+        val first = Store.saveExport(app, TestData.exportJson())
+        Store.saveExport(app, TestData.th18ExportJson())
+        val id = shadowOf(manager).createWidget(VillageWidget::class.java, R.layout.widget)
+        Store.setWidgetAccount(app, id, first)
+        val title = WidgetRenderer.build(app, id, first, null, 0).apply(app, FrameLayout(app)).findViewById<TextView>(R.id.title)
+        assertTrue(hasSwitch(title))
+        tapSwitch(title, id)
+    }
+
+    // A long name is cut short with "…" and keeps the switch arrow, the TH label and Import, on a
+    // widget at its smallest default width. Native graphics, so text has its real size.
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun aLongNameIsCutShortAndLeavesRoomForTheRest() {
+        val first = Store.saveExport(app, TestData.exportJson())
+        Store.saveExport(app, TestData.th18ExportJson())
+        Store.setDisplayName(app, first, "My Main Farming Account Number One")
+        val id = shadowOf(manager).createWidget(VillageWidget::class.java, R.layout.widget)
+        Store.setWidgetAccount(app, id, first)
+        val root = big(id)
+        val width = (250 * app.resources.displayMetrics.density).toInt()
+        root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+        root.layout(0, 0, root.measuredWidth, root.measuredHeight)
+
+        val title = root.findViewById<TextView>(R.id.title)
+        val townHall = root.findViewById<TextView>(R.id.town_hall)
+        val sync = root.findViewById<TextView>(R.id.sync)
+        val row = sync.parent as View
+        assertTrue(hasSwitch(title))
+        assertTrue("the name is cut short", title.layout.getEllipsisCount(0) > 0)
+        assertTrue("the TH label shows", townHall.width > 0)
+        assertEquals("the TH label keeps its full width", townHall.measuredWidth, townHall.width)
+        assertTrue("the TH label ends before Import", (townHall.parent as View).right <= (townHall.parent.parent as View).width)
+        assertTrue("Import fits", sync.right <= row.width)
+        assertEquals("Import keeps its full width", sync.measuredWidth, sync.width)
+    }
+
+    private fun hasSwitch(title: TextView) = title.compoundDrawablesRelative[2] != null
 }

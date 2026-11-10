@@ -93,7 +93,6 @@
     <string name="sync_done">Village imported</string>
     <string name="sync_done_account">%1$s imported</string>
     <string name="widget_pick_title">Show which account?</string>
-    <string name="widget_account_chip">%1$s ⇄</string>
     <string name="widget_switch_arrow">⇄</string>
     <string name="widget_switch_account">Showing %1$s. Tap to switch account</string>
     <string name="next_widget_label">Next to finish</string>

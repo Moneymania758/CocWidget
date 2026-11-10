@@ -198,6 +198,7 @@ class GuideUnitActivity : GuideScreen() {
         }
         if (unit.kind != KIND_HERO) return null
         val pieces = units.values.filter { it.kind == KIND_EQUIPMENT && items[it.id]?.hero == unit.id }
+        if (pieces.isEmpty()) return null
         return ui.card().apply {
             addView(ui.heading(getString(R.string.guide_hero_gear), 15f))
             addView(ui.flow().apply { for (piece in pieces) addView(unitChip(piece.id, piece.name)) }, ui.matchWidth(8))

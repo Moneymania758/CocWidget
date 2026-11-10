@@ -48,6 +48,14 @@ class BigWidgetTest {
         return Shown(views.apply(app, FrameLayout(app)), village)
     }
 
+    // Drawn for a widget id no launcher knows, so a placed widget's own redraw, which runs on
+    // another thread at the real time, can't replace the extras on its taps mid-test.
+    private fun unplaced(tag: String, at: Long? = null): Shown {
+        val village = Store.village(app, tag)!!
+        val views = WidgetRenderer.build(app, 9_001, tag, village, at ?: (village.exportedAtMillis + 60_000))
+        return Shown(views.apply(app, FrameLayout(app)), village)
+    }
+
     private fun rows(shown: Shown) = shown.root.findViewById<LinearLayout>(R.id.rows)
 
     private fun drawn(shown: Shown, id: Int) = Screens.all(rows(shown)).count { it.id == id && it.visibility == View.VISIBLE }
@@ -166,6 +174,28 @@ class BigWidgetTest {
         assertTrue(headers(shown).any { it.startsWith("LAB") && it.contains("▸") })
     }
 
+    // Anyone coming from 2.12.1 has no view stored, so the widget works one out from the folds.
+    // Folding the Builder Base by hand used to make that HOME, and the section vanished, header too.
+    @Test
+    fun foldingASectionBeforeAnyViewIsPickedKeepsTheViewItHad() {
+        val tag = Store.saveExport(app, TestData.exportJson())
+        assertEquals(null, Store.widgetView(app, tag))
+        val before = unplaced(tag)
+        assertTrue(headers(before).any { it.startsWith("BUILDER BASE") })
+        val header = Screens.all(rows(before)).filter { it.id == R.id.section }
+            .first { section -> Screens.all(section).any { it is TextView && it.text.startsWith("BUILDER BASE") } }
+        header.performClick()
+        val sent = shadowOf(app).broadcastIntents.last()
+        assertEquals(com.cocwidget.VillageWidget.ACTION_TOGGLE_SECTION, sent.action)
+        // What VillageWidget does with the tap.
+        val shown = WidgetView.entries.firstOrNull { it.name == sent.getStringExtra(com.cocwidget.VillageWidget.EXTRA_VIEW) }
+        Store.toggleSection(app, tag, sent.getStringExtra(com.cocwidget.VillageWidget.EXTRA_SECTION)!!, shown)
+
+        assertEquals(WidgetView.ALL, Store.widgetView(app, tag))
+        val after = headers(unplaced(tag))
+        assertTrue(after.toString(), after.any { it.startsWith("BUILDER BASE") && it.contains("▸") })
+    }
+
     @Test
     fun pickingAViewUnfoldsItsSections() {
         val tag = Store.saveExport(app, TestData.exportJson())
@@ -191,6 +221,17 @@ class BigWidgetTest {
         val chip = clear(showIn(WidgetView.HOME, at = { at }))
         assertEquals(View.VISIBLE, chip.visibility)
         assertEquals(app.resources.getQuantityString(R.plurals.widget_clear_finished, home, home), chip.text.toString())
+    }
+
+    // A tap a minute later must not also hide what finished in that minute.
+    @Test
+    fun theClearChipClearsUpToWhenItWasDrawn() {
+        val tag = Store.saveExport(app, TestData.exportJson())
+        val at = halfway(Store.village(app, tag)!!)
+        clear(unplaced(tag, at)).performClick()
+        val sent = shadowOf(app).broadcastIntents.last()
+        assertEquals(com.cocwidget.VillageWidget.ACTION_CLEAR_FINISHED, sent.action)
+        assertEquals(at, sent.getLongExtra(com.cocwidget.VillageWidget.EXTRA_AT, -1))
     }
 
     @Test
