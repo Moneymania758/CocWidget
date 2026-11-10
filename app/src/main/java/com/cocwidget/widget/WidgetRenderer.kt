@@ -173,6 +173,7 @@ object WidgetRenderer {
         views.setViewVisibility(R.id.views, View.GONE)
         views.setViewVisibility(R.id.all_upgrades, View.GONE)
         showTitleSwitch(context, views, widgetId, null)
+        views.setViewVisibility(R.id.clear, View.GONE)
 
         val update = UpdateChecker.availableUpdate(context)
         views.setViewVisibility(R.id.update, if (update != null) View.VISIBLE else View.GONE)
@@ -201,17 +202,20 @@ object WidgetRenderer {
         views.setTextViewText(R.id.title, Store.label(context, tag))
         showTitleSwitch(context, views, widgetId, tag)
         views.setTextViewText(R.id.town_hall, if (village.townHall > 0) "TH${village.townHall}" else "")
-        val footer = exportLine(context, village, now)
-        views.setTextViewText(R.id.footer, footer.text)
-        views.setTextColor(R.id.footer, context.getColor(if (footer.stale) R.color.idle else R.color.text_dim))
-        showHelpers(context, views, village, now)
 
         // Rows stay in a plain LinearLayout rather than a scrolling ListView: on One UI the
         // countdowns stop ticking inside a ListView. Sections fold to make room, and what still
         // doesn't fit is cut off at the bottom. The app lists everything.
         val shown = Shown(widgetId, tag, village, now)
-        val order = village.sections()
-        showViews(context, views, shown, order.toSet())
+        val view = currentView(context, shown)
+        val order = village.sections().filter { it in view.shows }
+        showViews(context, views, shown, view)
+        val footer = exportLine(context, village, now, view.shows)
+        views.setTextViewText(R.id.footer, footer.text)
+        views.setTextColor(R.id.footer, context.getColor(if (footer.stale) R.color.idle else R.color.text_dim))
+        showClear(context, views, shown, view)
+        // The helpers only work in the home village.
+        if (Section.BUILDERS in view.shows) showHelpers(context, views, village, now)
         for (section in order) {
             val title = when (section) {
                 Section.BUILDERS -> "BUILDERS"
@@ -223,6 +227,7 @@ object WidgetRenderer {
         }
         return views
     }
+
 
     // With two or more accounts the big widget's title is a chip, and a tap moves the widget to the
     // next account. With one, it's plain text that opens the app like the rest of the widget.
@@ -258,11 +263,19 @@ object WidgetRenderer {
 
     private fun dp(context: Context, value: Int): Int = (value * context.resources.displayMetrics.density).toInt()
 
-    // Without the Builder Base on the widget, Home and All would be the same, so no buttons.
-    private fun showViews(context: Context, views: RemoteViews, shown: Shown, sections: Set<Section>) {
-        if (Section.BUILDER_BASE !in sections) return
+    // Without the Builder Base, Home and All would be the same, so there's no choice and it's All.
+    // Otherwise the view picked, or before one is picked, the one the old folds match.
+    private fun currentView(context: Context, shown: Shown): WidgetView {
+        val sections = shown.village.sections().toSet()
+        if (Section.BUILDER_BASE !in sections) return WidgetView.ALL
+        return Store.widgetView(context, shown.tag)
+            ?: WidgetView.matching(Store.collapsedSections(context, shown.tag), sections)
+            ?: WidgetView.ALL
+    }
+
+    private fun showViews(context: Context, views: RemoteViews, shown: Shown, current: WidgetView) {
+        if (Section.BUILDER_BASE !in shown.village.sections()) return
         views.setViewVisibility(R.id.views, View.VISIBLE)
-        val current = WidgetView.matching(Store.collapsedSections(context, shown.tag), sections)
         val buttons = mapOf(WidgetView.HOME to R.id.view_home, WidgetView.BUILDER_BASE to R.id.view_builder_base, WidgetView.ALL to R.id.view_all)
         for ((view, id) in buttons) {
             val on = view == current
@@ -270,6 +283,17 @@ object WidgetRenderer {
             views.setTextColor(id, context.getColor(if (on) R.color.gold else R.color.text_dim))
             views.setOnClickPendingIntent(id, viewIntent(context, shown, view))
         }
+    }
+
+    // Clears what has finished in this view only, the same upgrades the footer counts.
+    private fun showClear(context: Context, views: RemoteViews, shown: Shown, view: WidgetView) {
+        val village = shown.village
+        val finished = village.upgrades.count { it.section in view.shows && village.endMillis(it) <= shown.now }
+        if (finished == 0) return
+        views.setViewVisibility(R.id.clear, View.VISIBLE)
+        views.setTextViewText(R.id.clear, context.resources.getQuantityString(R.plurals.widget_clear_finished, finished, finished))
+        views.setOnClickPendingIntent(R.id.clear, broadcast(context, 400, accountIntent(context, shown, VillageWidget.ACTION_CLEAR_FINISHED, "clear", view.name)
+            .putExtra(VillageWidget.EXTRA_VIEW, view.name)))
     }
 
     // Ready is orange like an idle builder: a free shift goes to waste.
@@ -292,9 +316,10 @@ object WidgetRenderer {
 
     // When the export was taken, and whether it's time for a new one. A finished upgrade usually
     // means a new one has started in the game that the export can't show.
-    fun exportLine(context: Context, village: Village, now: Long): ExportLine {
+    // [sections] limits the finished count to what's on screen.
+    fun exportLine(context: Context, village: Village, now: Long, sections: Set<Section> = Section.entries.toSet()): ExportLine {
         val exported = TimeText.exported(village.exportedAtMillis, now)
-        val finishedSince = village.upgrades.count { village.endMillis(it) <= now }
+        val finishedSince = village.upgrades.count { it.section in sections && village.endMillis(it) <= now }
         val old = now - village.exportedAtMillis > Countdown.DAY_MS
         val text = when {
             finishedSince > 0 -> context.getString(R.string.exported_finished_since, exported, finishedSince)

@@ -156,6 +156,13 @@
             android:visibility="gone" />
 
         <TextView
+            android:id="@+id/clear"
+            style="@style/WidgetViewButton"
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/gold"
+            android:visibility="gone" />
+
+        <TextView
             android:id="@+id/footer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

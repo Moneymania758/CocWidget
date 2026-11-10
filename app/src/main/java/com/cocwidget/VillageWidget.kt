@@ -22,7 +22,13 @@ class VillageWidget : AppWidgetProvider() {
             ACTION_SET_VIEW -> {
                 val tag = intent.getStringExtra(EXTRA_ACCOUNT)
                 val view = WidgetView.entries.firstOrNull { it.name == intent.getStringExtra(EXTRA_VIEW) }
-                if (tag != null && view != null) Store.setCollapsedSections(context, tag, view.folded.map { it.name }.toSet())
+                if (tag != null && view != null) Store.setWidgetView(context, tag, view)
+                refreshAsync(context)
+            }
+            ACTION_CLEAR_FINISHED -> {
+                val tag = intent.getStringExtra(EXTRA_ACCOUNT)
+                val view = WidgetView.entries.firstOrNull { it.name == intent.getStringExtra(EXTRA_VIEW) }
+                if (tag != null && view != null) Store.clearFinished(context, tag, System.currentTimeMillis(), view.shows)
                 refreshAsync(context)
             }
             ACTION_SWITCH_ACCOUNT -> {
@@ -64,6 +70,7 @@ class VillageWidget : AppWidgetProvider() {
         const val ACTION_TOGGLE_SECTION = "com.cocwidget.action.TOGGLE_SECTION"
         const val ACTION_SET_VIEW = "com.cocwidget.action.SET_VIEW"
         const val ACTION_SWITCH_ACCOUNT = "com.cocwidget.action.SWITCH_ACCOUNT"
+        const val ACTION_CLEAR_FINISHED = "com.cocwidget.action.CLEAR_FINISHED"
         const val EXTRA_SECTION = "section"
         const val EXTRA_VIEW = "view"
         const val EXTRA_ACCOUNT = "account"
