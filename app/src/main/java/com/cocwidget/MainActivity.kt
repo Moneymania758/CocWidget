@@ -12,18 +12,19 @@ import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
+import com.cocwidget.events.EventDates
+import com.cocwidget.events.EventSchedule
+import com.cocwidget.game.Section
 import com.cocwidget.game.Village
 import com.cocwidget.store.Store
 import com.cocwidget.store.UpdateChecker
 import com.cocwidget.ui.AccountSheet
-import com.cocwidget.ui.HomeEvents
-import com.cocwidget.ui.HomeUpgrades
 import com.cocwidget.ui.Pictures
 import com.cocwidget.ui.Screen
 import com.cocwidget.ui.Tab
 import com.cocwidget.ui.TimeText
+import com.cocwidget.ui.UpNextList
 import com.cocwidget.ui.WhatsNew
-import com.cocwidget.widget.NextFinish
 import com.cocwidget.widget.WidgetRenderer
 import kotlin.concurrent.thread
 
@@ -32,8 +33,9 @@ import kotlin.concurrent.thread
 class MainActivity : Screen() {
     override val tab = Tab.UP_NEXT
     private lateinit var pictures: Pictures
-    private var clocks: List<HomeUpgrades.Clock> = emptyList()
-    private var allEvents = false
+    private var clocks: List<UpNextList.Clock> = emptyList()
+    // The section a status tile cut the stream down to, or null for everything.
+    private var only: Section? = null
     private val handler = Handler(Looper.getMainLooper())
 
     // Counts down on the screen. Something ending changes more than its clock, so that rebuilds.
@@ -99,24 +101,24 @@ class MainActivity : Screen() {
         whatsNewCard()?.let { content.addView(it, ui.matchWidth(16)) }
         val tag = Store.selected(this)
         val village = tag?.let { Store.village(this, it) }
+        if (village == null || only !in village.sections()) only = null
         pictures = Pictures(this)
         val now = System.currentTimeMillis()
-        val list = village?.let { HomeUpgrades(this, ui, pictures, it, now) }
-        content.addView(villageCard(tag, village, list, now), ui.matchWidth(16))
-        val events = HomeEvents(this, ui, allEvents) {
-            allEvents = !allEvents
+        val list = UpNextList(this, ui, pictures, village, now, only) { section ->
+            only = section
             show()
         }
-        val eventsCard = events.card(now)
-        if (village == null || list == null) {
-            eventsCard?.let { content.addView(it, ui.matchWidth(14)) }
-            clocks = events.clocks
+        if (tag == null || village == null) {
+            content.addView(emptyCard(village == null && tag != null), ui.matchWidth(16))
         } else {
-            eventsCard?.let { content.addView(it, ui.matchWidth(14)) }
-            list.helpers()?.let { content.addView(it, ui.matchWidth(14)) }
-            for (section in village.sections()) content.addView(list.section(section), ui.matchWidth(14))
-            clocks = list.clocks + events.clocks
+            noticeCard(tag, village, now)?.let { content.addView(it, ui.matchWidth(16)) }
         }
+        list.tiles()?.let { content.addView(it, ui.matchWidth(16)) }
+        list.filterNote()?.let { content.addView(it, ui.matchWidth(4)) }
+        // Only the events the player asked to be reminded of, so a weekly one doesn't crowd the list.
+        val events = EventSchedule.countdowns(now, EventDates.current(this)).filter { Store.eventReminderOn(this, it.kind) }
+        content.addView(list.timeline(events), ui.matchWidth(12))
+        clocks = list.clocks
         pictures.load()
         addNote(getString(R.string.footer))
     }
@@ -159,7 +161,9 @@ class MainActivity : Screen() {
         setPadding(ui.dp(4), ui.dp(4), ui.dp(12), ui.dp(4))
         contentDescription = getString(R.string.account_switch)
         val townHall = village?.townHall ?: 0
-        addView(ui.townHallBadge(townHall, ui.skin.accent, 42))
+        addView(ui.townHallBadge(townHall, ui.skin.accent, 42).apply {
+            if (townHall > 0) contentDescription = getString(R.string.home_town_hall, townHall)
+        })
         addView(LinearLayout(this@MainActivity).apply {
             orientation = LinearLayout.VERTICAL
             addView(ui.heading(Store.label(this@MainActivity, tag), 17f, ui.skin.text).apply {
@@ -207,52 +211,34 @@ class MainActivity : Screen() {
         }
     }
 
-    private fun villageCard(tag: String?, village: Village?, list: HomeUpgrades?, now: Long): View = ui.card().apply {
-        if (village == null || list == null) {
-            addView(ui.heading(getString(R.string.status_none), 18f))
-            addView(ui.text(getString(R.string.empty_state), 14f, ui.skin.dim), ui.matchWidth(6))
-        } else {
-            addView(villageTitle(village, now))
-            NextFinish.of(village, now).next?.let { next -> addView(list.nextFinish(next), ui.matchWidth(14)) }
-            // The account button gives the export time. Here only a warning that it's out of date.
-            val line = WidgetRenderer.exportLine(this@MainActivity, village, now)
-            if (line.stale) {
-                addView(ui.text(line.text, 12f, ui.skin.idle).apply { gravity = Gravity.CENTER }, ui.matchWidth(12))
-            }
-            val finished = village.upgrades.count { village.endMillis(it) <= now }
-            if (tag != null && finished > 0) {
+    // Before the first import, or when the saved export can't be read.
+    private fun emptyCard(unreadable: Boolean): View = ui.card().apply {
+        addView(ui.heading(getString(if (unreadable) R.string.account_unreadable else R.string.status_none), 18f))
+        addView(ui.text(getString(R.string.empty_state), 14f, ui.skin.dim), ui.matchWidth(6))
+        addView(ui.button(getString(R.string.import_village), R.drawable.ic_import_line, primary = true) {
+            startActivity(Intent(this@MainActivity, SyncActivity::class.java))
+        }, ui.matchWidth(14))
+        // Nothing to plan yet, and the setup steps are what a first-time user needs.
+        addView(ui.button(getString(R.string.fold_setup), null, primary = false) {
+            startActivity(Intent(this@MainActivity, SettingsActivity::class.java).putExtra(SettingsActivity.EXTRA_SHOW_SETUP, true))
+        }, ui.matchWidth(10))
+    }
+
+    // Only when the export is out of date or holds finished upgrades: the warning, and Clear.
+    private fun noticeCard(tag: String, village: Village, now: Long): View? {
+        val line = WidgetRenderer.exportLine(this, village, now)
+        val finished = village.upgrades.count { village.endMillis(it) <= now }
+        if (!line.stale && finished == 0) return null
+        return ui.card(14).apply {
+            if (line.stale) addView(ui.text(line.text, 13f, ui.skin.idle, bold = true))
+            if (finished > 0) {
                 addView(ui.button(resources.getQuantityString(R.plurals.clear_finished, finished, finished), null, primary = false) {
                     Store.clearFinished(this@MainActivity, tag, System.currentTimeMillis())
                     VillageWidget.requestRefresh(this@MainActivity)
                     show()
-                }, ui.matchWidth(10))
+                }, ui.matchWidth(if (line.stale) 10 else 0))
             }
         }
-        if (village == null) {
-            addView(ui.button(getString(R.string.import_village), R.drawable.ic_import_line, primary = true) {
-                startActivity(Intent(this@MainActivity, SyncActivity::class.java))
-            }, ui.matchWidth(14))
-            // Nothing to plan yet, and the setup steps are what a first-time user needs.
-            addView(ui.button(getString(R.string.fold_setup), null, primary = false) {
-                startActivity(Intent(this@MainActivity, SettingsActivity::class.java).putExtra(SettingsActivity.EXTRA_SHOW_SETUP, true))
-            }, ui.matchWidth(10))
-        }
-    }
-
-    // The Town Hall large on a soft glow, beside what's sitting idle. The account button above says
-    // whose village it is.
-    private fun villageTitle(village: Village, now: Long) = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        if (village.townHall > 0) addView(ui.townHall(village.townHall, pictures), LinearLayout.LayoutParams(ui.dp(104), ui.dp(112)))
-        addView(LinearLayout(this@MainActivity).apply {
-            orientation = LinearLayout.VERTICAL
-            if (village.townHall > 0) {
-                addView(ui.heading(getString(R.string.home_town_hall, village.townHall), 24f, ui.skin.title))
-            }
-            val summary = NextFinish.of(village, now)
-            addView(ui.text(AccountSheet.idleLine(this@MainActivity, summary), 13f, if (summary.anyIdle) ui.skin.idle else ui.skin.green, bold = true), ui.matchWidth(6))
-        }, ui.weighted(12))
     }
 
     companion object {
