@@ -27,4 +27,9 @@
         <item name="android:textColor">@color/text_dim</item>
         <item name="android:textSize">11sp</item>
     </style>
+
+    <!-- "1 builder idle", "Lab idle" and the like under the widget's header. -->
+    <style name="WidgetChip" parent="WidgetViewButton">
+        <item name="android:visibility">gone</item>
+    </style>
 </resources>

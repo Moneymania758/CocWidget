@@ -111,4 +111,22 @@ class CountdownTest {
         assertEquals(now + 10_001, Countdown.nextRefresh(village, now))
         assertEquals(now + 10_001, Countdown.nextEventRefresh(listOf(now + 2 * DAY_MS + 3_600_000 + 10_000), now))
     }
+
+    // The Timeline's list, where nothing ticks, rounds up so a row reads 1m until it ends.
+    @Test
+    fun theShortFormShowsTheTwoBiggestUnits() {
+        assertEquals("2d 4h", Countdown.short(2 * DAY_MS + 4 * 3_600_000L + 59_000))
+        assertEquals("13h 49m", Countdown.short((13 * 60 + 48) * 60_000L + 1))
+        assertEquals("42m", Countdown.short(42 * 60_000L))
+        assertEquals("1m", Countdown.short(1))
+        assertEquals("0m", Countdown.short(0))
+    }
+
+    @Test
+    fun theNextMinuteIsTheNextTurnOfTheClock() {
+        val minute = 60_000L
+        val start = now - Math.floorMod(now, minute)
+        assertEquals(start + minute, Countdown.nextMinute(start))
+        assertEquals(start + minute, Countdown.nextMinute(start + 59_999))
+    }
 }

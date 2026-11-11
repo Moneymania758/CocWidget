@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material You in dark mode. The other widget themes look the same either way. -->
+<resources>
+    <color name="w_you_panel">@android:color/system_neutral1_900</color>
+    <color name="w_you_surface">@android:color/system_neutral1_800</color>
+    <color name="w_you_edge">@android:color/system_neutral1_700</color>
+    <color name="w_you_text">@android:color/system_neutral1_50</color>
+    <color name="w_you_dim">@android:color/system_neutral2_200</color>
+    <color name="w_you_accent">@android:color/system_accent1_200</color>
+    <color name="w_you_idle">#FFB06A</color>
+    <color name="w_you_ok">#8FD877</color>
+    <color name="w_you_helper">#8ED0FF</color>
+    <color name="w_you_track">@android:color/system_neutral1_700</color>
+    <color name="w_you_bar">@android:color/system_accent1_300</color>
+</resources>

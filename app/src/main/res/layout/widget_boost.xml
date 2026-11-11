@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A running potion or snack: its picture, the speed-up and the time it has left. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/boost_chip"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="4dp"
+    android:background="@drawable/chip_boost"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="5dp"
+    android:paddingTop="2dp"
+    android:paddingEnd="7dp"
+    android:paddingBottom="2dp">
+
+    <ImageView
+        android:id="@+id/boost_icon"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter" />
+
+    <Chronometer
+        android:id="@+id/boost_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:fontFamily="sans-serif-black"
+        android:textColor="@color/text"
+        android:textSize="11sp" />
+</LinearLayout>

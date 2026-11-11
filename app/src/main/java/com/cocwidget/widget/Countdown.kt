@@ -49,6 +49,22 @@ object Countdown {
         return if (days > 0) "${days}d $time" else time
     }
 
+    // Time left as the Timeline's list shows it, where nothing ticks: "2d 4h", "13h 49m" or "42m".
+    // Rounds up, so it reads 1m until the moment it ends.
+    fun short(leftMs: Long): String {
+        val minutes = (leftMs.coerceAtLeast(0) + 59_999) / 60_000
+        val days = minutes / 1_440
+        val hours = minutes % 1_440 / 60
+        return when {
+            days > 0 -> "${days}d ${hours}h"
+            hours > 0 -> "${hours}h ${minutes % 60}m"
+            else -> "${minutes}m"
+        }
+    }
+
+    // The next turn of the minute, when a Timeline's "13h 49m" changes.
+    fun nextMinute(now: Long): Long = now - Math.floorMod(now, 60_000L) + 60_000L
+
     // When the widget must redraw next: a chronometer reaching zero (a day rolling over or an
     // upgrade finishing) or dropping under an hour, a boost or helper shift ending, the helpers becoming ready, or the
     // regular refresh, whichever comes first.
