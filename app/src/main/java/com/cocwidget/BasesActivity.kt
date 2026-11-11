@@ -41,6 +41,9 @@ class BasesActivity : Activity() {
         private set
     private var myTownHall = 0
     private var maxTownHall = 0
+    // Set on a site change. The old site's pages are dropped once the new site's first page is in
+    // the history, as clearHistory() keeps the page showing when it's called.
+    private var dropOldSite = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -160,7 +163,7 @@ class BasesActivity : Activity() {
         site = next
         Store.setBasesSite(this, next.name)
         townHall = townHall.coerceAtLeast(site.firstTownHall)
-        web.clearHistory()
+        dropOldSite = true
         drawBar()
         load()
     }
@@ -192,6 +195,13 @@ class BasesActivity : Activity() {
 
         override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
             loading.visibility = View.VISIBLE
+        }
+
+        override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
+            if (dropOldSite && site.owns(url?.let { Uri.parse(it).host })) {
+                dropOldSite = false
+                view.clearHistory()
+            }
         }
     }
 
