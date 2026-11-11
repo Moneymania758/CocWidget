@@ -172,19 +172,19 @@ class MainScreenTest {
     }
 
     @Test
-    fun tappingTheBigWidgetOpensTheMainScreenOnItsAccount() {
+    fun theOpenButtonOpensTheMainScreenOnItsAccount() {
         val tag = Store.saveExport(app, TestData.th18ExportJson())
         val root = bigWidget(tag)
 
-        // A tap on a row isn't taken by the row, so it reaches the widget itself.
+        // Only the open button opens the app, so a tap that misses a fold or a page arrow does
+        // nothing rather than leaving the home screen.
+        assertFalse(root.findViewById<View>(R.id.widget_root).hasOnClickListeners())
         val rows = root.findViewById<LinearLayout>(R.id.rows)
-        var view: View? = Screens.all(rows).first { it.id == R.id.bar }
-        while (view != null && view !== rows) {
-            assertFalse(view.hasOnClickListeners())
-            view = view.parent as? View
-        }
+        assertTrue(Screens.all(rows).filter { it.id != R.id.section }.none { it.hasOnClickListeners() })
 
-        assertTrue(root.findViewById<View>(R.id.widget_root).performClick())
+        val open = root.findViewById<View>(R.id.open)
+        assertEquals("Open Clash Timers", open.contentDescription.toString())
+        assertTrue(open.performClick())
         val intent = shadowOf(app).nextStartedActivity
         assertEquals(MainActivity::class.java.name, intent.component?.className)
         assertEquals(tag, intent.getStringExtra(MainActivity.EXTRA_ACCOUNT))

@@ -38,6 +38,11 @@ class VillageWidget : AppWidgetProvider() {
                 if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) Store.setHiddenEvents(context, widgetId, emptySet())
                 refreshAsync(context)
             }
+            ACTION_SET_PAGE -> {
+                val widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+                if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) Store.setWidgetPage(context, widgetId, intent.getIntExtra(EXTRA_PAGE, 0))
+                refreshAsync(context)
+            }
             ACTION_SWITCH_ACCOUNT -> {
                 val widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
                 if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) Store.switchWidgetAccount(context, widgetId)
@@ -79,6 +84,8 @@ class VillageWidget : AppWidgetProvider() {
         const val ACTION_SWITCH_ACCOUNT = "com.cocwidget.action.SWITCH_ACCOUNT"
         const val ACTION_CLEAR_FINISHED = "com.cocwidget.action.CLEAR_FINISHED"
         const val ACTION_SHOW_ALL_EVENTS = "com.cocwidget.action.SHOW_ALL_EVENTS"
+        const val ACTION_SET_PAGE = "com.cocwidget.action.SET_PAGE"
+        const val EXTRA_PAGE = "page"
         const val EXTRA_SECTION = "section"
         const val EXTRA_VIEW = "view"
         const val EXTRA_ACCOUNT = "account"

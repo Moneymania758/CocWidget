@@ -12,6 +12,8 @@ import com.cocwidget.game.Section
 import com.cocwidget.game.Village
 import com.cocwidget.game.VillageParser
 import com.cocwidget.plan.Bedtime
+import com.cocwidget.widget.WidgetStyle
+import com.cocwidget.widget.WidgetTheme
 import com.cocwidget.widget.WidgetView
 import org.json.JSONException
 import org.json.JSONObject
@@ -24,6 +26,10 @@ object Store {
     private const val KEY_WIDGET = "widget_"
     // The events an Events widget leaves out, by EventKind key. None stored means it shows them all.
     private const val KEY_WIDGET_HIDDEN_EVENTS = "widget_hidden_events_"
+    // A widget's layout and colours, by WidgetStyle and WidgetTheme key, and a Pages widget's page.
+    private const val KEY_WIDGET_STYLE = "widget_style_"
+    private const val KEY_WIDGET_THEME = "widget_theme_"
+    private const val KEY_WIDGET_PAGE = "widget_page_"
     private const val KEY_LAST_UPDATE_CHECK = "last_update_check"
     private const val KEY_LATEST_VERSION = "latest_version"
     private const val KEY_ASKED_NOTIFICATIONS = "asked_notifications"
@@ -159,8 +165,34 @@ object Store {
 
     fun forgetWidgets(context: Context, widgetIds: IntArray) {
         val editor = prefs(context).edit()
-        for (id in widgetIds) editor.remove(KEY_WIDGET + id).remove(KEY_WIDGET_HIDDEN_EVENTS + id)
+        for (id in widgetIds) {
+            editor.remove(KEY_WIDGET + id).remove(KEY_WIDGET_HIDDEN_EVENTS + id)
+                .remove(KEY_WIDGET_STYLE + id).remove(KEY_WIDGET_THEME + id).remove(KEY_WIDGET_PAGE + id)
+        }
         editor.apply()
+    }
+
+    // A big widget's layout. One placed before there was a choice keeps the sections it always had.
+    fun widgetStyle(context: Context, widgetId: Int): WidgetStyle =
+        WidgetStyle.of(prefs(context).getString(KEY_WIDGET_STYLE + widgetId, null)) ?: WidgetStyle.SECTIONS
+
+    fun setWidgetStyle(context: Context, widgetId: Int, style: WidgetStyle) {
+        prefs(context).edit().putString(KEY_WIDGET_STYLE + widgetId, style.key).remove(KEY_WIDGET_PAGE + widgetId).apply()
+    }
+
+    // A widget's colours. One placed before there was a choice keeps the brown and gold it always had.
+    fun widgetTheme(context: Context, widgetId: Int): WidgetTheme =
+        WidgetTheme.of(prefs(context).getString(KEY_WIDGET_THEME + widgetId, null)) ?: WidgetTheme.CLASSIC
+
+    fun setWidgetTheme(context: Context, widgetId: Int, theme: WidgetTheme) {
+        prefs(context).edit().putString(KEY_WIDGET_THEME + widgetId, theme.key).apply()
+    }
+
+    // The page a Pages widget is on, from 0. The widget keeps it in range as rows come and go.
+    fun widgetPage(context: Context, widgetId: Int): Int = prefs(context).getInt(KEY_WIDGET_PAGE + widgetId, 0)
+
+    fun setWidgetPage(context: Context, widgetId: Int, page: Int) {
+        prefs(context).edit().putInt(KEY_WIDGET_PAGE + widgetId, maxOf(0, page)).apply()
     }
 
     fun hiddenEvents(context: Context, widgetId: Int): Set<EventKind> =

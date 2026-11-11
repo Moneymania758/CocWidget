@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- The big widget. One layout holds all three styles: Sections and Pages draw into "rows",
+     Timeline into "hero" and "timeline_list". The renderer shows the parts its style needs. The
+     list is the only scrolling view, and its rows hold no countdowns (see WidgetLayoutTest). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widget_root"
@@ -9,17 +12,18 @@
     android:padding="12dp">
 
     <LinearLayout
+        android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <!-- The frame takes what Import leaves. Inside it the title shrinks first, cut short with
-             "…", so a long account name can't push Import or the TH label off. The switch arrow is
-             the title's end drawable, so it stays when the name is cut. Lint calls the frame useless
-             and the weight inefficient, but the frame is what lets the row inside stay only as wide
-             as its text, and the weight on a wrap_content title is what makes the title the one
-             that shrinks. -->
+        <!-- The frame takes what Import and Open leave. Inside it the title shrinks first, cut short
+             with "…", so a long account name can't push them off. The switch arrow is the title's
+             end drawable, so it stays when the name is cut. Lint calls the frame useless and the
+             weight inefficient, but the frame is what lets the row inside stay only as wide as its
+             text, and the weight on a wrap_content title is what makes the title the one that
+             shrinks. -->
         <FrameLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -33,34 +37,32 @@
                 tools:ignore="UselessParent">
 
                 <TextView
+                    android:id="@+id/town_hall"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:background="@drawable/wring_0"
+                    android:fontFamily="sans-serif-black"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:textColor="@color/text"
+                    android:textSize="11sp" />
+
+                <TextView
                     android:id="@+id/title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
                     android:layout_weight="1"
                     tools:ignore="InefficientWeight"
                     android:drawablePadding="4dp"
                     android:ellipsize="end"
                     android:fontFamily="sans-serif-black"
+                    android:gravity="center_vertical"
                     android:maxLines="1"
-                    android:shadowColor="@color/text_shadow"
-                    android:shadowDy="2"
-                    android:shadowRadius="1"
+                    android:minHeight="34dp"
                     android:text="@string/app_name"
                     android:textColor="@color/text"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/town_hall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:fontFamily="sans-serif-black"
-                    android:maxLines="1"
-                    android:shadowColor="@color/text_shadow"
-                    android:shadowDy="2"
-                    android:shadowRadius="1"
-                    android:textColor="@color/gold"
-                    android:textSize="14sp" />
+                    android:textSize="16sp" />
             </LinearLayout>
         </FrameLayout>
 
@@ -74,13 +76,47 @@
             android:drawablePadding="4dp"
             android:fontFamily="sans-serif-black"
             android:gravity="center_vertical"
+            android:minHeight="34dp"
             android:paddingStart="10dp"
-            android:paddingTop="5dp"
             android:paddingEnd="12dp"
-            android:paddingBottom="5dp"
             android:text="@string/import_short"
             android:textColor="#4A2E10"
             android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/open"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/chip_view"
+            android:contentDescription="@string/widget_open_app"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_open" />
+    </LinearLayout>
+
+    <!-- What is idle, at a glance. The renderer fills the chips it needs and hides the rest. -->
+    <LinearLayout
+        android:id="@+id/chips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/chip_1"
+            style="@style/WidgetChip" />
+
+        <TextView
+            android:id="@+id/chip_2"
+            style="@style/WidgetChip"
+            android:layout_marginStart="6dp" />
+
+        <TextView
+            android:id="@+id/chip_3"
+            style="@style/WidgetChip"
+            android:layout_marginStart="6dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -118,12 +154,126 @@
         android:textColor="@color/text_dim"
         android:textSize="14sp" />
 
+    <!-- Timeline's top card: the next to finish, ticking. It sits outside the list, so it ticks on
+         every phone. -->
+    <LinearLayout
+        android:id="@+id/hero"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/wcard_classic"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/hero_icon"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_placeholder" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/hero_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:maxLines="1"
+                android:textColor="@color/text_dim"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/hero_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-medium"
+                    android:maxLines="1"
+                    android:textColor="@color/text"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_marginStart="6dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_clock" />
+
+                <TextView
+                    android:id="@+id/hero_days"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:fontFamily="sans-serif-black"
+                    android:textColor="@color/text"
+                    android:textSize="20sp"
+                    android:visibility="gone" />
+
+                <Chronometer
+                    android:id="@+id/hero_timer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:fontFamily="sans-serif-black"
+                    android:textColor="@color/text"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/hero_bar"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_marginTop="4dp"
+                android:indeterminate="false"
+                android:max="1000"
+                android:maxHeight="5dp"
+                android:minHeight="5dp"
+                android:progressDrawable="@drawable/wbar" />
+        </LinearLayout>
+    </LinearLayout>
+
     <LinearLayout
         android:id="@+id/rows"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical" />
+
+    <ListView
+        android:id="@+id/timeline_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="4dp"
+        android:layout_weight="1"
+        android:divider="@null"
+        android:scrollbars="none"
+        android:visibility="gone" />
+
+    <!-- Running potions and snacks, for the styles that have no section headers to put them on. -->
+    <LinearLayout
+        android:id="@+id/boosts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/helpers"
@@ -196,5 +346,44 @@
             android:textColor="@color/text_dim"
             android:textSize="11sp"
             android:visibility="gone" />
+
+        <!-- Pages' arrows. -->
+        <LinearLayout
+            android:id="@+id/pager"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/page_up"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@drawable/chip_view"
+                android:contentDescription="@string/widget_page_up"
+                android:padding="7dp"
+                android:src="@drawable/ic_page_up" />
+
+            <TextView
+                android:id="@+id/page_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:gravity="center"
+                android:minWidth="36dp"
+                android:textColor="@color/text"
+                android:textSize="12sp" />
+
+            <ImageView
+                android:id="@+id/page_down"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@drawable/chip_view"
+                android:contentDescription="@string/widget_page_down"
+                android:padding="7dp"
+                android:src="@drawable/ic_page_down" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

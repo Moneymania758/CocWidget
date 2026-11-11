@@ -88,7 +88,9 @@ class WidgetSwitchTest {
         val after = big(id)
         assertEquals(Store.label(app, second), after.findViewById<TextView>(R.id.title).text.toString())
         assertTrue(hasSwitch(after.findViewById(R.id.title)))
-        assertEquals("TH18", after.findViewById<TextView>(R.id.town_hall).text.toString())
+        val townHall = after.findViewById<TextView>(R.id.town_hall)
+        assertEquals("18", townHall.text.toString())
+        assertEquals("Town Hall 18", townHall.contentDescription.toString())
         tapSwitch(after.findViewById(R.id.title), id)
         assertEquals(first, Store.widgetAccount(app, id))
     }

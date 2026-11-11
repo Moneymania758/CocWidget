@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The ring round a widget's Town Hall level, one colour per account, so widgets for different
+     accounts can be told apart at a glance. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <stroke
+        android:width="3dp"
+        android:color="#3B8FD6" />
+</shape>
