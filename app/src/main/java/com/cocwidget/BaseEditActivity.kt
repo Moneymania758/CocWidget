@@ -175,12 +175,12 @@ class BaseEditActivity : Screen() {
         val townHall = found?.let(BaseLinks::townHall) ?: 0
         val (text, colour) = when {
             found != null && accountTownHall > 0 && townHall > accountTownHall ->
-                getString(R.string.base_link_ok, townHall) + "\n" + getString(R.string.bases_too_high, townHall, accountTownHall) to getColor(R.color.idle)
+                getString(R.string.base_link_ok, townHall) + "\n" + getString(R.string.bases_too_high, townHall, accountTownHall) to ui.skin.idle
             found != null && townHall > 0 -> getString(R.string.base_link_ok, townHall) to ui.skin.green
             found != null -> getString(R.string.base_link_ok_plain) to ui.skin.green
-            sharedNothing -> getString(R.string.base_shared_nothing) to getColor(R.color.idle)
+            sharedNothing -> getString(R.string.base_shared_nothing) to ui.skin.idle
             link.isBlank() -> getString(R.string.base_link_empty) to ui.skin.dim
-            else -> getString(R.string.base_link_bad) to getColor(R.color.idle)
+            else -> getString(R.string.base_link_bad) to ui.skin.idle
         }
         linkStatus.text = text
         linkStatus.setTextColor(colour)

@@ -92,14 +92,20 @@ class SettingsCard(
         addView(ui.text(activity.getString(R.string.theme_label), 15f))
         addView(LinearLayout(activity).apply {
             orientation = LinearLayout.HORIZONTAL
-            for ((index, skin) in Skin.ALL.withIndex()) {
-                val chosen = skin.key == ui.skin.key
+            // System is stored as its own choice, so it stays picked when the phone switches mode.
+            val stored = Store.skin(activity).let { if (it == Skin.SYSTEM) it else Skin.of(it).key }
+            val systemSwatch = intArrayOf(Skin.LIGHT.bg, Skin.CLEAN.bg, Skin.CLEAN.accent)
+            val choices = listOf(Triple(Skin.SYSTEM, R.string.skin_system, systemSwatch)) +
+                Skin.ALL.map { Triple(it.key, it.label, it.swatch) }
+            for ((index, choice) in choices.withIndex()) {
+                val (key, label, swatch) = choice
+                val chosen = key == stored
                 addView(LinearLayout(activity).apply {
                     orientation = LinearLayout.VERTICAL
                     gravity = Gravity.CENTER_HORIZONTAL
                     minimumHeight = ui.dp(64)
                     background = ui.rounded(ui.skin.chip, 10f, if (chosen) ui.skin.accent else ui.skin.divider, if (chosen) 2f else 1f)
-                    setPadding(ui.dp(8), ui.dp(8), ui.dp(8), ui.dp(8))
+                    setPadding(ui.dp(4), ui.dp(8), ui.dp(4), ui.dp(8))
                     isSelected = chosen
                     addView(LinearLayout(activity).apply {
                         orientation = LinearLayout.HORIZONTAL
@@ -107,16 +113,19 @@ class SettingsCard(
                         outlineProvider = android.view.ViewOutlineProvider.BACKGROUND
                         clipToOutline = true
                         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                        for (colour in skin.swatch) {
+                        for (colour in swatch) {
                             addView(View(activity).apply { setBackgroundColor(colour) }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f))
                         }
                     }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ui.dp(18)))
-                    addView(ui.text(activity.getString(skin.label), 13f).apply { gravity = Gravity.CENTER }, ui.matchWidth(6))
+                    addView(ui.text(activity.getString(label), 12f).apply {
+                        gravity = Gravity.CENTER
+                        maxLines = 1
+                    }, ui.matchWidth(6))
                     ui.pressable(this, 10f) {
-                        Store.setSkin(activity, skin.key)
+                        Store.setSkin(activity, key)
                         redraw()
                     }
-                }, ui.weighted(if (index == 0) 0 else 8))
+                }, ui.weighted(if (index == 0) 0 else 6))
             }
         }, ui.matchWidth(10))
     }

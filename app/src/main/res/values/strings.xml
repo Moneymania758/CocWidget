@@ -167,6 +167,8 @@
     <string name="skin_widget">Widget</string>
     <string name="skin_clean">Clean</string>
     <string name="skin_game">Game</string>
+    <string name="skin_light">Light</string>
+    <string name="skin_system">System</string>
     <string name="name_title">Name on the widget</string>
     <string name="settings_title">Settings</string>
     <string name="about_title">About</string>

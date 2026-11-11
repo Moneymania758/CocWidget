@@ -155,7 +155,7 @@ class BasesScreenTest {
 
     @Test
     fun opensInEverySkin() {
-        for (skin in listOf(Skin.WIDGET, Skin.CLEAN, Skin.GAME)) {
+        for (skin in Skin.ALL) {
             Store.setSkin(app, skin.key)
             assertEquals("https://clashcodes.com/bases/th18", loaded(Screens.open<BasesActivity>()))
         }

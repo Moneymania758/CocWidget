@@ -286,7 +286,7 @@ class MyBasesScreenTest {
     fun opensInEverySkin() {
         syncTh16()
         tap(shareText(th16Base), app.getString(R.string.base_save))
-        for (skin in listOf(Skin.WIDGET, Skin.CLEAN, Skin.GAME)) {
+        for (skin in Skin.ALL) {
             Store.setSkin(app, skin.key)
             assertTrue(texts(Screens.open<MyBasesActivity>()).contains(app.getString(R.string.my_bases_unnamed, 16)))
             assertTrue(texts(Screens.open<BaseEditActivity>()).contains(app.getString(R.string.base_add_title)))

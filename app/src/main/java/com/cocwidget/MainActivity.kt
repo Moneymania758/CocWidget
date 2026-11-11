@@ -128,7 +128,7 @@ class MainActivity : Screen() {
         addView(LinearLayout(this@MainActivity).apply {
             gravity = Gravity.CENTER
             background = ui.rounded(ui.skin.accent, 10f)
-            addView(ui.icon(R.drawable.ic_clock_line, 0xFF121417.toInt(), 22))
+            addView(ui.icon(R.drawable.ic_clock_line, ui.skin.onAccent, 22))
         }, LinearLayout.LayoutParams(ui.dp(40), ui.dp(40)))
         addView(LinearLayout(this@MainActivity).apply {
             orientation = LinearLayout.VERTICAL
@@ -172,7 +172,7 @@ class MainActivity : Screen() {
             addView(villageTitle(village, now))
             NextFinish.of(village, now).next?.let { next -> addView(list.nextFinish(next), ui.matchWidth(14)) }
             val line = WidgetRenderer.exportLine(this@MainActivity, village, now)
-            addView(ui.text(line.text, 12f, if (line.stale) getColor(R.color.idle) else ui.skin.dim).apply {
+            addView(ui.text(line.text, 12f, if (line.stale) ui.skin.idle else ui.skin.dim).apply {
                 gravity = Gravity.CENTER
             }, ui.matchWidth(12))
             val finished = village.upgrades.count { village.endMillis(it) <= now }
@@ -207,7 +207,7 @@ class MainActivity : Screen() {
                 addView(ui.heading(getString(R.string.home_town_hall, village.townHall), 24f, ui.skin.title))
             }
             val summary = NextFinish.of(village, now)
-            addView(ui.text(idleLine(summary), 13f, if (summary.anyIdle) getColor(R.color.idle) else ui.skin.green, bold = true), ui.matchWidth(6))
+            addView(ui.text(idleLine(summary), 13f, if (summary.anyIdle) ui.skin.idle else ui.skin.green, bold = true), ui.matchWidth(6))
         }, ui.weighted(12))
     }
 

@@ -21,7 +21,7 @@ import com.cocwidget.R
 import com.cocwidget.store.Icons
 import kotlin.math.roundToInt
 
-// Builds the app's screens in the chosen skin. Views are made in code because the three skins
+// Builds the app's screens in the chosen skin. Views are made in code because the skins
 // differ in borders, drops and fonts, not only colours.
 class Ui(private val activity: Activity, val skin: Skin) {
     private val density = activity.resources.displayMetrics.density
@@ -30,7 +30,7 @@ class Ui(private val activity: Activity, val skin: Skin) {
     fun dp(value: Float): Int = (value * density).roundToInt()
     fun dp(value: Int): Int = dp(value.toFloat())
 
-    // Every skin is dark, so the system bar icons stay light whatever the phone's own theme.
+    // The system bar icons follow the skin, not the phone's own theme: dark icons on Light.
     fun applyWindow(root: View) {
         root.setBackgroundColor(skin.bg)
         val window = activity.window
@@ -39,10 +39,8 @@ class Ui(private val activity: Activity, val skin: Skin) {
         window.statusBarColor = skin.bg
         @Suppress("DEPRECATION")
         window.navigationBarColor = skin.bg
-        window.insetsController?.setSystemBarsAppearance(
-            0,
-            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
-        )
+        val lightBars = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+        window.insetsController?.setSystemBarsAppearance(if (skin.light) lightBars else 0, lightBars)
     }
 
     fun text(value: CharSequence, sizeSp: Float = 14f, colour: Int = skin.text, bold: Boolean = false) = TextView(activity).apply {
@@ -109,7 +107,8 @@ class Ui(private val activity: Activity, val skin: Skin) {
     fun pressable(view: View, radiusDp: Float, onClick: () -> Unit) {
         view.isClickable = true
         view.isFocusable = true
-        view.foreground = RippleDrawable(ColorStateList.valueOf(0x33FFFFFF), null, rounded(0xFFFFFFFF.toInt(), radiusDp))
+        val ripple = if (skin.light) 0x1F000000 else 0x33FFFFFF
+        view.foreground = RippleDrawable(ColorStateList.valueOf(ripple), null, rounded(0xFFFFFFFF.toInt(), radiusDp))
         view.setOnClickListener { onClick() }
         view.accessibilityDelegate = object : View.AccessibilityDelegate() {
             override fun onInitializeAccessibilityNodeInfo(host: View, info: AccessibilityNodeInfo) {

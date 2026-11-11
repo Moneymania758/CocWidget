@@ -30,9 +30,9 @@ class HomeUpgrades(
 
     val clocks = mutableListOf<Clock>()
 
-    private val helperRing = activity.getColor(R.color.helper)
-    private val goblinRing = activity.getColor(R.color.goblin)
-    private val idleColour = activity.getColor(R.color.idle)
+    private val helperRing = ui.skin.helper
+    private val goblinRing = ui.skin.goblin
+    private val idleColour = ui.skin.idle
 
     private fun clock(view: TextView, endMillis: Long, text: (Long) -> CharSequence) {
         view.text = text(endMillis - now)

@@ -43,7 +43,7 @@ class GuideScreensTest {
     private val app get() = RuntimeEnvironment.getApplication()
     private val units get() = GuideUnits.load(app)
     private val guide get() = Guide.load(app)
-    private val skins = listOf(Skin.WIDGET, Skin.CLEAN, Skin.GAME)
+    private val skins = Skin.ALL
 
     private fun unitId(name: String) = units.values.first { it.name == name }.id
 
