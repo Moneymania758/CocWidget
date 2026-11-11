@@ -39,7 +39,10 @@ class GuideTownHallActivity : GuideScreen() {
             addView(ui.townHall(townHall, pictures), LinearLayout.LayoutParams(ui.dp(104), ui.dp(112)))
             page?.summary?.let { addView(ui.text(it, 14f, ui.skin.dim).withTerms(), ui.weighted(10)) }
         }, ui.matchWidth(10))
-        content.addView(upgradeCard(), ui.matchWidth(12))
+        content.addView(ui.button(getString(R.string.bases_for_town_hall, townHall), null, primary = false) {
+            open(BasesActivity::class.java) { putExtra(BasesActivity.EXTRA_TOWN_HALL, townHall) }
+        }, ui.matchWidth(12))
+        content.addView(upgradeCard(), ui.matchWidth(14))
         content.addView(newCard(), ui.matchWidth(14))
         upgradeFirstCard()?.let { content.addView(it, ui.matchWidth(14)) }
         threatCard()?.let { content.addView(it, ui.matchWidth(14)) }

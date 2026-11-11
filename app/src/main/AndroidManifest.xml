@@ -119,6 +119,31 @@
             android:exported="false"
             android:label="@string/settings_title" />
 
+        <!-- Kept through a rotation, so the site page and its scroll stay put. -->
+        <activity
+            android:name=".BasesActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:exported="false"
+            android:label="@string/bases_title" />
+
+        <activity
+            android:name=".MyBasesActivity"
+            android:exported="false"
+            android:label="@string/my_bases_title" />
+
+        <!-- Also in other apps' Share menus, for a base link, a screenshot or both. -->
+        <activity
+            android:name=".BaseEditActivity"
+            android:exported="true"
+            android:label="@string/base_share_label">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".AboutActivity"
             android:exported="false"

@@ -32,7 +32,9 @@ class GuideActivity : GuideScreen() {
                 }, ui.matchWidth(if (index == 0) 10 else 8))
             }
         }, ui.matchWidth(14))
-        content.addView(ui.button(getString(R.string.guide_heroes), null, primary = false) { open(GuideHeroesActivity::class.java) }, ui.matchWidth(14))
+        content.addView(ui.button(getString(R.string.my_bases_title), null, primary = false) { open(MyBasesActivity::class.java) }, ui.matchWidth(14))
+        content.addView(ui.button(getString(R.string.bases_open), null, primary = false) { open(BasesActivity::class.java) }, ui.matchWidth(10))
+        content.addView(ui.button(getString(R.string.guide_heroes), null, primary = false) { open(GuideHeroesActivity::class.java) }, ui.matchWidth(10))
         content.addView(ui.button(getString(R.string.guide_pets), null, primary = false) { open(GuidePetsActivity::class.java) }, ui.matchWidth(10))
         content.addView(ui.button(getString(R.string.guide_army), null, primary = false) { open(GuideArmyActivity::class.java) }, ui.matchWidth(10))
         content.addView(ui.button(getString(R.string.guide_defences), null, primary = false) { open(GuideDefencesActivity::class.java) }, ui.matchWidth(10))

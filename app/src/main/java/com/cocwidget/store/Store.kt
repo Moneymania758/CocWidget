@@ -3,6 +3,9 @@ package com.cocwidget.store
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import com.cocwidget.bases.BasePictures
+import com.cocwidget.bases.MyBases
+import com.cocwidget.bases.SavedBase
 import com.cocwidget.events.EventKind
 import com.cocwidget.game.EventDiscount
 import com.cocwidget.game.Section
@@ -32,6 +35,9 @@ object Store {
     private const val KEY_EVENT_DATES = "event_dates"
     private const val KEY_LAST_DATES_CHECK = "last_event_dates_check"
     private const val KEY_WHATS_NEW_SEEN = "whats_new_seen"
+    private const val KEY_BASES_SITE = "bases_site"
+    // Every account's saved bases in one list, each naming its account.
+    private const val KEY_MY_BASES = "my_bases"
     private const val KEY_SKIN = "skin"
     private const val KEY_BEDTIME = "bedtime_minute"
     private const val KEY_WAKE = "wake_minute"
@@ -174,6 +180,11 @@ object Store {
     fun removeAccount(context: Context, tag: String) {
         val global = prefs(context)
         global.edit().putString(KEY_ACCOUNTS, (accountList(global) - tag).joinToString("\n")).apply()
+        val (gone, kept) = allBases(context).partition { it.account == tag }
+        if (gone.isNotEmpty()) {
+            setBases(context, kept)
+            gone.forEach { BasePictures.delete(context, it.id) }
+        }
         // Cleared first, so an instance still held in memory doesn't bring the old values back.
         account(context, tag).edit().clear().commit()
         context.deleteSharedPreferences(fileName(tag))
@@ -359,6 +370,31 @@ object Store {
 
     // The account's name if one was set, otherwise its player tag.
     fun label(context: Context, tag: String): String = displayName(context, tag) ?: tag
+
+    // The base layout site last picked on the Bases screen, by its name.
+    fun basesSite(context: Context): String? = prefs(context).getString(KEY_BASES_SITE, null)
+
+    fun setBasesSite(context: Context, name: String) {
+        prefs(context).edit().putString(KEY_BASES_SITE, name).apply()
+    }
+
+    fun allBases(context: Context): List<SavedBase> = MyBases.parse(prefs(context).getString(KEY_MY_BASES, null))
+
+    // The bases My bases shows for [account], newest first.
+    fun myBases(context: Context, account: String?): List<SavedBase> = MyBases.forAccount(allBases(context), account)
+
+    fun saveBase(context: Context, base: SavedBase) {
+        setBases(context, MyBases.put(allBases(context), base))
+    }
+
+    // Its picture is the caller's to delete.
+    fun removeBase(context: Context, id: String) {
+        setBases(context, allBases(context).filterNot { it.id == id })
+    }
+
+    private fun setBases(context: Context, bases: List<SavedBase>) {
+        prefs(context).edit().putString(KEY_MY_BASES, MyBases.toJson(bases)).apply()
+    }
 
     // The version whose What's new card was last dismissed.
     fun whatsNewSeen(context: Context): String? = prefs(context).getString(KEY_WHATS_NEW_SEEN, null)

@@ -227,6 +227,35 @@ With an imported village it marks your Town Hall and shows your hero and pet lev
 Levels and stats come from the game data. Attack and pet picks are opinions from community guides,
 which often disagree, so each screen says when they were last checked and the sources are listed.
 
+### My bases
+
+Guide > My bases keeps your own base links, for the account picked on the main screen.
+
+1. Share a base link to Clash Timers from the game, Discord or anywhere else (pick "Save to My bases"),
+   or copy the link and tap Add a base, then Paste.
+2. Give it a name and a type (War, CWL, Farming or Legends) if you like.
+3. Add a screenshot so you can tell your bases apart. Sharing a screenshot to Clash Timers works too.
+4. Tap Open in game on any saved base.
+
+With more than one account, pick which one the base is for. A base for a higher Town Hall than that
+account's is flagged when saved and asks first when opened. Bases and screenshots stay on the phone,
+and removing an account removes its bases.
+
+### Find bases online
+
+Guide > Find bases online, or the Base layouts button on any Town Hall's page.
+
+1. Pick a Town Hall at the top. With an imported village it starts on yours.
+2. Pick a site: ClashCodes or CoC Layouts. The app remembers which.
+3. Browse the site as normal and tap a base's link. Clash of Clans opens with that base, ready to copy.
+
+If a base is for a higher Town Hall than your village, the app asks first, as the game may not let
+you use it. Links that leave the site, such as adverts, open in your browser.
+
+The bases, pictures and adverts belong to the sites. The app shows their pages as they are and keeps
+nothing from them. Layout links stop working once nobody has used them for a while, so an old base may
+not open.
+
 ## Themes
 
 Open the app, tap the gear at the top right and pick a look under **Theme**:
@@ -351,6 +380,7 @@ Under `app/src/main/java/com/cocwidget/`, with tests in matching folders:
 | `store` | Saved accounts and settings, the icon cache, the update check |
 | `widget` | Widget drawing, its quick views, countdown refresh times, finish notifications |
 | `ui` | The in-code view toolkit, themes, shared screen base, Settings screen cards, contact details |
+| `bases` | The base layout sites, how links tapped inside them are routed, and saved bases with their screenshots |
 
 Manifest classes stay in `com.cocwidget`. Android remembers placed widgets, Quick Settings tiles
 and launcher icons by class name, so moving one would remove it from people's phones on update.
