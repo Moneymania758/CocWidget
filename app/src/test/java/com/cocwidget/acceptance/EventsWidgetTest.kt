@@ -153,6 +153,18 @@ class EventsWidgetTest {
         assertEquals(View.VISIBLE, draw(id).findViewById<View>(R.id.events_header).visibility)
     }
 
+    // A resize lands the new layout on top of the views on screen, so tall must undo what short set.
+    @Test
+    fun aShortWidgetMadeTallAgainGetsItsHeaderBack() {
+        val id = place()
+        val dates = EventDates.current(app)
+        val widget = WidgetRenderer.buildEvents(app, id, now, dates, short = true).apply(app, FrameLayout(app))
+        assertEquals(View.GONE, widget.findViewById<View>(R.id.events_header).visibility)
+        WidgetRenderer.buildEvents(app, id, now, dates, short = false).reapply(app, widget)
+        assertEquals(View.VISIBLE, widget.findViewById<View>(R.id.events_header).visibility)
+        assertEquals((12 * app.resources.displayMetrics.density).toInt(), widget.paddingTop)
+    }
+
     @Test
     fun aCountdownWithDaysKeepsItsHourInTheLastHourOfADay() {
         // Sign-up opens 1 Dec 08:00. Half an hour past 8 days before that, "8d 30:00" would read as 30 hours.
