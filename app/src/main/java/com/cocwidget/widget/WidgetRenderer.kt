@@ -209,12 +209,12 @@ object WidgetRenderer {
         short: Boolean = false,
     ): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_events)
-        if (short) {
-            views.setViewVisibility(R.id.events_header, View.GONE)
-            val padding = dp(context, 8)
-            views.setViewPadding(R.id.events_root, padding, padding, padding, padding)
-            views.setViewLayoutMargin(R.id.event_rows, RemoteViews.MARGIN_TOP, 0f, TypedValue.COMPLEX_UNIT_DIP)
-        }
+        // Set both ways: a resize lands on top of the views already on screen, so a tall widget that
+        // was short would otherwise keep the header hidden.
+        views.setViewVisibility(R.id.events_header, if (short) View.GONE else View.VISIBLE)
+        val padding = dp(context, if (short) 8 else 12)
+        views.setViewPadding(R.id.events_root, padding, padding, padding, padding)
+        views.setViewLayoutMargin(R.id.event_rows, RemoteViews.MARGIN_TOP, if (short) 0f else 8f, TypedValue.COMPLEX_UNIT_DIP)
         views.setOnClickPendingIntent(R.id.events_root, openAppIntent(context, widgetId, null))
         views.setOnClickPendingIntent(R.id.events_edit, PendingIntent.getActivity(
             context,
