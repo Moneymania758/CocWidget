@@ -229,7 +229,7 @@ class GuideUnitActivity : GuideScreen() {
             addView(ui.heading(chart.title, 15f), ui.weighted())
             addView(readout, ui.wrap().apply { marginStart = ui.dp(8) })
         })
-        val view = LevelChart(this@GuideUnitActivity, chart, unit.levels, reach, mine) { select(it) }
+        val view = LevelChart(this@GuideUnitActivity, chart, unit.levels, reach, mine, ui.skin.light) { select(it) }
         view.contentDescription = describe(unit, chart)
         addView(view, ui.matchWidth(8))
 

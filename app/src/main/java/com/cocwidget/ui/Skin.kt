@@ -115,7 +115,8 @@ class Skin(
             goldBar = intArrayOf(0xFFE0A100.toInt(), 0xFFE0A100.toInt()), greenBar = intArrayOf(0xFF2E9E44.toInt(), 0xFF2E9E44.toInt()),
             headingFont = null, headingShadow = 0,
             primaryBg = 0xFFFFC93C.toInt(), primaryText = 0xFF1E1A16.toInt(), primaryShade = 0,
-            secondaryBg = 0xFFEFE9E0.toInt(), secondaryText = 0xFF1E1A16.toInt(), secondaryOutline = 0, secondaryShade = 0,
+            // White with an edge, so a button shows on the cream page as well as in a card.
+            secondaryBg = 0xFFFFFFFF.toInt(), secondaryText = 0xFF1E1A16.toInt(), secondaryOutline = 0xFFD6CCBE.toInt(), secondaryShade = 0,
             runningBg = 0xFFE3F1E4.toInt(), runningText = 0xFF1A6B2D.toInt(), maxedBg = 0xFFE3F1E4.toInt(),
             swatch = intArrayOf(0xFFF6F3EE.toInt(), 0xFFFFFFFF.toInt(), 0xFFFFC93C.toInt()),
             onAccent = 0xFFFFFFFF.toInt(), idle = 0xFFA3480A.toInt(), helper = 0xFF1A619E.toInt(), goblin = 0xFF336B1A.toInt(),

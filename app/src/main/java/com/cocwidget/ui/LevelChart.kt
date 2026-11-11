@@ -15,8 +15,8 @@ import com.cocwidget.guide.ChartTouch
 import com.cocwidget.guide.UnitChart
 import kotlin.math.abs
 
-// A chart of how a unit's stats grow with its level. It always sits on its own dark panel, so the
-// checked line colours work the same in all three skins. A tap or drag picks a level.
+// A chart of how a unit's stats grow with its level, on its own panel: dark, or white on the Light
+// skin. The checked line colours keep 3:1 on both. A tap or drag picks a level.
 @SuppressLint("ViewConstructor")
 class LevelChart(
     context: Context,
@@ -26,8 +26,14 @@ class LevelChart(
     private val capIndex: Int,
     // The player's own level, ringed on the line. -1 for none.
     private val myIndex: Int,
+    // The Light skin's white panel instead of the dark one.
+    light: Boolean,
     private val onPick: (Int) -> Unit,
 ) : View(context) {
+    private val panelColour = if (light) 0xFFFFFFFF.toInt() else SURFACE
+    private val primaryText = if (light) 0xFF1E1A16.toInt() else PRIMARY_TEXT
+    private val outOfReach = if (light) 0xFF9A938A.toInt() else OUT_OF_REACH
+
     var selected = levels.lastIndex
         set(value) {
             field = value
@@ -37,10 +43,10 @@ class LevelChart(
     private val density = resources.displayMetrics.density
     private fun sp(value: Float) = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, resources.displayMetrics)
 
-    private val axisText = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = AXIS_TEXT; textSize = sp(11f) }
-    private val endText = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = PRIMARY_TEXT; textSize = sp(12f); isFakeBoldText = true }
-    private val grid = Paint().apply { color = GRID; strokeWidth = density }
-    private val cross = Paint().apply { color = CROSSHAIR; strokeWidth = density }
+    private val axisText = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = if (light) 0xFF645B53.toInt() else AXIS_TEXT; textSize = sp(11f) }
+    private val endText = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = primaryText; textSize = sp(12f); isFakeBoldText = true }
+    private val grid = Paint().apply { color = if (light) 0xFFECE5DA.toInt() else GRID; strokeWidth = density }
+    private val cross = Paint().apply { color = if (light) 0xFF8A8580.toInt() else CROSSHAIR; strokeWidth = density }
     private val line = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 2 * density
@@ -48,7 +54,7 @@ class LevelChart(
         strokeJoin = Paint.Join.ROUND
     }
     private val dot = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val panel = Paint().apply { color = SURFACE; isAntiAlias = true }
+    private val panel = Paint().apply { color = panelColour; isAntiAlias = true }
     private val path = Path()
     private val bounds = RectF()
 
@@ -110,25 +116,25 @@ class LevelChart(
         // Drawn twice: the part out of reach at this Town Hall recedes into grey.
         val reachEnd = if (capIndex in values.indices) capIndex else values.lastIndex
         if (reachEnd < values.lastIndex) {
-            line.color = OUT_OF_REACH
+            line.color = outOfReach
             strokeBetween(canvas, values, reachEnd, values.lastIndex)
         }
         line.color = colour
         strokeBetween(canvas, values, 0, reachEnd)
 
         values.indices.lastOrNull { values[it] != null }?.let { last ->
-            drawDot(canvas, last, values[last]!!, if (last > reachEnd) OUT_OF_REACH else colour, 4f)
+            drawDot(canvas, last, values[last]!!, if (last > reachEnd) outOfReach else colour, 4f)
         }
         if (selected in values.indices) values[selected]?.let { value -> drawDot(canvas, selected, value, colour, 5f) }
         // Last, so it still shows when the player's own level is the one picked: the dot fits inside.
         if (myIndex in values.indices) values[myIndex]?.let { value ->
             if (myIndex != selected) {
-                dot.color = SURFACE
+                dot.color = panelColour
                 canvas.drawCircle(x(myIndex), y(value), 7 * density, dot)
             }
             dot.style = Paint.Style.STROKE
             dot.strokeWidth = 2 * density
-            dot.color = PRIMARY_TEXT
+            dot.color = primaryText
             canvas.drawCircle(x(myIndex), y(value), 6 * density, dot)
             dot.style = Paint.Style.FILL
         }
@@ -151,7 +157,7 @@ class LevelChart(
 
     // A dot with a ring in the panel's colour, so it stays clear where it crosses a line.
     private fun drawDot(canvas: Canvas, index: Int, value: Double, colour: Int, radius: Float) {
-        dot.color = SURFACE
+        dot.color = panelColour
         canvas.drawCircle(x(index), y(value), (radius + 2) * density, dot)
         dot.color = colour
         canvas.drawCircle(x(index), y(value), radius * density, dot)
@@ -207,7 +213,8 @@ class LevelChart(
         private const val LABEL_GAP = 9f
 
         // Checked with the data visualisation palette validator against SURFACE: colourblind
-        // separation, normal vision and 3:1 contrast all pass for these three, in this order.
+        // separation, normal vision and 3:1 contrast all pass for these three, in this order. On
+        // white they keep 3.4:1 or more.
         val COLOURS = intArrayOf(0xFF3987E5.toInt(), 0xFFD95926.toInt(), 0xFF199E70.toInt())
         private const val SURFACE = 0xFF1A1A19.toInt()
         private const val PRIMARY_TEXT = 0xFFF0EFEC.toInt()

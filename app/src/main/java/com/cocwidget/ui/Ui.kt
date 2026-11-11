@@ -123,7 +123,7 @@ class Ui(private val activity: Activity, val skin: Skin) {
         val shade = if (primary) skin.primaryShade else skin.secondaryShade
         return when {
             skin.drop != 0 -> raised(fill, 12f, shade, 4, if (primary) 0x38FFFFFF else 0x59FFFFFF)
-            !primary && skin.secondaryOutline != 0 -> rounded(0, 12f, skin.secondaryOutline, 1.5f)
+            !primary && skin.secondaryOutline != 0 -> rounded(fill, 12f, skin.secondaryOutline, 1.5f)
             else -> rounded(fill, 12f)
         }
     }
