@@ -60,8 +60,9 @@ with its own timers, boost answers and notifications. Once there's more than one
 which account it was, such as **Main imported** (or the tag, until you name it).
 
 - **Widgets:** one widget covers every account. Tap the account name at the top of the big
-  widget, or the name chip on the small one (both have a ⇄), to move that widget on to the next
-  account. Each widget switches on its own, so you can still keep one per account if you'd rather.
+  widget, or the name chip on the small one (both have a ⇄). With two accounts the tap swaps
+  them. With three or more it opens a list, and you tap the one you want. Each widget switches on
+  its own, so you can still keep one per account if you'd rather.
   When you place a widget it asks which account to show first (only if you have more than one).
 - **In the app:** tap an account's chip at the top of the main screen to see it. Time to max,
   the name and **Remove this account** in Settings all follow the chip you picked. Tapping a widget

@@ -23,6 +23,7 @@ import com.cocwidget.NextWidget
 import com.cocwidget.R
 import com.cocwidget.SyncActivity
 import com.cocwidget.VillageWidget
+import com.cocwidget.WidgetConfigActivity
 import com.cocwidget.game.Boost
 import com.cocwidget.game.Section
 import com.cocwidget.game.Upgrade
@@ -39,6 +40,8 @@ object WidgetRenderer {
     private const val REFRESH_REQUEST = 0
     private const val FINISH_REQUEST = 1
     private const val EVENT_REQUEST = 2
+    // Up to this many, a tap on the account chip moves on to the next account. Above it, it opens a list.
+    private const val SWAP_MAX_ACCOUNTS = 2
     private const val NARROW_MIN_DP = 180f
     // The longest row, "Legend League" beside "New Tournament in 27d 23:59:56", fits from here.
     private const val WIDE_MIN_DP = 340f
@@ -336,8 +339,8 @@ object WidgetRenderer {
         return views
     }
 
-    // With two or more accounts the big widget's title is a chip, and a tap moves the widget to the
-    // next account. With one, it's plain text that opens the app like the rest of the widget.
+    // With two or more accounts the big widget's title is a chip, and a tap moves the widget to
+    // another account (switchIntent). With one, it's plain text that opens the app like the rest of the widget.
     private fun showTitleSwitch(context: Context, views: RemoteViews, widgetId: Int, tag: String?) {
         val switchable = tag != null && Store.accounts(context).size > 1
         if (!switchable) {
@@ -354,7 +357,7 @@ object WidgetRenderer {
         views.setViewPadding(R.id.title, dp(context, 9), top, dp(context, 7), top)
         views.setTextViewText(R.id.title, label)
         views.setTextViewCompoundDrawablesRelative(R.id.title, 0, 0, R.drawable.ic_switch, 0)
-        views.setContentDescription(R.id.title, context.getString(R.string.widget_switch_account, label))
+        views.setContentDescription(R.id.title, switchDescription(context, label))
         views.setOnClickPendingIntent(R.id.title, switchIntent(context, widgetId))
     }
 
@@ -365,7 +368,7 @@ object WidgetRenderer {
         if (!switchable) return
         val label = Store.label(context, tag!!)
         views.setTextViewText(R.id.account_name, label)
-        views.setContentDescription(R.id.account, context.getString(R.string.widget_switch_account, label))
+        views.setContentDescription(R.id.account, switchDescription(context, label))
         views.setOnClickPendingIntent(R.id.account, switchIntent(context, widgetId))
     }
 
@@ -580,13 +583,31 @@ object WidgetRenderer {
         broadcast(context, 200 + view.ordinal, accountIntent(context, shown, VillageWidget.ACTION_SET_VIEW, "view", view.name)
             .putExtra(VillageWidget.EXTRA_VIEW, view.name))
 
-    // Both kinds of widget switch through VillageWidget, which draws them all. The data Uri keeps
-    // each widget's id.
-    private fun switchIntent(context: Context, widgetId: Int): PendingIntent =
-        broadcast(context, 300, Intent(context, VillageWidget::class.java)
-            .setAction(VillageWidget.ACTION_SWITCH_ACCOUNT)
-            .setData(Uri.parse("cocwidget://switch/$widgetId"))
-            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId))
+    // With two accounts a tap swaps them, through VillageWidget, which draws every widget. With more,
+    // it opens the list of accounts, so any of them is one pick away. The data Uri keeps each
+    // widget's id.
+    private fun switchIntent(context: Context, widgetId: Int): PendingIntent {
+        if (!picksFromList(context)) {
+            return broadcast(context, 300, Intent(context, VillageWidget::class.java)
+                .setAction(VillageWidget.ACTION_SWITCH_ACCOUNT)
+                .setData(Uri.parse("cocwidget://switch/$widgetId"))
+                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId))
+        }
+        return PendingIntent.getActivity(
+            context,
+            5,
+            Intent(context, WidgetConfigActivity::class.java)
+                .setData(Uri.parse("cocwidget://pick/$widgetId"))
+                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        )
+    }
+
+    private fun picksFromList(context: Context) = Store.accounts(context).size > SWAP_MAX_ACCOUNTS
+
+    private fun switchDescription(context: Context, label: String): String =
+        context.getString(if (picksFromList(context)) R.string.widget_pick_account else R.string.widget_switch_account, label)
 
     // A tap on one widget's control, for its account.
     private fun accountIntent(context: Context, shown: Shown, action: String, kind: String, name: String): Intent =

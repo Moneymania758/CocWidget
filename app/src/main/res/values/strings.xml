@@ -99,6 +99,7 @@
     <string name="widget_pick_title">Show which account?</string>
     <string name="widget_switch_arrow">⇄</string>
     <string name="widget_switch_account">Showing %1$s. Tap to switch account</string>
+    <string name="widget_pick_account">Showing %1$s. Tap to pick another account</string>
     <string name="next_widget_label">Next to finish</string>
     <string name="next_widget_description">The next upgrade to finish, and any idle builders, lab or pets</string>
     <string name="events_widget_label">Events</string>

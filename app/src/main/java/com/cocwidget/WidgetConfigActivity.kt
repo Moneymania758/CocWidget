@@ -8,7 +8,8 @@ import android.os.Bundle
 import com.cocwidget.store.Store
 
 // Invisible screen the launcher opens when a widget is placed, and from the widget's settings
-// later, to pick which account the widget shows. With one account or none there's nothing to
+// later, to pick which account the widget shows. With three or more accounts, a tap on the widget's
+// account chip opens it too. With one account or none there's nothing to
 // pick, so it closes straight away.
 class WidgetConfigActivity : Activity() {
     private var widgetId = AppWidgetManager.INVALID_APPWIDGET_ID

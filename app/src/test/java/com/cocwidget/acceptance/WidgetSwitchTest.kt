@@ -1,6 +1,8 @@
 package com.cocwidget.acceptance
 
+import android.app.AlertDialog
 import android.appwidget.AppWidgetManager
+import android.os.Looper
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -9,6 +11,7 @@ import com.cocwidget.NextWidget
 import com.cocwidget.R
 import com.cocwidget.TestData
 import com.cocwidget.VillageWidget
+import com.cocwidget.WidgetConfigActivity
 import com.cocwidget.store.Store
 import com.cocwidget.widget.WidgetRenderer
 import org.junit.Assert.assertEquals
@@ -17,11 +20,13 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowAlertDialog
 
 // Switching a widget between accounts with a tap, so one widget can serve several villages.
 @RunWith(RobolectricTestRunner::class)
@@ -172,6 +177,51 @@ class WidgetSwitchTest {
         assertTrue("the TH label ends before Import", (townHall.parent as View).right <= (townHall.parent.parent as View).width)
         assertTrue("Import fits", sync.right <= row.width)
         assertEquals("Import keeps its full width", sync.measuredWidth, sync.width)
+    }
+
+    // With many accounts, tapping through them one at a time is a chore, so from three up a tap
+    // opens the list and any account is one pick away.
+    @Test
+    fun withThreeAccountsATapOpensTheListAndThePickMovesOnlyThatWidget() {
+        val first = Store.saveExport(app, TestData.exportJson())
+        Store.saveExport(app, TestData.th18ExportJson())
+        val third = Store.saveExport(app, TestData.superchargingExportJson())
+        val id = shadowOf(manager).createWidget(VillageWidget::class.java, R.layout.widget)
+        val other = shadowOf(manager).createWidget(VillageWidget::class.java, R.layout.widget)
+        Store.setWidgetAccount(app, id, first)
+        Store.setWidgetAccount(app, other, first)
+
+        val title = big(id).findViewById<TextView>(R.id.title)
+        assertTrue(hasSwitch(title))
+        assertEquals("Showing ${Store.label(app, first)}. Tap to pick another account", title.contentDescription.toString())
+        title.performClick()
+        val started = shadowOf(app).nextStartedActivity
+        assertEquals(WidgetConfigActivity::class.java.name, started.component?.className)
+        assertEquals(id, started.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1))
+
+        Robolectric.buildActivity(WidgetConfigActivity::class.java, started).setup()
+        val list = (ShadowAlertDialog.getLatestAlertDialog() as AlertDialog).listView
+        assertEquals(3, list.adapter.count)
+        assertTrue("the account shown is ticked", list.isItemChecked(0))
+        shadowOf(list).performItemClick(2)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(third, Store.widgetAccount(app, id))
+        assertEquals(first, Store.widgetAccount(app, other))
+    }
+
+    @Test
+    fun withThreeAccountsTheSmallWidgetsChipOpensTheListToo() {
+        val first = Store.saveExport(app, TestData.exportJson())
+        Store.saveExport(app, TestData.th18ExportJson())
+        Store.saveExport(app, TestData.superchargingExportJson())
+        val id = shadowOf(manager).createWidget(NextWidget::class.java, R.layout.widget_next)
+        Store.setWidgetAccount(app, id, first)
+        val village = Store.village(app, first)!!
+        val small = WidgetRenderer.buildNext(app, id, first, village, village.exportedAtMillis + 60_000).apply(app, FrameLayout(app))
+        small.findViewById<View>(R.id.account).performClick()
+        val started = shadowOf(app).nextStartedActivity
+        assertEquals(WidgetConfigActivity::class.java.name, started.component?.className)
+        assertEquals(id, started.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1))
     }
 
     private fun hasSwitch(title: TextView) = title.compoundDrawablesRelative[2] != null
