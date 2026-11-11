@@ -169,6 +169,25 @@
     <string name="skin_game">Game</string>
     <string name="skin_light">Light</string>
     <string name="skin_system">System</string>
+    <!-- The bar along the bottom of the main screens. -->
+    <string name="tab_up_next">Up next</string>
+    <string name="tab_plan">Plan</string>
+    <string name="tab_guide">Guide</string>
+    <string name="tab_bases">Bases</string>
+    <string name="plan_time_to_max">Time to max</string>
+    <string name="plan_bedtime">Bedtime</string>
+    <string name="plan_potions">Potions</string>
+    <!-- The account button at the top of the main screen and the sheet it opens. -->
+    <string name="account_switch">Switch account</string>
+    <string name="account_line">Town Hall %1$d · %2$s</string>
+    <string name="accounts_title">Accounts</string>
+    <plurals name="accounts_count">
+        <item quantity="one">%d village</item>
+        <item quantity="other">%d villages</item>
+    </plurals>
+    <string name="accounts_search">Find an account</string>
+    <string name="account_out_of_date">Out of date, import again</string>
+    <string name="account_unreadable">Export unreadable, import again</string>
     <string name="name_title">Name on the widget</string>
     <string name="settings_title">Settings</string>
     <string name="about_title">About</string>

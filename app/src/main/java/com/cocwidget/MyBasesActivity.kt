@@ -10,15 +10,18 @@ import com.cocwidget.bases.LayoutOpener
 import com.cocwidget.bases.SavedBase
 import com.cocwidget.store.Store
 import com.cocwidget.ui.Screen
+import com.cocwidget.ui.Tab
 import java.io.File
 import kotlin.concurrent.thread
 
 // The player's own saved base links, for the selected account. Each one opens in the game.
 class MyBasesActivity : Screen() {
+    override val tab = Tab.BASES
+
     override fun build() {
         val current = Store.current(this)
         val myTownHall = current?.village?.townHall ?: 0
-        content.addView(backHeader(R.string.my_bases_title))
+        content.addView(tabHeader(R.string.tab_bases))
         current?.let { addNote(getString(R.string.my_bases_for, Store.label(this, it.tag)), 13f) }
         content.addView(ui.button(getString(R.string.my_bases_add), null, primary = true) {
             startActivity(Intent(this, BaseEditActivity::class.java))

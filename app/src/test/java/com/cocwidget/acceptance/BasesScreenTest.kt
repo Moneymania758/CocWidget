@@ -3,7 +3,6 @@ package com.cocwidget.acceptance
 import android.content.Intent
 import android.webkit.WebView
 import com.cocwidget.BasesActivity
-import com.cocwidget.GuideActivity
 import com.cocwidget.GuideTownHallActivity
 import com.cocwidget.R
 import com.cocwidget.TestData
@@ -138,13 +137,8 @@ class BasesScreenTest {
     }
 
     @Test
-    fun theGuideAndEachTownHallPageLeadHere() {
+    fun eachTownHallPageLeadsHere() {
         syncTh16()
-        val guide = Screens.open<GuideActivity>()
-        nextStarted()
-        Screens.tappable(Screens.root(guide), app.getString(R.string.bases_open))!!.performClick()
-        assertEquals(BasesActivity::class.java.name, nextStarted()?.component?.className)
-
         val page = Screens.open<GuideTownHallActivity> { putExtra(GuideScreen.EXTRA_TOWN_HALL, 13) }
         nextStarted()
         Screens.tappable(Screens.root(page), app.getString(R.string.bases_for_town_hall, 13))!!.performClick()

@@ -16,6 +16,7 @@ import com.cocwidget.store.Icons
 import com.cocwidget.store.Store
 import com.cocwidget.ui.Pictures
 import com.cocwidget.ui.Screen
+import com.cocwidget.ui.Tab
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -24,6 +25,8 @@ import java.time.format.FormatStyle
 // What to start when a builder, the lab or the pet house frees up, so it finishes while you're
 // awake rather than overnight.
 class BedtimeActivity : Screen() {
+    override val tab = Tab.PLAN
+
     private val pictures = Pictures(this)
     // Queues showing every option, not just the first few.
     private val expanded = mutableSetOf<Section>()
@@ -32,7 +35,8 @@ class BedtimeActivity : Screen() {
 
     override fun build() {
         pictures.clear()
-        content.addView(backHeader(R.string.bedtime_open))
+        content.addView(tabHeader(R.string.tab_plan))
+        content.addView(planSwitch(BedtimeActivity::class.java), ui.matchWidth(12))
 
         val current = Store.current(this)
         val items = GameData.all(this)

@@ -1,7 +1,6 @@
 package com.cocwidget
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -9,24 +8,29 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import com.cocwidget.game.Village
 import com.cocwidget.store.Store
 import com.cocwidget.store.UpdateChecker
+import com.cocwidget.ui.AccountSheet
 import com.cocwidget.ui.HomeEvents
 import com.cocwidget.ui.HomeUpgrades
 import com.cocwidget.ui.Pictures
 import com.cocwidget.ui.Screen
+import com.cocwidget.ui.Tab
+import com.cocwidget.ui.TimeText
 import com.cocwidget.ui.WhatsNew
 import com.cocwidget.widget.NextFinish
 import com.cocwidget.widget.WidgetRenderer
 import kotlin.concurrent.thread
 
-// The selected village, its tools and every upgrade running in it. Everything about the app
-// itself is on the Settings screen.
+// The selected village and every upgrade running in it, under the account button. Everything about
+// the app itself is on the Settings screen.
 class MainActivity : Screen() {
+    override val tab = Tab.UP_NEXT
     private lateinit var pictures: Pictures
     private var clocks: List<HomeUpgrades.Clock> = emptyList()
     private var allEvents = false
@@ -86,7 +90,7 @@ class MainActivity : Screen() {
     }
 
     override fun build() {
-        content.addView(header())
+        content.addView(header(System.currentTimeMillis()))
         UpdateChecker.availableUpdate(this)?.let { version ->
             content.addView(ui.button(getString(R.string.update_available_long, version), null, primary = true) {
                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(UpdateChecker.RELEASES_PAGE)))
@@ -105,13 +109,9 @@ class MainActivity : Screen() {
         }
         val eventsCard = events.card(now)
         if (village == null || list == null) {
-            content.addView(ui.button(getString(R.string.guide_open), R.drawable.ic_book, primary = false) {
-                startActivity(Intent(this, GuideActivity::class.java))
-            }, ui.matchWidth(14))
             eventsCard?.let { content.addView(it, ui.matchWidth(14)) }
             clocks = events.clocks
         } else {
-            content.addView(tools(), ui.matchWidth(14))
             eventsCard?.let { content.addView(it, ui.matchWidth(14)) }
             list.helpers()?.let { content.addView(it, ui.matchWidth(14)) }
             for (section in village.sections()) content.addView(list.section(section), ui.matchWidth(14))
@@ -121,26 +121,71 @@ class MainActivity : Screen() {
         addNote(getString(R.string.footer))
     }
 
-    private fun header() = LinearLayout(this).apply {
+    // The account button, with Import and Settings beside it. Before the first import, the app's
+    // name stands in for the account.
+    private fun header(now: Long) = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
-        setPadding(ui.dp(4), ui.dp(8), 0, 0)
-        addView(LinearLayout(this@MainActivity).apply {
-            gravity = Gravity.CENTER
-            background = ui.rounded(ui.skin.accent, 10f)
-            addView(ui.icon(R.drawable.ic_clock_line, ui.skin.onAccent, 22))
-        }, LinearLayout.LayoutParams(ui.dp(40), ui.dp(40)))
+        val tag = Store.selected(this@MainActivity)
+        if (tag == null) {
+            setPadding(ui.dp(4), ui.dp(8), 0, 0)
+            addView(LinearLayout(this@MainActivity).apply {
+                gravity = Gravity.CENTER
+                background = ui.rounded(ui.skin.accent, 10f)
+                addView(ui.icon(R.drawable.ic_clock_line, ui.skin.onAccent, 22))
+            }, LinearLayout.LayoutParams(ui.dp(40), ui.dp(40)))
+            addView(LinearLayout(this@MainActivity).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(ui.heading(getString(R.string.app_name), 24f, ui.skin.title))
+                addView(ui.text(getString(R.string.version_line, installedVersion()), 13f, ui.skin.dim))
+            }, ui.weighted(12))
+        } else {
+            addView(accountButton(tag, Store.village(this@MainActivity, tag), now), ui.weighted())
+            addView(roundButton(R.drawable.ic_import_line, R.string.import_village, ui.skin.primaryBg, ui.skin.primaryText, 0) {
+                startActivity(Intent(this@MainActivity, SyncActivity::class.java))
+            }, LinearLayout.LayoutParams(ui.dp(52), ui.dp(52)).apply { marginStart = ui.dp(8) })
+        }
+        addView(roundButton(R.drawable.ic_settings, R.string.settings_title, ui.skin.card, ui.skin.text, ui.skin.divider) {
+            startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+        }, LinearLayout.LayoutParams(ui.dp(52), ui.dp(52)).apply { marginStart = ui.dp(8) })
+    }
+
+    // Whose village this is: its Town Hall, name and export time. Tapping it lists every account.
+    private fun accountButton(tag: String, village: Village?, now: Long) = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        minimumHeight = ui.dp(52)
+        background = ui.rounded(ui.skin.card, 26f, ui.skin.divider, 1f)
+        setPadding(ui.dp(4), ui.dp(4), ui.dp(12), ui.dp(4))
+        contentDescription = getString(R.string.account_switch)
+        val townHall = village?.townHall ?: 0
+        addView(ui.townHallBadge(townHall, ui.skin.accent, 42))
         addView(LinearLayout(this@MainActivity).apply {
             orientation = LinearLayout.VERTICAL
-            addView(ui.heading(getString(R.string.app_name), 24f, ui.skin.title))
-            addView(ui.text(getString(R.string.version_line, installedVersion()), 13f, ui.skin.dim))
-        }, ui.weighted(12))
-        addView(LinearLayout(this@MainActivity).apply {
-            gravity = Gravity.CENTER
-            contentDescription = getString(R.string.settings_title)
-            addView(ui.icon(R.drawable.ic_settings, ui.skin.text, 24))
-            ui.pressable(this, 22f) { startActivity(Intent(this@MainActivity, SettingsActivity::class.java)) }
-        }, LinearLayout.LayoutParams(ui.dp(44), ui.dp(44)))
+            addView(ui.heading(Store.label(this@MainActivity, tag), 17f, ui.skin.text).apply {
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+            })
+            val line = if (village == null) {
+                getString(R.string.account_unreadable)
+            } else {
+                getString(R.string.account_line, townHall, getString(R.string.exported_at, TimeText.exported(village.exportedAtMillis, now)))
+            }
+            addView(ui.text(line, 12f, ui.skin.dim).apply {
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+            })
+        }, ui.weighted(10))
+        addView(ui.icon(R.drawable.ic_chevron, ui.skin.accent, 18).apply { rotation = 90f })
+        ui.pressable(this, 26f) { AccountSheet(this@MainActivity, ui) { show() }.show() }
+    }
+
+    private fun roundButton(icon: Int, description: Int, fill: Int, colour: Int, edge: Int, onClick: () -> Unit) = LinearLayout(this).apply {
+        gravity = Gravity.CENTER
+        background = ui.rounded(fill, 26f, edge, if (edge != 0) 1f else 0f)
+        contentDescription = getString(description)
+        addView(ui.icon(icon, colour, 22))
+        ui.pressable(this, 26f, onClick)
     }
 
     // A card for the version just installed, until it's dismissed.
@@ -163,18 +208,17 @@ class MainActivity : Screen() {
     }
 
     private fun villageCard(tag: String?, village: Village?, list: HomeUpgrades?, now: Long): View = ui.card().apply {
-        val accounts = Store.accounts(this@MainActivity)
-        if (accounts.isNotEmpty()) addView(accountChips(accounts, tag), ui.matchWidth().apply { bottomMargin = ui.dp(14) })
         if (village == null || list == null) {
             addView(ui.heading(getString(R.string.status_none), 18f))
             addView(ui.text(getString(R.string.empty_state), 14f, ui.skin.dim), ui.matchWidth(6))
         } else {
             addView(villageTitle(village, now))
             NextFinish.of(village, now).next?.let { next -> addView(list.nextFinish(next), ui.matchWidth(14)) }
+            // The account button gives the export time. Here only a warning that it's out of date.
             val line = WidgetRenderer.exportLine(this@MainActivity, village, now)
-            addView(ui.text(line.text, 12f, if (line.stale) ui.skin.idle else ui.skin.dim).apply {
-                gravity = Gravity.CENTER
-            }, ui.matchWidth(12))
+            if (line.stale) {
+                addView(ui.text(line.text, 12f, ui.skin.idle).apply { gravity = Gravity.CENTER }, ui.matchWidth(12))
+            }
             val finished = village.upgrades.count { village.endMillis(it) <= now }
             if (tag != null && finished > 0) {
                 addView(ui.button(resources.getQuantityString(R.plurals.clear_finished, finished, finished), null, primary = false) {
@@ -184,10 +228,10 @@ class MainActivity : Screen() {
                 }, ui.matchWidth(10))
             }
         }
-        addView(ui.button(getString(R.string.import_village), R.drawable.ic_import_line, primary = true) {
-            startActivity(Intent(this@MainActivity, SyncActivity::class.java))
-        }, ui.matchWidth(if (village == null) 14 else 6))
         if (village == null) {
+            addView(ui.button(getString(R.string.import_village), R.drawable.ic_import_line, primary = true) {
+                startActivity(Intent(this@MainActivity, SyncActivity::class.java))
+            }, ui.matchWidth(14))
             // Nothing to plan yet, and the setup steps are what a first-time user needs.
             addView(ui.button(getString(R.string.fold_setup), null, primary = false) {
                 startActivity(Intent(this@MainActivity, SettingsActivity::class.java).putExtra(SettingsActivity.EXTRA_SHOW_SETUP, true))
@@ -195,7 +239,7 @@ class MainActivity : Screen() {
         }
     }
 
-    // The Town Hall large on a soft glow, beside what's sitting idle. The account chip above says
+    // The Town Hall large on a soft glow, beside what's sitting idle. The account button above says
     // whose village it is.
     private fun villageTitle(village: Village, now: Long) = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL
@@ -207,64 +251,8 @@ class MainActivity : Screen() {
                 addView(ui.heading(getString(R.string.home_town_hall, village.townHall), 24f, ui.skin.title))
             }
             val summary = NextFinish.of(village, now)
-            addView(ui.text(idleLine(summary), 13f, if (summary.anyIdle) ui.skin.idle else ui.skin.green, bold = true), ui.matchWidth(6))
+            addView(ui.text(AccountSheet.idleLine(this@MainActivity, summary), 13f, if (summary.anyIdle) ui.skin.idle else ui.skin.green, bold = true), ui.matchWidth(6))
         }, ui.weighted(12))
-    }
-
-    private fun idleLine(summary: NextFinish.Summary): String = if (summary.anyIdle) {
-        buildList {
-            if (summary.idleBuilders > 0) add(resources.getQuantityString(R.plurals.next_builders_idle, summary.idleBuilders, summary.idleBuilders))
-            if (summary.labIdle) add(getString(R.string.next_lab_idle))
-            if (summary.petsIdle) add(getString(R.string.next_pets_idle))
-        }.joinToString(" · ")
-    } else {
-        resources.getQuantityString(R.plurals.next_all_busy, summary.builders, summary.builders)
-    }
-
-    // The tiles share their row's width and take the height of the tallest label.
-    private fun tools() = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        isBaselineAligned = false
-        val tiles = listOf(
-            Triple(R.string.planner_open, R.drawable.ic_chart, PlannerActivity::class.java),
-            Triple(R.string.bedtime_open, R.drawable.ic_moon, BedtimeActivity::class.java),
-            Triple(R.string.potions_open, R.drawable.ic_flask, PotionsActivity::class.java),
-            Triple(R.string.guide_open, R.drawable.ic_book, GuideActivity::class.java),
-        )
-        for ((index, tile) in tiles.withIndex()) {
-            val (label, icon, screen) = tile
-            addView(ui.tile(getString(label), icon) {
-                startActivity(Intent(this@MainActivity, screen))
-            }, ui.weighted(if (index == 0) 0 else 8).apply { height = LinearLayout.LayoutParams.MATCH_PARENT })
-        }
-    }
-
-    // One chip per account, plus one saying how to add another.
-    private fun accountChips(accounts: List<String>, selected: String?) = ui.flow(8).apply {
-        for (tag in accounts) {
-            val chosen = tag == selected
-            val colours = if (chosen) ui.skin.primaryBg to ui.skin.primaryText else ui.skin.chip to ui.skin.text
-            addView(ui.chip(Store.label(this@MainActivity, tag), colours.first, colours.second).apply {
-                minHeight = ui.dp(36)
-                gravity = Gravity.CENTER_VERTICAL
-                isSelected = chosen
-                ui.pressable(this, 8f) {
-                    Store.setSelected(this@MainActivity, tag)
-                    show()
-                }
-            })
-        }
-        addView(ui.chip(getString(R.string.account_add), colour = ui.skin.dim).apply {
-            minHeight = ui.dp(36)
-            gravity = Gravity.CENTER_VERTICAL
-            ui.pressable(this, 8f) {
-                AlertDialog.Builder(this@MainActivity, ui.skin.dialogTheme)
-                    .setTitle(R.string.account_add_title)
-                    .setMessage(R.string.account_add_steps)
-                    .setPositiveButton(android.R.string.ok, null)
-                    .show()
-            }
-        })
     }
 
     companion object {

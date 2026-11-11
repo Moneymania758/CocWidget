@@ -267,10 +267,10 @@ class MyBasesScreenTest {
     }
 
     @Test
-    fun theGuideLeadsHereAndHereLeadsToTheSites() {
+    fun theBasesTabLeadsHereAndHereLeadsToTheSites() {
         val guide = Screens.open<GuideActivity>()
         nextStarted()
-        tap(guide, app.getString(R.string.my_bases_title))
+        tap(guide, app.getString(R.string.tab_bases))
         assertEquals(MyBasesActivity::class.java.name, nextStarted()?.component?.className)
 
         val list = Screens.open<MyBasesActivity>()

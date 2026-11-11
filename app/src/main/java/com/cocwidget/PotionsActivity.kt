@@ -13,17 +13,21 @@ import com.cocwidget.plan.PlanFormat
 import com.cocwidget.plan.PotionAdvisor
 import com.cocwidget.store.Store
 import com.cocwidget.ui.Screen
+import com.cocwidget.ui.Tab
 
 // Whether now is a good time for a Builder, Research or Pet potion: does every slot stay busy
 // for the whole hour?
 class PotionsActivity : Screen() {
+    override val tab = Tab.PLAN
+
     private class Item(val name: Int, val multiplier: Int)
 
     // [idle] says how many slots are idle.
     private class Queue(val section: Section, val title: Int, val slots: Int, val idle: (Int) -> String, val items: List<Item>)
 
     override fun build() {
-        content.addView(backHeader(R.string.potions_open))
+        content.addView(tabHeader(R.string.tab_plan))
+        content.addView(planSwitch(PotionsActivity::class.java), ui.matchWidth(12))
         val village = Store.current(this)?.village
         if (village == null) {
             addNothingSynced()

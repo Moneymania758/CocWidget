@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The app's screens build their content in code, in the chosen skin. -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/scroll"
+<!-- The app's screens build their content in code, in the chosen skin. A tab screen also fills the
+     bar along the bottom. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="16dp" />
+    </ScrollView>
 
     <LinearLayout
-        android:id="@+id/content"
+        android:id="@+id/tab_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="16dp" />
-</ScrollView>
+        android:visibility="gone" />
+</LinearLayout>

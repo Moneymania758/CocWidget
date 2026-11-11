@@ -283,6 +283,34 @@ class Ui(private val activity: Activity, val skin: Skin) {
         if (bitmap != null) setImageBitmap(bitmap) else pictures.add(path, this)
     }
 
+    // A Town Hall's picture in a ring, for an account. Its number when the picture isn't bundled,
+    // and a question mark with no village.
+    fun townHallBadge(level: Int, ring: Int, sizeDp: Int): View {
+        val ringed = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(skin.chip)
+            setStroke(dp(2), ring)
+        }
+        val size = LinearLayout.LayoutParams(dp(sizeDp), dp(sizeDp))
+        val bitmap = if (level > 0) Icons.load(activity, Icons.townHallPath(level)) else null
+        if (bitmap == null) {
+            return text(if (level > 0) level.toString() else "?", 13f, bold = true).apply {
+                gravity = Gravity.CENTER
+                background = ringed
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                layoutParams = size
+            }
+        }
+        return ImageView(activity).apply {
+            setImageBitmap(bitmap)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            background = ringed
+            setPadding(dp(5), dp(5), dp(5), dp(5))
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            layoutParams = size
+        }
+    }
+
     fun flow(gapDp: Int = 6) = FlowLayout(activity, dp(gapDp), dp(gapDp))
 
     fun matchWidth(top: Int = 0) = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {

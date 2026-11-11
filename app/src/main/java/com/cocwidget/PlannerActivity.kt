@@ -12,10 +12,13 @@ import com.cocwidget.store.Icons
 import com.cocwidget.store.Store
 import com.cocwidget.ui.Pictures
 import com.cocwidget.ui.Screen
+import com.cocwidget.ui.Tab
 import com.cocwidget.ui.TimeText
 
 // Time and resources left to max the current Town Hall, like Clash Ninja's "Remaining" panel.
 class PlannerActivity : Screen() {
+    override val tab = Tab.PLAN
+
     private val open = mutableSetOf<Group>()
     private val pictures = Pictures(this)
 
@@ -26,11 +29,12 @@ class PlannerActivity : Screen() {
         val eventPercent = Store.eventPercent(this)
         val plan = current?.let { Planner.plan(it.json, items, it.village.builders, eventPercent) }
 
-        content.addView(backHeader(R.string.planner_open).apply {
+        content.addView(tabHeader(R.string.tab_plan).apply {
             if (plan != null) {
                 addView(ui.chip(getString(R.string.town_hall_chip, plan.townHall), colour = ui.skin.accent).apply { setTypeface(typeface, android.graphics.Typeface.BOLD) })
             }
         })
+        content.addView(planSwitch(PlannerActivity::class.java), ui.matchWidth(12))
         if (current == null || plan == null) {
             addNothingSynced()
             return

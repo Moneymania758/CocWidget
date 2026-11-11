@@ -6,11 +6,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import com.cocwidget.BedtimeActivity
-import com.cocwidget.GuideActivity
 import com.cocwidget.MainActivity
-import com.cocwidget.PlannerActivity
-import com.cocwidget.PotionsActivity
 import com.cocwidget.R
 import com.cocwidget.SyncActivity
 import com.cocwidget.TestData
@@ -157,22 +153,6 @@ class MainScreenTest {
         val activity = open()
         Screens.tappable(Screens.root(activity), "Import my village")!!.performClick()
         assertEquals(SyncActivity::class.java.name, started(activity).component?.className)
-    }
-
-    @Test
-    fun everyToolOpensFromTheMainScreen() {
-        Store.saveExport(app, TestData.th18ExportJson())
-        val tools = mapOf(
-            R.string.planner_open to PlannerActivity::class.java,
-            R.string.bedtime_open to BedtimeActivity::class.java,
-            R.string.potions_open to PotionsActivity::class.java,
-            R.string.guide_open to GuideActivity::class.java,
-        )
-        for ((label, screen) in tools) {
-            val activity = open()
-            Screens.tappable(Screens.root(activity), app.getString(label))!!.performClick()
-            assertEquals(screen.name, started(activity).component?.className)
-        }
     }
 
     // What's New keeps the words each old release went out with.

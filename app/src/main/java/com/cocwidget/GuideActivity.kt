@@ -9,12 +9,15 @@ import android.widget.LinearLayout
 import com.cocwidget.guide.Guide
 import com.cocwidget.store.Icons
 import com.cocwidget.ui.GuideScreen
+import com.cocwidget.ui.Tab
 
 // The way into the guide. It works without a synced village, and offers the player's own Town Hall
 // when there is one.
 class GuideActivity : GuideScreen() {
+    override val tab = Tab.GUIDE
+
     override fun buildGuide() {
-        content.addView(backHeader(R.string.guide_open))
+        content.addView(tabHeader(R.string.tab_guide))
         addNote(getString(R.string.guide_intro), 13f)
         if (myTownHall >= Guide.FIRST_TOWN_HALL) {
             content.addView(ui.button(getString(R.string.guide_my_town_hall, myTownHall), null, primary = true) { openTownHall(myTownHall) }, ui.matchWidth(14))
@@ -32,9 +35,7 @@ class GuideActivity : GuideScreen() {
                 }, ui.matchWidth(if (index == 0) 10 else 8))
             }
         }, ui.matchWidth(14))
-        content.addView(ui.button(getString(R.string.my_bases_title), null, primary = false) { open(MyBasesActivity::class.java) }, ui.matchWidth(14))
-        content.addView(ui.button(getString(R.string.bases_open), null, primary = false) { open(BasesActivity::class.java) }, ui.matchWidth(10))
-        content.addView(ui.button(getString(R.string.guide_heroes), null, primary = false) { open(GuideHeroesActivity::class.java) }, ui.matchWidth(10))
+        content.addView(ui.button(getString(R.string.guide_heroes), null, primary = false) { open(GuideHeroesActivity::class.java) }, ui.matchWidth(14))
         content.addView(ui.button(getString(R.string.guide_pets), null, primary = false) { open(GuidePetsActivity::class.java) }, ui.matchWidth(10))
         content.addView(ui.button(getString(R.string.guide_army), null, primary = false) { open(GuideArmyActivity::class.java) }, ui.matchWidth(10))
         content.addView(ui.button(getString(R.string.guide_defences), null, primary = false) { open(GuideDefencesActivity::class.java) }, ui.matchWidth(10))
