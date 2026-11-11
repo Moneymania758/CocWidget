@@ -178,6 +178,46 @@ class WidgetStylesTest {
         assertTrue(activity.isFinishing)
     }
 
+    private fun small(size: WidgetRenderer.NextSize, theme: WidgetTheme = WidgetTheme.CLASSIC): View {
+        val tag = Store.saveExport(app, TestData.th18ExportJson())
+        val id = shadowOf(manager).createWidget(com.cocwidget.NextWidget::class.java, R.layout.widget_next)
+        Store.setWidgetAccount(app, id, tag)
+        Store.setWidgetTheme(app, id, theme)
+        val village = Store.village(app, tag)!!
+        return WidgetRenderer.buildNext(app, id, tag, village, village.exportedAtMillis + 60_000, size).apply(app, FrameLayout(app))
+    }
+
+    @Test
+    fun theSmallWidgetDrawsEverySizeInEveryTheme() {
+        for (size in WidgetRenderer.NextSize.entries) {
+            for (theme in WidgetTheme.entries) {
+                val root = small(size, theme)
+                assertEquals("$size in $theme", app.getColor(theme.text), root.findViewById<TextView>(R.id.name).currentTextColor)
+                assertTrue("$size in $theme ticks", root.findViewById<View>(R.id.timer).visibility == View.VISIBLE)
+            }
+        }
+    }
+
+    // Up next lists the three after the next with finish times, which never go out of date.
+    @Test
+    fun upNextShowsTheThreeAfterTheNext() {
+        val root = small(WidgetRenderer.NextSize.UP_NEXT)
+        val more = Screens.all(root.findViewById(R.id.next_more)).filter { it.id == R.id.more_at }
+        assertEquals(3, more.size)
+        assertTrue(more.all { (it as TextView).text.isNotEmpty() })
+        assertTrue(Screens.views<Chronometer>(root.findViewById(R.id.next_more)).isEmpty())
+    }
+
+    @Test
+    fun onUpNextAndGlanceOnlyTheOpenButtonOpensTheApp() {
+        for (size in listOf(WidgetRenderer.NextSize.UP_NEXT, WidgetRenderer.NextSize.GLANCE)) {
+            val root = small(size)
+            assertFalse(root.findViewById<View>(R.id.widget_root).hasOnClickListeners())
+            assertTrue(root.findViewById<View>(R.id.open).performClick())
+            assertEquals(com.cocwidget.MainActivity::class.java.name, shadowOf(app).nextStartedActivity.component?.className)
+        }
+    }
+
     @Test
     fun aRemovedWidgetForgetsItsLayoutColoursAndPage() {
         val (id, _) = placed()

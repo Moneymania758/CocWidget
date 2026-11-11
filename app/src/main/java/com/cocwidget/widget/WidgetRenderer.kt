@@ -51,6 +51,8 @@ object WidgetRenderer {
     private const val SHORT_MIN_DP = 40f
     // Header, a row and the Reset chip need about this much.
     private const val TALL_MIN_DP = 130f
+    // The small widget's Up next and Glance sizes need about this much height.
+    private const val NEXT_TALL_MIN_DP = 100f
     // A Pages widget's rows per page by the height it is drawn for, in dp. Header, chips, view
     // buttons and footer take about 190 dp, and a row about 46.
     private val PAGE_SIZES = listOf(110f to 1, 300f to 2, 350f to 3, 400f to 4, 450f to 5, 500f to 6, 600f to 8, 700f to 10, 820f to 12)
@@ -92,7 +94,7 @@ object WidgetRenderer {
         }
         for (widgetId in nextIds) {
             val tag = shown[widgetId]
-            manager.updateAppWidget(widgetId, buildNext(context, widgetId, tag, tag?.let(villages::get), now))
+            manager.updateAppWidget(widgetId, nextViews(context, widgetId, tag, tag?.let(villages::get), now))
         }
         val redraws = shown.values.distinct().map { Countdown.nextRefresh(it?.let(villages::get), now) }.toMutableList()
         // A Timeline's list shows minutes as text, so it is redrawn as each minute turns.
@@ -153,10 +155,31 @@ object WidgetRenderer {
         context.getSystemService(AlarmManager::class.java).cancel(refreshIntent(context, REFRESH_REQUEST))
     }
 
+    // The small widget's sizes. A strip is today's one line. Up next (4x2) adds the three after the
+    // next and what is idle. Glance (2x2) is one account's next finish, so a row of them covers
+    // several villages.
+    enum class NextSize { STRIP, UP_NEXT, GLANCE }
+
+    // Every size at once, and the launcher picks the one that fits.
+    internal fun nextViews(context: Context, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews = RemoteViews(mapOf(
+        SizeF(200f, SHORT_MIN_DP) to buildNext(context, widgetId, tag, village, now, NextSize.STRIP),
+        SizeF(110f, NEXT_TALL_MIN_DP) to buildNext(context, widgetId, tag, village, now, NextSize.GLANCE),
+        SizeF(250f, NEXT_TALL_MIN_DP) to buildNext(context, widgetId, tag, village, now, NextSize.UP_NEXT),
+    ))
+
     // The small widget: the next upgrade to finish, and what's idle. Every view is set on every
     // update, as the launcher applies it on top of the last one.
-    internal fun buildNext(context: Context, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {
+    internal fun buildNext(context: Context, widgetId: Int, tag: String?, village: Village?, now: Long, size: NextSize = NextSize.STRIP): RemoteViews {
+        if (size != NextSize.STRIP) return buildNextCard(context, widgetId, tag, village, now, size)
+        val ink = Ink(context, Store.widgetTheme(context, widgetId))
         val views = RemoteViews(context.packageName, R.layout.widget_next)
+        views.setInt(R.id.next_root, "setBackgroundResource", ink.theme.panel)
+        views.setInt(R.id.account, "setBackgroundResource", ink.theme.chip)
+        views.setTextColor(R.id.account_name, ink.accent)
+        views.setTextColor(R.id.account_arrow, ink.accent)
+        views.setTextColor(R.id.name, ink.text)
+        views.setTextColor(R.id.days, ink.text)
+        views.setTextColor(R.id.timer, ink.text)
         views.setOnClickPendingIntent(R.id.next_root, openAppIntent(context, widgetId, tag))
         views.setViewVisibility(R.id.days, View.GONE)
         views.setViewVisibility(R.id.timer, View.GONE)
@@ -166,7 +189,7 @@ object WidgetRenderer {
             views.setViewVisibility(R.id.icon, View.GONE)
             views.setTextViewText(R.id.name, context.getString(R.string.app_name))
             views.setTextViewText(R.id.status, context.getString(R.string.next_no_village))
-            views.setTextColor(R.id.status, context.getColor(R.color.text_dim))
+            views.setTextColor(R.id.status, ink.dim)
             return views
         }
 
@@ -177,18 +200,7 @@ object WidgetRenderer {
             views.setTextViewText(R.id.name, context.getString(R.string.next_nothing))
         } else {
             views.setViewVisibility(R.id.icon, View.VISIBLE)
-            val icon = Icons.load(context, next)
-            if (icon != null) views.setImageViewBitmap(R.id.icon, icon) else views.setImageViewResource(R.id.icon, R.drawable.ic_placeholder)
-            views.setTextViewText(R.id.name, upgradeName(next))
-            // Without the tag, a Goblin upgrade above "Lab idle" reads like a contradiction.
-            views.setViewVisibility(R.id.goblin, if (next.extra) View.VISIBLE else View.GONE)
-            // A refresh is scheduled for when the chronometer reaches zero (Countdown.nextRefresh).
-            val split = Countdown.split(village.endMillis(next) - now)
-            views.setTextViewText(R.id.days, "${split.days}d")
-            views.setViewVisibility(R.id.days, if (split.days > 0) View.VISIBLE else View.GONE)
-            views.setChronometer(R.id.timer, SystemClock.elapsedRealtime() + split.restMs, Countdown.chronometerFormat(split), true)
-            views.setChronometerCountDown(R.id.timer, true)
-            views.setViewVisibility(R.id.timer, View.VISIBLE)
+            showNext(context, views, village, next, now)
         }
 
         // Anything idle comes first, in orange like the big widget's idle builders.
@@ -202,7 +214,83 @@ object WidgetRenderer {
             context.resources.getQuantityString(R.plurals.next_all_busy, summary.builders, summary.builders)
         }
         views.setTextViewText(R.id.status, status)
-        views.setTextColor(R.id.status, context.getColor(if (summary.anyIdle) R.color.idle else R.color.gold))
+        views.setTextColor(R.id.status, if (summary.anyIdle) ink.idle else ink.accent)
+        return views
+    }
+
+    // The next upgrade's picture, name, Goblin and countdown, on any of the small widget's sizes.
+    private fun showNext(context: Context, views: RemoteViews, village: Village, next: Upgrade, now: Long) {
+        val icon = Icons.load(context, next)
+        if (icon != null) views.setImageViewBitmap(R.id.icon, icon) else views.setImageViewResource(R.id.icon, R.drawable.ic_placeholder)
+        views.setTextViewText(R.id.name, upgradeName(next))
+        // Without the tag, a Goblin upgrade above "Lab idle" reads like a contradiction.
+        views.setViewVisibility(R.id.goblin, if (next.extra) View.VISIBLE else View.GONE)
+        // A refresh is scheduled for when the chronometer reaches zero (Countdown.nextRefresh).
+        val split = Countdown.split(village.endMillis(next) - now)
+        views.setTextViewText(R.id.days, "${split.days}d")
+        views.setViewVisibility(R.id.days, if (split.days > 0) View.VISIBLE else View.GONE)
+        views.setChronometer(R.id.timer, SystemClock.elapsedRealtime() + split.restMs, Countdown.chronometerFormat(split), true)
+        views.setChronometerCountDown(R.id.timer, true)
+        views.setViewVisibility(R.id.timer, View.VISIBLE)
+    }
+
+    // Up next and Glance: a header like the big widget's, with its own open button, so a tap on
+    // the account chip can't open the app by accident.
+    private fun buildNextCard(context: Context, widgetId: Int, tag: String?, village: Village?, now: Long, size: NextSize): RemoteViews {
+        val ink = Ink(context, Store.widgetTheme(context, widgetId))
+        val views = RemoteViews(context.packageName, if (size == NextSize.GLANCE) R.layout.widget_next_glance else R.layout.widget_next_upnext)
+        views.setInt(R.id.widget_root, "setBackgroundResource", ink.theme.panel)
+        views.setInt(R.id.open, "setBackgroundResource", ink.theme.chip)
+        views.setColorStateList(R.id.open, "setImageTintList", ColorStateList.valueOf(ink.text))
+        views.setOnClickPendingIntent(R.id.open, openAppIntent(context, widgetId, tag))
+        for (id in listOf(R.id.title, R.id.town_hall, R.id.name, R.id.days, R.id.timer)) views.setTextColor(id, ink.text)
+        views.setTextColor(R.id.empty, ink.dim)
+        views.setTextColor(R.id.next_label, ink.dim)
+        for (id in listOf(R.id.chip_1, R.id.chip_2, R.id.chip_3)) views.setInt(id, "setBackgroundResource", ink.theme.chip)
+        views.removeAllViews(R.id.next_more)
+        views.setViewVisibility(R.id.goblin, View.GONE)
+        if (tag == null || village == null) {
+            views.setTextViewText(R.id.title, context.getString(R.string.app_name))
+            showTitleSwitch(context, views, widgetId, tag, ink)
+            views.setViewVisibility(R.id.town_hall, View.GONE)
+            views.setViewVisibility(R.id.empty, View.VISIBLE)
+            views.setViewVisibility(R.id.next_body, View.GONE)
+            views.setViewVisibility(R.id.chips, View.GONE)
+            views.setViewVisibility(R.id.chip_1, View.GONE)
+            return views
+        }
+        views.setViewVisibility(R.id.empty, View.GONE)
+        views.setViewVisibility(R.id.next_body, View.VISIBLE)
+        views.setTextViewText(R.id.title, Store.label(context, tag))
+        showTitleSwitch(context, views, widgetId, tag, ink)
+        showTownHall(context, views, tag, village)
+        showChips(context, views, village, now, ink)
+
+        val running = village.upgrades.filter { village.endMillis(it) > now }.sortedBy { village.endMillis(it) }
+        val next = running.firstOrNull()
+        if (next == null) {
+            views.setViewVisibility(R.id.icon, View.GONE)
+            views.setViewVisibility(R.id.days, View.GONE)
+            views.setViewVisibility(R.id.timer, View.GONE)
+            views.setTextViewText(R.id.next_label, "")
+            views.setTextViewText(R.id.name, context.getString(R.string.next_nothing))
+            return views
+        }
+        views.setViewVisibility(R.id.icon, View.VISIBLE)
+        showNext(context, views, village, next, now)
+        views.setTextViewText(R.id.next_label, context.getString(R.string.widget_next_at, FinishTime.of(context, village.endMillis(next), now)))
+        if (size == NextSize.UP_NEXT) {
+            for (upgrade in running.drop(1).take(3)) {
+                val more = RemoteViews(context.packageName, R.layout.widget_next_more)
+                val icon = Icons.load(context, upgrade)?.let { Bitmap.createScaledBitmap(it, LIST_ICON_PX, LIST_ICON_PX, true) }
+                if (icon != null) more.setImageViewBitmap(R.id.more_icon, icon) else more.setImageViewResource(R.id.more_icon, R.drawable.ic_placeholder)
+                more.setTextViewText(R.id.more_name, upgrade.name)
+                more.setTextColor(R.id.more_name, ink.text)
+                more.setTextViewText(R.id.more_at, FinishTime.of(context, village.endMillis(upgrade), now))
+                more.setTextColor(R.id.more_at, ink.dim)
+                views.addView(R.id.next_more, more)
+            }
+        }
         return views
     }
 

@@ -103,7 +103,6 @@
     <string name="widget_page_down">Next page</string>
     <string name="widget_page">%1$d/%2$d</string>
     <string name="widget_next_at">Next · ready %1$s</string>
-    <string name="widget_next_ready">Next · ready now</string>
     <string name="widget_style_title">Widget layout</string>
     <string name="widget_style_sections">Sections</string>
     <string name="widget_style_sections_hint">Every timer ticks. Tap a section to fold it.</string>
