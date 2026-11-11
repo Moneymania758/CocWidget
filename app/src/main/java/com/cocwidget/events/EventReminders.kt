@@ -33,8 +33,10 @@ object EventReminders {
     }
 
     // True if a new dates file arrived. [download] is network, so only call this off the main thread.
-    fun refreshDates(context: Context, now: Long, download: () -> String?): Boolean =
-        anyOn(context) && EventDates.refreshIfDue(context, now, download)
+    // [widgetPlaced] means an Events widget is on the home screen, which wants dates even with every
+    // reminder off.
+    fun refreshDates(context: Context, now: Long, download: () -> String?, widgetPlaced: Boolean = false): Boolean =
+        (widgetPlaced || anyOn(context)) && EventDates.refreshIfDue(context, now, download)
 
     fun notificationsAllowed(context: Context): Boolean =
         context.getSystemService(NotificationManager::class.java).areNotificationsEnabled()

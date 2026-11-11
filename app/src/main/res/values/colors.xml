@@ -12,6 +12,8 @@
     <color name="bar_bottom">#4C9E22</color>
     <color name="goblin">#8EE04A</color>
     <color name="helper">#6CCBFF</color>
+    <!-- An event that is on now, as on the main screen's Events card. -->
+    <color name="event_running">#8EE04A</color>
     <!-- Idle builders, a ready helper and an out-of-date export. -->
     <color name="idle">#FFA640</color>
     <color name="fold_marker">#B8A894</color>

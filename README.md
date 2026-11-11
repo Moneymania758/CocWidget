@@ -101,6 +101,18 @@ goes off, in your own time.
 You don't need a widget or an imported village. Supercell can move dates, and the app picks up
 corrections by itself. The Event Hub in the game has the final word.
 
+### The Events widget
+
+There's also an **Events** widget with a live countdown for each event, soonest first: green while
+an event is on, grey until it starts. Add it the same way as the others (long-press the home
+screen, **Widgets**, **Clash Timers**, **Events**). It works without an imported village.
+
+- Tap **Edit** to pick which events it shows. Untick the ones you don't need and tap **Done**.
+- **Reset · 2 hidden** at the bottom shows every event again in one tap. **Reset** in the Edit
+  list does the same.
+- Each Events widget keeps its own list, and hiding an event here doesn't turn off its reminder.
+- On a narrow widget the countdown sits under the event's name.
+
 ## Reading the widget
 
 - **BUILDERS 6/6** is builders busy out of builders you have. An orange **idle** means a free

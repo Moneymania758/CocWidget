@@ -125,6 +125,17 @@
             android:label="@string/about_title" />
 
         <activity
+            android:name=".EventsWidgetConfigActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:taskAffinity=""
+            android:theme="@style/Translucent">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".WidgetConfigActivity"
             android:excludeFromRecents="true"
             android:exported="true"
@@ -172,7 +183,7 @@
                 android:resource="@xml/village_widget_info" />
         </receiver>
 
-        <!-- Boot and app updates reach VillageWidget, whose refresh draws both widgets. -->
+        <!-- Boot and app updates reach VillageWidget, whose refresh draws every widget. -->
         <receiver
             android:name=".NextWidget"
             android:exported="true"
@@ -183,6 +194,19 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/next_widget_info" />
+        </receiver>
+
+        <!-- Drawn by VillageWidget's refresh too. -->
+        <receiver
+            android:name=".EventsWidget"
+            android:exported="true"
+            android:label="@string/events_widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/events_widget_info" />
         </receiver>
     </application>
 </manifest>

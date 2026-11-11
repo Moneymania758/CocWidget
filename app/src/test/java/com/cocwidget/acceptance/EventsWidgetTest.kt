@@ -1,0 +1,192 @@
+package com.cocwidget.acceptance
+
+import android.app.AlarmManager
+import android.app.AlertDialog
+import android.appwidget.AppWidgetManager
+import android.content.Intent
+import android.os.Looper
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Chronometer
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.TextView
+import com.cocwidget.EventsWidget
+import com.cocwidget.EventsWidgetConfigActivity
+import com.cocwidget.R
+import com.cocwidget.VillageWidget
+import com.cocwidget.events.EventDates
+import com.cocwidget.events.EventKind
+import com.cocwidget.store.Store
+import com.cocwidget.widget.Countdown
+import com.cocwidget.widget.WidgetRenderer
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.Robolectric
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowAlertDialog
+import java.time.Instant
+
+// The Events widget, asked for on Discord: pick which events it shows, and Reset to show them all.
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35])
+class EventsWidgetTest {
+    private val app get() = RuntimeEnvironment.getApplication()
+    private val manager get() = AppWidgetManager.getInstance(app)
+
+    // A Friday with Raid Weekend and Ranked on, Clan Games two days off, and Hammer Jam over.
+    private val now = Instant.parse("2026-11-20T12:00:00Z").toEpochMilli()
+
+    private fun place() = shadowOf(manager).createWidget(EventsWidget::class.java, R.layout.widget_events)
+
+    private fun draw(id: Int, narrow: Boolean = false): View =
+        WidgetRenderer.buildEvents(app, id, now, EventDates.current(app), narrow).apply(app, FrameLayout(app))
+
+    private fun names(widget: View): List<String> {
+        val rows = widget.findViewById<ViewGroup>(R.id.event_rows)
+        return (0 until rows.childCount).map { rows.getChildAt(it).findViewById<TextView>(R.id.event_name).text.toString() }
+    }
+
+    private fun timers(widget: View): List<String> {
+        val rows = widget.findViewById<ViewGroup>(R.id.event_rows)
+        return (0 until rows.childCount).map { rows.getChildAt(it).findViewById<Chronometer>(R.id.event_timer).text.toString() }
+    }
+
+    @Test
+    fun itShowsEveryDatedEventSoonestFirstUntilThePlayerPicks() {
+        val widget = draw(place())
+        assertEquals(
+            listOf("Clan Games", "Ranked battles", "Legend League I reset", "Raid Weekend", "Clan War League sign-up", "Gold Pass season"),
+            names(widget),
+        )
+        // Hammer Jam ended on the 16th and has no next date, so it has no row.
+        val timers = timers(widget)
+        assertEquals("Starts in 1d 20:00:00", timers[0])
+        assertEquals("Battles end in 2d 17:00:00", timers[1])
+        assertEquals("Season ends in 10d 20:00:00", timers[5])
+        assertEquals(View.GONE, widget.findViewById<View>(R.id.events_reset).visibility)
+        assertEquals(View.GONE, widget.findViewById<View>(R.id.events_empty).visibility)
+    }
+
+    @Test
+    fun aNarrowWidgetPutsEachCountdownUnderItsName() {
+        val id = place()
+        val narrow = draw(id, narrow = true)
+        val wide = draw(id)
+        assertEquals(names(wide), names(narrow))
+        assertEquals(timers(wide), timers(narrow))
+        val row = narrow.findViewById<ViewGroup>(R.id.event_rows).getChildAt(0)
+        assertEquals(LinearLayout.VERTICAL, (row.findViewById<View>(R.id.event_name).parent as LinearLayout).orientation)
+    }
+
+    @Test
+    fun hiddenEventsAreLeftOutAndResetBringsThemBack() {
+        val id = place()
+        Store.setHiddenEvents(app, id, setOf(EventKind.RANKED, EventKind.LEGEND))
+        val widget = draw(id)
+        assertEquals(listOf("Clan Games", "Raid Weekend", "Clan War League sign-up", "Gold Pass season"), names(widget))
+
+        val reset = widget.findViewById<TextView>(R.id.events_reset)
+        assertEquals(View.VISIBLE, reset.visibility)
+        assertEquals("Reset · 2 hidden", reset.text.toString())
+        reset.performClick()
+        val sent = shadowOf(app).broadcastIntents.last()
+        assertEquals(VillageWidget.ACTION_SHOW_ALL_EVENTS, sent.action)
+        assertEquals(VillageWidget::class.java.name, sent.component?.className)
+        assertEquals(id, sent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1))
+
+        // What VillageWidget does with it.
+        Store.setHiddenEvents(app, id, emptySet())
+        assertEquals(6, names(draw(id)).size)
+    }
+
+    @Test
+    fun eachWidgetKeepsItsOwnChoice() {
+        val a = place()
+        val b = place()
+        Store.setHiddenEvents(app, a, setOf(EventKind.CLAN_GAMES))
+        assertEquals(5, names(draw(a)).size)
+        assertEquals(6, names(draw(b)).size)
+        Store.forgetWidgets(app, intArrayOf(a))
+        assertTrue(Store.hiddenEvents(app, a).isEmpty())
+    }
+
+    @Test
+    fun withEveryEventHiddenItSaysSoAndOffersReset() {
+        val id = place()
+        Store.setHiddenEvents(app, id, EventKind.entries.toSet())
+        val widget = draw(id)
+        assertTrue(names(widget).isEmpty())
+        val empty = widget.findViewById<TextView>(R.id.events_empty)
+        assertEquals(View.VISIBLE, empty.visibility)
+        assertEquals(app.getString(R.string.events_widget_all_hidden), empty.text.toString())
+        assertEquals(View.VISIBLE, widget.findViewById<View>(R.id.events_reset).visibility)
+    }
+
+    @Test
+    fun editOpensThePickerForThisWidget() {
+        val id = place()
+        draw(id).findViewById<View>(R.id.events_edit).performClick()
+        val started = shadowOf(app).nextStartedActivity
+        assertEquals(EventsWidgetConfigActivity::class.java.name, started.component?.className)
+        assertEquals(id, started.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1))
+    }
+
+    private fun openPicker(id: Int): AlertDialog {
+        val intent = Intent(app, EventsWidgetConfigActivity::class.java).putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
+        Robolectric.buildActivity(EventsWidgetConfigActivity::class.java, intent).setup()
+        return ShadowAlertDialog.getLatestAlertDialog() as AlertDialog
+    }
+
+    @Test
+    fun thePickerHidesWhatIsUntickedAndResetShowsEverything() {
+        val id = place()
+        val dialog = openPicker(id)
+        val list = dialog.listView
+        assertEquals(EventKind.entries.size, list.adapter.count)
+        // Every event starts ticked.
+        assertTrue((0 until list.adapter.count).all { list.isItemChecked(it) })
+        shadowOf(list).performItemClick(EventKind.entries.indexOf(EventKind.RAID_WEEKEND))
+        shadowOf(list).performItemClick(EventKind.entries.indexOf(EventKind.LEGEND))
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        // A dialog button's listener runs from a posted message.
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(setOf(EventKind.RAID_WEEKEND, EventKind.LEGEND), Store.hiddenEvents(app, id))
+
+        // Opened again, the hidden ones are unticked, and Reset ticks them all.
+        val again = openPicker(id)
+        assertEquals(false, again.listView.isItemChecked(EventKind.entries.indexOf(EventKind.RAID_WEEKEND)))
+        again.getButton(AlertDialog.BUTTON_NEUTRAL).performClick()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertTrue(Store.hiddenEvents(app, id).isEmpty())
+    }
+
+    @Test
+    fun anEventsWidgetAloneStillGetsRedrawsAndDates() {
+        place()
+        EventKind.entries.forEach { Store.setEventReminderOn(app, it, false, now) }
+        var downloads = 0
+        WidgetRenderer.update(app) {
+            downloads++
+            null
+        }
+        // With every reminder off, the widget is what asks for the dates.
+        assertEquals(1, downloads)
+        val alarms = shadowOf(app.getSystemService(AlarmManager::class.java)).scheduledAlarms
+        assertTrue(alarms.isNotEmpty())
+    }
+
+    @Test
+    fun itRedrawsWhenACountdownReachesZero() {
+        val minute = 60_000L
+        // A day and 5 minutes away: the chronometer shows 1d and runs out in 5 minutes.
+        assertEquals(now + 5 * minute, Countdown.nextEventRefresh(listOf(now + Countdown.DAY_MS + 5 * minute), now))
+        assertEquals(now + 2 * minute, Countdown.nextEventRefresh(listOf(now + 3 * Countdown.DAY_MS, now + 2 * minute), now))
+        assertEquals(now + Countdown.MAX_REFRESH_MS, Countdown.nextEventRefresh(emptyList(), now))
+    }
+}

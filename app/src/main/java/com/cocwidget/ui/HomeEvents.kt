@@ -8,7 +8,6 @@ import android.widget.LinearLayout
 import com.cocwidget.R
 import com.cocwidget.SettingsActivity
 import com.cocwidget.events.EventDates
-import com.cocwidget.events.EventKind
 import com.cocwidget.events.EventSchedule
 import com.cocwidget.widget.Countdown
 
@@ -46,7 +45,7 @@ class HomeEvents(
     private fun row(countdown: EventSchedule.Countdown, now: Long) = LinearLayout(activity).apply {
         orientation = LinearLayout.VERTICAL
         addView(ui.text(activity.getString(countdown.kind.label), 15f))
-        val label = labelFor(countdown)
+        val label = countdown.label
         val text = { left: Long -> activity.getString(label, Countdown.clock(left)) }
         val clock = ui.text(text(countdown.target - now), 13f, if (countdown.running) ui.skin.green else ui.skin.dim)
         clocks += HomeUpgrades.Clock(clock, countdown.target, text)
@@ -57,23 +56,6 @@ class HomeEvents(
         minHeight = ui.dp(44)
         gravity = Gravity.CENTER_VERTICAL
         ui.pressable(this, 8f, onClick)
-    }
-
-    private fun labelFor(countdown: EventSchedule.Countdown): Int = if (countdown.running) {
-        when (countdown.kind) {
-            EventKind.CWL -> R.string.event_cwl_closes_in
-            EventKind.GOLD_PASS -> R.string.event_season_ends_in
-            EventKind.RANKED -> R.string.event_ranked_ends_in
-            else -> R.string.event_ends_in
-        }
-    } else {
-        when (countdown.kind) {
-            EventKind.CWL -> R.string.event_cwl_opens_in
-            EventKind.GOLD_PASS -> R.string.event_season_starts_in
-            EventKind.RANKED -> R.string.event_ranked_opens_in
-            EventKind.LEGEND -> R.string.event_legend_in
-            else -> R.string.event_starts_in
-        }
     }
 
     private companion object {

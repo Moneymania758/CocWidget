@@ -53,4 +53,12 @@ object Countdown {
         }
         return maxOf(next, now + 1000)
     }
+
+    // When an Events widget must redraw: a countdown's chronometer reaching zero (a day rolling
+    // over, or an event starting or ending), or the regular refresh.
+    fun nextEventRefresh(targets: List<Long>, now: Long): Long {
+        var next = now + MAX_REFRESH_MS
+        for (target in targets) if (target > now) next = minOf(next, now + split(target - now).restMs)
+        return maxOf(next, now + 1000)
+    }
 }

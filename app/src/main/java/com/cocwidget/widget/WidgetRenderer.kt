@@ -9,11 +9,14 @@ import android.content.Intent
 import android.net.Uri
 import android.os.SystemClock
 import android.text.SpannableStringBuilder
+import android.util.SizeF
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.widget.RemoteViews
+import com.cocwidget.EventsWidget
+import com.cocwidget.EventsWidgetConfigActivity
 import com.cocwidget.MainActivity
 import com.cocwidget.NextWidget
 import com.cocwidget.R
@@ -24,6 +27,7 @@ import com.cocwidget.game.Section
 import com.cocwidget.game.Upgrade
 import com.cocwidget.events.EventDates
 import com.cocwidget.events.EventReminders
+import com.cocwidget.events.EventSchedule
 import com.cocwidget.game.Village
 import com.cocwidget.store.Icons
 import com.cocwidget.store.Store
@@ -34,6 +38,8 @@ object WidgetRenderer {
     private const val REFRESH_REQUEST = 0
     private const val FINISH_REQUEST = 1
     private const val EVENT_REQUEST = 2
+    private const val NARROW_MIN_DP = 0f
+    private const val WIDE_MIN_DP = 300f
 
     fun update(context: Context, download: () -> String? = EventDates::fromGitHub) {
         // Notifications work without a widget on the home screen, so they come first.
@@ -55,7 +61,8 @@ object WidgetRenderer {
         val manager = AppWidgetManager.getInstance(context)
         val widgetIds = manager.getAppWidgetIds(ComponentName(context, VillageWidget::class.java))
         val nextIds = manager.getAppWidgetIds(ComponentName(context, NextWidget::class.java))
-        if (widgetIds.isEmpty() && nextIds.isEmpty()) return
+        val eventIds = manager.getAppWidgetIds(ComponentName(context, EventsWidget::class.java))
+        if (widgetIds.isEmpty() && nextIds.isEmpty() && eventIds.isEmpty()) return
 
         UpdateChecker.checkIfDue(context)
         val shown = (widgetIds + nextIds).associateWith { Store.widgetAccount(context, it) }
@@ -69,7 +76,19 @@ object WidgetRenderer {
             val tag = shown[widgetId]
             manager.updateAppWidget(widgetId, buildNext(context, widgetId, tag, tag?.let(villages::get), now))
         }
-        scheduleNext(context, shown.values.distinct().minOf { Countdown.nextRefresh(it?.let(villages::get), now) })
+        val redraws = shown.values.distinct().map { Countdown.nextRefresh(it?.let(villages::get), now) }.toMutableList()
+        if (eventIds.isNotEmpty()) {
+            val dates = EventDates.current(context)
+            for (widgetId in eventIds) {
+                // The launcher picks the biggest that fits. Below 300 dp the countdown goes under the name.
+                manager.updateAppWidget(widgetId, RemoteViews(mapOf(
+                    SizeF(NARROW_MIN_DP, 0f) to buildEvents(context, widgetId, now, dates, narrow = true),
+                    SizeF(WIDE_MIN_DP, 0f) to buildEvents(context, widgetId, now, dates, narrow = false),
+                )))
+                redraws += Countdown.nextEventRefresh(shownEvents(context, widgetId, now, dates).map { it.target }, now)
+            }
+        }
+        scheduleNext(context, redraws.min())
     }
 
     // Posts any event reminders due, sets the alarm, then looks for new dates. Does network, so only
@@ -83,8 +102,12 @@ object WidgetRenderer {
         refreshEventDates(context, now, download)
     }
 
+    // An Events widget needs the dates even with every reminder off. New dates redraw it.
     private fun refreshEventDates(context: Context, now: Long, download: () -> String?) {
-        if (EventReminders.refreshDates(context, now, download)) postEvents(context, now)
+        val eventsPlaced = AppWidgetManager.getInstance(context).getAppWidgetIds(ComponentName(context, EventsWidget::class.java)).isNotEmpty()
+        if (!EventReminders.refreshDates(context, now, download, eventsPlaced)) return
+        postEvents(context, now)
+        if (eventsPlaced) VillageWidget.requestRefresh(context)
     }
 
     // Has its own alarm, as the finish alarm is cancelled when nothing is upgrading.
@@ -98,11 +121,11 @@ object WidgetRenderer {
         }
     }
 
-    // Only the redraw alarm, and only once neither kind of widget is left. The finish alarm
-    // keeps notifications coming without a widget.
+    // Only the redraw alarm, and only once no kind of widget is left. The finish alarm keeps
+    // notifications coming without a widget.
     fun cancel(context: Context) {
         val manager = AppWidgetManager.getInstance(context)
-        val left = listOf(VillageWidget::class.java, NextWidget::class.java).sumOf { manager.getAppWidgetIds(ComponentName(context, it)).size }
+        val left = listOf(VillageWidget::class.java, NextWidget::class.java, EventsWidget::class.java).sumOf { manager.getAppWidgetIds(ComponentName(context, it)).size }
         if (left > 0) return
         context.getSystemService(AlarmManager::class.java).cancel(refreshIntent(context, REFRESH_REQUEST))
     }
@@ -158,6 +181,64 @@ object WidgetRenderer {
         views.setTextViewText(R.id.status, status)
         views.setTextColor(R.id.status, context.getColor(if (summary.anyIdle) R.color.idle else R.color.gold))
         return views
+    }
+
+    // The events this Events widget shows, soonest first. An event with no date yet is left out.
+    internal fun shownEvents(context: Context, widgetId: Int, now: Long, dates: EventDates.Dates): List<EventSchedule.Countdown> {
+        val hidden = Store.hiddenEvents(context, widgetId)
+        return EventSchedule.countdowns(now, dates).filter { it.kind !in hidden }
+    }
+
+    // The Events widget: one row per event the player chose, each with a live countdown. Edit picks
+    // the events, and Reset shows every one again.
+    internal fun buildEvents(context: Context, widgetId: Int, now: Long, dates: EventDates.Dates, narrow: Boolean = false): RemoteViews {
+        val views = RemoteViews(context.packageName, R.layout.widget_events)
+        views.setOnClickPendingIntent(R.id.events_root, openAppIntent(context, widgetId, null))
+        views.setOnClickPendingIntent(R.id.events_edit, PendingIntent.getActivity(
+            context,
+            4,
+            Intent(context, EventsWidgetConfigActivity::class.java)
+                .setData(Uri.parse("cocwidget://events/$widgetId"))
+                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        ))
+        views.removeAllViews(R.id.event_rows)
+
+        val hidden = Store.hiddenEvents(context, widgetId)
+        if (hidden.isEmpty()) {
+            views.setViewVisibility(R.id.events_reset, View.GONE)
+        } else {
+            views.setViewVisibility(R.id.events_reset, View.VISIBLE)
+            views.setTextViewText(R.id.events_reset, context.resources.getQuantityString(R.plurals.events_widget_reset_hidden, hidden.size, hidden.size))
+            views.setOnClickPendingIntent(R.id.events_reset, broadcast(context, 500, Intent(context, VillageWidget::class.java)
+                .setAction(VillageWidget.ACTION_SHOW_ALL_EVENTS)
+                .setData(Uri.parse("cocwidget://show-all-events/$widgetId"))
+                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)))
+        }
+
+        val countdowns = shownEvents(context, widgetId, now, dates)
+        if (countdowns.isEmpty()) {
+            views.setViewVisibility(R.id.events_empty, View.VISIBLE)
+            views.setTextViewText(R.id.events_empty, context.getString(if (hidden.isEmpty()) R.string.events_widget_no_dates else R.string.events_widget_all_hidden))
+            return views
+        }
+        views.setViewVisibility(R.id.events_empty, View.GONE)
+        for (countdown in countdowns) views.addView(R.id.event_rows, eventRow(context, countdown, now, narrow))
+        return views
+    }
+
+    // Chronometer can't show days, so the days go into its format, and a redraw is due when it
+    // reaches zero (Countdown.nextEventRefresh).
+    private fun eventRow(context: Context, countdown: EventSchedule.Countdown, now: Long, narrow: Boolean): RemoteViews {
+        val row = RemoteViews(context.packageName, if (narrow) R.layout.widget_event_row_narrow else R.layout.widget_event_row)
+        row.setTextViewText(R.id.event_name, context.getString(countdown.kind.label))
+        val split = Countdown.split(countdown.target - now)
+        val format = context.getString(countdown.label, if (split.days > 0) "${split.days}d %s" else "%s")
+        row.setChronometer(R.id.event_timer, SystemClock.elapsedRealtime() + split.restMs, format, true)
+        row.setChronometerCountDown(R.id.event_timer, true)
+        row.setTextColor(R.id.event_timer, context.getColor(if (countdown.running) R.color.event_running else R.color.text_dim))
+        return row
     }
 
     internal fun build(context: Context, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {

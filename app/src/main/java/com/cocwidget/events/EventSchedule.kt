@@ -47,7 +47,26 @@ object EventSchedule {
     class Reminder(val id: String, val kind: EventKind, val at: Long, val title: Int, val text: Int)
 
     // What to count down to: the end of an event that's on ([running]), or the next one's start.
-    class Countdown(val kind: EventKind, val running: Boolean, val target: Long)
+    // [label] words it, with the time left as its one argument.
+    class Countdown(val kind: EventKind, val running: Boolean, val target: Long) {
+        val label: Int
+            get() = if (running) {
+                when (kind) {
+                    EventKind.CWL -> R.string.event_cwl_closes_in
+                    EventKind.GOLD_PASS -> R.string.event_season_ends_in
+                    EventKind.RANKED -> R.string.event_ranked_ends_in
+                    else -> R.string.event_ends_in
+                }
+            } else {
+                when (kind) {
+                    EventKind.CWL -> R.string.event_cwl_opens_in
+                    EventKind.GOLD_PASS -> R.string.event_season_starts_in
+                    EventKind.RANKED -> R.string.event_ranked_opens_in
+                    EventKind.LEGEND -> R.string.event_legend_in
+                    else -> R.string.event_starts_in
+                }
+            }
+    }
 
     // [notified] is what to remember as handled. [next] is the next reminder still to come.
     class Decision(val due: List<Reminder>, val notified: Set<String>, val next: Long?)

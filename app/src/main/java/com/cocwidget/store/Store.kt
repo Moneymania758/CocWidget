@@ -19,6 +19,8 @@ object Store {
     private const val KEY_ACCOUNTS = "accounts"
     private const val KEY_SELECTED = "selected_account"
     private const val KEY_WIDGET = "widget_"
+    // The events an Events widget leaves out, by EventKind key. None stored means it shows them all.
+    private const val KEY_WIDGET_HIDDEN_EVENTS = "widget_hidden_events_"
     private const val KEY_LAST_UPDATE_CHECK = "last_update_check"
     private const val KEY_LATEST_VERSION = "latest_version"
     private const val KEY_ASKED_NOTIFICATIONS = "asked_notifications"
@@ -151,7 +153,20 @@ object Store {
 
     fun forgetWidgets(context: Context, widgetIds: IntArray) {
         val editor = prefs(context).edit()
-        for (id in widgetIds) editor.remove(KEY_WIDGET + id)
+        for (id in widgetIds) editor.remove(KEY_WIDGET + id).remove(KEY_WIDGET_HIDDEN_EVENTS + id)
+        editor.apply()
+    }
+
+    fun hiddenEvents(context: Context, widgetId: Int): Set<EventKind> =
+        prefs(context).getStringSet(KEY_WIDGET_HIDDEN_EVENTS + widgetId, emptySet()).orEmpty().mapNotNull(EventKind::of).toSet()
+
+    fun setHiddenEvents(context: Context, widgetId: Int, hidden: Set<EventKind>) {
+        val editor = prefs(context).edit()
+        if (hidden.isEmpty()) {
+            editor.remove(KEY_WIDGET_HIDDEN_EVENTS + widgetId)
+        } else {
+            editor.putStringSet(KEY_WIDGET_HIDDEN_EVENTS + widgetId, hidden.map { it.key }.toSet())
+        }
         editor.apply()
     }
 
