@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.SystemClock
 import android.text.SpannableStringBuilder
 import android.util.SizeF
+import android.util.TypedValue
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
@@ -38,8 +39,12 @@ object WidgetRenderer {
     private const val REFRESH_REQUEST = 0
     private const val FINISH_REQUEST = 1
     private const val EVENT_REQUEST = 2
-    private const val NARROW_MIN_DP = 0f
-    private const val WIDE_MIN_DP = 300f
+    private const val NARROW_MIN_DP = 180f
+    // The longest row, "Legend League" beside "New Tournament in 27d 23:59:56", fits from here.
+    private const val WIDE_MIN_DP = 340f
+    private const val SHORT_MIN_DP = 40f
+    // Header, a row and the Reset chip need about this much.
+    private const val TALL_MIN_DP = 130f
 
     fun update(context: Context, download: () -> String? = EventDates::fromGitHub) {
         // Notifications work without a widget on the home screen, so they come first.
@@ -80,10 +85,13 @@ object WidgetRenderer {
         if (eventIds.isNotEmpty()) {
             val dates = EventDates.current(context)
             for (widgetId in eventIds) {
-                // The launcher picks the biggest that fits. Below 300 dp the countdown goes under the name.
+                // The launcher picks the closest that fits. A narrow widget puts each countdown under
+                // its name, and a short one drops the header so a row still fits.
                 manager.updateAppWidget(widgetId, RemoteViews(mapOf(
-                    SizeF(NARROW_MIN_DP, 0f) to buildEvents(context, widgetId, now, dates, narrow = true),
-                    SizeF(WIDE_MIN_DP, 0f) to buildEvents(context, widgetId, now, dates, narrow = false),
+                    SizeF(NARROW_MIN_DP, SHORT_MIN_DP) to buildEvents(context, widgetId, now, dates, narrow = true, short = true),
+                    SizeF(WIDE_MIN_DP, SHORT_MIN_DP) to buildEvents(context, widgetId, now, dates, narrow = false, short = true),
+                    SizeF(NARROW_MIN_DP, TALL_MIN_DP) to buildEvents(context, widgetId, now, dates, narrow = true, short = false),
+                    SizeF(WIDE_MIN_DP, TALL_MIN_DP) to buildEvents(context, widgetId, now, dates, narrow = false, short = false),
                 )))
                 redraws += Countdown.nextEventRefresh(shownEvents(context, widgetId, now, dates).map { it.target }, now)
             }
@@ -163,7 +171,7 @@ object WidgetRenderer {
             val split = Countdown.split(village.endMillis(next) - now)
             views.setTextViewText(R.id.days, "${split.days}d")
             views.setViewVisibility(R.id.days, if (split.days > 0) View.VISIBLE else View.GONE)
-            views.setChronometer(R.id.timer, SystemClock.elapsedRealtime() + split.restMs, null, true)
+            views.setChronometer(R.id.timer, SystemClock.elapsedRealtime() + split.restMs, Countdown.chronometerFormat(split), true)
             views.setChronometerCountDown(R.id.timer, true)
             views.setViewVisibility(R.id.timer, View.VISIBLE)
         }
@@ -190,9 +198,23 @@ object WidgetRenderer {
     }
 
     // The Events widget: one row per event the player chose, each with a live countdown. Edit picks
-    // the events, and Reset shows every one again.
-    internal fun buildEvents(context: Context, widgetId: Int, now: Long, dates: EventDates.Dates, narrow: Boolean = false): RemoteViews {
+    // the events, and Reset shows every one again. [short] leaves out the header and Reset, so a
+    // widget too short for them still shows a countdown. Edit is then in the launcher's settings.
+    internal fun buildEvents(
+        context: Context,
+        widgetId: Int,
+        now: Long,
+        dates: EventDates.Dates,
+        narrow: Boolean = false,
+        short: Boolean = false,
+    ): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_events)
+        if (short) {
+            views.setViewVisibility(R.id.events_header, View.GONE)
+            val padding = dp(context, 8)
+            views.setViewPadding(R.id.events_root, padding, padding, padding, padding)
+            views.setViewLayoutMargin(R.id.event_rows, RemoteViews.MARGIN_TOP, 0f, TypedValue.COMPLEX_UNIT_DIP)
+        }
         views.setOnClickPendingIntent(R.id.events_root, openAppIntent(context, widgetId, null))
         views.setOnClickPendingIntent(R.id.events_edit, PendingIntent.getActivity(
             context,
@@ -205,22 +227,24 @@ object WidgetRenderer {
         ))
         views.removeAllViews(R.id.event_rows)
 
+        // Reset counts only what it would bring back on screen, so an event with no date yet doesn't count.
         val hidden = Store.hiddenEvents(context, widgetId)
-        if (hidden.isEmpty()) {
+        val missing = EventSchedule.countdowns(now, dates).count { it.kind in hidden }
+        val countdowns = shownEvents(context, widgetId, now, dates)
+        if (missing == 0 || (short && countdowns.isNotEmpty())) {
             views.setViewVisibility(R.id.events_reset, View.GONE)
         } else {
             views.setViewVisibility(R.id.events_reset, View.VISIBLE)
-            views.setTextViewText(R.id.events_reset, context.resources.getQuantityString(R.plurals.events_widget_reset_hidden, hidden.size, hidden.size))
+            views.setTextViewText(R.id.events_reset, context.resources.getQuantityString(R.plurals.events_widget_reset_hidden, missing, missing))
             views.setOnClickPendingIntent(R.id.events_reset, broadcast(context, 500, Intent(context, VillageWidget::class.java)
                 .setAction(VillageWidget.ACTION_SHOW_ALL_EVENTS)
                 .setData(Uri.parse("cocwidget://show-all-events/$widgetId"))
                 .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)))
         }
 
-        val countdowns = shownEvents(context, widgetId, now, dates)
         if (countdowns.isEmpty()) {
             views.setViewVisibility(R.id.events_empty, View.VISIBLE)
-            views.setTextViewText(R.id.events_empty, context.getString(if (hidden.isEmpty()) R.string.events_widget_no_dates else R.string.events_widget_all_hidden))
+            views.setTextViewText(R.id.events_empty, context.getString(if (missing == 0) R.string.events_widget_no_dates else R.string.events_widget_all_hidden))
             return views
         }
         views.setViewVisibility(R.id.events_empty, View.GONE)
@@ -229,12 +253,13 @@ object WidgetRenderer {
     }
 
     // Chronometer can't show days, so the days go into its format, and a redraw is due when it
-    // reaches zero (Countdown.nextEventRefresh).
+    // reaches zero or drops under an hour (Countdown.nextEventRefresh).
     private fun eventRow(context: Context, countdown: EventSchedule.Countdown, now: Long, narrow: Boolean): RemoteViews {
         val row = RemoteViews(context.packageName, if (narrow) R.layout.widget_event_row_narrow else R.layout.widget_event_row)
-        row.setTextViewText(R.id.event_name, context.getString(countdown.kind.label))
+        row.setTextViewText(R.id.event_name, context.getString(countdown.kind.shortLabel))
         val split = Countdown.split(countdown.target - now)
-        val format = context.getString(countdown.label, if (split.days > 0) "${split.days}d %s" else "%s")
+        val days = if (split.days > 0) "${split.days}d " else ""
+        val format = context.getString(countdown.label, days + Countdown.hourPrefix(split) + "%s")
         row.setChronometer(R.id.event_timer, SystemClock.elapsedRealtime() + split.restMs, format, true)
         row.setChronometerCountDown(R.id.event_timer, true)
         row.setTextColor(R.id.event_timer, context.getColor(if (countdown.running) R.color.event_running else R.color.text_dim))
@@ -502,11 +527,12 @@ object WidgetRenderer {
             return row
         }
 
-        // A refresh is scheduled for when the chronometer reaches zero (Countdown.nextRefresh).
+        // A refresh is scheduled for when the chronometer reaches zero or drops under an hour
+        // (Countdown.nextRefresh).
         val split = Countdown.split(left)
         row.setTextViewText(R.id.days, "${split.days}d")
         row.setViewVisibility(R.id.days, if (split.days > 0) View.VISIBLE else View.GONE)
-        row.setChronometer(R.id.timer, SystemClock.elapsedRealtime() + split.restMs, null, true)
+        row.setChronometer(R.id.timer, SystemClock.elapsedRealtime() + split.restMs, Countdown.chronometerFormat(split), true)
         row.setChronometerCountDown(R.id.timer, true)
         row.setViewVisibility(R.id.done, View.GONE)
         return row

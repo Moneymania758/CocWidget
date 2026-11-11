@@ -19,6 +19,18 @@ enum class EventKind(val key: String, val onByDefault: Boolean, val label: Int) 
     LEGEND("legend", false, R.string.event_legend),
     ;
 
+    // The name on an Events widget row, short enough to sit beside its countdown.
+    val shortLabel: Int
+        get() = when (this) {
+            CLAN_GAMES -> R.string.event_clan_games
+            CWL -> R.string.event_cwl_short
+            GOLD_PASS -> R.string.event_gold_pass_short
+            HAMMER_JAM -> R.string.event_hammer_jam
+            RAID_WEEKEND -> R.string.event_raid
+            RANKED -> R.string.event_ranked_short
+            LEGEND -> R.string.event_legend_short
+        }
+
     companion object {
         fun of(key: String) = entries.firstOrNull { it.key == key }
     }

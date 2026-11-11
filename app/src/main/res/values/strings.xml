@@ -53,6 +53,10 @@
     <string name="event_raid">Raid Weekend</string>
     <string name="event_ranked">Ranked battles</string>
     <string name="event_legend">Legend League I reset</string>
+    <string name="event_cwl_short">CWL sign-up</string>
+    <string name="event_gold_pass_short">Gold Pass</string>
+    <string name="event_ranked_short">Ranked</string>
+    <string name="event_legend_short">Legend League</string>
     <string name="event_home_title">Events</string>
     <string name="event_show_all">Show all %1$d</string>
     <string name="event_show_fewer">Show fewer</string>

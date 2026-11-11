@@ -108,10 +108,12 @@ an event is on, grey until it starts. Add it the same way as the others (long-pr
 screen, **Widgets**, **Clash Timers**, **Events**). It works without an imported village.
 
 - Tap **Edit** to pick which events it shows. Untick the ones you don't need and tap **Done**.
-- **Reset · 2 hidden** at the bottom shows every event again in one tap. **Reset** in the Edit
-  list does the same.
+- **Reset · 2 hidden** at the bottom shows every event again in one tap. It counts the hidden
+  events that have a date coming up. **Reset** in the Edit list does the same.
 - Each Events widget keeps its own list, and hiding an event here doesn't turn off its reminder.
 - On a narrow widget the countdown sits under the event's name.
+- A very short widget leaves out the title, **Edit** and **Reset** so a countdown still fits.
+  Long-press it and open its settings to pick events.
 
 ## Reading the widget
 

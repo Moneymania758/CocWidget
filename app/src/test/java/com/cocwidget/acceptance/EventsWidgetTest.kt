@@ -14,6 +14,7 @@ import android.widget.TextView
 import com.cocwidget.EventsWidget
 import com.cocwidget.EventsWidgetConfigActivity
 import com.cocwidget.R
+import com.cocwidget.TestData
 import com.cocwidget.VillageWidget
 import com.cocwidget.events.EventDates
 import com.cocwidget.events.EventKind
@@ -44,8 +45,8 @@ class EventsWidgetTest {
 
     private fun place() = shadowOf(manager).createWidget(EventsWidget::class.java, R.layout.widget_events)
 
-    private fun draw(id: Int, narrow: Boolean = false): View =
-        WidgetRenderer.buildEvents(app, id, now, EventDates.current(app), narrow).apply(app, FrameLayout(app))
+    private fun draw(id: Int, narrow: Boolean = false, short: Boolean = false): View =
+        WidgetRenderer.buildEvents(app, id, now, EventDates.current(app), narrow, short).apply(app, FrameLayout(app))
 
     private fun names(widget: View): List<String> {
         val rows = widget.findViewById<ViewGroup>(R.id.event_rows)
@@ -61,7 +62,7 @@ class EventsWidgetTest {
     fun itShowsEveryDatedEventSoonestFirstUntilThePlayerPicks() {
         val widget = draw(place())
         assertEquals(
-            listOf("Clan Games", "Ranked battles", "Legend League I reset", "Raid Weekend", "Clan War League sign-up", "Gold Pass season"),
+            listOf("Clan Games", "Ranked", "Legend League", "Raid Weekend", "CWL sign-up", "Gold Pass"),
             names(widget),
         )
         // Hammer Jam ended on the 16th and has no next date, so it has no row.
@@ -89,7 +90,7 @@ class EventsWidgetTest {
         val id = place()
         Store.setHiddenEvents(app, id, setOf(EventKind.RANKED, EventKind.LEGEND))
         val widget = draw(id)
-        assertEquals(listOf("Clan Games", "Raid Weekend", "Clan War League sign-up", "Gold Pass season"), names(widget))
+        assertEquals(listOf("Clan Games", "Raid Weekend", "CWL sign-up", "Gold Pass"), names(widget))
 
         val reset = widget.findViewById<TextView>(R.id.events_reset)
         assertEquals(View.VISIBLE, reset.visibility)
@@ -120,12 +121,56 @@ class EventsWidgetTest {
     fun withEveryEventHiddenItSaysSoAndOffersReset() {
         val id = place()
         Store.setHiddenEvents(app, id, EventKind.entries.toSet())
+        for (short in listOf(false, true)) {
+            val widget = draw(id, short = short)
+            assertTrue(names(widget).isEmpty())
+            val empty = widget.findViewById<TextView>(R.id.events_empty)
+            assertEquals(View.VISIBLE, empty.visibility)
+            assertEquals(app.getString(R.string.events_widget_all_hidden), empty.text.toString())
+            // Hammer Jam has no date, so Reset would bring back six rows, not seven.
+            assertEquals("Reset · 6 hidden", widget.findViewById<TextView>(R.id.events_reset).text.toString())
+            assertEquals(View.VISIBLE, widget.findViewById<View>(R.id.events_reset).visibility)
+        }
+    }
+
+    @Test
+    fun hidingAnEventWithNoDateShowsNoResetChip() {
+        val id = place()
+        Store.setHiddenEvents(app, id, setOf(EventKind.HAMMER_JAM))
         val widget = draw(id)
-        assertTrue(names(widget).isEmpty())
-        val empty = widget.findViewById<TextView>(R.id.events_empty)
-        assertEquals(View.VISIBLE, empty.visibility)
-        assertEquals(app.getString(R.string.events_widget_all_hidden), empty.text.toString())
-        assertEquals(View.VISIBLE, widget.findViewById<View>(R.id.events_reset).visibility)
+        assertEquals(6, names(widget).size)
+        assertEquals(View.GONE, widget.findViewById<View>(R.id.events_reset).visibility)
+    }
+
+    @Test
+    fun aShortWidgetDropsTheHeaderAndResetSoARowFits() {
+        val id = place()
+        Store.setHiddenEvents(app, id, setOf(EventKind.RANKED))
+        val widget = draw(id, short = true)
+        assertEquals(View.GONE, widget.findViewById<View>(R.id.events_header).visibility)
+        assertEquals(View.GONE, widget.findViewById<View>(R.id.events_reset).visibility)
+        assertEquals("Clan Games", names(widget).first())
+        assertEquals(View.VISIBLE, draw(id).findViewById<View>(R.id.events_header).visibility)
+    }
+
+    @Test
+    fun aCountdownWithDaysKeepsItsHourInTheLastHourOfADay() {
+        // Sign-up opens 1 Dec 08:00. Half an hour past 8 days before that, "8d 30:00" would read as 30 hours.
+        val at = Instant.parse("2026-11-23T07:30:00Z").toEpochMilli()
+        val id = place()
+        val widget = WidgetRenderer.buildEvents(app, id, at, EventDates.current(app)).apply(app, FrameLayout(app))
+        val row = names(widget).indexOf("CWL sign-up")
+        assertEquals("Sign-up opens in 8d 0:30:00", timers(widget)[row])
+    }
+
+    @Test
+    fun theBigWidgetKeepsTheHourToo() {
+        val village = TestData.villageOf(now, TestData.upgrade(workSec = 86_400 + 1_800))
+        val id = shadowOf(manager).createWidget(VillageWidget::class.java, R.layout.widget)
+        val widget = WidgetRenderer.build(app, id, village.tag, village, now).apply(app, FrameLayout(app))
+        val row = widget.findViewById<ViewGroup>(R.id.rows).findViewById<View>(R.id.timer).parent as View
+        assertEquals("1d", row.findViewById<TextView>(R.id.days).text.toString())
+        assertEquals("0:30:00", row.findViewById<Chronometer>(R.id.timer).text.toString())
     }
 
     @Test

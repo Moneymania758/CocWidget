@@ -92,4 +92,23 @@ class CountdownTest {
         val village = TestData.villageOf(now - 9_800, TestData.upgrade(workSec = 10))
         assertEquals(now + 1_000, Countdown.nextRefresh(village, now))
     }
+
+    @Test
+    fun withDaysInFrontTheHourComesBackUnderAnHour() {
+        // Chronometer shows 30:00 for half an hour, so "2d 30:00" would read as 30 hours.
+        assertEquals("0:", Countdown.hourPrefix(Countdown.split(2 * DAY_MS + 30 * 60_000)))
+        assertEquals("0:%s", Countdown.chronometerFormat(Countdown.split(2 * DAY_MS + 30 * 60_000)))
+        assertEquals("", Countdown.hourPrefix(Countdown.split(2 * DAY_MS + 2 * 3_600_000)))
+        // Under a day there are no days in front, and 30:00 reads right.
+        assertEquals("", Countdown.hourPrefix(Countdown.split(30 * 60_000)))
+        assertEquals(null, Countdown.chronometerFormat(Countdown.split(30 * 60_000)))
+    }
+
+    @Test
+    fun refreshesWhenADayCountdownDropsUnderAnHour() {
+        // 2 days, 1 hour and 10 seconds left: under an hour in just over 10 seconds.
+        val village = TestData.villageOf(now, TestData.upgrade(workSec = 2 * 86_400 + 3_600 + 10))
+        assertEquals(now + 10_001, Countdown.nextRefresh(village, now))
+        assertEquals(now + 10_001, Countdown.nextEventRefresh(listOf(now + 2 * DAY_MS + 3_600_000 + 10_000), now))
+    }
 }
