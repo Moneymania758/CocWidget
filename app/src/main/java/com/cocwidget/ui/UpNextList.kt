@@ -43,7 +43,14 @@ class UpNextList(
     private val onFilter: (Section?) -> Unit,
 ) {
     // A countdown on screen. The main screen redraws these each second, and rebuilds when one ends.
-    class Clock(val view: TextView, val endMillis: Long, val text: (Long) -> CharSequence)
+    // [colour], when given, picks the colour from the time left, so green comes in on the hour.
+    class Clock(val view: TextView, val endMillis: Long, val text: (Long) -> CharSequence, val colour: ((Long) -> Int)? = null) {
+        fun draw(now: Long) {
+            val left = endMillis - now
+            view.text = text(left)
+            colour?.let { view.setTextColor(it(left)) }
+        }
+    }
 
     val clocks = mutableListOf<Clock>()
 
@@ -51,10 +58,12 @@ class UpNextList(
     private val timeFormat = DateFormat.getTimeFormat(activity)
     private val locale: Locale = activity.resources.configuration.locales[0]
 
-    private fun clock(view: TextView, endMillis: Long, text: (Long) -> CharSequence) {
-        view.text = text(endMillis - now)
-        clocks += Clock(view, endMillis, text)
+    private fun clock(view: TextView, endMillis: Long, colour: ((Long) -> Int)? = null, text: (Long) -> CharSequence) {
+        clocks += Clock(view, endMillis, text, colour).also { it.draw(now) }
     }
+
+    // Upgrades and boosts go green in their last hour.
+    private val soon: (Long) -> Int = { left -> if (left < HOUR_MS) ui.skin.green else ui.skin.text }
 
     // The dashboard: one tile per section, in one row when their names and figures fit, otherwise
     // two to a row, so a narrow phone or a big font doesn't cut them off. Null without a village.
@@ -95,7 +104,11 @@ class UpNextList(
         isSelected = chosen
         val (big, status, colour) = tileText(village, section)
         addView(oneLine(ui.text(activity.getString(tileName(section)), 11f, ui.skin.dim, bold = true)))
-        addView(oneLine(ui.heading(big, 18f, ui.skin.text)).apply { fontFeatureSettings = "tnum" }, ui.matchWidth(2))
+        addView(oneLine(ui.heading(big, 18f, ui.skin.text)).apply {
+            fontFeatureSettings = "tnum"
+            // The lab's and pets' time left counts down with the rows under it.
+            tileEnd(village, section)?.let { end -> clock(this, end) { left -> PlanFormat.duration(left / 1000) } }
+        }, ui.matchWidth(2))
         addView(twoLines(ui.text(status, 11f, colour, bold = true)), ui.matchWidth(2))
         ui.pressable(this, 16f) { onFilter(if (chosen) null else section) }
     }
@@ -111,6 +124,13 @@ class UpNextList(
         ellipsize = TextUtils.TruncateAt.END
     }
 
+    // When the lab's or the Pet House's next upgrade ends, or null for a tile with no countdown.
+    private fun tileEnd(village: Village, section: Section): Long? =
+        if (section != Section.LAB && section != Section.PETS) null else runningIn(village, section).minOfOrNull { village.endMillis(it) }
+
+    private fun runningIn(village: Village, section: Section) =
+        village.upgrades.filter { it.section == section && !it.extra && village.endMillis(it) > now }
+
     private fun tileName(section: Section) = when (section) {
         Section.BUILDERS -> R.string.upnext_tile_builders
         Section.LAB -> R.string.upnext_tile_lab
@@ -121,7 +141,7 @@ class UpNextList(
     // The big line and the status under it. Builders count their slots; the lab and pets give the
     // time left on what's running; the Builder Base, which has no slot count, how much runs there.
     private fun tileText(village: Village, section: Section): Triple<String, String, Int> {
-        val running = village.upgrades.filter { it.section == section && !it.extra && village.endMillis(it) > now }
+        val running = runningIn(village, section)
         val idle = village.idleIn(section, now)
         return when (section) {
             Section.BUILDERS -> Triple(
@@ -250,9 +270,9 @@ class UpNextList(
         fontFeatureSettings = "tnum"
     }.also { addView(it, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { marginStart = ui.dp(8) }) }
 
-    private fun LinearLayout.countdown(endMillis: Long, colour: Int = ui.skin.text) {
-        val view = right("", colour)
-        clock(view, endMillis) { Countdown.clock(it) }
+    private fun LinearLayout.countdown(endMillis: Long, colour: (Long) -> Int) {
+        val view = right("", ui.skin.text)
+        clock(view, endMillis, colour) { Countdown.clock(it) }
     }
 
     private fun picture(path: String?) = ui.picture().also { view -> path?.let { pictures.add(it, view) } }
@@ -283,7 +303,7 @@ class UpNextList(
                 addView(rowFace(WidgetRenderer.helperFace(upgrade.section), ui.skin.helper, R.string.helper))
             }
         }
-        if (left > 0) countdown(end, if (left < HOUR_MS) ui.skin.green else ui.skin.text) else right(activity.getString(R.string.done), ui.skin.green)
+        if (left > 0) countdown(end, soon) else right(activity.getString(R.string.done), ui.skin.green)
     }
 
     private fun kindName(section: Section) = when (section) {
@@ -317,7 +337,7 @@ class UpNextList(
         ).joinToString(" · ")
         val ready = item.atMillis <= now
         middle(activity.getString(R.string.home_helpers), levels, if (ready) ui.skin.idle else ui.skin.text)
-        if (ready) right(activity.getString(R.string.home_helpers_ready), ui.skin.idle) else countdown(item.atMillis, ui.skin.helper)
+        if (ready) right(activity.getString(R.string.home_helpers_ready), ui.skin.idle) else countdown(item.atMillis) { ui.skin.helper }
     }
 
     private fun LinearLayout.boost(item: Item.BoostEnds) {
@@ -328,7 +348,7 @@ class UpNextList(
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }, pictureSize())
         middle(activity.getString(R.string.upnext_boost_ends, boostName(item)), activity.getString(kindName(item.section)))
-        countdown(item.atMillis)
+        countdown(item.atMillis, soon)
     }
 
     // "Builder Potion (10x)", as the Potions screen names them.
@@ -350,7 +370,8 @@ class UpNextList(
         }, pictureSize())
         val line = activity.getString(if (countdown.running) R.string.upnext_event_ends else R.string.upnext_event_starts)
         middle(activity.getString(countdown.kind.label), line)
-        countdown(countdown.target, if (countdown.running) ui.skin.green else ui.skin.text)
+        val colour = if (countdown.running) ui.skin.green else ui.skin.text
+        countdown(countdown.target) { colour }
     }
 
     private companion object {

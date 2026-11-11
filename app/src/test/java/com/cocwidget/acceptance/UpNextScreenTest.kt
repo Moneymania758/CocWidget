@@ -3,7 +3,12 @@ package com.cocwidget.acceptance
 import com.cocwidget.MainActivity
 import com.cocwidget.TestData
 import com.cocwidget.game.Section
+import com.cocwidget.plan.PlanFormat
 import com.cocwidget.store.Store
+import com.cocwidget.ui.Pictures
+import com.cocwidget.ui.Skin
+import com.cocwidget.ui.Ui
+import com.cocwidget.ui.UpNextList
 import com.cocwidget.widget.WidgetRenderer
 import android.text.TextUtils
 import android.view.View
@@ -132,5 +137,37 @@ class UpNextScreenTest {
                 (0 until layout.lineCount).any { layout.getEllipsisCount(it) > 0 }
         }.map { it.text.toString() }
         assertEquals(emptyList<String>(), cut)
+    }
+
+    private fun upNext(main: MainActivity, now: Long): UpNextList {
+        val village = Store.village(app, Store.selected(app)!!)!!
+        return UpNextList(main, Ui(main, Skin.current(main)), Pictures(main), village, now, null) {}
+    }
+
+    @Test
+    fun theLabTileCountsDownWithTheRows() {
+        fresh()
+        val main = Screens.open<MainActivity>()
+        val now = System.currentTimeMillis()
+        val list = upNext(main, now)
+        list.tiles()
+        val lab = Store.village(app, Store.selected(app)!!)!!.let { v -> v.upgrades.filter { it.section == Section.LAB && !it.extra }.minOf { v.endMillis(it) } }
+        val clock = list.clocks.single { it.endMillis == lab }
+        assertEquals(PlanFormat.duration((lab - now) / 1000), clock.view.text.toString())
+        clock.draw(lab - 120_000)
+        assertEquals("2m", clock.view.text.toString())
+    }
+
+    @Test
+    fun aCountdownTurnsGreenWhenItsLastHourStarts() {
+        fresh()
+        val main = Screens.open<MainActivity>()
+        val now = System.currentTimeMillis()
+        val list = upNext(main, now)
+        list.timeline(emptyList())
+        val clock = list.clocks.first { it.endMillis - now > 2 * 3_600_000L }
+        assertEquals(Skin.current(main).text, clock.view.currentTextColor)
+        clock.draw(clock.endMillis - 30 * 60_000L)
+        assertEquals(Skin.current(main).green, clock.view.currentTextColor)
     }
 }

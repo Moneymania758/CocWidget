@@ -45,7 +45,7 @@ class MainActivity : Screen() {
             if (clocks.any { it.endMillis <= now }) {
                 show()
             } else {
-                for (clock in clocks) clock.view.text = clock.text(clock.endMillis - now)
+                for (clock in clocks) clock.draw(now)
             }
             handler.postDelayed(this, TICK_MS)
         }
