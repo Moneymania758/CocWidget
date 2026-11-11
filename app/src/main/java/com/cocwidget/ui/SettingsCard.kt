@@ -193,7 +193,7 @@ class SettingsCard(
         gravity = Gravity.CENTER_VERTICAL
         addView(ui.text(activity.getString(R.string.account_remove), 15f))
         ui.pressable(this, 0f) {
-            AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+            AlertDialog.Builder(activity, ui.skin.dialogTheme)
                 .setTitle(activity.getString(R.string.account_remove_title, Store.label(activity, tag)))
                 .setMessage(R.string.account_remove_message)
                 .setPositiveButton(R.string.account_remove_confirm) { _, _ ->

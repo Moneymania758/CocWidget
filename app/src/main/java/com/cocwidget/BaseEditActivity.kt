@@ -288,7 +288,7 @@ class BaseEditActivity : Screen() {
 
     private fun confirmDelete() {
         val base = editing ?: return
-        AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+        AlertDialog.Builder(this, ui.skin.dialogTheme)
             .setTitle(getString(R.string.base_delete_title, MyBasesActivity.nameOf(this, base)))
             .setMessage(R.string.base_delete_message)
             .setPositiveButton(R.string.base_delete_confirm) { _, _ ->

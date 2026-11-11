@@ -258,7 +258,7 @@ class MainActivity : Screen() {
             minHeight = ui.dp(36)
             gravity = Gravity.CENTER_VERTICAL
             ui.pressable(this, 8f) {
-                AlertDialog.Builder(this@MainActivity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                AlertDialog.Builder(this@MainActivity, ui.skin.dialogTheme)
                     .setTitle(R.string.account_add_title)
                     .setMessage(R.string.account_add_steps)
                     .setPositiveButton(android.R.string.ok, null)

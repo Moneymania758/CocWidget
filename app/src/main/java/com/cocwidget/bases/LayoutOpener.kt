@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import com.cocwidget.R
+import com.cocwidget.ui.Skin
 
 // Opens a layout link in Clash of Clans, from a site or from My bases.
 object LayoutOpener {
@@ -15,7 +16,7 @@ object LayoutOpener {
     fun open(activity: Activity, url: String, myTownHall: Int, onOpen: () -> Unit = {}) {
         val baseTownHall = BaseLinks.townHall(url)
         if (myTownHall > 0 && baseTownHall > myTownHall) {
-            AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+            AlertDialog.Builder(activity, Skin.current(activity).dialogTheme)
                 .setTitle(activity.getString(R.string.bases_too_high_title, baseTownHall))
                 .setMessage(activity.getString(R.string.bases_too_high, baseTownHall, myTownHall))
                 .setPositiveButton(R.string.bases_open_anyway) { _, _ -> if (inGame(activity, url)) onOpen() }

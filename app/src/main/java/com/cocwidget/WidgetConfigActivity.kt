@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
 import com.cocwidget.store.Store
+import com.cocwidget.ui.Skin
 
 // Invisible screen the launcher opens when a widget is placed, and from the widget's settings
 // later, to pick which account the widget shows. With three or more accounts, a tap on the widget's
@@ -30,7 +31,7 @@ class WidgetConfigActivity : Activity() {
             return
         }
         val current = Store.widgetAccount(this, widgetId)
-        AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+        AlertDialog.Builder(this, Skin.current(this).dialogTheme)
             .setTitle(R.string.widget_pick_title)
             .setSingleChoiceItems(accounts.map { Store.label(this, it) }.toTypedArray(), accounts.indexOf(current)) { dialog, which ->
                 // Closing the screen with the dialog still up leaks its window.

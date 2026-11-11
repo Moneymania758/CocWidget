@@ -5,6 +5,7 @@ import android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
 import android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
 import com.cocwidget.MainActivity
 import com.cocwidget.SettingsActivity
+import com.cocwidget.TestData
 import com.cocwidget.store.Store
 import com.cocwidget.ui.Skin
 import org.junit.Assert.assertEquals
@@ -14,6 +15,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowAlertDialog
 import kotlin.math.pow
 
 // The theme picker in Settings, the Light theme and System, which follows the phone's dark mode.
@@ -69,6 +71,27 @@ class ThemeTest {
         val root = Screens.root(settings)
         assertTrue(Screens.tappable(root, "System")!!.isSelected)
         assertTrue(!Screens.tappable(root, "Light")!!.isSelected)
+    }
+
+    // A dialog asked on Settings, here Remove this account: light on Light, dark on a dark theme.
+    private fun removeDialogIsLight(theme: String): Boolean {
+        Store.setSelected(app, Store.saveExport(app, TestData.exportJson()))
+        Store.setSkin(app, theme)
+        val settings = Screens.open<SettingsActivity>()
+        Screens.tappable(Screens.root(settings), "Remove this account")!!.performClick()
+        val dialog = ShadowAlertDialog.getLatestAlertDialog()
+        val attrs = dialog.context.obtainStyledAttributes(intArrayOf(android.R.attr.isLightTheme))
+        return attrs.getBoolean(0, false).also { attrs.recycle() }
+    }
+
+    @Test
+    fun dialogsAreLightOnLight() {
+        assertTrue(removeDialogIsLight("light"))
+    }
+
+    @Test
+    fun dialogsStayDarkOnADarkTheme() {
+        assertTrue(!removeDialogIsLight("clean"))
     }
 
     @Test

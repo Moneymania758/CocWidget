@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import com.cocwidget.events.EventKind
 import com.cocwidget.store.Store
+import com.cocwidget.ui.Skin
 
 // Invisible screen that picks which events one Events widget shows. It opens from the widget's
 // Edit chip, and from the widget's settings on a launcher that offers them. Reset shows every
@@ -28,7 +29,7 @@ class EventsWidgetConfigActivity : Activity() {
         val kinds = EventKind.entries
         val hidden = Store.hiddenEvents(this, widgetId)
         val shown = BooleanArray(kinds.size) { kinds[it] !in hidden }
-        AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+        AlertDialog.Builder(this, Skin.current(this).dialogTheme)
             .setTitle(R.string.events_widget_pick_title)
             .setMultiChoiceItems(kinds.map { getString(it.label) }.toTypedArray(), shown) { _, which, on -> shown[which] = on }
             // Closing the screen with the dialog still up leaks its window, so each button dismisses first.

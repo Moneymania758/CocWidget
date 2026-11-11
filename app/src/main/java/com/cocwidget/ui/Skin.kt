@@ -52,6 +52,10 @@ class Skin(
     val helper: Int,
     val goblin: Int,
 ) {
+    // Alert dialogs match the skin. The plain device dialog is always dark.
+    val dialogTheme: Int
+        get() = if (light) android.R.style.Theme_DeviceDefault_Light_Dialog_Alert else android.R.style.Theme_DeviceDefault_Dialog_Alert
+
     companion object {
         const val DEFAULT = "clean"
 
