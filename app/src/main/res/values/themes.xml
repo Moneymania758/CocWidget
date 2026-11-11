@@ -5,7 +5,13 @@
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
     </style>
-    <style name="Translucent" parent="@android:style/Theme.Translucent.NoTitleBar" />
+    <!-- The invisible screens behind the widget pickers and Import. The old theme paints the
+         status bar black, so it's cleared to show the page or home screen under the dim. -->
+    <style name="Translucent" parent="@android:style/Theme.Translucent.NoTitleBar">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
 
     <!-- Home, Builder Base and All on the widget. The renderer lights the one in use. -->
     <style name="WidgetViewButton">

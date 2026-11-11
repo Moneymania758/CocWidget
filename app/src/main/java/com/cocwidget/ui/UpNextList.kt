@@ -27,6 +27,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
+import kotlin.math.ceil
 
 // Up next on the main screen: a tile per section saying what is free, which also filters, then one
 // stream of everything that ends, grouped by the wall clock. Free slots and finished upgrades sit
@@ -55,16 +56,35 @@ class UpNextList(
         clocks += Clock(view, endMillis, text)
     }
 
-    // The dashboard: one tile per section, as wide as the row allows. Null without a village.
+    // The dashboard: one tile per section, in one row when their names and figures fit, otherwise
+    // two to a row, so a narrow phone or a big font doesn't cut them off. Null without a village.
     fun tiles(): View? {
         val village = village ?: return null
+        val tiles = village.sections().map { tile(village, it) }
+        val gap = ui.dp(TILE_GAP)
+        val room = ui.dp(activity.resources.configuration.screenWidthDp - PAGE_SIDES)
+        val perRow = if (tiles.size * tiles.maxOf(::widthNeeded) + gap * (tiles.size - 1) <= room) tiles.size else 2
         return LinearLayout(activity).apply {
-            orientation = LinearLayout.HORIZONTAL
-            isBaselineAligned = false
-            for ((index, section) in village.sections().withIndex()) {
-                addView(tile(village, section), ui.weighted(if (index == 0) 0 else 8).apply { height = ViewGroup.LayoutParams.MATCH_PARENT })
+            orientation = LinearLayout.VERTICAL
+            for ((rowIndex, row) in tiles.chunked(perRow).withIndex()) {
+                addView(LinearLayout(activity).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    isBaselineAligned = false
+                    for ((index, tile) in row.withIndex()) {
+                        addView(tile, ui.weighted(if (index == 0) 0 else TILE_GAP).apply { height = ViewGroup.LayoutParams.MATCH_PARENT })
+                    }
+                    // A lone tile on the last row keeps the same width as the ones above it.
+                    repeat(perRow - row.size) { addView(View(activity), ui.weighted(TILE_GAP)) }
+                }, ui.matchWidth(if (rowIndex == 0) 0 else TILE_GAP))
             }
         }
+    }
+
+    // The name or the figure, whichever is wider, with the tile's padding. The status under them
+    // can take a second line, so it doesn't count.
+    private fun widthNeeded(tile: LinearLayout): Int {
+        val widest = (0 until 2).maxOf { (tile.getChildAt(it) as TextView).let { view -> view.paint.measureText(view.text.toString()) } }
+        return ceil(widest).toInt() + tile.paddingLeft + tile.paddingRight
     }
 
     private fun tile(village: Village, section: Section) = LinearLayout(activity).apply {
@@ -76,12 +96,18 @@ class UpNextList(
         val (big, status, colour) = tileText(village, section)
         addView(oneLine(ui.text(activity.getString(tileName(section)), 11f, ui.skin.dim, bold = true)))
         addView(oneLine(ui.heading(big, 18f, ui.skin.text)).apply { fontFeatureSettings = "tnum" }, ui.matchWidth(2))
-        addView(oneLine(ui.text(status, 11f, colour, bold = true)), ui.matchWidth(2))
+        addView(twoLines(ui.text(status, 11f, colour, bold = true)), ui.matchWidth(2))
         ui.pressable(this, 16f) { onFilter(if (chosen) null else section) }
     }
 
     private fun oneLine(view: TextView) = view.apply {
         maxLines = 1
+        ellipsize = TextUtils.TruncateAt.END
+    }
+
+    // Row titles wrap on a narrow phone rather than lose the level at the end.
+    private fun twoLines(view: TextView) = view.apply {
+        maxLines = 2
         ellipsize = TextUtils.TruncateAt.END
     }
 
@@ -213,10 +239,10 @@ class UpNextList(
             addView(LinearLayout(activity).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                addView(oneLine(ui.text(title, 14f, titleColour, bold = true)), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                addView(twoLines(ui.text(title, 14f, titleColour, bold = true)), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 extra()
             })
-            line?.let { addView(oneLine(ui.text(it, 12f, ui.skin.dim)), ui.matchWidth(2)) }
+            line?.let { addView(twoLines(ui.text(it, 12f, ui.skin.dim)), ui.matchWidth(2)) }
         }, ui.weighted(10))
     }
 
@@ -329,5 +355,8 @@ class UpNextList(
 
     private companion object {
         const val HOUR_MS = 3_600_000L
+        const val TILE_GAP = 8
+        // The page's padding either side, in dp.
+        const val PAGE_SIDES = 32
     }
 }

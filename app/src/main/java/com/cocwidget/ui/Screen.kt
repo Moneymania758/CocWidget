@@ -58,10 +58,13 @@ abstract class Screen : Activity() {
             gravity = Gravity.CENTER
             contentDescription = getString(R.string.back)
             addView(ui.icon(R.drawable.ic_back, ui.skin.text, 22))
-            ui.pressable(this, 22f) { finish() }
+            ui.pressable(this, 22f) { leave() }
         }, LinearLayout.LayoutParams(ui.dp(44), ui.dp(44)))
         addView(ui.heading(title, 22f, ui.skin.title), ui.weighted(4))
     }
+
+    // The back arrow. A screen holding unsaved work asks first.
+    protected open fun leave() = finish()
 
     // A tab's title, with no back arrow. Callers can add more to the end of the row.
     protected fun tabHeader(title: Int) = LinearLayout(this).apply {

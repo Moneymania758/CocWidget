@@ -126,4 +126,13 @@ class ThemeTest {
         }
         return 0.2126 * channel(16) + 0.7152 * channel(8) + 0.0722 * channel(0)
     }
+
+    @Test
+    fun theWidgetPickersLeaveTheStatusBarClear() {
+        val theme = app.resources.newTheme().apply { applyStyle(com.cocwidget.R.style.Translucent, true) }
+        val bars = theme.obtainStyledAttributes(intArrayOf(android.R.attr.statusBarColor, android.R.attr.navigationBarColor))
+        assertEquals(android.graphics.Color.TRANSPARENT, bars.getColor(0, -1))
+        assertEquals(android.graphics.Color.TRANSPARENT, bars.getColor(1, -1))
+        bars.recycle()
+    }
 }

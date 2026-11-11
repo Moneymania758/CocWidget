@@ -516,6 +516,10 @@
     <string name="base_saved">Saved to My bases</string>
     <string name="base_needs_link">Paste a base link first.</string>
     <string name="base_delete">Delete this base</string>
+    <string name="base_discard_new">Discard this base?</string>
+    <string name="base_discard_changes">Discard your changes?</string>
+    <string name="base_discard_confirm">Discard</string>
+    <string name="base_discard_keep">Keep editing</string>
     <string name="base_delete_title">Delete %1$s?</string>
     <string name="base_delete_message">It\'s only removed from Clash Timers. Nothing changes in the game.</string>
     <string name="base_delete_confirm">Delete</string>

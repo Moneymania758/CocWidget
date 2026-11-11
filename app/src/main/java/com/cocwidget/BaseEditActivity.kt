@@ -286,6 +286,28 @@ class BaseEditActivity : Screen() {
         finish()
     }
 
+    // Something typed, picked or added that Save hasn't kept yet.
+    private fun unsaved(): Boolean {
+        if (draft != null) return true
+        val before = editing ?: return link.isNotBlank() || name.isNotBlank() || kind != null
+        return link != before.link || name != before.name || kind != before.kind || account != before.account || pictureRemoved
+    }
+
+    override fun leave() {
+        if (!unsaved()) {
+            finish()
+            return
+        }
+        AlertDialog.Builder(this, ui.skin.dialogTheme)
+            .setTitle(if (editing == null) R.string.base_discard_new else R.string.base_discard_changes)
+            .setPositiveButton(R.string.base_discard_confirm) { _, _ -> finish() }
+            .setNegativeButton(R.string.base_discard_keep, null)
+            .show()
+    }
+
+    @Deprecated("The system Back asks too, as the back arrow does.")
+    override fun onBackPressed() = leave()
+
     private fun confirmDelete() {
         val base = editing ?: return
         AlertDialog.Builder(this, ui.skin.dialogTheme)

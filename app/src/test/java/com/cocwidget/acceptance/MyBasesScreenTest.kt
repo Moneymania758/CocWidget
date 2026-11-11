@@ -202,6 +202,63 @@ class MyBasesScreenTest {
         assertTrue(again.isFinishing)
     }
 
+    @Suppress("DEPRECATION")
+    private fun back(screen: android.app.Activity) {
+        screen.onBackPressed()
+        idle()
+    }
+
+    @Test
+    fun backFromAnEmptyFormJustCloses() {
+        syncTh16()
+        val add = Screens.open<BaseEditActivity>()
+        back(add)
+        assertNull(ShadowAlertDialog.getLatestAlertDialog())
+        assertTrue(add.isFinishing)
+    }
+
+    @Test
+    fun backFromAFilledFormAsksBeforeDroppingIt() {
+        syncTh16()
+        val add = Screens.open<BaseEditActivity>()
+        fields(add)[0].setText(th16Base)
+        fields(add)[1].setText("War base")
+        back(add)
+        val dialog = ShadowAlertDialog.getLatestAlertDialog()
+        assertNotNull(dialog)
+        assertEquals(app.getString(R.string.base_discard_new), shadowOf(dialog).title)
+
+        dialog.getButton(DialogInterface.BUTTON_NEGATIVE).performClick()
+        idle()
+        assertFalse(add.isFinishing)
+        assertEquals("War base", fields(add)[1].text.toString())
+
+        // The back arrow asks the same.
+        Screens.all(Screens.root(add)).first { it.contentDescription == app.getString(R.string.back) }.performClick()
+        idle()
+        ShadowAlertDialog.getLatestAlertDialog().getButton(DialogInterface.BUTTON_POSITIVE).performClick()
+        idle()
+        assertTrue(add.isFinishing)
+        assertTrue(Store.allBases(app).isEmpty())
+    }
+
+    @Test
+    fun editingAsksOnlyWhenSomethingChanged() {
+        syncTh16()
+        tap(shareText(th16Base), app.getString(R.string.base_save))
+        val id = Store.allBases(app).single().id
+
+        val unchanged = Screens.open<BaseEditActivity> { putExtra(BaseEditActivity.EXTRA_BASE, id) }
+        back(unchanged)
+        assertTrue(unchanged.isFinishing)
+
+        val renamed = Screens.open<BaseEditActivity> { putExtra(BaseEditActivity.EXTRA_BASE, id) }
+        fields(renamed)[1].setText("Anti 3 star")
+        back(renamed)
+        assertFalse(renamed.isFinishing)
+        assertEquals(app.getString(R.string.base_discard_changes), shadowOf(ShadowAlertDialog.getLatestAlertDialog()).title)
+    }
+
     @Test
     fun aBaseThatsGoneClosesTheEditor() {
         assertTrue(Screens.open<BaseEditActivity> { putExtra(BaseEditActivity.EXTRA_BASE, "gone") }.isFinishing)

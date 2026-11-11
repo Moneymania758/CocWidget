@@ -175,8 +175,9 @@ class MainActivity : Screen() {
             } else {
                 getString(R.string.account_line, townHall, getString(R.string.exported_at, TimeText.exported(village.exportedAtMillis, now)))
             }
+            // Two lines on a narrow phone, so the export time isn't cut off.
             addView(ui.text(line, 12f, ui.skin.dim).apply {
-                maxLines = 1
+                maxLines = 2
                 ellipsize = TextUtils.TruncateAt.END
             })
         }, ui.weighted(10))
