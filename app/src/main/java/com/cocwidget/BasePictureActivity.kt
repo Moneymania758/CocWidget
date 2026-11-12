@@ -109,9 +109,20 @@ class BasePictureActivity : Activity() {
             fit()
         }
 
+        // A rotation keeps the zoom, with the same part of the picture in the middle.
         override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
             super.onSizeChanged(w, h, oldw, oldh)
+            val kept = scale
+            val before = Matrix()
+            val zoomed = kept > 1.01f && oldw > 0 && oldh > 0 && zoom.invert(before)
             fit()
+            if (!zoomed) return
+            // The picture's point that was in the middle, put back in the middle at the same zoom.
+            val middle = floatArrayOf(oldw / 2f, oldh / 2f).also(before::mapPoints)
+            zoomBy(kept, w / 2f, h / 2f)
+            zoom.mapPoints(middle)
+            zoom.postTranslate(w / 2f - middle[0], h / 2f - middle[1])
+            keepInView()
         }
 
         @SuppressLint("ClickableViewAccessibility") // A single tap goes to performClick, above.

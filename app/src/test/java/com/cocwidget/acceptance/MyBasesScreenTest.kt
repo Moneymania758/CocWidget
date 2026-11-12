@@ -353,6 +353,28 @@ class MyBasesScreenTest {
         assertEquals(1000f, shown().centerY(), 0.5f)
     }
 
+    // Turning the phone keeps the zoom and the part of the picture that was in the middle.
+    @Test
+    fun theWholePictureKeepsItsZoomThroughARotation() {
+        val view = com.cocwidget.BasePictureActivity.ZoomView(app)
+        view.layout(0, 0, 1000, 2000)
+        view.setImageBitmap(Bitmap.createBitmap(2400, 1080, Bitmap.Config.ARGB_8888))
+        view.zoomBy(3f, 700f, 1000f)
+        fun middle(width: Float, height: Float): FloatArray =
+            floatArrayOf(width / 2, height / 2).also { android.graphics.Matrix().apply { view.imageMatrix.invert(this) }.mapPoints(it) }
+        val before = middle(1000f, 2000f)
+        view.layout(0, 0, 2000, 1000)
+        assertEquals(3f, view.scale, 0.001f)
+        val after = middle(2000f, 1000f)
+        assertEquals(before[0], after[0], 1f)
+        assertEquals(before[1], after[1], 1f)
+        // Not zoomed, it just fits the new shape.
+        view.zoomBy(0.01f, 0f, 0f)
+        view.layout(0, 0, 1000, 2000)
+        assertEquals(1f, view.scale, 0.001f)
+        assertEquals(1000f, android.graphics.RectF(0f, 0f, 2400f, 1080f).also { view.imageMatrix.mapRect(it) }.width(), 0.5f)
+    }
+
     @Test
     fun aBaseThatsGoneClosesTheEditor() {
         assertTrue(Screens.open<BaseEditActivity> { putExtra(BaseEditActivity.EXTRA_BASE, "gone") }.isFinishing)
