@@ -166,4 +166,15 @@ class BasesScreenTest {
             assertEquals("https://clashcodes.com/bases/th18", loaded(Screens.open<BasesActivity>()))
         }
     }
+
+    // Back in the site to another Town Hall's list moves the chips with it.
+    @Test
+    fun theTownHallChipFollowsThePageShown() {
+        val screen = Screens.open<BasesActivity> { putExtra(BasesActivity.EXTRA_TOWN_HALL, 16) }
+        screen.visited("https://clashcodes.com/bases/th15")
+        assertEquals(15, screen.townHall)
+        assertTrue(Screens.tappable(Screens.root(screen), "TH15")!!.isSelected)
+        screen.visited("https://clashcodes.com/some-article")
+        assertEquals(15, screen.townHall)
+    }
 }

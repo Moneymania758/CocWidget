@@ -190,6 +190,15 @@
         android:layout_weight="1"
         tools:ignore="UselessLeaf" />
 
+    <!-- Potions and snacks running, each with its time left. Hidden when none are. -->
+    <LinearLayout
+        android:id="@+id/boosts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:orientation="horizontal"
+        android:visibility="gone" />
+
     <LinearLayout
         android:id="@+id/chips"
         android:layout_width="match_parent"

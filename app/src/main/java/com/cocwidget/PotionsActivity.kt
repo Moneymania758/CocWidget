@@ -77,7 +77,7 @@ class PotionsActivity : Screen() {
         val (verdict, colour) = when {
             advice.full -> R.string.potions_now to ui.skin.green
             share >= MOSTLY -> R.string.potions_mostly to ui.skin.accent
-            else -> R.string.potions_wait to ui.skin.dim
+            else -> R.string.potions_wait to ui.skin.idle
         }
         addView(LinearLayout(this@PotionsActivity).apply {
             orientation = LinearLayout.HORIZONTAL

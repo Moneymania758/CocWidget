@@ -59,7 +59,16 @@ object WidgetRenderer {
     private const val NEXT_TALL_MIN_DP = 150f
     // A Pages widget's rows per page by the height it is drawn for, in dp. Header, chips, view
     // buttons and footer take about 190 dp, and a row about 46.
-    private val PAGE_SIZES = listOf(110f to 1, 300f to 2, 350f to 3, 400f to 4, 450f to 5, 500f to 6, 600f to 8, 700f to 10, 820f to 12)
+    // Pages: a row is 40 dp (its 34 dp picture and 3 dp above and below). Around the rows sit the
+    // 12 dp padding top and bottom, the 34 dp header, the 27 dp status chips and the 38 dp footer
+    // with its arrows. The Home / Builder Base strip, the helpers line and the potion chips add theirs
+    // only when shown.
+    private const val PAGE_ROW_DP = 40f
+    private const val PAGE_CHROME_DP = 123f
+    private const val PAGE_VIEWS_DP = 27f
+    private const val PAGE_HELPERS_DP = 19f
+    private const val PAGE_BOOSTS_DP = 24f
+    private const val PAGE_MAX_ROWS = 12
     private const val DEFAULT_PER_PAGE = 4
     // The Timeline list's rows travel to the launcher in one go, pictures and all, so both are kept small.
     private const val TIMELINE_MAX_ROWS = 40
@@ -266,6 +275,8 @@ object WidgetRenderer {
         views.setInk(R.id.next_label, ink.dim)
         for (id in listOf(R.id.chip_1, R.id.chip_2, R.id.chip_3)) views.setInt(id, "setBackgroundResource", ink.theme.chip)
         views.removeAllViews(R.id.next_more)
+        views.removeAllViews(R.id.boosts)
+        views.setViewVisibility(R.id.boosts, View.GONE)
         views.setViewVisibility(R.id.goblin, View.GONE)
         if (tag == null || village == null) {
             views.setTextViewText(R.id.title, context.getString(R.string.app_name))
@@ -283,6 +294,7 @@ object WidgetRenderer {
         showTitleSwitch(context, views, widgetId, tag, ink)
         showTownHall(context, views, tag, village)
         showChips(context, views, village, now, ink)
+        showBoosts(context, views, village, WidgetView.ALL, now, ink)
 
         val running = village.upgrades.filter { village.endMillis(it) > now }.sortedBy { village.endMillis(it) }
         val next = running.firstOrNull()
@@ -402,7 +414,20 @@ object WidgetRenderer {
     // fit a page depends on it, and the launcher picks the one that fits. The others are one layout.
     internal fun bigViews(context: Context, widgetId: Int, tag: String?, village: Village?, now: Long): RemoteViews {
         if (village == null || Store.widgetStyle(context, widgetId) != WidgetStyle.PAGES) return build(context, widgetId, tag, village, now)
-        return RemoteViews(PAGE_SIZES.associate { (height, rows) -> SizeF(NARROW_MIN_DP, height) to build(context, widgetId, tag, village, now, rows) })
+        return RemoteViews(pageSizes(village, now).associate { (height, rows) -> SizeF(NARROW_MIN_DP, height) to build(context, widgetId, tag, village, now, rows) })
+    }
+
+    // The height each number of rows needs, for this village's header and footer. The launcher
+    // picks the tallest that fits, so a page fills the widget without a row cut off.
+    internal fun pageSizes(village: Village, now: Long): List<Pair<Float, Int>> {
+        var chrome = PAGE_CHROME_DP
+        if (Section.BUILDER_BASE in village.sections()) chrome += PAGE_VIEWS_DP
+        if (village.helpers.apprenticeLevel > 0 || village.helpers.assistantLevel > 0) chrome += PAGE_HELPERS_DP
+        val boosted = village.sections().any { section ->
+            listOf(village.boostFor(section), village.snackFor(section)).any { it.seconds > 0 && village.boostEndMillis(it) > now }
+        }
+        if (boosted) chrome += PAGE_BOOSTS_DP
+        return (1..PAGE_MAX_ROWS).map { rows -> chrome + rows * PAGE_ROW_DP to rows }
     }
 
     // A colour as it is by day and in dark mode. Material You's differ, and the launcher switches
@@ -440,6 +465,11 @@ object WidgetRenderer {
     private fun RemoteViews.setInk(id: Int, tone: Tone) = setColorInt(id, "setTextColor", tone.day, tone.night)
 
     private fun RemoteViews.setTint(id: Int, method: String, tone: Tone) = setColorStateList(id, method, tone.dayList, tone.nightList)
+
+    // A coloured part of one text can't switch with dark mode. Where the colour differs by mode
+    // (Material You) the part takes the text's own colour, which does switch, so it stays readable.
+    private fun SpannableStringBuilder.appendIn(text: String, tone: Tone): SpannableStringBuilder =
+        if (tone.day == tone.night) append(text, ForegroundColorSpan(tone.now), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) else append(text)
 
     // [perPage] is how many rows a Pages widget shows at once, for the height this is drawn for.
     internal fun build(context: Context, widgetId: Int, tag: String?, village: Village?, now: Long, perPage: Int = DEFAULT_PER_PAGE): RemoteViews {
@@ -879,16 +909,16 @@ object WidgetRenderer {
         val label = SpannableStringBuilder(title)
         if (section == Section.BUILDERS) label.append(" $busy/$slots")
         if (running.any { it.extra }) {
-            label.append(" + Goblin", ForegroundColorSpan(ink.ok.now), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            label.appendIn(" + Goblin", ink.ok)
         }
         val idle = village.idleIn(section, now)
         if (idle > 0) {
             val text = if (section == Section.BUILDERS) "  $idle idle" else "  idle"
-            label.append(text, ForegroundColorSpan(ink.idle.now), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            label.appendIn(text, ink.idle)
         }
         val collapsed = section.name in Store.collapsedSections(context, shown.tag)
         val marker = if (collapsed) "  ▸ ${upgrades.size}" else "  ▾"
-        label.append(marker, ForegroundColorSpan(ink.dim.now), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        label.appendIn(marker, ink.dim)
 
         val header = RemoteViews(context.packageName, R.layout.widget_section)
         header.setTextViewText(R.id.label, label)

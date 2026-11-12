@@ -201,6 +201,14 @@ class BasesActivity : Activity() {
         load()
     }
 
+    // Back or a link on the site can land on another Town Hall's list, so the chips follow the page.
+    internal fun visited(url: String?) {
+        val shown = site.townHallOf(url) ?: return
+        if (shown == townHall) return
+        townHall = shown
+        drawBar()
+    }
+
     internal fun pickTownHall(level: Int) {
         townHall = level
         drawBar()
@@ -237,6 +245,7 @@ class BasesActivity : Activity() {
                 dropOldSite = false
                 view.clearHistory()
             }
+            visited(url)
         }
     }
 

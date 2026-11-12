@@ -74,4 +74,13 @@ class BaseLinksTest {
         assertEquals(null, BaseLinks.find("no link here"))
         assertEquals(null, BaseLinks.find(null))
     }
+
+    @Test
+    fun aSitePageSaysWhichTownHallItLists() {
+        assertEquals(16, BaseSite.CLASH_CODES.townHallOf("https://clashcodes.com/bases/th16"))
+        assertEquals(9, BaseSite.LAYOUTS.townHallOf("https://www.clashofclans-layouts.com/plans/th_9/"))
+        assertEquals(null, BaseSite.CLASH_CODES.townHallOf("https://clashcodes.com/top-10-latest-th18-base-designs"))
+        assertEquals(null, BaseSite.CLASH_CODES.townHallOf("https://example.com/bases/th16"))
+        assertEquals(null, BaseSite.CLASH_CODES.townHallOf("not a url at all"))
+    }
 }

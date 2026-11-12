@@ -272,10 +272,47 @@ class WidgetStylesTest {
         Store.setWidgetStyle(app, id, WidgetStyle.TIMELINE)
         WidgetRenderer.update(app) { null }
         assertEquals(1, minuteAlarms())
-        WidgetRenderer.redrawTimelines(app)
-        assertEquals(1, minuteAlarms())
+        // No longer a Timeline, so the minute redraw draws nothing and stops its alarm.
         Store.setWidgetStyle(app, id, WidgetStyle.SECTIONS)
         WidgetRenderer.redrawTimelines(app)
         assertEquals(0, minuteAlarms())
+    }
+
+    // The small widget's Up next and Glance sizes show the potions running, with their time left.
+    @Test
+    fun theSmallWidgetShowsRunningPotions() {
+        for (size in listOf(WidgetRenderer.NextSize.UP_NEXT, WidgetRenderer.NextSize.GLANCE)) {
+            val boosts = small(size).findViewById<android.view.ViewGroup>(R.id.boosts)
+            assertEquals("$size", View.VISIBLE, boosts.visibility)
+            assertTrue("$size", boosts.childCount > 0)
+        }
+    }
+
+    // Each extra row needs one row's height, above what this village's header and footer take.
+    @Test
+    fun pagesAskForOneRowsHeightPerRow() {
+        val (_, tag) = placed()
+        val village = Store.village(app, tag)!!
+        val sizes = WidgetRenderer.pageSizes(village, village.exportedAtMillis + 60_000)
+        assertEquals((1..12).toList(), sizes.map { it.second })
+        assertTrue(sizes.zipWithNext().all { (a, b) -> b.first - a.first == 40f })
+        val chrome = sizes.first().first - 40f
+        assertTrue("chrome $chrome", chrome in 123f..193f)
+        // Nothing running, no potions: the least chrome.
+        val quiet = WidgetRenderer.pageSizes(village, village.exportedAtMillis + 400L * 24 * 3_600_000)
+        assertTrue(quiet.first().first <= sizes.first().first)
+    }
+
+    // Material You's section headings carry no fixed colours, as those can't follow dark mode.
+    @Test
+    fun materialYouHeadingsHaveNoFixedColours() {
+        val (id, tag) = placed()
+        fun spans(theme: WidgetTheme): Int {
+            Store.setWidgetTheme(app, id, theme)
+            val labels = Screens.all(draw(id, tag)).filter { it.id == R.id.label }.map { (it as TextView).text }
+            return labels.sumOf { text -> (text as? android.text.Spanned)?.getSpans(0, text.length, android.text.style.ForegroundColorSpan::class.java)?.size ?: 0 }
+        }
+        assertTrue(spans(WidgetTheme.CLASSIC) > 0)
+        assertEquals(0, spans(WidgetTheme.YOU))
     }
 }

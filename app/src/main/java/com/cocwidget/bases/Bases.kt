@@ -15,6 +15,15 @@ enum class BaseSite(val label: String, val host: String, val firstTownHall: Int,
 
     fun owns(host: String?) = host != null && (host.equals(this.host, true) || host.endsWith(".${this.host}", true))
 
+    // Which Town Hall's list a page of this site is, from its address, or null for any other page.
+    fun townHallOf(url: String?): Int? {
+        val uri = url?.let { runCatching { java.net.URI.create(it) }.getOrNull() } ?: return null
+        if (!owns(uri.host)) return null
+        val (before, after) = path.split("%d")
+        val pattern = Regex("^" + Regex.escape(before) + "([0-9]{1,2})" + Regex.escape(after), RegexOption.IGNORE_CASE)
+        return pattern.find(uri.path.orEmpty())?.groupValues?.get(1)?.toIntOrNull()
+    }
+
     companion object {
         fun named(name: String?) = entries.firstOrNull { it.name == name } ?: CLASH_CODES
     }
