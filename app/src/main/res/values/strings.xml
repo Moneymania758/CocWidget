@@ -120,6 +120,12 @@
     <string name="events_widget_label">Events</string>
     <string name="events_widget_title">Events</string>
     <string name="events_widget_description">Live countdowns to Clan Games, Raid Weekend, CWL and the other events you pick</string>
+    <string name="accounts_widget_label">Accounts</string>
+    <string name="accounts_widget_title">Accounts</string>
+    <string name="accounts_widget_description">Every village at a glance: what\'s idle and what finishes next</string>
+    <string name="accounts_widget_empty">Import a village in Clash Timers to see it here</string>
+    <string name="accounts_widget_nothing">Nothing upgrading</string>
+    <string name="base_picture_close">Close</string>
     <string name="events_widget_edit">Edit</string>
     <string name="events_widget_pick_title">Events on this widget</string>
     <string name="events_widget_done">Done</string>

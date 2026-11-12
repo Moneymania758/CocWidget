@@ -148,10 +148,29 @@
             </intent-filter>
         </activity>
 
+        <!-- Kept through a rotation, so the zoom stays put. -->
+        <activity
+            android:name=".BasePictureActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:exported="false"
+            android:label="@string/base_picture" />
+
         <activity
             android:name=".AboutActivity"
             android:exported="false"
             android:label="@string/about_title" />
+
+        <activity
+            android:name=".AccountsWidgetConfigActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:taskAffinity=""
+            android:theme="@style/Translucent">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".EventsWidgetConfigActivity"
@@ -238,6 +257,19 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/events_widget_info" />
+        </receiver>
+
+        <!-- Drawn by VillageWidget's refresh too. -->
+        <receiver
+            android:name=".AccountsWidget"
+            android:exported="true"
+            android:label="@string/accounts_widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/accounts_widget_info" />
         </receiver>
     </application>
 </manifest>

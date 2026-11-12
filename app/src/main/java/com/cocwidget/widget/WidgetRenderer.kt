@@ -19,6 +19,7 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.widget.RemoteViews
+import com.cocwidget.AccountsWidget
 import com.cocwidget.EventsWidget
 import com.cocwidget.EventsWidgetConfigActivity
 import com.cocwidget.MainActivity
@@ -95,7 +96,8 @@ object WidgetRenderer {
         val widgetIds = manager.getAppWidgetIds(ComponentName(context, VillageWidget::class.java))
         val nextIds = manager.getAppWidgetIds(ComponentName(context, NextWidget::class.java))
         val eventIds = manager.getAppWidgetIds(ComponentName(context, EventsWidget::class.java))
-        if (widgetIds.isEmpty() && nextIds.isEmpty() && eventIds.isEmpty()) return
+        val accountIds = manager.getAppWidgetIds(ComponentName(context, AccountsWidget::class.java))
+        if (widgetIds.isEmpty() && nextIds.isEmpty() && eventIds.isEmpty() && accountIds.isEmpty()) return
 
         UpdateChecker.checkIfDue(context)
         val shown = (widgetIds + nextIds).associateWith { Store.widgetAccount(context, it) }
@@ -112,7 +114,12 @@ object WidgetRenderer {
             manager.updateAppWidget(widgetId, nextViews(context, widgetId, tag, tag?.let(villages::get), now))
         }
         val redraws = shown.values.distinct().map { Countdown.nextRefresh(it?.let(villages::get), now) }.toMutableList()
-        scheduleTimelines(context, widgetIds, now)
+        if (accountIds.isNotEmpty()) {
+            // A Town Hall above the bundled ones downloads like any picture.
+            Icons.fetchPaths(context, villages.values.map { Icons.townHallPath(it.townHall) })
+            for (widgetId in accountIds) manager.updateAppWidget(widgetId, buildAccounts(context, widgetId, now))
+        }
+        scheduleTimelines(context, widgetIds, accountIds, now)
         if (eventIds.isNotEmpty()) {
             val dates = EventDates.current(context)
             for (widgetId in eventIds) {
@@ -127,7 +134,8 @@ object WidgetRenderer {
                 redraws += Countdown.nextEventRefresh(shownEvents(context, widgetId, now, dates).map { it.target }, now)
             }
         }
-        scheduleNext(context, redraws.min())
+        // An Accounts widget on its own has no countdowns: the minute alarm keeps it fresh.
+        redraws.minOrNull()?.let { scheduleNext(context, it) }
     }
 
     // Posts any event reminders due, sets the alarm, then looks for new dates. Does network, so only
@@ -160,11 +168,12 @@ object WidgetRenderer {
         }
     }
 
-    // A Timeline's list shows minutes as text, so it is redrawn as each minute turns. That has its
-    // own alarm, which redraws only the Timelines: no notifications, other widgets or downloads.
-    private fun scheduleTimelines(context: Context, widgetIds: IntArray, now: Long) {
+    // A Timeline's list and the Accounts widget show minutes as text, so they are redrawn as each
+    // minute turns. That has its own alarm, which redraws only those: no notifications, other
+    // widgets or downloads.
+    private fun scheduleTimelines(context: Context, widgetIds: IntArray, accountIds: IntArray, now: Long) {
         val intent = broadcast(context, MINUTE_REQUEST, Intent(context, VillageWidget::class.java).setAction(VillageWidget.ACTION_TIMELINE_MINUTE))
-        if (widgetIds.none { Store.widgetStyle(context, it) == WidgetStyle.TIMELINE }) {
+        if (accountIds.isEmpty() && widgetIds.none { Store.widgetStyle(context, it) == WidgetStyle.TIMELINE }) {
             context.getSystemService(AlarmManager::class.java).cancel(intent)
             return
         }
@@ -174,19 +183,104 @@ object WidgetRenderer {
     fun redrawTimelines(context: Context) {
         val manager = AppWidgetManager.getInstance(context)
         val widgetIds = manager.getAppWidgetIds(ComponentName(context, VillageWidget::class.java))
+        val accountIds = manager.getAppWidgetIds(ComponentName(context, AccountsWidget::class.java))
         val now = System.currentTimeMillis()
         for (widgetId in widgetIds.filter { Store.widgetStyle(context, it) == WidgetStyle.TIMELINE }) {
             val tag = Store.widgetAccount(context, widgetId)
             manager.updateAppWidget(widgetId, bigViews(context, widgetId, tag, tag?.let { Store.village(context, it) }, now))
         }
-        scheduleTimelines(context, widgetIds, now)
+        for (widgetId in accountIds) manager.updateAppWidget(widgetId, buildAccounts(context, widgetId, now))
+        scheduleTimelines(context, widgetIds, accountIds, now)
+    }
+
+    // The Accounts widget: a row per account, those with something idle first, then by which
+    // finishes soonest. An account whose export can't be read comes last, saying so.
+    internal fun buildAccounts(context: Context, widgetId: Int, now: Long): RemoteViews {
+        val views = RemoteViews(context.packageName, R.layout.widget_accounts)
+        val ink = Ink(context, Store.widgetTheme(context, widgetId))
+        views.setInt(R.id.accounts_root, "setBackgroundResource", ink.theme.panel)
+        views.setInk(R.id.accounts_title, ink.accent)
+        views.setTint(R.id.accounts_open, "setImageTintList", ink.text)
+        views.setInk(R.id.accounts_empty, ink.dim)
+        views.setOnClickPendingIntent(R.id.accounts_root, openAppIntent(context, widgetId, null))
+        views.setOnClickPendingIntent(R.id.accounts_open, openAppIntent(context, widgetId, null))
+
+        val accounts = accountsInOrder(context, now)
+        if (accounts.isEmpty()) {
+            views.setViewVisibility(R.id.accounts_empty, View.VISIBLE)
+            views.setTextViewText(R.id.accounts_empty, context.getString(R.string.accounts_widget_empty))
+            views.setViewVisibility(R.id.accounts_list, View.GONE)
+            return views
+        }
+        views.setViewVisibility(R.id.accounts_empty, View.GONE)
+        views.setViewVisibility(R.id.accounts_list, View.VISIBLE)
+        // A tap on a row opens the app on that account: the row fills in the account.
+        views.setPendingIntentTemplate(R.id.accounts_list, PendingIntent.getActivity(
+            context,
+            7,
+            Intent(context, MainActivity::class.java)
+                .setData(Uri.parse("cocwidget://accounts/$widgetId"))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        ))
+        val list = RemoteViews.RemoteCollectionItems.Builder().setViewTypeCount(1).setHasStableIds(false)
+        accounts.forEachIndexed { index, (tag, village) -> list.addItem(index.toLong(), accountRow(context, tag, village, now, ink)) }
+        views.setRemoteAdapter(R.id.accounts_list, list.build())
+        return views
+    }
+
+    // Every account and its village (null when the export can't be read), in the widget's order.
+    internal fun accountsInOrder(context: Context, now: Long): List<Pair<String, Village?>> =
+        Store.accounts(context).map { it to Store.village(context, it) }.sortedWith(compareBy(
+            { (_, village) -> village == null },
+            { (_, village) -> village?.let { !NextFinish.of(it, now).anyIdle } ?: true },
+            { (_, village) -> village?.let { v -> NextFinish.of(v, now).next?.let(v::endMillis) } ?: Long.MAX_VALUE },
+        ))
+
+    internal fun accountRow(context: Context, tag: String, village: Village?, now: Long, ink: Ink): RemoteViews {
+        val row = RemoteViews(context.packageName, R.layout.widget_accounts_row)
+        row.setOnClickFillInIntent(R.id.acc_row, Intent().putExtra(MainActivity.EXTRA_ACCOUNT, tag))
+        row.setTextViewText(R.id.acc_name, Store.label(context, tag))
+        row.setInk(R.id.acc_name, ink.text)
+        row.setInk(R.id.acc_next, ink.dim)
+        row.setInk(R.id.acc_idle, ink.idle)
+        row.setInk(R.id.acc_at, ink.dim)
+        row.setTextViewText(R.id.acc_left, "")
+        row.setTextViewText(R.id.acc_at, "")
+        if (village == null) {
+            row.setImageViewResource(R.id.acc_icon, R.drawable.ic_placeholder)
+            row.setViewVisibility(R.id.acc_idle, View.GONE)
+            row.setTextViewText(R.id.acc_next, context.getString(R.string.account_unreadable))
+            return row
+        }
+        listIcon(context, Icons.townHallPath(village.townHall), row, R.id.acc_icon)
+        val summary = NextFinish.of(village, now)
+        val idle = UpNextLabels.idleParts(context, summary).joinToString(" · ")
+        row.setViewVisibility(R.id.acc_idle, if (idle.isEmpty()) View.GONE else View.VISIBLE)
+        row.setTextViewText(R.id.acc_idle, idle)
+        val next = summary.next
+        if (next == null) {
+            row.setTextViewText(R.id.acc_next, if (idle.isEmpty()) context.getString(R.string.accounts_widget_nothing) else "")
+            if (idle.isNotEmpty()) {
+                row.setTextViewText(R.id.acc_left, context.getString(R.string.upnext_free))
+                row.setInk(R.id.acc_left, ink.idle)
+            }
+            return row
+        }
+        val end = village.endMillis(next)
+        row.setTextViewText(R.id.acc_next, upgradeName(next))
+        row.setTextViewText(R.id.acc_left, Countdown.short(end - now))
+        row.setInk(R.id.acc_left, if (end - now < Countdown.HOUR_MS) ink.ok else ink.text)
+        row.setTextViewText(R.id.acc_at, FinishTime.of(context, end, now))
+        return row
     }
 
     // Only the redraw alarms, and only once no kind of widget is left. The finish alarm keeps
     // notifications coming without a widget.
     fun cancel(context: Context) {
         val manager = AppWidgetManager.getInstance(context)
-        val left = listOf(VillageWidget::class.java, NextWidget::class.java, EventsWidget::class.java).sumOf { manager.getAppWidgetIds(ComponentName(context, it)).size }
+        val left = listOf(VillageWidget::class.java, NextWidget::class.java, EventsWidget::class.java, AccountsWidget::class.java)
+            .sumOf { manager.getAppWidgetIds(ComponentName(context, it)).size }
         if (left > 0) return
         val alarms = context.getSystemService(AlarmManager::class.java)
         alarms.cancel(refreshIntent(context, REFRESH_REQUEST))

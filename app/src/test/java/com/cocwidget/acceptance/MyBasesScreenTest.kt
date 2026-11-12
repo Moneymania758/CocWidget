@@ -284,15 +284,73 @@ class MyBasesScreenTest {
         assertTrue(texts(Screens.open<MyBasesActivity>()).contains(app.getString(R.string.my_bases_unnamed, 16)))
     }
 
-    // Thumbnails are decoded about the size they're shown, not at full size.
+    // A card's picture is decoded about the card's width, not at full size, and cut to 16:9
+    // around the middle: a little off the sides of a game screenshot, the middle of a tall one.
     @Test
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun aThumbnailIsDecodedSmall() {
-        val file = java.io.File(app.cacheDir, "wide.png")
-        file.outputStream().use { Bitmap.createBitmap(2400, 1080, Bitmap.Config.ARGB_8888).compress(Bitmap.CompressFormat.PNG, 100, it) }
-        val thumb = BasePictures.thumbnail(file, 252)!!
-        val short = minOf(thumb.width, thumb.height)
-        assertTrue("short side $short", short in 252 until 504)
+    fun aCardsPictureIsDecodedSmallAndCutTo16By9() {
+        fun cover(width: Int, height: Int): Bitmap {
+            val file = java.io.File(app.cacheDir, "shot_${width}x$height.png")
+            file.outputStream().use { Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).compress(Bitmap.CompressFormat.PNG, 100, it) }
+            return BasePictures.cover(file, 500)!!
+        }
+        // Decoded at 600 x 270 (a quarter), then its sides trimmed to 480 x 270.
+        val wide = cover(2400, 1080)
+        assertEquals(480, wide.width)
+        assertEquals(270, wide.height)
+        val tall = cover(1080, 2400)
+        assertTrue("width ${tall.width}", tall.width in 500 until 1000)
+        assertEquals(tall.width * 9 / 16, tall.height)
+    }
+
+    // The picture runs across the card, and a tap shows the whole screenshot.
+    @Test
+    fun aTapOnTheCardsPictureShowsItWhole() {
+        val tag = syncTh16()
+        tap(shareText(th16Base), app.getString(R.string.base_save))
+        val base = Store.myBases(app, tag).single()
+        BasePictures.file(app, base.id).apply {
+            parentFile!!.mkdirs()
+            writeText("x")
+        }
+        val list = Screens.open<MyBasesActivity>()
+        Screens.layOut(list)
+        val description = app.getString(R.string.base_picture_of, app.getString(R.string.my_bases_unnamed, 16))
+        val picture = Screens.views<ImageView>(Screens.root(list)).single { it.contentDescription == description }
+        val card = picture.parent as android.view.View
+        assertEquals(card.width - card.paddingLeft - card.paddingRight, picture.width)
+        assertEquals(picture.width * 9 / 16, picture.height)
+        nextStarted()
+        picture.performClick()
+        val opened = nextStarted()!!
+        assertEquals(com.cocwidget.BasePictureActivity::class.java.name, opened.component?.className)
+        assertEquals(base.id, opened.getStringExtra(com.cocwidget.BasePictureActivity.EXTRA_BASE))
+        assertFalse(Screens.open<com.cocwidget.BasePictureActivity> { putExtras(opened) }.isFinishing)
+    }
+
+    @Test
+    fun theWholePictureClosesForABaseThatsGone() {
+        assertTrue(Screens.open<com.cocwidget.BasePictureActivity> { putExtra(com.cocwidget.BasePictureActivity.EXTRA_BASE, "gone") }.isFinishing)
+    }
+
+    // Fitted to the screen to start, zoomed no further than five times, and never off screen.
+    @Test
+    fun theWholePictureFitsZoomsAndStaysOnScreen() {
+        val view = com.cocwidget.BasePictureActivity.ZoomView(app)
+        view.layout(0, 0, 1000, 2000)
+        view.setImageBitmap(Bitmap.createBitmap(2400, 1080, Bitmap.Config.ARGB_8888))
+        fun shown(): android.graphics.RectF = android.graphics.RectF(0f, 0f, 2400f, 1080f).also { view.imageMatrix.mapRect(it) }
+        assertEquals(0f, shown().left, 0.5f)
+        assertEquals(1000f, shown().right, 0.5f)
+        assertEquals(1000f, shown().centerY(), 0.5f)
+        view.zoomBy(20f, 0f, 0f)
+        assertEquals(com.cocwidget.BasePictureActivity.ZoomView.MAX_ZOOM, view.scale, 0.001f)
+        // Zoomed about the top-left corner, the picture still covers the screen sideways.
+        assertTrue(shown().left <= 0f && shown().right >= 1000f)
+        view.zoomBy(0.01f, 500f, 1000f)
+        assertEquals(1f, view.scale, 0.001f)
+        assertEquals(0f, shown().left, 0.5f)
+        assertEquals(1000f, shown().centerY(), 0.5f)
     }
 
     @Test

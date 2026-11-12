@@ -49,31 +49,42 @@ class MyBasesActivity : Screen() {
         ui.pressable(this, 16f) { startActivity(Intent(this@MyBasesActivity, BaseEditActivity::class.java)) }
     }
 
-    // The picture on the left, or the bases icon when there's none, then its name, chips and buttons.
+    // With a screenshot, the picture across the top and the rest under it. A tap on the picture
+    // shows it whole. Without one, the bases icon on the left keeps the card small.
     private fun baseCard(base: SavedBase, myTownHall: Int, pictures: MutableMap<ImageView, File>) = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
         background = ui.rounded(ui.skin.card, 18f, ui.skin.divider, 1f)
         setPadding(ui.dp(12), ui.dp(12), ui.dp(12), ui.dp(12))
         val name = nameOf(this@MyBasesActivity, base)
         val file = BasePictures.file(this@MyBasesActivity, base.id)
-        val square = LinearLayout.LayoutParams(ui.dp(84), ui.dp(84))
+        val details = details(base, name, myTownHall)
         if (file.exists()) {
-            addView(ImageView(this@MyBasesActivity).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(CoverView(this@MyBasesActivity).apply {
                 scaleType = ImageView.ScaleType.CENTER_CROP
                 contentDescription = getString(R.string.base_picture_of, name)
                 background = ui.rounded(ui.skin.chip, 12f)
                 outlineProvider = ViewOutlineProvider.BACKGROUND
                 clipToOutline = true
+                setOnClickListener {
+                    startActivity(Intent(this@MyBasesActivity, BasePictureActivity::class.java).putExtra(BasePictureActivity.EXTRA_BASE, base.id))
+                }
                 pictures[this] = file
-            }, square)
+            }, ui.matchWidth(0))
+            addView(details, ui.matchWidth(10))
         } else {
+            orientation = LinearLayout.HORIZONTAL
             addView(LinearLayout(this@MyBasesActivity).apply {
                 gravity = Gravity.CENTER
                 background = ui.rounded(ui.skin.chip, 12f)
                 addView(ui.icon(R.drawable.ic_bases, ui.skin.dim, 28))
-            }, square)
+            }, LinearLayout.LayoutParams(ui.dp(84), ui.dp(84)))
+            addView(details, ui.weighted(12))
         }
-        addView(LinearLayout(this@MyBasesActivity).apply {
+    }
+
+    // The name, chips and buttons.
+    private fun details(base: SavedBase, name: String, myTownHall: Int) =
+        LinearLayout(this@MyBasesActivity).apply {
             orientation = LinearLayout.VERTICAL
             addView(ui.heading(name, 17f, ui.skin.title).apply {
                 maxLines = 2
@@ -97,19 +108,26 @@ class MyBasesActivity : Screen() {
                     startActivity(Intent(this@MyBasesActivity, BaseEditActivity::class.java).putExtra(BaseEditActivity.EXTRA_BASE, base.id))
                 }, ui.wrap().apply { marginStart = ui.dp(8) })
             }, ui.matchWidth(10))
-        }, ui.weighted(12))
-    }
+        }
 
     // Read off the main thread, as a few screenshots take a moment to decode.
     private fun loadPictures(pictures: Map<ImageView, File>) {
         if (pictures.isEmpty()) return
-        // Shown at 84 dp, so a full-size screenshot isn't held for each card.
-        val side = ui.dp(84)
+        // About as wide as a card and cut to its shape, so a full-size screenshot isn't held for each.
+        val width = resources.displayMetrics.widthPixels
         thread {
-            val loaded = pictures.mapNotNull { (view, file) -> BasePictures.thumbnail(file, side)?.let { view to it } }
+            val loaded = pictures.mapNotNull { (view, file) -> BasePictures.cover(file, width)?.let { view to it } }
             runOnUiThread {
                 if (!isDestroyed) for ((view, bitmap) in loaded) view.setImageBitmap(bitmap)
             }
+        }
+    }
+
+    // As wide as the card and 9/16 of that tall, the shape of a game screenshot near enough.
+    private class CoverView(context: Context) : ImageView(context) {
+        override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+            val width = MeasureSpec.getSize(widthMeasureSpec)
+            setMeasuredDimension(width, width * 9 / 16)
         }
     }
 

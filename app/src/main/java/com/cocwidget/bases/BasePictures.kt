@@ -57,8 +57,18 @@ object BasePictures {
     // Decoded at about [width] pixels wide, for showing. Null if it's missing or unreadable.
     fun load(file: File, width: Int): Bitmap? = decode(file, width) { it.outWidth }
 
-    // For a square cropped from the middle: decoded so the shorter side is about [side] pixels.
-    fun thumbnail(file: File, side: Int): Bitmap? = decode(file, side) { minOf(it.outWidth, it.outHeight) }
+    // For a card's picture: decoded about [width] pixels wide, then cut to 16:9 around the middle.
+    // Game screenshots are landscape, so that keeps nearly all of the base.
+    fun cover(file: File, width: Int): Bitmap? {
+        val full = load(file, width) ?: return null
+        val tall = full.height * 16 > full.width * 9
+        val w = if (tall) full.width else (full.height * 16 / 9).coerceAtLeast(1)
+        val h = if (tall) (full.width * 9 / 16).coerceAtLeast(1) else full.height
+        if (w == full.width && h == full.height) return full
+        val cut = Bitmap.createBitmap(full, (full.width - w) / 2, (full.height - h) / 2, w, h)
+        if (cut !== full) full.recycle()
+        return cut
+    }
 
     private fun decode(file: File, wanted: Int, size: (BitmapFactory.Options) -> Int): Bitmap? = try {
         if (!file.exists()) {

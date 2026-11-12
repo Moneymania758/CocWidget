@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Accounts widget: a row per account, in a list that scrolls when there are more than fit.
+     Its rows hold no countdowns (see WidgetLayoutTest): times are text, redrawn each minute. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/accounts_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <!-- The open button is an ImageView, not a compound drawable on the title, so it can take its
+         own tap and its own tint. -->
+    <LinearLayout
+        android:id="@+id/accounts_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        tools:ignore="UseCompoundDrawables">
+
+        <TextView
+            android:id="@+id/accounts_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.08"
+            android:maxLines="1"
+            android:shadowColor="@color/text_shadow"
+            android:shadowDy="2"
+            android:shadowRadius="1"
+            android:text="@string/accounts_widget_title"
+            android:textAllCaps="true"
+            android:textColor="@color/gold"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/accounts_open"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:contentDescription="@string/app_name"
+            android:padding="4dp"
+            android:src="@drawable/ic_open" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/accounts_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/accounts_widget_description"
+        android:textColor="@color/text_dim"
+        android:textSize="14sp" />
+
+    <ListView
+        android:id="@+id/accounts_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="6dp"
+        android:layout_weight="1"
+        android:divider="@null"
+        android:scrollbars="none"
+        android:visibility="gone" />
+</LinearLayout>

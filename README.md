@@ -64,6 +64,10 @@ which account it was, such as **Main imported** (or the tag, until you name it).
   them. With three or more it opens a list, and you tap the one you want. Each widget switches on
   its own, so you can still keep one per account if you'd rather.
   When you place a widget it asks which account to show first (only if you have more than one).
+- **The Accounts widget** (Widgets, Clash Timers, Accounts) lists every account at once: its Town
+  Hall, what's idle and its next finish. Accounts with something idle come first, then whichever
+  finishes soonest. With many accounts the list scrolls, and its times update each minute. A tap
+  on an account opens the app on it. Its colours are in the widget's settings.
 - **In the app:** tap an account's chip at the top of the main screen to see it. Time to max,
   the name and **Remove this account** in Settings all follow the chip you picked. Tapping a widget
   anywhere else opens the app on the account it's showing.
@@ -236,6 +240,7 @@ Guide > My bases keeps your own base links, for the account picked on the main s
 2. Give it a name and a type (War, CWL, Farming or Legends) if you like.
 3. Add a screenshot so you can tell your bases apart. Sharing a screenshot to Clash Timers works too.
 4. Tap Open in game on any saved base.
+5. Tap a base's screenshot to see it whole. Pinch or double-tap to zoom.
 
 With more than one account, pick which one the base is for. A base for a higher Town Hall than that
 account's is flagged when saved and asks first when opened. Bases and screenshots stay on the phone,
