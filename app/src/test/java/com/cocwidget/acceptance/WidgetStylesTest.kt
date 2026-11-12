@@ -122,6 +122,41 @@ class WidgetStylesTest {
         assertTrue(left.any { Regex("""^\d+(d \d+h|h \d+m|m)$""").matches(it) })
     }
 
+    // Every running upgrade in the list has its own bar, as the next one does on the card. Idle
+    // and helper rows have none, and an idle row shows its building rather than a gap.
+    @Test
+    fun everyRunningRowInTheTimelineHasABar() {
+        val (_, tag) = placed()
+        val village = Store.village(app, tag)!!
+        val now = village.exportedAtMillis + 60_000
+        val items = WidgetRenderer.timelineItems(village, WidgetView.ALL, now)
+        val rows = WidgetRenderer.timelineRows(app, village, items, now, WidgetRenderer.Ink(app, WidgetTheme.DARK))
+            .map { it.apply(app, FrameLayout(app)) }
+            .filter { it.findViewById<View>(R.id.tl_name) != null }
+        assertEquals(items.size, rows.size)
+        var checked = 0
+        for ((item, row) in items.zip(rows)) {
+            val bar = row.findViewById<android.widget.ProgressBar>(R.id.tl_bar)
+            if (item is UpNext.Item.Running) {
+                assertEquals(item.upgrade.name, View.VISIBLE, bar.visibility)
+                assertEquals(item.upgrade.name, (village.progress(item.upgrade, now) * 1000).toInt(), bar.progress)
+                checked++
+            } else {
+                assertEquals("$item", View.GONE, bar.visibility)
+            }
+            assertEquals("$item", View.VISIBLE, row.findViewById<View>(R.id.tl_icon).visibility)
+        }
+        assertTrue("the fixture has upgrades part done", items.filterIsInstance<UpNext.Item.Running>().any { village.progress(it.upgrade, now) in 0.01..0.99 })
+        assertEquals(village.upgrades.size, checked)
+    }
+
+    @Test
+    fun anIdleSlotShowsItsBuilding() {
+        assertEquals("buildings/home-village/builder's_hut/level_1.webp", WidgetRenderer.idlePicture(com.cocwidget.game.Section.BUILDERS))
+        assertEquals("buildings/home-village/laboratory/level_1.webp", WidgetRenderer.idlePicture(com.cocwidget.game.Section.LAB))
+        assertEquals("buildings/home-village/pet_house/level_1.webp", WidgetRenderer.idlePicture(com.cocwidget.game.Section.PETS))
+    }
+
     @Test
     fun pagesShowAPageAtATimeAndTheArrowsMoveThroughThem() {
         val (id, tag) = placed()

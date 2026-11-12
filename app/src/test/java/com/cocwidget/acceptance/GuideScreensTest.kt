@@ -624,6 +624,21 @@ class GuideScreensTest {
         assertEquals("buildings/home-village/blacksmith/level_3.webp", com.cocwidget.store.Icons.path(blacksmith, 3))
     }
 
+    // ClashKing has no picture for these, so they're bundled. Tests can't reach the network, so a
+    // picture here can only have come from the app itself.
+    @Test
+    fun buildingsClashKingLacksStillHavePictures() {
+        val items = com.cocwidget.game.GameData.all(app).values
+        val bundled = listOf(
+            "home" to "Helper Hut", "home" to "Crafting Station", "home" to "B.O.B's Hut", "home" to "Sour Elixir Cauldron",
+            "builderBase" to "Army Camp", "builderBase" to "Battle Machine", "builderBase" to "Battle Copter",
+        )
+        for ((village, name) in bundled) {
+            val item = items.first { it.name == name && it.village == village && it.kind == "building" }
+            assertNotNull("$name ($village)", com.cocwidget.store.Icons.load(app, com.cocwidget.store.Icons.path(item, 1)))
+        }
+    }
+
     // A tile for each part of the guide, each opening its screen.
     @Test
     fun theGuideHasATileForEachPart() {

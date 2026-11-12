@@ -271,14 +271,9 @@ class UpNextList(
     private fun pictureSize() = LinearLayout.LayoutParams(ui.dp(40), ui.dp(40))
 
     private fun LinearLayout.idle(item: Item.Idle) {
-        val (building, title, line) = when (item.section) {
-            Section.BUILDERS -> Triple("Builder's Hut", UpNextLabels.idleTitle(activity, item.section, item.count), UpNextLabels.startHint(item.section))
-            Section.LAB -> Triple("Laboratory", UpNextLabels.idleTitle(activity, item.section, item.count), UpNextLabels.startHint(item.section))
-            else -> Triple("Pet House", UpNextLabels.idleTitle(activity, item.section, item.count), UpNextLabels.startHint(item.section))
-        }
-        val stand = Upgrade(item.section, building, "building", "home", 2, 0, null, false)
-        addView(picture(Icons.path(stand)), pictureSize())
-        middle(title, activity.getString(line), ui.skin.idle)
+        addView(picture(WidgetRenderer.idlePicture(item.section)), pictureSize())
+        val title = UpNextLabels.idleTitle(activity, item.section, item.count)
+        middle(title, activity.getString(UpNextLabels.startHint(item.section)), ui.skin.idle)
         right(activity.getString(R.string.upnext_free), ui.skin.idle)
     }
 

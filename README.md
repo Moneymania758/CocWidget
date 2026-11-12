@@ -453,7 +453,10 @@ The words are in `strings.xml`.
 ## Credit
 
 Game data and icons from [ClashKing](https://github.com/ClashKingInc/ClashKingAssets)
-(`assets.clashk.ing`).
+(`assets.clashk.ing`). Pictures ClashKing doesn't have (the Helper Hut, Crafting Station, B.O.B's
+Hut, and the Builder Base Army Camp and hero altars) come from
+[clash-of-clans-data](https://www.npmjs.com/package/clash-of-clans-data), MIT
+([licenses/clash-of-clans-data-MIT.txt](licenses/clash-of-clans-data-MIT.txt)).
 
 The Game look's font is [Lilita One](https://fonts.google.com/specimen/Lilita+One) by Juan
 Montoreano, under the SIL Open Font License 1.1 ([licences/LilitaOne-OFL.txt](licenses/LilitaOne-OFL.txt)).

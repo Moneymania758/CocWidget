@@ -100,6 +100,8 @@ object WidgetRenderer {
         UpdateChecker.checkIfDue(context)
         val shown = (widgetIds + nextIds).associateWith { Store.widgetAccount(context, it) }
         for (tag in shown.values.filterNotNull().distinct()) villages[tag]?.let { Icons.fetchMissing(context, it.upgrades) }
+        // A Timeline's idle rows show the building standing idle.
+        if (shown.isNotEmpty()) Icons.fetchPaths(context, listOf(Section.BUILDERS, Section.LAB, Section.PETS).mapNotNull(::idlePicture))
         val now = System.currentTimeMillis()
         for (widgetId in widgetIds) {
             val tag = shown[widgetId]
@@ -704,13 +706,15 @@ object WidgetRenderer {
         row.setInk(R.id.tl_at, ink.dim)
         row.setViewVisibility(R.id.tl_badge, View.GONE)
         row.setViewVisibility(R.id.tl_icon, View.VISIBLE)
+        // The list reuses rows, so the bar is hidden here and shown only on a running upgrade.
+        row.setViewVisibility(R.id.tl_bar, View.GONE)
         val waiting = item.atMillis <= now
         row.setTextViewText(R.id.tl_at, if (waiting) "" else FinishTime.of(context, item.atMillis, now))
         row.setTextViewText(R.id.tl_left, if (waiting) "" else Countdown.short(item.atMillis - now))
         row.setInk(R.id.tl_left, if (!waiting && item.atMillis - now < Countdown.HOUR_MS) ink.ok else ink.text)
         when (item) {
             is UpNext.Item.Idle -> {
-                row.setViewVisibility(R.id.tl_icon, View.INVISIBLE)
+                listIcon(context, idlePicture(item.section), row, R.id.tl_icon)
                 row.setTextViewText(R.id.tl_name, UpNextLabels.idleTitle(context, item.section, item.count))
                 row.setInk(R.id.tl_name, ink.idle)
                 row.setTextViewText(R.id.tl_kind, context.getString(UpNextLabels.startHint(item.section)))
@@ -718,7 +722,8 @@ object WidgetRenderer {
                 row.setInk(R.id.tl_left, ink.idle)
             }
             is UpNext.Item.HelpersReady -> {
-                row.setImageViewResource(R.id.tl_icon, R.drawable.ic_face_apprentice)
+                // The Lab Assistant's face when the Builder's Apprentice isn't unlocked yet.
+                row.setImageViewResource(R.id.tl_icon, helperFace(if (village.helpers.apprenticeLevel > 0) Section.BUILDERS else Section.LAB))
                 row.setTextViewText(R.id.tl_name, context.getString(R.string.helpers_ready))
                 row.setInk(R.id.tl_name, if (waiting) ink.idle else ink.helper)
                 row.setTextViewText(R.id.tl_kind, helperLevels(context, village))
@@ -729,9 +734,12 @@ object WidgetRenderer {
             }
             is UpNext.Item.Running -> {
                 val upgrade = item.upgrade
-                val icon = Icons.load(context, upgrade)?.let { Bitmap.createScaledBitmap(it, LIST_ICON_PX, LIST_ICON_PX, true) }
-                if (icon != null) row.setImageViewBitmap(R.id.tl_icon, icon) else row.setImageViewResource(R.id.tl_icon, R.drawable.ic_placeholder)
+                listIcon(context, Icons.path(upgrade), row, R.id.tl_icon)
                 row.setTextViewText(R.id.tl_name, upgradeName(upgrade))
+                row.setViewVisibility(R.id.tl_bar, View.VISIBLE)
+                row.setProgressBar(R.id.tl_bar, 1000, (village.progress(upgrade, now) * 1000).toInt(), false)
+                row.setTint(R.id.tl_bar, "setProgressTintList", ink.bar)
+                row.setTint(R.id.tl_bar, "setProgressBackgroundTintList", ink.track)
                 val kind = context.getString(UpNextLabels.kind(upgrade.section))
                 row.setTextViewText(R.id.tl_kind, if (upgrade.extra) context.getString(R.string.upnext_kind_goblin, kind) else kind)
                 when {
@@ -746,6 +754,12 @@ object WidgetRenderer {
             else -> Unit
         }
         return row
+    }
+
+    // A list row's picture, shrunk as list rows are, or the placeholder while it downloads.
+    private fun listIcon(context: Context, path: String?, row: RemoteViews, id: Int) {
+        val icon = Icons.load(context, path)?.let { Bitmap.createScaledBitmap(it, LIST_ICON_PX, LIST_ICON_PX, true) }
+        if (icon != null) row.setImageViewBitmap(id, icon) else row.setImageViewResource(id, R.drawable.ic_placeholder)
     }
 
     private fun badge(row: RemoteViews, face: Int, chip: Int) {
@@ -959,6 +973,17 @@ object WidgetRenderer {
     // Who is working on a row. Only the builders and the lab have a helper.
     internal fun helperFace(section: Section): Int =
         if (section == Section.LAB) R.drawable.ic_face_assistant else R.drawable.ic_face_apprentice
+
+    // The picture for a free slot: the building that stands idle. Builder Base slots never show as
+    // idle rows (UpNext.items), so anything past the lab is the Pet House.
+    internal fun idlePicture(section: Section): String? {
+        val building = when (section) {
+            Section.BUILDERS -> "Builder's Hut"
+            Section.LAB -> "Laboratory"
+            else -> "Pet House"
+        }
+        return Icons.path(Upgrade(section, building, "building", "home", 2, 0, null, false))
+    }
 
     private fun row(context: Context, village: Village, upgrade: Upgrade, now: Long, ink: Ink): RemoteViews {
         val row = RemoteViews(context.packageName, R.layout.widget_row)
