@@ -74,6 +74,8 @@ object WidgetRenderer {
     // The Timeline list's rows travel to the launcher in one go, pictures and all, so both are kept small.
     private const val TIMELINE_MAX_ROWS = 40
     private const val LIST_ICON_PX = 56
+    // The strongest fill that keeps every row text at 4.5:1 or better in every theme (WidgetStylesTest).
+    internal const val ROW_FILL_ALPHA = 0.12f
 
     fun update(context: Context, download: () -> String? = EventDates::fromGitHub) {
         // Notifications work without a widget on the home screen, so they come first.
@@ -532,6 +534,12 @@ object WidgetRenderer {
     internal class Tone(val day: Int, val night: Int, val now: Int) {
         val dayList: ColorStateList get() = ColorStateList.valueOf(day)
         val nightList: ColorStateList get() = ColorStateList.valueOf(night)
+
+        // The same colour, see-through: [alpha] from 0 to 1.
+        fun faded(alpha: Float): Tone {
+            fun fade(colour: Int) = (colour and 0x00FFFFFF) or ((alpha * 255).toInt() shl 24)
+            return Tone(fade(day), fade(night), fade(now))
+        }
     }
 
     // The colours one widget is drawn in, read once per draw.
@@ -549,6 +557,8 @@ object WidgetRenderer {
         val helper = tone(theme.helper)
         val track = tone(theme.track)
         val bar = tone(theme.bar)
+        // Behind a Timeline row's text: faint enough for the text to read in every theme.
+        val fill = bar.faded(ROW_FILL_ALPHA)
 
         private fun withNight(context: Context, night: Boolean): Context {
             val config = Configuration(context.resources.configuration)
@@ -832,8 +842,7 @@ object WidgetRenderer {
                 row.setTextViewText(R.id.tl_name, upgradeName(upgrade))
                 row.setViewVisibility(R.id.tl_bar, View.VISIBLE)
                 row.setProgressBar(R.id.tl_bar, 1000, (village.progress(upgrade, now) * 1000).toInt(), false)
-                row.setTint(R.id.tl_bar, "setProgressTintList", ink.bar)
-                row.setTint(R.id.tl_bar, "setProgressBackgroundTintList", ink.track)
+                row.setTint(R.id.tl_bar, "setProgressTintList", ink.fill)
                 val kind = context.getString(UpNextLabels.kind(upgrade.section))
                 row.setTextViewText(R.id.tl_kind, if (upgrade.extra) context.getString(R.string.upnext_kind_goblin, kind) else kind)
                 when {

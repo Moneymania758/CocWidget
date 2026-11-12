@@ -1,102 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- One upgrade in the Timeline's scrolling list. No countdown here: on One UI a countdown inside a
-     scrolling list stops between redraws, so the time left is text, redrawn each minute. -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     scrolling list stops between redraws, so the time left is text, redrawn each minute. A running
+     upgrade's row fills up behind its text as it goes. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:baselineAligned="false"
-    android:gravity="center_vertical"
-    android:minHeight="46dp"
-    android:orientation="horizontal"
-    android:paddingTop="3dp"
-    android:paddingBottom="3dp">
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp">
 
-    <FrameLayout
-        android:layout_width="36dp"
-        android:layout_height="36dp">
-
-        <ImageView
-            android:id="@+id/tl_icon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:importantForAccessibility="no"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_placeholder" />
-
-        <ImageView
-            android:id="@+id/tl_badge"
-            android:importantForAccessibility="no"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_gravity="bottom|end"
-            android:padding="1dp"
-            android:scaleType="fitCenter"
-            android:visibility="gone" />
-    </FrameLayout>
+    <!-- As tall as the row: the style's 20 dp cap is lifted, and match_parent takes the row's height. -->
+    <ProgressBar
+        android:id="@+id/tl_bar"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:indeterminate="false"
+        android:max="1000"
+        android:maxHeight="200dp"
+        android:minHeight="0dp"
+        android:progressDrawable="@drawable/wrow_fill"
+        android:visibility="gone" />
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:minHeight="44dp"
+        android:orientation="horizontal"
+        android:paddingStart="4dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="2dp">
 
-        <TextView
-            android:id="@+id/tl_name"
-            android:layout_width="match_parent"
+        <FrameLayout
+            android:layout_width="36dp"
+            android:layout_height="36dp">
+
+            <ImageView
+                android:id="@+id/tl_icon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_placeholder" />
+
+            <ImageView
+                android:id="@+id/tl_badge"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="bottom|end"
+                android:importantForAccessibility="no"
+                android:padding="1dp"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:fontFamily="sans-serif-medium"
-            android:maxLines="1"
-            android:textColor="@color/text"
-            android:textSize="13sp" />
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tl_kind"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/text_dim"
-            android:textSize="11sp" />
+            <TextView
+                android:id="@+id/tl_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/text"
+                android:textSize="13sp" />
 
-        <!-- How far along a running upgrade is, as on the Sections rows. Redrawn each minute. -->
-        <ProgressBar
-            android:id="@+id/tl_bar"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="4dp"
-            android:layout_marginTop="3dp"
-            android:indeterminate="false"
-            android:max="1000"
-            android:maxHeight="4dp"
-            android:minHeight="4dp"
-            android:progressDrawable="@drawable/wbar"
-            android:visibility="gone" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/tl_kind"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/text_dim"
+                android:textSize="11sp" />
+        </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:gravity="end"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/tl_left"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-black"
-            android:maxLines="1"
-            android:textColor="@color/text"
-            android:textSize="13sp" />
+            android:layout_marginStart="8dp"
+            android:gravity="end"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tl_at"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textColor="@color/text_dim"
-            android:textSize="11sp" />
+            <TextView
+                android:id="@+id/tl_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:maxLines="1"
+                android:textColor="@color/text"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tl_at"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textColor="@color/text_dim"
+                android:textSize="11sp" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</FrameLayout>

@@ -150,6 +150,53 @@ class WidgetStylesTest {
         assertEquals(village.upgrades.size, checked)
     }
 
+    // The fill runs behind the whole row, as tall as the row, not as a line under the name.
+    @Test
+    fun aRunningRowFillsUpBehindItsText() {
+        val (_, tag) = placed()
+        val village = Store.village(app, tag)!!
+        val now = village.exportedAtMillis + 60_000
+        val items = WidgetRenderer.timelineItems(village, WidgetView.ALL, now).filterIsInstance<UpNext.Item.Running>()
+        val row = WidgetRenderer.timelineRows(app, village, items, now, WidgetRenderer.Ink(app, WidgetTheme.DARK))
+            .map { it.apply(app, FrameLayout(app)) }
+            .first { it.findViewById<View>(R.id.tl_name) != null }
+        row.measure(View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+        row.layout(0, 0, row.measuredWidth, row.measuredHeight)
+        val bar = row.findViewById<View>(R.id.tl_bar)
+        assertEquals(row.width - row.paddingLeft - row.paddingRight, bar.width)
+        assertEquals(row.height - row.paddingTop - row.paddingBottom, bar.height)
+        assertTrue("taller than a line: ${bar.height}", bar.height > 30)
+    }
+
+    // Every text on a row stays readable over a full fill: 4.5:1, the usual line for small text.
+    @Test
+    fun rowTextReadsOverTheFillInEveryTheme() {
+        fun luminance(colour: Int): Double {
+            fun channel(v: Int) = (v / 255.0).let { if (it <= 0.03928) it / 12.92 else Math.pow((it + 0.055) / 1.055, 2.4) }
+            return 0.2126 * channel(android.graphics.Color.red(colour)) + 0.7152 * channel(android.graphics.Color.green(colour)) + 0.0722 * channel(android.graphics.Color.blue(colour))
+        }
+        fun blend(top: Int, under: Int): Int {
+            val a = android.graphics.Color.alpha(top) / 255.0
+            fun mix(t: Int, u: Int) = (a * t + (1 - a) * u).toInt()
+            return android.graphics.Color.rgb(
+                mix(android.graphics.Color.red(top), android.graphics.Color.red(under)),
+                mix(android.graphics.Color.green(top), android.graphics.Color.green(under)),
+                mix(android.graphics.Color.blue(top), android.graphics.Color.blue(under)),
+            )
+        }
+        fun contrast(a: Int, b: Int) = (maxOf(luminance(a), luminance(b)) + 0.05) / (minOf(luminance(a), luminance(b)) + 0.05)
+        // The lightest part of each panel, where the fill shows least against light text.
+        val panels = mapOf(WidgetTheme.CLASSIC to R.color.panel_top, WidgetTheme.DARK to R.color.w_dark_panel, WidgetTheme.LIGHT to R.color.w_light_panel, WidgetTheme.YOU to R.color.w_you_panel)
+        for ((theme, panel) in panels) {
+            val ink = WidgetRenderer.Ink(app, theme)
+            val fill = blend(ink.fill.now, app.getColor(panel))
+            for ((name, tone) in listOf("text" to ink.text, "dim" to ink.dim, "ok" to ink.ok, "accent" to ink.accent)) {
+                val ratio = contrast(tone.now, fill)
+                assertTrue("$theme $name ${"%.2f".format(ratio)}", ratio >= 4.5)
+            }
+        }
+    }
+
     @Test
     fun anIdleSlotShowsItsBuilding() {
         assertEquals("buildings/home-village/builder's_hut/level_1.webp", WidgetRenderer.idlePicture(com.cocwidget.game.Section.BUILDERS))
