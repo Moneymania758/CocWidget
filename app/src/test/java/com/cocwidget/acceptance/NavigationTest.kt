@@ -229,6 +229,48 @@ class NavigationTest {
         assertFalse("Find bases online" in texts)
     }
 
+    // Every tab carries the account, so switching village works from wherever you are.
+    @Test
+    fun everyTabHasTheAccountButtonAndSwitchingRebuildsIt() {
+        val (_, th18) = twoAccounts()
+        for (screen in listOf(Screens.open<PlannerActivity>(), Screens.open<BedtimeActivity>(), Screens.open<PotionsActivity>(), Screens.open<GuideActivity>(), Screens.open<MyBasesActivity>())) {
+            assertNotNull(screen.javaClass.simpleName, described(Screens.root(screen), "Switch account"))
+            assertNotNull(screen.javaClass.simpleName, described(Screens.root(screen), "Import my village"))
+        }
+        val guide = Screens.open<GuideActivity>()
+        described(Screens.root(guide), "Switch account")!!.performClick()
+        val sheet = ShadowDialog.getLatestDialog()
+        Screens.tappable(sheet.window!!.decorView, Store.label(app, th18))!!.performClick()
+        assertEquals(th18, Store.selected(app))
+        assertTrue(Screens.texts(Screens.root(guide)).contains("Town Hall 18"))
+    }
+
+    @Test
+    fun findBasesAsATabHasTheBarAndTheAccountButFromATownHallItHasABackArrow() {
+        twoAccounts()
+        val tab = Screens.open<com.cocwidget.BasesActivity> { putExtra(com.cocwidget.BasesActivity.EXTRA_AS_TAB, true) }
+        val root = Screens.root(tab)
+        assertNotNull(described(root, "Switch account"))
+        assertNull(described(root, "Back"))
+        assertTrue(Screens.tappable(root, "Bases")!!.isSelected)
+        assertTrue(Screens.tappable(root, "Find bases")!!.isSelected)
+        Screens.tappable(root, "My bases")!!.performClick()
+        assertEquals(MyBasesActivity::class.java.name, started(tab)?.component?.className)
+
+        val fromGuide = Screens.root(Screens.open<com.cocwidget.BasesActivity> { putExtra(com.cocwidget.BasesActivity.EXTRA_TOWN_HALL, 12) })
+        assertNotNull(described(fromGuide, "Back"))
+        assertNull(described(fromGuide, "Switch account"))
+        assertNull(Screens.tappable(fromGuide, "Up next"))
+    }
+
+    @Test
+    fun settingsGroupsItsCardsUnderHeadings() {
+        twoAccounts()
+        val texts = Screens.texts(Screens.root(Screens.open<com.cocwidget.SettingsActivity>()))
+        val headings = listOf("Look", "This account", "Events", "Get help")
+        assertEquals(headings, texts.filter { it in headings })
+    }
+
     @Test
     fun tabScreensHaveNoBackArrow() {
         twoAccounts()

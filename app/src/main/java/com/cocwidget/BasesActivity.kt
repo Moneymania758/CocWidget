@@ -24,6 +24,8 @@ import com.cocwidget.game.GameData
 import com.cocwidget.game.Ids
 import com.cocwidget.store.Store
 import com.cocwidget.ui.Skin
+import com.cocwidget.ui.Tab
+import com.cocwidget.ui.TabChrome
 import com.cocwidget.ui.Ui
 
 // Base layouts from a site, shown inside the app as the site shows them. A tap on a base's link
@@ -44,10 +46,13 @@ class BasesActivity : Activity() {
     // Set on a site change. The old site's pages are dropped once the new site's first page is in
     // the history, as clearHistory() keeps the page showing when it's called.
     private var dropOldSite = false
+    // Opened from the Bases tab's switch rather than from a Town Hall's page.
+    private var asTab = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ui = Ui(this, Skin.current(this))
+        asTab = intent.getBooleanExtra(EXTRA_AS_TAB, false)
         myTownHall = Store.current(this)?.village?.townHall ?: 0
         maxTownHall = GameData.all(this)[Ids.TOWN_HALL]?.levelCount ?: 0
         site = BaseSite.named(Store.basesSite(this))
@@ -86,11 +91,25 @@ class BasesActivity : Activity() {
             addView(bar, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
             addView(loading, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ui.dp(3)))
             addView(web, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+            if (asTab) {
+                addView(LinearLayout(this@BasesActivity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    TabChrome(this@BasesActivity, ui).fillBar(this, Tab.BASES)
+                }, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            }
         }
         setContentView(root)
         ui.applyWindow(root)
         drawBar()
         if (savedInstanceState == null || web.restoreState(savedInstanceState) == null) load()
+    }
+
+    // Back from Import or Settings: the header shows the new export, and a new Town Hall moves the
+    // sites with it.
+    override fun onResume() {
+        super.onResume()
+        if (!asTab) return
+        if ((Store.current(this)?.village?.townHall ?: 0) != myTownHall) accountSwitched() else drawBar()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -114,17 +133,23 @@ class BasesActivity : Activity() {
     // The title, a chip per site and a chip per Town Hall. Redrawn on every pick.
     private fun drawBar() {
         bar.removeAllViews()
-        bar.addView(LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            addView(LinearLayout(this@BasesActivity).apply {
-                gravity = Gravity.CENTER
-                contentDescription = getString(R.string.back)
-                addView(ui.icon(R.drawable.ic_back, ui.skin.text, 22))
-                ui.pressable(this, 22f) { finish() }
-            }, LinearLayout.LayoutParams(ui.dp(44), ui.dp(44)))
-            addView(ui.heading(getString(R.string.bases_title), 20f, ui.skin.title), ui.weighted(4))
-        })
+        if (asTab) {
+            val chrome = TabChrome(this, ui)
+            bar.addView(chrome.accountHeader(::accountSwitched), ui.matchWidth(4))
+            bar.addView(chrome.switch(TabChrome.BASES, BasesActivity::class.java), ui.matchWidth(10))
+        } else {
+            bar.addView(LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                addView(LinearLayout(this@BasesActivity).apply {
+                    gravity = Gravity.CENTER
+                    contentDescription = getString(R.string.back)
+                    addView(ui.icon(R.drawable.ic_back, ui.skin.text, 22))
+                    ui.pressable(this, 22f) { finish() }
+                }, LinearLayout.LayoutParams(ui.dp(44), ui.dp(44)))
+                addView(ui.heading(getString(R.string.bases_title), 20f, ui.skin.title), ui.weighted(4))
+            })
+        }
         bar.addView(LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             for ((index, each) in BaseSite.entries.withIndex()) {
@@ -168,6 +193,14 @@ class BasesActivity : Activity() {
         load()
     }
 
+    // Another account may be another Town Hall, so the sites move to its bases.
+    private fun accountSwitched() {
+        myTownHall = Store.current(this)?.village?.townHall ?: 0
+        townHall = (myTownHall.takeIf { it > 0 } ?: maxTownHall).coerceAtLeast(site.firstTownHall)
+        drawBar()
+        load()
+    }
+
     internal fun pickTownHall(level: Int) {
         townHall = level
         drawBar()
@@ -207,5 +240,6 @@ class BasesActivity : Activity() {
 
     companion object {
         const val EXTRA_TOWN_HALL = "town_hall"
+        const val EXTRA_AS_TAB = "as_tab"
     }
 }

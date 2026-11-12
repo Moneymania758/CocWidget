@@ -37,12 +37,30 @@ class SettingsActivity : Screen() {
     override fun build() {
         content.addView(backHeader(R.string.settings_title))
         val settings = SettingsCard(this, ui, nameDrafts, ::show)
-        content.addView(settings.general(), ui.matchWidth(12))
-        content.addView(settings.eventReminders(), ui.matchWidth(16))
-        settings.account()?.let { content.addView(it, ui.matchWidth(16)) }
-        content.addView(HelpCard(this, ui, installedVersion(), open).build(), ui.matchWidth(16))
-        ShareCard(this, ui, installedVersion()).build()?.let { content.addView(it, ui.matchWidth(16)) }
-        content.addView(ui.card(0).apply { addView(aboutRow()) }, ui.matchWidth(16))
+        section(R.string.settings_look)
+        content.addView(settings.look(), ui.matchWidth(8))
+        settings.account()?.let {
+            section(R.string.settings_this_account)
+            content.addView(it, ui.matchWidth(8))
+        }
+        section(R.string.settings_events)
+        content.addView(settings.eventReminders(), ui.matchWidth(8))
+        content.addView(settings.eventDiscount(), ui.matchWidth(10))
+        section(R.string.help_title)
+        content.addView(HelpCard(this, ui, installedVersion(), open).build(), ui.matchWidth(8))
+        ShareCard(this, ui, installedVersion()).build()?.let { content.addView(it, ui.matchWidth(10)) }
+        content.addView(ui.card(0).apply { addView(aboutRow()) }, ui.matchWidth(10))
+        content.addView(ui.text(getString(R.string.version_line, installedVersion()), 12f, ui.skin.dim).apply {
+            gravity = Gravity.CENTER
+        }, ui.matchWidth(18))
+    }
+
+    // A small caps heading over a group of cards.
+    private fun section(title: Int) {
+        content.addView(ui.text(getString(title), 12f, ui.skin.dim, bold = true).apply {
+            isAllCaps = true
+            letterSpacing = 0.06f
+        }, ui.matchWidth(if (content.childCount <= 1) 12 else 22).apply { marginStart = ui.dp(4) })
     }
 
     private fun aboutRow() = LinearLayout(this).apply {

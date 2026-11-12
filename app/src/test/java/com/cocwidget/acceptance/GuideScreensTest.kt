@@ -565,7 +565,7 @@ class GuideScreensTest {
     @Test
     fun everyTownHallButtonHasAPictureAndOpensItsPage() {
         for (townHall in Guide.FIRST_TOWN_HALL..18) {
-            val hub = Screens.open<GuideActivity>()
+            val hub = Screens.open<com.cocwidget.GuideTownHallsActivity>()
             val button = Screens.tappable(Screens.root(hub), "TH$townHall")!!
             assertTrue("TH$townHall", Screens.views<android.widget.ImageView>(button).size == 1)
             button.performClick()
@@ -624,11 +624,39 @@ class GuideScreensTest {
         assertEquals("buildings/home-village/blacksmith/level_3.webp", com.cocwidget.store.Icons.path(blacksmith, 3))
     }
 
+    // A tile for each part of the guide, each opening its screen.
+    @Test
+    fun theGuideHasATileForEachPart() {
+        val guide = Screens.open<GuideActivity>()
+        val parts = mapOf(
+            "Town Halls" to com.cocwidget.GuideTownHallsActivity::class.java,
+            "Heroes" to com.cocwidget.GuideHeroesActivity::class.java,
+            "Pets" to com.cocwidget.GuidePetsActivity::class.java,
+            "Best pets" to com.cocwidget.GuidePairingsActivity::class.java,
+            "Troops and spells" to com.cocwidget.GuideArmyActivity::class.java,
+            "Defences and traps" to com.cocwidget.GuideDefencesActivity::class.java,
+            "Rushing" to com.cocwidget.GuideRushActivity::class.java,
+            "Words explained" to com.cocwidget.GuideGlossaryActivity::class.java,
+            "Where the picks come from" to com.cocwidget.GuideSourcesActivity::class.java,
+        )
+        for ((name, screen) in parts) {
+            Screens.tappable(Screens.root(guide), name)!!.performClick()
+            assertEquals(name, screen.name, shadowOf(guide).nextStartedActivity?.component?.className)
+        }
+        // No village, so no Town Hall of its own.
+        assertFalse(Screens.texts(Screens.root(guide)).contains("Your Town Hall"))
+    }
+
     @Test
     fun aSyncedVillageMarksItsTownHall() {
         syncTh16()
-        val hub = Screens.root(Screens.open<GuideActivity>())
-        assertTrue(Screens.texts(hub).contains("Your Town Hall: TH16"))
+        val guide = Screens.open<GuideActivity>()
+        val hub = Screens.root(guide)
+        assertTrue(Screens.texts(hub).contains("Your Town Hall"))
+        Screens.tappable(hub, "Town Hall 16")!!.performClick()
+        val opened = shadowOf(guide).nextStartedActivity
+        assertEquals(GuideTownHallActivity::class.java.name, opened.component?.className)
+        assertEquals(16, opened.getIntExtra(GuideScreen.EXTRA_TOWN_HALL, 0))
         val mine = Screens.open<GuideTownHallActivity> { putExtra(GuideScreen.EXTRA_TOWN_HALL, 16) }
         assertTrue(Screens.texts(Screens.root(mine)).contains("You"))
         val other = Screens.open<GuideTownHallActivity> { putExtra(GuideScreen.EXTRA_TOWN_HALL, 15) }

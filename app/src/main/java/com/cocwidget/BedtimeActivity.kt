@@ -17,6 +17,7 @@ import com.cocwidget.store.Store
 import com.cocwidget.ui.Pictures
 import com.cocwidget.ui.Screen
 import com.cocwidget.ui.Tab
+import com.cocwidget.ui.TabChrome
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -35,8 +36,7 @@ class BedtimeActivity : Screen() {
 
     override fun build() {
         pictures.clear()
-        content.addView(tabHeader(R.string.tab_plan))
-        content.addView(planSwitch(BedtimeActivity::class.java), ui.matchWidth(12))
+        addTabTop(TabChrome.PLAN)
 
         val current = Store.current(this)
         val items = GameData.all(this)

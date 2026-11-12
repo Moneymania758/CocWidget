@@ -194,10 +194,41 @@ class EventsWidgetTest {
         assertEquals(id, started.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1))
     }
 
+    // As the widget's Edit chip opens it.
     private fun openPicker(id: Int): AlertDialog {
-        val intent = Intent(app, EventsWidgetConfigActivity::class.java).putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
+        val intent = Intent(app, EventsWidgetConfigActivity::class.java)
+            .setData(android.net.Uri.parse("cocwidget://events/$id"))
+            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
         Robolectric.buildActivity(EventsWidgetConfigActivity::class.java, intent).setup()
         return ShadowAlertDialog.getLatestAlertDialog() as AlertDialog
+    }
+
+    // The launcher's widget settings ask for the colours first, then the events.
+    @Test
+    fun theLaunchersSettingsPickATheme() {
+        val id = place()
+        val intent = Intent(app, EventsWidgetConfigActivity::class.java).putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
+        Robolectric.buildActivity(EventsWidgetConfigActivity::class.java, intent).setup()
+        val themes = ShadowAlertDialog.getLatestAlertDialog() as AlertDialog
+        assertEquals(com.cocwidget.widget.WidgetTheme.entries.size, themes.listView.adapter.count)
+        shadowOf(themes.listView).performItemClick(com.cocwidget.widget.WidgetTheme.entries.indexOf(com.cocwidget.widget.WidgetTheme.LIGHT))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(com.cocwidget.widget.WidgetTheme.LIGHT, Store.widgetTheme(app, id))
+        val events = ShadowAlertDialog.getLatestAlertDialog() as AlertDialog
+        assertEquals(EventKind.entries.size, events.listView.adapter.count)
+
+        val widget = draw(id)
+        assertEquals(app.getColor(R.color.w_light_accent), widget.findViewById<android.widget.TextView>(R.id.events_title).currentTextColor)
+        val name = Screens.views<android.widget.TextView>(widget).first { it.id == R.id.event_name }
+        assertEquals(app.getColor(R.color.w_light_text), name.currentTextColor)
+    }
+
+    @Test
+    fun aNewEventsWidgetKeepsTheClassicColours() {
+        val widget = draw(place())
+        assertEquals(app.getColor(R.color.gold), widget.findViewById<android.widget.TextView>(R.id.events_title).currentTextColor)
+        val name = Screens.views<android.widget.TextView>(widget).first { it.id == R.id.event_name }
+        assertEquals(app.getColor(R.color.text), name.currentTextColor)
     }
 
     @Test

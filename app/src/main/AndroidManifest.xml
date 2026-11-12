@@ -58,6 +58,10 @@
             android:name=".GuideTownHallActivity"
             android:exported="false"
             android:label="@string/guide_town_halls" />
+        <activity
+            android:name=".GuideTownHallsActivity"
+            android:exported="false"
+            android:label="@string/guide_town_halls" />
 
         <activity
             android:name=".GuideHeroesActivity"

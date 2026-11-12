@@ -333,9 +333,15 @@ class MyBasesScreenTest {
         val list = Screens.open<MyBasesActivity>()
         assertTrue(texts(list).contains(app.getString(R.string.my_bases_empty)))
         nextStarted()
-        tap(list, app.getString(R.string.bases_open))
-        assertEquals(BasesActivity::class.java.name, nextStarted()?.component?.className)
-        tap(list, app.getString(R.string.my_bases_add))
+        tap(list, app.getString(R.string.bases_find))
+        val find = nextStarted()
+        assertEquals(BasesActivity::class.java.name, find?.component?.className)
+        assertTrue(find!!.getBooleanExtra(BasesActivity.EXTRA_AS_TAB, false))
+        assertTrue("My bases makes way for Find bases", list.isFinishing)
+
+        val again = Screens.open<MyBasesActivity>()
+        nextStarted()
+        tap(again, app.getString(R.string.my_bases_add_plus))
         assertEquals(BaseEditActivity::class.java.name, nextStarted()?.component?.className)
     }
 

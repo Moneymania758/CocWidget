@@ -233,6 +233,9 @@
     <string name="upnext_event_ends">On now, ends</string>
     <string name="name_title">Name on the widget</string>
     <string name="settings_title">Settings</string>
+    <string name="settings_look">Look</string>
+    <string name="settings_this_account">This account</string>
+    <string name="settings_events">Events</string>
     <string name="about_title">About</string>
     <string name="thanks_title">Thanks</string>
     <string name="thanks_detail">To the people whose reports and ideas shaped this app.</string>
@@ -379,8 +382,16 @@
 
     <string name="guide_open">Guide</string>
     <string name="guide_intro">Town Halls, heroes, pets and how people attack. Levels and stats come from the game data. Attack picks, pet picks and tips are opinions from community guides.</string>
-    <string name="guide_my_town_hall">Your Town Hall: TH%1$d</string>
     <string name="guide_town_halls">Town Halls</string>
+    <string name="guide_your_town_hall">Your Town Hall</string>
+    <string name="guide_your_town_hall_line">Attacks, what to upgrade and what\'s new</string>
+    <string name="guide_tile_town_halls">Town Hall %1$d to %2$d</string>
+    <string name="guide_tile_stats">Stats by level</string>
+    <string name="guide_tile_pairings">Best pets</string>
+    <string name="guide_tile_pairings_line">For each hero</string>
+    <string name="guide_tile_defences">How to beat them</string>
+    <string name="guide_tile_rush">Before you rush</string>
+    <string name="guide_tile_glossary">Clash terms</string>
     <string name="guide_heroes">Heroes</string>
     <string name="guide_pets">Pets</string>
     <string name="guide_pairings">Best pets for each hero</string>
@@ -488,7 +499,6 @@
 
     <!-- Base layouts: a site shown inside the app, its base links opened in the game. -->
     <string name="bases_title">Base layouts</string>
-    <string name="bases_open">Find bases online</string>
     <string name="bases_for_town_hall">Base layouts for Town Hall %1$d ›</string>
     <string name="bases_my_town_hall">TH%1$d · You</string>
     <string name="bases_note">Bases from %1$s, shown as the site shows them. Tap a base\'s link to open it in Clash of Clans.</string>
@@ -499,7 +509,9 @@
     <string name="my_bases_title">My bases</string>
     <string name="my_bases_for">Bases saved for %1$s.</string>
     <string name="my_bases_empty">No bases saved yet. Share a base link to Clash Timers from the game, Discord or anywhere else, or copy the link and tap Add a base.</string>
-    <string name="my_bases_add">Add a base</string>
+    <string name="my_bases_add_plus">+ Add a base</string>
+    <string name="bases_mine">My bases</string>
+    <string name="bases_find">Find bases</string>
     <string name="my_bases_open_game">Open in game</string>
     <string name="my_bases_edit">Edit</string>
     <string name="my_bases_unnamed">Base for Town Hall %1$d</string>

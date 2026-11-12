@@ -312,6 +312,15 @@ object WidgetRenderer {
         short: Boolean = false,
     ): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_events)
+        // The same four themes as the other widgets, picked in the launcher's widget settings.
+        val ink = Ink(context, Store.widgetTheme(context, widgetId))
+        views.setInt(R.id.events_root, "setBackgroundResource", ink.theme.panel)
+        views.setTextColor(R.id.events_title, ink.accent)
+        for (id in listOf(R.id.events_edit, R.id.events_reset)) {
+            views.setInt(id, "setBackgroundResource", ink.theme.chip)
+            views.setTextColor(id, ink.accent)
+        }
+        views.setTextColor(R.id.events_empty, ink.dim)
         // Set both ways: a resize lands on top of the views already on screen, so a tall widget that
         // was short would otherwise keep the header hidden.
         views.setViewVisibility(R.id.events_header, if (short) View.GONE else View.VISIBLE)
@@ -351,13 +360,13 @@ object WidgetRenderer {
             return views
         }
         views.setViewVisibility(R.id.events_empty, View.GONE)
-        for (countdown in countdowns) views.addView(R.id.event_rows, eventRow(context, countdown, now, narrow))
+        for (countdown in countdowns) views.addView(R.id.event_rows, eventRow(context, countdown, now, narrow, ink))
         return views
     }
 
     // Chronometer can't show days, so the days go into its format, and a redraw is due when it
     // reaches zero or drops under an hour (Countdown.nextEventRefresh).
-    private fun eventRow(context: Context, countdown: EventSchedule.Countdown, now: Long, narrow: Boolean): RemoteViews {
+    private fun eventRow(context: Context, countdown: EventSchedule.Countdown, now: Long, narrow: Boolean, ink: Ink): RemoteViews {
         val row = RemoteViews(context.packageName, if (narrow) R.layout.widget_event_row_narrow else R.layout.widget_event_row)
         row.setTextViewText(R.id.event_name, context.getString(countdown.kind.shortLabel))
         val split = Countdown.split(countdown.target - now)
@@ -365,7 +374,9 @@ object WidgetRenderer {
         val format = context.getString(countdown.label, days + Countdown.hourPrefix(split) + "%s")
         row.setChronometer(R.id.event_timer, SystemClock.elapsedRealtime() + split.restMs, format, true)
         row.setChronometerCountDown(R.id.event_timer, true)
-        row.setTextColor(R.id.event_timer, context.getColor(if (countdown.running) R.color.event_running else R.color.text_dim))
+        row.setInt(R.id.event_row_bg, "setBackgroundResource", ink.theme.chip)
+        row.setTextColor(R.id.event_name, ink.text)
+        row.setTextColor(R.id.event_timer, if (countdown.running) ink.ok else ink.dim)
         return row
     }
 

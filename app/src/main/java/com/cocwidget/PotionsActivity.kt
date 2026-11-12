@@ -14,6 +14,7 @@ import com.cocwidget.plan.PotionAdvisor
 import com.cocwidget.store.Store
 import com.cocwidget.ui.Screen
 import com.cocwidget.ui.Tab
+import com.cocwidget.ui.TabChrome
 
 // Whether now is a good time for a Builder, Research or Pet potion: does every slot stay busy
 // for the whole hour?
@@ -26,8 +27,7 @@ class PotionsActivity : Screen() {
     private class Queue(val section: Section, val title: Int, val slots: Int, val idle: (Int) -> String, val items: List<Item>)
 
     override fun build() {
-        content.addView(tabHeader(R.string.tab_plan))
-        content.addView(planSwitch(PotionsActivity::class.java), ui.matchWidth(12))
+        addTabTop(TabChrome.PLAN)
         val village = Store.current(this)?.village
         if (village == null) {
             addNothingSynced()
@@ -83,7 +83,10 @@ class PotionsActivity : Screen() {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             addView(ui.text(getString(item.name, item.multiplier), 15f, bold = true), ui.weighted())
-            addView(ui.text(getString(verdict), 14f, colour, bold = true))
+            // A pill tinted with the verdict's own colour.
+            addView(ui.chip(getString(verdict), (colour and 0x00FFFFFF) or 0x26000000, colour).apply {
+                setTypeface(typeface, android.graphics.Typeface.BOLD)
+            })
         })
         addView(ui.text(getString(R.string.potions_saves, PlanFormat.duration(advice.savedSec), PlanFormat.duration(advice.possibleSec)), 13f, ui.skin.dim), ui.matchWidth(3))
         addView(ui.bar(share).apply { (layoutParams as LinearLayout.LayoutParams).topMargin = ui.dp(6) })

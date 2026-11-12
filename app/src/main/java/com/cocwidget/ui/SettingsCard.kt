@@ -30,12 +30,11 @@ class SettingsCard(
     private val nameDrafts: MutableMap<String, String>,
     private val redraw: () -> Unit,
 ) {
-    // Settings for the whole app, whichever account is selected.
-    fun general(): View = ui.card(0).apply {
-        addView(themePicker())
-        addView(ui.divider())
-        addView(eventRow())
-    }
+    // How the app looks, whichever account is selected.
+    fun look(): View = ui.card(0).apply { addView(themePicker()) }
+
+    // The half-price switch for Hammer Jam and the like.
+    fun eventDiscount(): View = ui.card(0).apply { addView(eventRow()) }
 
     // A switch for each game event, with when its next reminder is due.
     fun eventReminders(): View = ui.card(0).apply {

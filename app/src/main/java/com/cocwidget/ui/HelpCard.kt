@@ -20,9 +20,6 @@ class HelpCard(
     private val open: MutableSet<Int>,
 ) {
     fun build(): View = ui.card(0).apply {
-        addView(ui.heading(activity.getString(R.string.help_title), 16f, ui.skin.accent).apply {
-            setPadding(ui.dp(16), ui.dp(14), ui.dp(16), ui.dp(4))
-        })
         addView(fold(R.string.fold_setup, activity.getString(R.string.main_steps)))
         addView(ui.divider())
         val device = Contact.device(version, Build.VERSION.RELEASE, Build.MANUFACTURER, Build.MODEL)
