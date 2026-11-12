@@ -440,6 +440,10 @@ After a game update adds buildings, troops or levels:
 node tools/build-coc-data.js
 ```
 
+It also refreshes the list of pictures ClashKing has. Then run the tests: `IconCoverageTest` names
+any item, at any level, that has no picture anywhere, and the PNG file name to bundle in
+`app/src/main/assets/icons` for it.
+
 ### Event dates
 
 `app/src/main/assets/events.json` ships in the app, and the app also downloads it from `main`

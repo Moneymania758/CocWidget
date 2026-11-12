@@ -13,6 +13,10 @@ const SOURCE_URL = 'https://assets.clashk.ing/static_data.json';
 const OUTPUT = path.join(__dirname, '..', 'app', 'src', 'main', 'assets', 'coc_data.json');
 // The guide's game facts live apart, so the widget doesn't parse text it never shows.
 const GUIDE_OUTPUT = path.join(__dirname, '..', 'app', 'src', 'main', 'assets', 'guide_facts.json');
+// The list of pictures ClashKing's asset host has, which the tests check every item against.
+const ICON_TREE_URL = 'https://api.github.com/repos/ClashKingInc/ClashKingAssets/git/trees/main?recursive=1';
+const ICON_OUTPUT = path.join(__dirname, '..', 'app', 'src', 'test', 'resources', 'clashking_icons.txt');
+const ICON_FOLDERS = new Set(['buildings', 'traps', 'troops', 'spells', 'heroes', 'pets', 'guardians', 'equipment']);
 const KINDS = {
   buildings: 'building',
   traps: 'trap',
@@ -241,6 +245,23 @@ async function main() {
   console.log(`Wrote ${Object.keys(out).length} entries to ${OUTPUT}`);
   fs.writeFileSync(GUIDE_OUTPUT, JSON.stringify(guideFacts(data)));
   console.log(`Wrote ${GUIDE_OUTPUT}`);
+  await writeIconList();
+}
+
+// The pictures ClashKing has, for IconCoverageTest: a refresh that adds an item with no picture
+// fails the tests, so a picture gets bundled before release instead of a blank showing.
+async function writeIconList() {
+  const response = await fetch(ICON_TREE_URL, { headers: { 'User-Agent': 'clash-timers-data' } });
+  if (!response.ok) throw new Error(`ClashKing's file list: HTTP ${response.status}`);
+  const tree = await response.json();
+  if (tree.truncated) throw new Error("ClashKing's file list came back cut short");
+  const paths = tree.tree
+    .filter(entry => entry.type === 'blob' && entry.path.startsWith('assets/'))
+    .map(entry => entry.path.slice('assets/'.length))
+    .filter(p => ICON_FOLDERS.has(p.split('/')[0]))
+    .sort();
+  fs.writeFileSync(ICON_OUTPUT, paths.join('\n') + '\n');
+  console.log(`Wrote ${paths.length} picture paths to ${ICON_OUTPUT}`);
 }
 
 main().catch(err => {
