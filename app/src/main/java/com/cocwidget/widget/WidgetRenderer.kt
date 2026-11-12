@@ -54,8 +54,9 @@ object WidgetRenderer {
     private const val SHORT_MIN_DP = 40f
     // Header, a row and the Reset chip need about this much.
     private const val TALL_MIN_DP = 130f
-    // The small widget's Up next and Glance sizes need about this much height.
-    private const val NEXT_TALL_MIN_DP = 100f
+    // The small widget's Up next and Glance sizes need about this much height. One row on the Pixel
+    // launcher is about 108 dp, too short for them, and two rows about 227 dp.
+    private const val NEXT_TALL_MIN_DP = 150f
     // A Pages widget's rows per page by the height it is drawn for, in dp. Header, chips, view
     // buttons and footer take about 190 dp, and a row about 46.
     private val PAGE_SIZES = listOf(110f to 1, 300f to 2, 350f to 3, 400f to 4, 450f to 5, 500f to 6, 600f to 8, 700f to 10, 820f to 12)

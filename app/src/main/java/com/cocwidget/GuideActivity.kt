@@ -22,7 +22,8 @@ class GuideActivity : GuideScreen() {
     override fun buildGuide() {
         addTabTop()
         if (myTownHall >= Guide.FIRST_TOWN_HALL) content.addView(myTownHallCard(), ui.matchWidth(12))
-        val byName = items.values.filter { it.village == "home" }.associateBy { it.name }
+        // Pets carry no village in the game data, so they're let in by kind.
+        val byName = items.values.filter { it.village == "home" || it.kind == "pet" }.associateBy { it.name }
         fun pictureOf(name: String) = byName[name]?.let { Icons.path(it, 1) }
         val parts = listOf(
             Part(
