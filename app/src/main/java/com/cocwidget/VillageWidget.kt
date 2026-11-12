@@ -13,6 +13,17 @@ class VillageWidget : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             ACTION_REFRESH, Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED -> refreshAsync(context)
+            ACTION_TIMELINE_MINUTE -> {
+                val appContext = context.applicationContext
+                val pending = goAsync()
+                thread {
+                    try {
+                        WidgetRenderer.redrawTimelines(appContext)
+                    } finally {
+                        pending.finish()
+                    }
+                }
+            }
             ACTION_TOGGLE_SECTION -> {
                 val tag = intent.getStringExtra(EXTRA_ACCOUNT)
                 val section = intent.getStringExtra(EXTRA_SECTION)
@@ -79,6 +90,7 @@ class VillageWidget : AppWidgetProvider() {
 
     companion object {
         const val ACTION_REFRESH = "com.cocwidget.action.REFRESH"
+        const val ACTION_TIMELINE_MINUTE = "com.cocwidget.action.TIMELINE_MINUTE"
         const val ACTION_TOGGLE_SECTION = "com.cocwidget.action.TOGGLE_SECTION"
         const val ACTION_SET_VIEW = "com.cocwidget.action.SET_VIEW"
         const val ACTION_SWITCH_ACCOUNT = "com.cocwidget.action.SWITCH_ACCOUNT"

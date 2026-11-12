@@ -207,15 +207,17 @@ class BasesActivity : Activity() {
         load()
     }
 
-    // What a tap on a link inside the site does. True when the app has dealt with it.
-    internal fun handle(url: String): Boolean = when (BaseLinks.route(url, site)) {
+    // What a tap on a link inside the site does. True when the app has dealt with it. Without a
+    // tap ([tapped] false) a page leaving for another site is a script, often an advert, so it is
+    // stopped rather than sent to the browser.
+    internal fun handle(url: String, tapped: Boolean = true): Boolean = when (BaseLinks.route(url, site)) {
         Route.STAY -> false
         Route.LAYOUT -> {
             LayoutOpener.open(this, url, myTownHall)
             true
         }
         Route.BROWSER -> {
-            LayoutOpener.outside(this, Intent(Intent.ACTION_VIEW, Uri.parse(url)).addCategory(Intent.CATEGORY_BROWSABLE))
+            if (tapped) LayoutOpener.outside(this, Intent(Intent.ACTION_VIEW, Uri.parse(url)).addCategory(Intent.CATEGORY_BROWSABLE))
             true
         }
         Route.DROP -> true
@@ -224,7 +226,7 @@ class BasesActivity : Activity() {
     private inner class Client : WebViewClient() {
         // Only the page itself. Adverts in frames load where they are.
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean =
-            request.isForMainFrame && handle(request.url.toString())
+            request.isForMainFrame && handle(request.url.toString(), request.hasGesture())
 
         override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
             loading.visibility = View.VISIBLE

@@ -276,7 +276,12 @@ class BaseEditActivity : Screen() {
         val all = Store.allBases(this)
         val id = editing?.id ?: MyBases.matching(all, account, found)?.id ?: UUID.randomUUID().toString()
         val before = all.firstOrNull { it.id == id }
-        val base = SavedBase(id, account, found, name.trim(), kind, before?.added ?: System.currentTimeMillis(), before?.opened ?: 0)
+        // Editing may clear the name on purpose. A new entry for a saved link only adds to it.
+        val kept = if (editing == null) before else null
+        val base = SavedBase(
+            id, account, found, name.trim().ifEmpty { kept?.name.orEmpty() }, kind ?: kept?.kind,
+            before?.added ?: System.currentTimeMillis(), before?.opened ?: 0,
+        )
         val picture = BasePictures.file(this, id)
         val waiting = draft
         if (waiting != null) BasePictures.keep(waiting, picture) else if (pictureRemoved) picture.delete()

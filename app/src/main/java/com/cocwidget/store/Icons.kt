@@ -3,6 +3,7 @@ package com.cocwidget.store
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.LruCache
 import com.cocwidget.game.GameItem
 import com.cocwidget.game.Upgrade
 import java.io.File
@@ -17,6 +18,8 @@ import java.net.URL
 object Icons {
     private const val BASE_URL = "https://assets.clashk.ing/"
     private const val SIZE_PX = 96
+    // Room for every picture a busy widget and screen show, at 96 px about 36 KB each.
+    private const val DECODED_KB = 6 * 1024
 
     // Buildings whose top levels ClashKing has no picture for yet. They show the highest it has.
     private val LAST_PICTURE = mapOf("blacksmith" to 9)
@@ -26,11 +29,25 @@ object Icons {
 
     fun load(context: Context, upgrade: Upgrade): Bitmap? = load(context, path(upgrade))
 
+    // A widget draw asks for the same pictures many times over: a Pages widget builds a layout per
+    // height, each with its own rows. Kept decoded, so each is read once, and one Bitmap shared by
+    // every layout travels to the launcher once. A missing picture isn't kept, so a download shows.
+    // Nothing draws on these, so sharing them is safe.
+    private val decoded = object : LruCache<String, Bitmap>(DECODED_KB) {
+        override fun sizeOf(key: String, value: Bitmap) = value.allocationByteCount / 1024
+    }
+
     fun load(context: Context, path: String?): Bitmap? {
         val name = fileName(path ?: return null)
-        bundledFile(context, name)?.let { bundled -> return context.assets.open("icons/$bundled").use { BitmapFactory.decodeStream(it) } }
-        val file = File(File(context.filesDir, "icons"), name)
-        return if (file.length() > 0) BitmapFactory.decodeFile(file.path) else null
+        decoded.get(name)?.let { return it }
+        val bundled = bundledFile(context, name)
+        val bitmap = if (bundled != null) {
+            context.assets.open("icons/$bundled").use { BitmapFactory.decodeStream(it) }
+        } else {
+            val file = File(File(context.filesDir, "icons"), name)
+            if (file.length() > 0) BitmapFactory.decodeFile(file.path) else null
+        }
+        return bitmap?.also { decoded.put(name, it) }
     }
 
     fun fetchMissing(context: Context, upgrades: List<Upgrade>) {

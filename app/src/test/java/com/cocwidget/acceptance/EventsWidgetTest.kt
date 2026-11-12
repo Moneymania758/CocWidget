@@ -213,9 +213,13 @@ class EventsWidgetTest {
         assertEquals(com.cocwidget.widget.WidgetTheme.entries.size, themes.listView.adapter.count)
         shadowOf(themes.listView).performItemClick(com.cocwidget.widget.WidgetTheme.entries.indexOf(com.cocwidget.widget.WidgetTheme.LIGHT))
         shadowOf(Looper.getMainLooper()).idle()
-        assertEquals(com.cocwidget.widget.WidgetTheme.LIGHT, Store.widgetTheme(app, id))
+        // Saved with the events, so backing out of the events list changes nothing.
+        assertEquals(com.cocwidget.widget.WidgetTheme.CLASSIC, Store.widgetTheme(app, id))
         val events = ShadowAlertDialog.getLatestAlertDialog() as AlertDialog
         assertEquals(EventKind.entries.size, events.listView.adapter.count)
+        events.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(com.cocwidget.widget.WidgetTheme.LIGHT, Store.widgetTheme(app, id))
 
         val widget = draw(id)
         assertEquals(app.getColor(R.color.w_light_accent), widget.findViewById<android.widget.TextView>(R.id.events_title).currentTextColor)

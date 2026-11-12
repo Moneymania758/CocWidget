@@ -17,6 +17,10 @@ import com.cocwidget.widget.WidgetTheme
 class WidgetConfigActivity : Activity() {
     private var widgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     private val skin by lazy { Skin.current(this) }
+    // The answers so far. Nothing is saved until the last one, so backing out part way changes nothing.
+    private var account: String? = null
+    private var style: WidgetStyle? = null
+    private var theme: WidgetTheme? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +43,7 @@ class WidgetConfigActivity : Activity() {
     private fun askAccount() {
         val accounts = Store.accounts(this)
         if (accounts.size <= 1) {
-            accounts.firstOrNull()?.let { Store.setWidgetAccount(this, widgetId, it) }
+            account = accounts.firstOrNull()
             afterAccount()
             return
         }
@@ -49,11 +53,12 @@ class WidgetConfigActivity : Activity() {
             .setSingleChoiceItems(accounts.map { Store.label(this, it) }.toTypedArray(), accounts.indexOf(current)) { dialog, which ->
                 // Closing the screen with the dialog still up leaks its window.
                 dialog.dismiss()
-                Store.setWidgetAccount(this, widgetId, accounts[which])
+                account = accounts[which]
                 afterAccount()
             }
             .setOnCancelListener { finish() }
             .show()
+            .setCanceledOnTouchOutside(false)
     }
 
     private fun afterAccount() {
@@ -71,11 +76,12 @@ class WidgetConfigActivity : Activity() {
             .setTitle(R.string.widget_style_title)
             .setSingleChoiceItems(names, styles.indexOf(Store.widgetStyle(this, widgetId))) { dialog, which ->
                 dialog.dismiss()
-                Store.setWidgetStyle(this, widgetId, styles[which])
+                style = styles[which]
                 askTheme()
             }
             .setOnCancelListener { finish() }
             .show()
+            .setCanceledOnTouchOutside(false)
     }
 
     private fun askTheme() {
@@ -84,14 +90,18 @@ class WidgetConfigActivity : Activity() {
             .setTitle(R.string.widget_theme_title)
             .setSingleChoiceItems(themes.map { getString(it.label) }.toTypedArray(), themes.indexOf(Store.widgetTheme(this, widgetId))) { dialog, which ->
                 dialog.dismiss()
-                Store.setWidgetTheme(this, widgetId, themes[which])
+                theme = themes[which]
                 done()
             }
             .setOnCancelListener { finish() }
             .show()
+            .setCanceledOnTouchOutside(false)
     }
 
     private fun done() {
+        account?.let { Store.setWidgetAccount(this, widgetId, it) }
+        style?.let { Store.setWidgetStyle(this, widgetId, it) }
+        theme?.let { Store.setWidgetTheme(this, widgetId, it) }
         VillageWidget.requestRefresh(this)
         setResult(RESULT_OK, result())
         finish()

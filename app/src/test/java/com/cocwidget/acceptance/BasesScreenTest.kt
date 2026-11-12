@@ -128,6 +128,18 @@ class BasesScreenTest {
         assertNull(nextStarted())
     }
 
+    // A script sending the page to another site, with no tap, is stopped and opens nothing.
+    @Test
+    fun aRedirectWithNoTapStaysPut() {
+        val screen = Screens.open<BasesActivity>()
+        nextStarted()
+        assertTrue(screen.handle("https://example.com/advert", tapped = false))
+        assertNull(nextStarted())
+        // A base link still opens in the game, as the sites open them from a tap's script.
+        assertTrue(screen.handle(th16Base, tapped = false))
+        assertNotNull(nextStarted())
+    }
+
     @Test
     fun javascriptIsOnAndFilesAreOff() {
         val web: WebView = Screens.open<BasesActivity>().web

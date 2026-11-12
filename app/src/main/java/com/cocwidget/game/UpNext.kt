@@ -26,7 +26,11 @@ object UpNext {
     }
 
     private const val HOUR = 3_600_000L
-    private const val WEEK = 7 * 24 * HOUR
+
+    // A weekday alone names a day only within the next six. A week on it's today's name again, so
+    // "Thu" next Thursday would read as this morning.
+    fun weekdayIsEnough(atMillis: Long, now: Long, zone: ZoneId): Boolean =
+        Instant.ofEpochMilli(atMillis).atZone(zone).toLocalDate().isBefore(Instant.ofEpochMilli(now).atZone(zone).toLocalDate().plusDays(7))
 
     fun groupOf(atMillis: Long, now: Long, zone: ZoneId): Group {
         if (atMillis <= now) return Group.NOW
@@ -36,7 +40,7 @@ object UpNext {
         return when {
             day == today -> Group.TODAY
             day == today.plusDays(1) -> Group.TOMORROW
-            atMillis - now < WEEK -> Group.THIS_WEEK
+            weekdayIsEnough(atMillis, now, zone) -> Group.THIS_WEEK
             else -> Group.LATER
         }
     }

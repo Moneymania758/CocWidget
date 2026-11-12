@@ -138,8 +138,8 @@ class UpNextList(
         Section.BUILDER_BASE -> R.string.upnext_tile_builder_base
     }
 
-    // The big line and the status under it. Builders count their slots; the lab and pets give the
-    // time left on what's running; the Builder Base, which has no slot count, how much runs there.
+    // The big line and the status under it. Builders count their slots. The lab and pets give the
+    // time left on what's running. The Builder Base, which has no slot count, says how much runs there.
     private fun tileText(village: Village, section: Section): Triple<String, String, Int> {
         val running = runningIn(village, section)
         val idle = village.idleIn(section, now)
@@ -185,7 +185,7 @@ class UpNextList(
         for (item in items) {
             val group = UpNext.groupOf(item.atMillis, now, zone)
             if (group != shown) {
-                addView(ui.text(activity.getString(groupName(group)), 12f, if (group == Group.NOW) ui.skin.idle else ui.skin.dim, bold = true).apply {
+                addView(ui.text(activity.getString(UpNextLabels.group(group)), 12f, if (group == Group.NOW) ui.skin.idle else ui.skin.dim, bold = true).apply {
                     isAllCaps = true
                     letterSpacing = 0.06f
                 }, ui.matchWidth(if (shown == null) 4 else 18))
@@ -193,15 +193,6 @@ class UpNextList(
             }
             addView(row(item, group), ui.matchWidth(8))
         }
-    }
-
-    private fun groupName(group: Group) = when (group) {
-        Group.NOW -> R.string.upnext_now
-        Group.NEXT_HOUR -> R.string.upnext_next_hour
-        Group.TODAY -> R.string.upnext_today
-        Group.TOMORROW -> R.string.upnext_tomorrow
-        Group.THIS_WEEK -> R.string.upnext_this_week
-        Group.LATER -> R.string.upnext_later
     }
 
     // The time it ends on the left, as on a calendar, then the card.
@@ -281,9 +272,9 @@ class UpNextList(
 
     private fun LinearLayout.idle(item: Item.Idle) {
         val (building, title, line) = when (item.section) {
-            Section.BUILDERS -> Triple("Builder's Hut", activity.resources.getQuantityString(R.plurals.upnext_builders_free, item.count, item.count), R.string.upnext_start_builder)
-            Section.LAB -> Triple("Laboratory", activity.getString(R.string.upnext_lab_free), R.string.upnext_start_lab)
-            else -> Triple("Pet House", activity.getString(R.string.upnext_pets_free), R.string.upnext_start_pet)
+            Section.BUILDERS -> Triple("Builder's Hut", UpNextLabels.idleTitle(activity, item.section, item.count), UpNextLabels.startHint(item.section))
+            Section.LAB -> Triple("Laboratory", UpNextLabels.idleTitle(activity, item.section, item.count), UpNextLabels.startHint(item.section))
+            else -> Triple("Pet House", UpNextLabels.idleTitle(activity, item.section, item.count), UpNextLabels.startHint(item.section))
         }
         val stand = Upgrade(item.section, building, "building", "home", 2, 0, null, false)
         addView(picture(Icons.path(stand)), pictureSize())
@@ -296,7 +287,7 @@ class UpNextList(
         val end = village.endMillis(upgrade)
         val left = end - now
         addView(picture(Icons.path(upgrade)), pictureSize())
-        val kind = activity.getString(kindName(upgrade.section))
+        val kind = activity.getString(UpNextLabels.kind(upgrade.section))
         middle(WidgetRenderer.upgradeName(upgrade), if (upgrade.extra) activity.getString(R.string.upnext_kind_goblin, kind) else kind) {
             if (upgrade.extra) addView(rowFace(R.drawable.ic_face_goblin, ui.skin.goblin, R.string.goblin))
             if (left > 0 && village.isHelped(upgrade, now)) {
@@ -304,13 +295,6 @@ class UpNextList(
             }
         }
         if (left > 0) countdown(end, soon) else right(activity.getString(R.string.done), ui.skin.green)
-    }
-
-    private fun kindName(section: Section) = when (section) {
-        Section.BUILDERS -> R.string.upnext_kind_builder
-        Section.LAB -> R.string.upnext_kind_lab
-        Section.PETS -> R.string.upnext_kind_pets
-        Section.BUILDER_BASE -> R.string.upnext_kind_builder_base
     }
 
     private fun rowFace(face: Int, ring: Int, description: Int) = ui.face(face, 26, ring, activity.getString(description)).apply {
@@ -347,7 +331,7 @@ class UpNextList(
             setPadding(ui.dp(6), ui.dp(6), ui.dp(6), ui.dp(6))
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }, pictureSize())
-        middle(activity.getString(R.string.upnext_boost_ends, boostName(item)), activity.getString(kindName(item.section)))
+        middle(activity.getString(R.string.upnext_boost_ends, boostName(item)), activity.getString(UpNextLabels.kind(item.section)))
         countdown(item.atMillis, soon)
     }
 

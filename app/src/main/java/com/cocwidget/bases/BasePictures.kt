@@ -55,7 +55,12 @@ object BasePictures {
     }
 
     // Decoded at about [width] pixels wide, for showing. Null if it's missing or unreadable.
-    fun load(file: File, width: Int): Bitmap? = try {
+    fun load(file: File, width: Int): Bitmap? = decode(file, width) { it.outWidth }
+
+    // For a square cropped from the middle: decoded so the shorter side is about [side] pixels.
+    fun thumbnail(file: File, side: Int): Bitmap? = decode(file, side) { minOf(it.outWidth, it.outHeight) }
+
+    private fun decode(file: File, wanted: Int, size: (BitmapFactory.Options) -> Int): Bitmap? = try {
         if (!file.exists()) {
             null
         } else {
@@ -63,7 +68,7 @@ object BasePictures {
             // a removed picture couldn't be deleted.
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             file.inputStream().use { BitmapFactory.decodeStream(it, null, bounds) }
-            val options = BitmapFactory.Options().apply { inSampleSize = sample(bounds.outWidth, width) }
+            val options = BitmapFactory.Options().apply { inSampleSize = sample(size(bounds), wanted) }
             file.inputStream().use { BitmapFactory.decodeStream(it, null, options) }
         }
     } catch (_: Exception) {

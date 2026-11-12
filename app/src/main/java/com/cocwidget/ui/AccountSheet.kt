@@ -132,23 +132,12 @@ class AccountSheet(private val activity: Activity, private val ui: Ui, private v
         if (village == null) return activity.getString(R.string.account_unreadable) to true
         if (WidgetRenderer.exportLine(activity, village, now).stale) return activity.getString(R.string.account_out_of_date) to true
         val summary = NextFinish.of(village, now)
-        return idleLine(activity, summary) to summary.anyIdle
+        return UpNextLabels.idleLine(activity, summary) to summary.anyIdle
     }
 
     companion object {
         private const val ROW_DP = 58
         // More accounts than this get a search box.
         private const val SEARCH_FROM = 6
-
-        // "2 builders idle · Lab idle", or that every builder is busy.
-        fun idleLine(activity: Activity, summary: NextFinish.Summary): String = if (summary.anyIdle) {
-            buildList {
-                if (summary.idleBuilders > 0) add(activity.resources.getQuantityString(R.plurals.next_builders_idle, summary.idleBuilders, summary.idleBuilders))
-                if (summary.labIdle) add(activity.getString(R.string.next_lab_idle))
-                if (summary.petsIdle) add(activity.getString(R.string.next_pets_idle))
-            }.joinToString(" · ")
-        } else {
-            activity.resources.getQuantityString(R.plurals.next_all_busy, summary.builders, summary.builders)
-        }
     }
 }

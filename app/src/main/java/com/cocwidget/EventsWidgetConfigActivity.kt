@@ -15,6 +15,8 @@ import com.cocwidget.widget.WidgetTheme
 // event again.
 class EventsWidgetConfigActivity : Activity() {
     private var widgetId = AppWidgetManager.INVALID_APPWIDGET_ID
+    // Picked in the launcher's settings, saved with the events so backing out changes nothing.
+    private var theme: WidgetTheme? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,8 +41,7 @@ class EventsWidgetConfigActivity : Activity() {
             .setTitle(R.string.widget_theme_title)
             .setSingleChoiceItems(themes.map { getString(it.label) }.toTypedArray(), themes.indexOf(Store.widgetTheme(this, widgetId))) { dialog, which ->
                 dialog.dismiss()
-                Store.setWidgetTheme(this, widgetId, themes[which])
-                VillageWidget.requestRefresh(this)
+                theme = themes[which]
                 pickEvents()
             }
             .setOnCancelListener { finish() }
@@ -68,6 +69,7 @@ class EventsWidgetConfigActivity : Activity() {
     }
 
     private fun save(hidden: Set<EventKind>) {
+        theme?.let { Store.setWidgetTheme(this, widgetId, it) }
         Store.setHiddenEvents(this, widgetId, hidden)
         VillageWidget.requestRefresh(this)
         finish()

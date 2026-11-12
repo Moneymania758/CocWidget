@@ -33,7 +33,9 @@ class UpNextTest {
         assertEquals(Group.TOMORROW, group(at(12, 0, 30)))
         assertEquals(Group.TOMORROW, group(at(12, 23, 59)))
         assertEquals(Group.THIS_WEEK, group(at(13, 1)))
-        assertEquals(Group.THIS_WEEK, group(now + 7 * 24 * hour - 1))
+        assertEquals(Group.THIS_WEEK, group(at(17, 23, 59)))
+        // Next Wednesday, even before this one's 19:00, would read "Wed" like today, so it gets a date.
+        assertEquals(Group.LATER, group(at(18, 9)))
         assertEquals(Group.LATER, group(now + 7 * 24 * hour))
     }
 

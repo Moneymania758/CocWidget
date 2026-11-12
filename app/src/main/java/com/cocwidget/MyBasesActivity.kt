@@ -26,11 +26,11 @@ class MyBasesActivity : Screen() {
         val current = Store.current(this)
         val myTownHall = current?.village?.townHall ?: 0
         addTabTop(TabChrome.BASES)
-        val bases = Store.myBases(this, current?.tag)
+        val bases = Store.myBases(this, Store.selected(this))
         if (bases.isEmpty()) {
             content.addView(ui.card().apply { addView(ui.text(getString(R.string.my_bases_empty), 14f, ui.skin.dim)) }, ui.matchWidth(4))
         } else {
-            current?.let { addNote(getString(R.string.my_bases_for, Store.label(this, it.tag)), 13f) }
+            Store.selected(this)?.let { addNote(getString(R.string.my_bases_for, Store.label(this, it)), 13f) }
         }
         val pictures = mutableMapOf<ImageView, File>()
         for ((index, base) in bases.withIndex()) content.addView(baseCard(base, myTownHall, pictures), ui.matchWidth(if (index == 0) 10 else 8))
@@ -103,9 +103,10 @@ class MyBasesActivity : Screen() {
     // Read off the main thread, as a few screenshots take a moment to decode.
     private fun loadPictures(pictures: Map<ImageView, File>) {
         if (pictures.isEmpty()) return
-        val width = resources.displayMetrics.widthPixels
+        // Shown at 84 dp, so a full-size screenshot isn't held for each card.
+        val side = ui.dp(84)
         thread {
-            val loaded = pictures.mapNotNull { (view, file) -> BasePictures.load(file, width)?.let { view to it } }
+            val loaded = pictures.mapNotNull { (view, file) -> BasePictures.thumbnail(file, side)?.let { view to it } }
             runOnUiThread {
                 if (!isDestroyed) for ((view, bitmap) in loaded) view.setImageBitmap(bitmap)
             }

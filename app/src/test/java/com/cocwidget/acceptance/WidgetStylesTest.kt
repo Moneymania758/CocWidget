@@ -229,4 +229,53 @@ class WidgetStylesTest {
         assertEquals(WidgetTheme.CLASSIC, Store.widgetTheme(app, id))
         assertEquals(0, Store.widgetPage(app, id))
     }
+
+    // Backing out part way through setup leaves the widget as it was.
+    @Test
+    fun backingOutOfTheColoursKeepsTheOldLayoutToo() {
+        val (id, _) = placed()
+        val intent = android.content.Intent(app, WidgetConfigActivity::class.java).putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
+        val activity = Robolectric.buildActivity(WidgetConfigActivity::class.java, intent).setup().get()
+        shadowOf((ShadowAlertDialog.getLatestAlertDialog() as AlertDialog).listView).performItemClick(WidgetStyle.TIMELINE.ordinal)
+        shadowOf(Looper.getMainLooper()).idle()
+        (ShadowAlertDialog.getLatestAlertDialog() as AlertDialog).cancel()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(WidgetStyle.SECTIONS, Store.widgetStyle(app, id))
+        assertEquals(WidgetTheme.CLASSIC, Store.widgetTheme(app, id))
+        assertTrue(activity.isFinishing)
+    }
+
+    // Material You's text follows the phone into dark mode without waiting for a redraw.
+    @Test
+    fun materialYouTextHasADarkModeColourToo() {
+        val (id, tag) = placed()
+        Store.setWidgetTheme(app, id, WidgetTheme.YOU)
+        val village = Store.village(app, tag)!!
+        val views = WidgetRenderer.build(app, id, tag, village, village.exportedAtMillis + 60_000)
+        val nightConfig = android.content.res.Configuration(app.resources.configuration).apply {
+            uiMode = (uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK.inv()) or android.content.res.Configuration.UI_MODE_NIGHT_YES
+        }
+        val night = app.createConfigurationContext(nightConfig)
+        val ink = WidgetRenderer.Ink(app, WidgetTheme.YOU)
+        assertTrue("day and night differ", ink.text.day != ink.text.night)
+        assertEquals(ink.text.day, views.apply(app, FrameLayout(app)).findViewById<TextView>(R.id.title).currentTextColor)
+        assertEquals(ink.text.night, views.apply(night, FrameLayout(night)).findViewById<TextView>(R.id.title).currentTextColor)
+    }
+
+    // A Timeline gets a minute alarm of its own, and only while one is on the home screen.
+    @Test
+    fun onlyATimelineSetsTheMinuteAlarm() {
+        val (id, _) = placed()
+        fun minuteAlarms() = shadowOf(app.getSystemService(android.app.AlarmManager::class.java)).scheduledAlarms
+            .count { shadowOf(it.operation).savedIntent.action == VillageWidget.ACTION_TIMELINE_MINUTE }
+        // Set before the first draw: Robolectric's stand-in launcher can't redraw one layout as another.
+        Store.setWidgetStyle(app, id, WidgetStyle.TIMELINE)
+        WidgetRenderer.update(app) { null }
+        assertEquals(1, minuteAlarms())
+        WidgetRenderer.redrawTimelines(app)
+        assertEquals(1, minuteAlarms())
+        Store.setWidgetStyle(app, id, WidgetStyle.SECTIONS)
+        WidgetRenderer.redrawTimelines(app)
+        assertEquals(0, minuteAlarms())
+    }
 }

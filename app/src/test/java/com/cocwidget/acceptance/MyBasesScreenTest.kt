@@ -259,6 +259,42 @@ class MyBasesScreenTest {
         assertEquals(app.getString(R.string.base_discard_changes), shadowOf(ShadowAlertDialog.getLatestAlertDialog()).title)
     }
 
+    // Sharing a saved link again only adds to it, so its name and kind stay.
+    @Test
+    fun sharingASavedLinkAgainKeepsItsNameAndKind() {
+        val tag = syncTh16()
+        val first = shareText(th16Base)
+        fields(first)[1].setText("CWL anti-3")
+        tap(first, app.getString(R.string.base_kind_cwl))
+        tap(first, app.getString(R.string.base_save))
+        tap(shareText(th16Base), app.getString(R.string.base_save))
+        val kept = Store.myBases(app, tag).single()
+        assertEquals("CWL anti-3", kept.name)
+        assertEquals(BaseKind.CWL, kept.kind)
+    }
+
+    // An account whose export can't be read still has its bases.
+    @Test
+    fun anUnreadableAccountStillListsItsBases() {
+        val tag = syncTh16()
+        tap(shareText(th16Base), app.getString(R.string.base_save))
+        // Break the saved export, as a bad import or a format change would.
+        app.getSharedPreferences(Store.fileName(tag), 0).edit().putString("export", "{ not json").commit()
+        assertNull(Store.current(app))
+        assertTrue(texts(Screens.open<MyBasesActivity>()).contains(app.getString(R.string.my_bases_unnamed, 16)))
+    }
+
+    // Thumbnails are decoded about the size they're shown, not at full size.
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun aThumbnailIsDecodedSmall() {
+        val file = java.io.File(app.cacheDir, "wide.png")
+        file.outputStream().use { Bitmap.createBitmap(2400, 1080, Bitmap.Config.ARGB_8888).compress(Bitmap.CompressFormat.PNG, 100, it) }
+        val thumb = BasePictures.thumbnail(file, 252)!!
+        val short = minOf(thumb.width, thumb.height)
+        assertTrue("short side $short", short in 252 until 504)
+    }
+
     @Test
     fun aBaseThatsGoneClosesTheEditor() {
         assertTrue(Screens.open<BaseEditActivity> { putExtra(BaseEditActivity.EXTRA_BASE, "gone") }.isFinishing)
