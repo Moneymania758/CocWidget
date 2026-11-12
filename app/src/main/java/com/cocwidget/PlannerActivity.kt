@@ -1,15 +1,19 @@
 package com.cocwidget
 
+import android.content.Intent
 import android.view.Gravity
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import com.cocwidget.game.GameData
 import com.cocwidget.game.GameItem
+import com.cocwidget.guide.GuideUnits
 import com.cocwidget.plan.PlanFormat
 import com.cocwidget.plan.Planner
 import com.cocwidget.plan.Planner.Group
 import com.cocwidget.store.Icons
 import com.cocwidget.store.Store
+import com.cocwidget.ui.GuideScreen
 import com.cocwidget.ui.Pictures
 import com.cocwidget.ui.Screen
 import com.cocwidget.ui.Tab
@@ -21,12 +25,15 @@ class PlannerActivity : Screen() {
     override val tab = Tab.PLAN
 
     private val open = mutableSetOf<Group>()
+    private val openItems = mutableSetOf<Int>()
     private val pictures = Pictures(this)
+    private val guideUnits by lazy { GuideUnits.load(this).keys }
+    private var items: Map<Int, GameItem> = emptyMap()
 
     override fun build() {
         pictures.clear()
         val current = Store.current(this)
-        val items = GameData.all(this)
+        items = GameData.all(this)
         val eventPercent = Store.eventPercent(this)
         val plan = current?.let { Planner.plan(it.json, items, it.village.builders, eventPercent) }
 
@@ -125,42 +132,136 @@ class PlannerActivity : Screen() {
         }
     }
 
+    // A tap unfolds what's left one level at a time. The picture opens the item's guide page,
+    // when it has one, and wears a small book to say so.
     private fun itemRow(item: Planner.Item, game: GameItem?) = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        setPadding(0, ui.dp(12), 0, ui.dp(12))
+        orientation = LinearLayout.VERTICAL
+        val top = LinearLayout(this@PlannerActivity).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, ui.dp(12), 0, ui.dp(12))
+            addView(itemPicture(item, game), LinearLayout.LayoutParams(ui.dp(44), ui.dp(44)))
+            addView(itemSummary(item), ui.weighted(12))
+        }
+        addView(top)
+        if (item.steps.isEmpty()) return@apply
 
+        val chevron = ui.icon(R.drawable.ic_chevron, ui.skin.dim, 18)
+        top.addView(chevron, LinearLayout.LayoutParams(ui.dp(18), ui.dp(18)).apply {
+            marginStart = ui.dp(6)
+            topMargin = ui.dp(12)
+        })
+        // Built on first open, as most rows never are.
+        val steps = LinearLayout(this@PlannerActivity).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(ui.dp(56), 0, 0, ui.dp(10))
+        }
+        addView(steps)
+        fun refresh() {
+            val shown = item.id in openItems
+            if (shown && steps.childCount == 0) {
+                for ((index, step) in item.steps.withIndex()) {
+                    if (index > 0) steps.addView(ui.divider())
+                    steps.addView(stepRow(step, game))
+                }
+            }
+            steps.visibility = if (shown) View.VISIBLE else View.GONE
+            chevron.rotation = if (shown) 90f else 0f
+            top.stateDescription = getString(if (shown) R.string.state_open else R.string.state_closed)
+        }
+        ui.pressable(top, 8f) {
+            if (!openItems.remove(item.id)) openItems += item.id
+            refresh()
+        }
+        refresh()
+    }
+
+    private fun itemPicture(item: Planner.Item, game: GameItem?): View {
         val picture = ui.picture()
         pictures.add(game?.let { Icons.path(it, item.levels.maxOrNull() ?: 1) }, picture)
-        addView(picture, LinearLayout.LayoutParams(ui.dp(40), ui.dp(40)))
+        val guide = guidePage(item.id)
+        return FrameLayout(this).apply {
+            addView(picture, FrameLayout.LayoutParams(ui.dp(40), ui.dp(40)))
+            if (guide == null) return@apply
+            addView(ui.icon(R.drawable.ic_book, ui.skin.onAccent, 10).apply {
+                background = ui.rounded(ui.skin.accent, 8f)
+                setPadding(ui.dp(3), ui.dp(3), ui.dp(3), ui.dp(3))
+            }, FrameLayout.LayoutParams(ui.dp(16), ui.dp(16), Gravity.BOTTOM or Gravity.END))
+            contentDescription = getString(R.string.planner_open_guide, item.name)
+            ui.pressable(this, 8f) { startActivity(guide) }
+        }
+    }
 
+    // The guide's page for this item: its own page, or the pet's card. Null when the guide has
+    // none, as for storages, walls and Guardians.
+    private fun guidePage(id: Int): Intent? = when {
+        id in guideUnits -> Intent(this, GuideUnitActivity::class.java).putExtra(GuideScreen.EXTRA_ID, id)
+        items[id]?.group == Group.PETS.key -> Intent(this, GuidePetsActivity::class.java).putExtra(GuideScreen.EXTRA_ID, id)
+        else -> null
+    }
+
+    private fun itemSummary(item: Planner.Item) = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
         addView(LinearLayout(this@PlannerActivity).apply {
-            orientation = LinearLayout.VERTICAL
-            addView(LinearLayout(this@PlannerActivity).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                addView(ui.text(item.name, 15f, bold = true), ui.wrap())
-                if (item.levels.size > 1) {
-                    addView(ui.text(getString(R.string.planner_count, item.levels.size), 15f, ui.skin.dim), ui.wrap().apply { marginStart = ui.dp(6) })
-                }
-                addView(View(this@PlannerActivity), ui.weighted())
-                addView(ui.text(getString(R.string.planner_max, item.maxLevel), 13f, ui.skin.dim))
-            })
-            addView(ui.flow().apply {
-                for (chip in PlanFormat.levelChips(item.levels, item.running, item.maxLevel)) addView(levelChip(chip))
-                if (item.supercharges > 0) {
-                    addView(ui.chip(resources.getQuantityString(R.plurals.chip_supercharges, item.supercharges, item.supercharges), ui.skin.runningBg, ui.skin.runningText))
-                }
-            }, ui.matchWidth(8))
-            val time = PlanFormat.duration(item.seconds).takeIf { item.seconds > 0 }
-            if (item.costs.isEmpty() && time != null) {
-                addView(ui.text(getString(R.string.planner_running_left, time), 13f, ui.skin.dim), ui.matchWidth(8))
-            } else {
-                addView(ui.flow().apply {
-                    if (time != null) addView(ui.text(time, 13f, ui.skin.dim))
-                    for ((resource, cost) in PlanFormat.ordered(item.costs)) addView(ui.costChip(resource, PlanFormat.amount(cost)))
-                }, ui.matchWidth(8))
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            addView(ui.text(item.name, 15f, bold = true), ui.wrap())
+            if (item.levels.size > 1) {
+                addView(ui.text(getString(R.string.planner_count, item.levels.size), 15f, ui.skin.dim), ui.wrap().apply { marginStart = ui.dp(6) })
             }
-        }, ui.weighted(12))
+            addView(View(this@PlannerActivity), ui.weighted())
+            addView(ui.text(getString(R.string.planner_max, item.maxLevel), 13f, ui.skin.dim))
+        })
+        addView(ui.flow().apply {
+            for (chip in PlanFormat.levelChips(item.levels, item.running, item.maxLevel)) addView(levelChip(chip))
+            if (item.supercharges > 0) {
+                addView(ui.chip(resources.getQuantityString(R.plurals.chip_supercharges, item.supercharges, item.supercharges), ui.skin.runningBg, ui.skin.runningText))
+            }
+        }, ui.matchWidth(8))
+        val time = PlanFormat.duration(item.seconds).takeIf { item.seconds > 0 }
+        if (item.costs.isEmpty() && time != null) {
+            addView(ui.text(getString(R.string.planner_running_left, time), 13f, ui.skin.dim), ui.matchWidth(8))
+        } else {
+            addView(ui.flow().apply {
+                if (time != null) addView(ui.text(time, 13f, ui.skin.dim))
+                for ((resource, cost) in PlanFormat.ordered(item.costs)) addView(ui.costChip(resource, PlanFormat.amount(cost)))
+            }, ui.matchWidth(8))
+        }
+    }
+
+    // "Level 18 x3", what one copy not started yet takes, and how many are on it now.
+    private fun stepRow(step: Planner.LevelStep, game: GameItem?) = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(0, ui.dp(8), 0, ui.dp(8))
+        addView(LinearLayout(this@PlannerActivity).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            val name = when {
+                step.supercharge > 0 -> getString(R.string.planner_step_supercharge, step.supercharge)
+                // A Ricochet Cannon and the like come from merging, not building.
+                step.level == game?.merge?.level -> getString(R.string.planner_step_merge)
+                step.level == 1 -> getString(R.string.planner_step_build)
+                else -> getString(R.string.planner_step_level, step.level)
+            }
+            addView(ui.text(name, 14f, bold = true), ui.wrap())
+            if (step.copies > 1) {
+                addView(ui.text(getString(R.string.planner_count, step.copies), 14f, ui.skin.dim), ui.wrap().apply { marginStart = ui.dp(6) })
+            }
+            addView(View(this@PlannerActivity), ui.weighted())
+            if (step.running > 0) {
+                val label = if (step.running == step.copies) getString(R.string.planner_step_running_all) else resources.getQuantityString(R.plurals.planner_step_running, step.running, step.running)
+                addView(ui.chip(label, ui.skin.runningBg, ui.skin.runningText))
+            }
+        })
+        val waiting = step.copies - step.running
+        if (waiting == 0) {
+            addView(ui.text(getString(R.string.planner_running_left, PlanFormat.duration(step.runningLeft)), 13f, ui.skin.dim), ui.matchWidth(4))
+            return@apply
+        }
+        addView(ui.flow().apply {
+            if (step.seconds > 0) addView(ui.text(PlanFormat.duration(step.seconds), 13f, ui.skin.dim))
+            for ((resource, cost) in PlanFormat.ordered(step.costs)) addView(ui.costChip(resource, PlanFormat.amount(cost)))
+            if (waiting > 1) addView(ui.text(getString(R.string.planner_step_each), 13f, ui.skin.dim))
+        }, ui.matchWidth(4))
     }
 
     private fun costs(costs: Map<String, Long>) = ui.flow().apply {

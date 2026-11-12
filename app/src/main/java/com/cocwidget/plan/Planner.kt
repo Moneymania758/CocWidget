@@ -34,7 +34,7 @@ object Planner {
     // One building, trap, hero, troop, spell or pet type. [levels] holds each copy's current level,
     // highest first, with 0 for one the Town Hall allows that isn't built yet. [running] holds the
     // current levels of the copies being upgraded. [supercharges] is the supercharge stages left
-    // across all copies.
+    // across all copies. [steps] is what's left one level at a time, lowest first.
     class Item(
         val id: Int,
         val name: String,
@@ -44,6 +44,21 @@ object Planner {
         val seconds: Long,
         val costs: Map<String, Long>,
         val supercharges: Int = 0,
+        val steps: List<LevelStep> = emptyList(),
+    )
+
+    // One level still to reach. [copies] is how many copies need it, [running] how many of those are
+    // on it now, and [runningLeft] the longest time one of those has left. [seconds] and [costs] are
+    // for one copy not started yet, at the planner's price. A running copy's level is already paid.
+    // A supercharge stage has [supercharge] set to its number, and [level] is the level it's on.
+    class LevelStep(
+        val level: Int,
+        val copies: Int,
+        val running: Int,
+        val seconds: Long,
+        val costs: Map<String, Long>,
+        val supercharge: Int = 0,
+        val runningLeft: Long = 0,
     )
 
     // [done] is the share of the group's upgrade time already done, or of its levels for walls and
@@ -255,11 +270,24 @@ object Planner {
             val costs = HashMap<String, Long>()
             var supercharges = 0
             val done = doneByGroup.getOrPut(group) { LongArray(2) }
+            // By (level, supercharge stage): copies needing it, how many are on it now, and the
+            // longest time one of those has left.
+            val stepCounts = sortedMapOf<Pair<Int, Int>, LongArray>(compareBy({ it.first }, { it.second }))
+            fun countStep(level: Int, stage: Int, running: Boolean, timer: Long) {
+                val count = stepCounts.getOrPut(level to stage) { LongArray(3) }
+                count[0]++
+                if (running) {
+                    count[1]++
+                    count[2] = maxOf(count[2], timer)
+                }
+            }
 
             for (copy in list) {
                 var copySeconds = 0L
                 for (level in copy.level + 1..copy.target) {
-                    if (level == copy.level + 1 && copy.timer > 0) {
+                    val running = level == copy.level + 1 && copy.timer > 0
+                    countStep(level, 0, running, copy.timer)
+                    if (running) {
                         copySeconds += copy.timer
                         continue
                     }
@@ -271,7 +299,9 @@ object Planner {
                 if (supercharge != null && !stages.isEmpty()) {
                     supercharges += stages.count()
                     for (stage in stages) {
-                        if (stage == stages.first && copy.level == copy.target && copy.timer > 0) {
+                        val running = stage == stages.first && copy.level == copy.target && copy.timer > 0
+                        countStep(copy.target, stage, running, copy.timer)
+                        if (running) {
                             copySeconds += copy.timer
                             continue
                         }
@@ -312,6 +342,19 @@ object Planner {
                 seconds = seconds,
                 costs = costs.filterValues { it > 0 },
                 supercharges = supercharges,
+                steps = stepCounts.map { (key, count) ->
+                    val (level, stage) = key
+                    val copies = count[0].toInt()
+                    val running = count[1].toInt()
+                    val supercharge = item.supercharge
+                    if (stage > 0 && supercharge != null) {
+                        val costs = mapOf(supercharge.resource to supercharge.costs[stage - 1].toLong())
+                        LevelStep(level, copies, running, supercharge.times[stage - 1].toLong(), costs, stage, count[2])
+                    } else {
+                        val costs = levelCosts(item, level, pricePercent).filterValues { it > 0 }
+                        LevelStep(level, copies, running, at(item.secondsToReach(level), pricePercent), costs, runningLeft = count[2])
+                    }
+                },
             )
         }
 

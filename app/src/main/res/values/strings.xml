@@ -328,7 +328,20 @@
         <item quantity="one">+%1$d supercharge</item>
         <item quantity="other">+%1$d supercharges</item>
     </plurals>
-    <string name="planner_tap">Tap a group to see what\'s left in it.</string>
+    <string name="planner_tap">Tap a group to see what\'s left in it, then a row for each level\'s time and cost. A picture with a book opens its guide page.</string>
+    <string name="planner_step_level">Level %1$d</string>
+    <string name="planner_step_build">Build</string>
+    <string name="planner_step_merge">Merge</string>
+    <string name="state_open">Open</string>
+    <string name="state_closed">Closed</string>
+    <string name="planner_step_supercharge">Supercharge %1$d</string>
+    <string name="planner_step_running_all">Upgrading now</string>
+    <plurals name="planner_step_running">
+        <item quantity="one">%1$d upgrading now</item>
+        <item quantity="other">%1$d upgrading now</item>
+    </plurals>
+    <string name="planner_step_each">each</string>
+    <string name="planner_open_guide">%1$s in the guide</string>
     <string name="planner_notes">The %% is how much of the upgrade time is done (of the levels, for walls and equipment). Running upgrades count their time left, not their cost. At the highest Town Hall, buildings on their final level also count the supercharges left. Equipment is the ore to max each piece. Not counted yet: the Builder Base, Crafted Defences, and the gear-ups some TH17+ merges need.</string>
     <string name="bedtime_open">Bedtime planner</string>
     <string name="bedtime_sleep">You sleep from</string>
@@ -362,7 +375,7 @@
     <string name="potions_wait">Better to wait</string>
     <string name="potions_saves">Saves %1$s of a possible %2$s</string>
     <string name="potions_running">A boost is already running, %1$s left. Check again when it ends.</string>
-    <string name="potions_finishing">%1$s would finish after %2$s, and its slot then sits idle unless you start something new.</string>
+    <string name="potions_finishing">^1 finishes after ^2, then its slot sits idle</string>
     <plurals name="potions_idle_builders">
         <item quantity="one">%1$d builder is idle. Start an upgrade first.</item>
         <item quantity="other">%1$d builders are idle. Start upgrades first.</item>
