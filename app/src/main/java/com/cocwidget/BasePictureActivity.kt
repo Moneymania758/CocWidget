@@ -35,7 +35,7 @@ class BasePictureActivity : Activity() {
             finish()
             return
         }
-        picture =ZoomView(this).apply { contentDescription = getString(R.string.base_picture_of, MyBasesActivity.nameOf(this@BasePictureActivity, base)) }
+        picture = ZoomView(this).apply { contentDescription = getString(R.string.base_picture_of, MyBasesActivity.nameOf(this@BasePictureActivity, base)) }
         val size = (48 * resources.displayMetrics.density).toInt()
         val close = ImageView(this).apply {
             setImageResource(R.drawable.ic_back)

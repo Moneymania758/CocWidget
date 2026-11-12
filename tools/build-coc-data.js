@@ -5,6 +5,9 @@
 //
 //   node tools/build-coc-data.js                     downloads https://assets.clashk.ing/static_data.json
 //   node tools/build-coc-data.js path/to/static.json uses a local copy
+//
+// Either way it also downloads the list of ClashKing's pictures from GitHub for the tests, so it
+// needs the network.
 
 const fs = require('fs');
 const path = require('path');
