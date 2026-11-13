@@ -40,6 +40,11 @@
             android:label="@string/planner_open" />
 
         <activity
+            android:name=".ProgressActivity"
+            android:exported="false"
+            android:label="@string/progress_title" />
+
+        <activity
             android:name=".BedtimeActivity"
             android:exported="false"
             android:label="@string/bedtime_open" />

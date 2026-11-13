@@ -216,11 +216,11 @@ class LevelChart(
         // separation, normal vision and 3:1 contrast all pass for these three, in this order. On
         // white they keep 3.4:1 or more.
         val COLOURS = intArrayOf(0xFF3987E5.toInt(), 0xFFD95926.toInt(), 0xFF199E70.toInt())
-        private const val SURFACE = 0xFF1A1A19.toInt()
-        private const val PRIMARY_TEXT = 0xFFF0EFEC.toInt()
-        private const val AXIS_TEXT = 0xFFC3C2B7.toInt()
-        private const val GRID = 0xFF33332F.toInt()
-        private const val CROSSHAIR = 0xFF8A8982.toInt()
+        internal const val SURFACE = 0xFF1A1A19.toInt()
+        internal const val PRIMARY_TEXT = 0xFFF0EFEC.toInt()
+        internal const val AXIS_TEXT = 0xFFC3C2B7.toInt()
+        internal const val GRID = 0xFF33332F.toInt()
+        internal const val CROSSHAIR = 0xFF8A8982.toInt()
         private const val OUT_OF_REACH = 0xFF65645E.toInt()
     }
 }

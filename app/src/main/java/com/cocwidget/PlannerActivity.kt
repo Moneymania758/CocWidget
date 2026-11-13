@@ -11,10 +11,13 @@ import com.cocwidget.guide.GuideUnits
 import com.cocwidget.plan.PlanFormat
 import com.cocwidget.plan.Planner
 import com.cocwidget.plan.Planner.Group
+import com.cocwidget.plan.Progress
 import com.cocwidget.store.Icons
+import com.cocwidget.store.ImportHistory
 import com.cocwidget.store.Store
 import com.cocwidget.ui.GuideScreen
 import com.cocwidget.ui.Pictures
+import com.cocwidget.ui.ProgressText
 import com.cocwidget.ui.Screen
 import com.cocwidget.ui.Tab
 import com.cocwidget.ui.TabChrome
@@ -43,6 +46,7 @@ class PlannerActivity : Screen() {
             return
         }
         content.addView(summary(plan, current.village.exportedAtMillis, eventPercent), ui.matchWidth(16))
+        content.addView(progressCard(plan, current), ui.matchWidth(12))
         addNote(getString(R.string.planner_tap), 13f)
         content.addView(ui.card(0).apply {
             for ((index, group) in plan.groups.withIndex()) {
@@ -86,6 +90,26 @@ class PlannerActivity : Screen() {
         val exported = TimeText.exported(exportedAt, System.currentTimeMillis())
         addView(ui.text(getString(R.string.planner_source, exported), 12f, ui.skin.dim), ui.matchWidth(14))
         if (eventPercent > 0) addView(ui.text(getString(R.string.planner_event, eventPercent), 12f, ui.skin.dim), ui.matchWidth(2))
+    }
+
+    // Upgrade time done, and how far it moved since the first import in the last month. Opens the
+    // Progress page. One earlier import to work out, so it's quick enough here.
+    private fun progressCard(plan: Planner.Plan, current: Store.Current) = ui.card().apply {
+        val latest = Progress.of(plan, current.village.exportedAtMillis)
+        val history = Store.history(this@PlannerActivity, current.tag)
+        val earlierAt = Progress.compareWith(history.map { it.exportedAtMillis }, latest.exportedAtMillis)
+        val earlier = history.firstOrNull { it.exportedAtMillis == earlierAt }?.let(ImportHistory::read)?.let { Progress.point(it, items) }
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        addView(LinearLayout(this@PlannerActivity).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(ui.text(getString(R.string.progress_label, latest.townHall), 13f, ui.skin.dim))
+            addView(ui.heading(ProgressText.percent(latest.done), 24f), ui.matchWidth(2))
+            val colour = if (ProgressText.wentUp(latest, earlier)) ui.skin.green else ui.skin.dim
+            addView(ui.text(ProgressText.since(this@PlannerActivity, latest, earlier), 13f, colour, bold = colour == ui.skin.green), ui.matchWidth(4))
+        }, ui.weighted())
+        addView(ui.icon(R.drawable.ic_chevron, ui.skin.dim, 18), LinearLayout.LayoutParams(ui.dp(18), ui.dp(18)).apply { marginStart = ui.dp(8) })
+        ui.pressable(this, ui.skin.radiusDp) { startActivity(Intent(this@PlannerActivity, ProgressActivity::class.java)) }
     }
 
     private fun addGroup(card: LinearLayout, group: Planner.GroupPlan, items: Map<Int, GameItem>) {
@@ -282,16 +306,18 @@ class PlannerActivity : Screen() {
         )
     }
 
-    private fun titleOf(group: Group): Int = when (group) {
-        Group.DEFENCES -> R.string.group_defences
-        Group.TRAPS -> R.string.group_traps
-        Group.ARMY -> R.string.group_army
-        Group.RESOURCES -> R.string.group_resources
-        Group.WALLS -> R.string.group_walls
-        Group.HEROES -> R.string.group_heroes
-        Group.GUARDIANS -> R.string.group_guardians
-        Group.LAB -> R.string.group_lab
-        Group.PETS -> R.string.group_pets
-        Group.EQUIPMENT -> R.string.group_equipment
+    companion object {
+        fun titleOf(group: Group): Int = when (group) {
+            Group.DEFENCES -> R.string.group_defences
+            Group.TRAPS -> R.string.group_traps
+            Group.ARMY -> R.string.group_army
+            Group.RESOURCES -> R.string.group_resources
+            Group.WALLS -> R.string.group_walls
+            Group.HEROES -> R.string.group_heroes
+            Group.GUARDIANS -> R.string.group_guardians
+            Group.LAB -> R.string.group_lab
+            Group.PETS -> R.string.group_pets
+            Group.EQUIPMENT -> R.string.group_equipment
+        }
     }
 }

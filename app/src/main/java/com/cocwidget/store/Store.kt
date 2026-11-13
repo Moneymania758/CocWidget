@@ -217,6 +217,7 @@ object Store {
             setBases(context, kept)
             gone.forEach { BasePictures.delete(context, it.id) }
         }
+        ImportHistory.delete(ImportHistory.dir(context, tag))
         // Cleared first, so an instance still held in memory doesn't bring the old values back.
         account(context, tag).edit().clear().commit()
         context.deleteSharedPreferences(fileName(tag))
@@ -227,6 +228,11 @@ object Store {
     // discount.
     fun saveExport(context: Context, json: String): String {
         val tag = tagOf(json)
+        // The export already here goes in too, so an account imported before history was kept
+        // starts with its last import. Already there for everyone else.
+        val history = ImportHistory.dir(context, tag)
+        exportJson(context, tag)?.let { ImportHistory.record(history, it) }
+        ImportHistory.record(history, json)
         val previous = rawVillage(context, tag)
         val current = VillageParser.parse(context, json)
         val tracked = current?.let {
@@ -275,6 +281,9 @@ object Store {
         for (section in sections) editor.putLong(KEY_CLEARED_AT_SECTION + section.name, now)
         editor.apply()
     }
+
+    // Every export imported for this account, oldest first. See ImportHistory.
+    fun history(context: Context, tag: String): List<ImportHistory.Entry> = ImportHistory.entries(ImportHistory.dir(context, tag))
 
     // The last synced export as copied from the game, for the planner.
     fun exportJson(context: Context, tag: String): String? = account(context, tag).getString(KEY_EXPORT, null)

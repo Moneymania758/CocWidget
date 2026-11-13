@@ -62,8 +62,17 @@ object Planner {
     )
 
     // [done] is the share of the group's upgrade time already done, or of its levels for walls and
-    // equipment, which take no time.
-    class GroupPlan(val group: Group, val items: List<Item>, val seconds: Long, val costs: Map<String, Long>, val done: Float)
+    // equipment, which take no time. [doneUnits] and [allUnits] are the seconds, or levels, it's
+    // worked out from.
+    class GroupPlan(
+        val group: Group,
+        val items: List<Item>,
+        val seconds: Long,
+        val costs: Map<String, Long>,
+        val done: Float,
+        val doneUnits: Long = 0,
+        val allUnits: Long = 0,
+    )
 
     class Plan(
         val townHall: Int,
@@ -83,6 +92,14 @@ object Planner {
         // How long the builders take if none is ever idle: a lower bound.
         fun builderEstimateSeconds(): Long =
             maxOf(longestSeconds, if (builders > 0) (builderSeconds + builders - 1) / builders else builderSeconds)
+
+        // The share of all upgrade time at this Town Hall already done, Lab and Pet House
+        // included. Walls and equipment take no time, so they don't count.
+        fun timeDone(): Float {
+            val timed = groups.filter { it.group != Group.WALLS && it.group != Group.EQUIPMENT }
+            val all = timed.sumOf { it.allUnits }
+            return if (all > 0) timed.sumOf { it.doneUnits }.toFloat() / all else 1f
+        }
     }
 
     // [supercharge] is the supercharge stages done. A running upgrade on a copy already at its
@@ -369,6 +386,8 @@ object Planner {
                 seconds = list.sumOf { it.seconds },
                 costs = costs,
                 done = if (done[1] > 0) done[0].toFloat() / done[1] else 1f,
+                doneUnits = done[0],
+                allUnits = done[1],
             )
         }
         return Plan(townHall, builders, groups, builderSeconds, longestSeconds, longestName, export.unknownEpics)
