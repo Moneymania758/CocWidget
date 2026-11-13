@@ -1,6 +1,7 @@
 package com.cocwidget.game
 
 import android.content.Context
+import com.cocwidget.plan.Leftover
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -20,10 +21,11 @@ object VillageParser {
         "units2" to Section.BUILDER_BASE,
     )
 
+    // With what's left to start worked out from the game data, so a maxed lab isn't called idle.
     fun parse(
         context: Context,
         text: String,
-    ): Village? = parse(text) { GameData.get(context, it) }
+    ): Village? = parse(text) { GameData.get(context, it) }?.let { it.withNothingToStart(Leftover.cached(text, GameData.all(context))) }
 
     // Returns null when [text] isn't a Clash of Clans village export.
     fun parse(

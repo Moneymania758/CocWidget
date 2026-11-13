@@ -36,6 +36,13 @@
     <string name="notify_lab_free">The lab is free</string>
     <string name="notify_pet_house_free">The Pet House is free</string>
     <string name="notify_builder_base">Builder Base upgrade done</string>
+    <string name="notify_last_builder">Nothing left for the builders to start at this Town Hall</string>
+    <string name="notify_last_lab">That was the last research at this Town Hall</string>
+    <string name="notify_last_pets">That was the last pet upgrade at this Town Hall</string>
+    <plurals name="notify_overnight_title">
+        <item quantity="one">%d upgrade finished overnight</item>
+        <item quantity="other">%d upgrades finished overnight</item>
+    </plurals>
     <string name="notify_account">%1$s (TH%2$d) · %3$s</string>
     <string name="notify_account_no_town_hall">%1$s · %2$s</string>
 
@@ -140,6 +147,18 @@
     <string name="next_nothing">Nothing upgrading</string>
     <string name="next_lab_idle">Lab idle</string>
     <string name="next_pets_idle">Pets idle</string>
+    <string name="next_nothing_idle">Nothing idle</string>
+    <string name="maxed_builders">Buildings maxed</string>
+    <string name="maxed_lab">Lab maxed</string>
+    <string name="maxed_pets">Pets maxed</string>
+    <string name="maxed_chip">%1$s  ✕</string>
+    <string name="maxed_hide">%1$s for Town Hall %2$d. Tap to hide this.</string>
+    <string name="upnext_maxed">Maxed</string>
+    <string name="potion_chip_builder">Builder Potion now</string>
+    <string name="potion_chip_research">Research Potion now</string>
+    <string name="potion_chip_pet">Pet Potion now</string>
+    <string name="widget_idle_overnight">%1$s · idle %2$s overnight</string>
+    <string name="upnext_maxed_for">Nothing left at TH%1$d</string>
     <plurals name="next_builders_idle">
         <item quantity="one">%d builder idle</item>
         <item quantity="other">%d builders idle</item>
@@ -242,6 +261,9 @@
     <string name="settings_look">Look</string>
     <string name="settings_this_account">This account</string>
     <string name="settings_events">Events</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="quiet_nights">Quiet nights</string>
+    <string name="quiet_nights_explain">Upgrades that finish between %1$s and %2$s wait until %2$s, together in one notification. Set the hours in Plan, Bedtime.</string>
     <string name="about_title">About</string>
     <string name="thanks_title">Thanks</string>
     <string name="thanks_detail">To the people whose reports and ideas shaped this app.</string>

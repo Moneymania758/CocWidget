@@ -29,13 +29,19 @@ import com.cocwidget.R
 import com.cocwidget.SyncActivity
 import com.cocwidget.VillageWidget
 import com.cocwidget.WidgetConfigActivity
+import com.cocwidget.game.BUILDER_POTION_MULTIPLIER
 import com.cocwidget.game.Boost
+import com.cocwidget.game.PET_POTION_MULTIPLIER
+import com.cocwidget.game.RESEARCH_POTION_MULTIPLIER
 import com.cocwidget.game.Section
 import com.cocwidget.game.UpNext
 import com.cocwidget.game.Upgrade
 import com.cocwidget.events.EventDates
 import com.cocwidget.events.EventReminders
 import com.cocwidget.events.EventSchedule
+import com.cocwidget.plan.Bedtime
+import com.cocwidget.plan.PotionAdvisor
+import java.time.ZoneId
 import com.cocwidget.game.Village
 import com.cocwidget.store.Icons
 import com.cocwidget.store.Store
@@ -306,7 +312,7 @@ object WidgetRenderer {
         row.setTextViewText(R.id.acc_next, upgradeName(next))
         row.setTextViewText(R.id.acc_left, Countdown.short(end - now))
         row.setInk(R.id.acc_left, if (end - now < Countdown.HOUR_MS) ink.ok else ink.text)
-        row.setTextViewText(R.id.acc_at, FinishTime.of(context, end, now))
+        row.setTextViewText(R.id.acc_at, finishText(context, end, now))
         return row
     }
 
@@ -424,7 +430,7 @@ object WidgetRenderer {
         views.setTextViewText(R.id.title, Store.label(context, tag))
         showTitleSwitch(context, views, widgetId, tag, ink)
         showTownHall(context, views, tag, village)
-        showChips(context, views, village, now, ink)
+        showChips(context, views, widgetId, tag, village, now, ink)
         showBoosts(context, views, village, WidgetView.ALL, now, ink)
 
         val running = village.upgrades.filter { village.endMillis(it) > now }.sortedBy { village.endMillis(it) }
@@ -439,7 +445,7 @@ object WidgetRenderer {
         }
         views.setViewVisibility(R.id.icon, View.VISIBLE)
         showNext(context, views, village, next, now)
-        views.setTextViewText(R.id.next_label, context.getString(R.string.widget_next_at, FinishTime.of(context, village.endMillis(next), now)))
+        views.setTextViewText(R.id.next_label, context.getString(R.string.widget_next_at, finishText(context, village.endMillis(next), now)))
         if (size == NextSize.UP_NEXT) {
             for (upgrade in running.drop(1).take(3)) {
                 val more = RemoteViews(context.packageName, R.layout.widget_next_more)
@@ -447,7 +453,7 @@ object WidgetRenderer {
                 if (icon != null) more.setImageViewBitmap(R.id.more_icon, icon) else more.setImageViewResource(R.id.more_icon, R.drawable.ic_placeholder)
                 more.setTextViewText(R.id.more_name, upgrade.name)
                 more.setInk(R.id.more_name, ink.text)
-                more.setTextViewText(R.id.more_at, FinishTime.of(context, village.endMillis(upgrade), now))
+                more.setTextViewText(R.id.more_at, finishText(context, village.endMillis(upgrade), now))
                 more.setInk(R.id.more_at, ink.dim)
                 views.addView(R.id.next_more, more)
             }
@@ -660,7 +666,7 @@ object WidgetRenderer {
         views.setTextViewText(R.id.title, Store.label(context, tag))
         showTitleSwitch(context, views, widgetId, tag, ink)
         showTownHall(context, views, tag, village)
-        showChips(context, views, village, now, ink)
+        showChips(context, views, widgetId, tag, village, now, ink)
 
         val shown = Shown(widgetId, tag, village, now)
         val view = currentView(context, shown)
@@ -714,19 +720,85 @@ object WidgetRenderer {
         views.setInt(R.id.town_hall, "setBackgroundResource", WidgetTheme.ring(Store.accounts(context).indexOf(tag)))
     }
 
-    // What is idle, in the idle colour, or that everything is busy.
-    private fun showChips(context: Context, views: RemoteViews, village: Village, now: Long, ink: Ink) {
+    // One chip under the header. [tap] is null for a chip that does nothing.
+    private class Chip(val text: String, val tone: Tone, val tap: PendingIntent? = null, val description: String? = null)
+
+    // What is idle, in the idle colour. Then what is maxed, in green, until a tap hides it for this
+    // Town Hall. Then a potion that would be fully used right now. Each home section gives one at
+    // most, so three always fit. With none of those, that everything is busy, if anything runs.
+    private fun showChips(context: Context, views: RemoteViews, widgetId: Int, tag: String, village: Village, now: Long, ink: Ink) {
         val summary = NextFinish.of(village, now)
-        val idle = UpNextLabels.idleParts(context, summary)
-        val chips = idle.ifEmpty { listOf(context.getString(R.string.widget_all_busy)) }
-        views.setViewVisibility(R.id.chips, View.VISIBLE)
-        for ((index, id) in listOf(R.id.chip_1, R.id.chip_2, R.id.chip_3).withIndex()) {
-            val text = chips.getOrNull(index)
-            views.setViewVisibility(id, if (text != null) View.VISIBLE else View.GONE)
-            if (text == null) continue
-            views.setTextViewText(id, text)
-            views.setInk(id, if (idle.isEmpty()) ink.ok else ink.idle)
+        val chips = ArrayList<Chip>()
+        for (text in UpNextLabels.idleParts(context, summary)) chips += Chip(text, ink.idle)
+        val hidden = Store.maxedHidden(context, tag)
+        for (section in summary.maxed) {
+            if (Store.maxedKey(section, village.townHall) in hidden) continue
+            val label = UpNextLabels.maxed(context, section)
+            chips += Chip(
+                context.getString(R.string.maxed_chip, label),
+                ink.ok,
+                hideMaxedIntent(context, widgetId, tag, section, village.townHall),
+                context.getString(R.string.maxed_hide, label, village.townHall),
+            )
         }
+        for (section in potionNow(village, now)) chips += Chip(context.getString(potionChip(section)), ink.accent)
+        val homeRunning = village.upgrades.any { it.section != Section.BUILDER_BASE && village.endMillis(it) > now }
+        if (chips.isEmpty() && homeRunning) chips += Chip(context.getString(R.string.widget_all_busy), ink.ok)
+        views.setViewVisibility(R.id.chips, if (chips.isEmpty()) View.GONE else View.VISIBLE)
+        for ((index, id) in listOf(R.id.chip_1, R.id.chip_2, R.id.chip_3).withIndex()) {
+            val chip = chips.getOrNull(index)
+            views.setViewVisibility(id, if (chip != null) View.VISIBLE else View.GONE)
+            // Set every time: the launcher keeps a tap from the last update on a chip that now says something else.
+            views.setOnClickPendingIntent(id, chip?.tap)
+            views.setContentDescription(id, chip?.description)
+            if (chip == null) continue
+            views.setTextViewText(id, chip.text)
+            views.setInk(id, chip.tone)
+        }
+    }
+
+    // The home sections where an hour's potion would be fully used now: every slot busy for the
+    // whole hour and no boost running, as on the Potions screen.
+    internal fun potionNow(village: Village, now: Long): List<Section> = listOf(Section.BUILDERS, Section.LAB, Section.PETS)
+        .filter { it in village.sections() && it !in village.nothingToStart }
+        .filter { section ->
+            val multiplier = when (section) {
+                Section.BUILDERS -> BUILDER_POTION_MULTIPLIER
+                Section.LAB -> RESEARCH_POTION_MULTIPLIER
+                else -> PET_POTION_MULTIPLIER
+            }
+            val advice = PotionAdvisor.advise(village, section, village.slotsFor(section), multiplier, now)
+            advice.full && advice.idle == 0 && advice.savedSec > 0
+        }
+
+    private fun potionChip(section: Section) = when (section) {
+        Section.BUILDERS -> R.string.potion_chip_builder
+        Section.LAB -> R.string.potion_chip_research
+        else -> R.string.potion_chip_pet
+    }
+
+    private fun hideMaxedIntent(context: Context, widgetId: Int, tag: String, section: Section, townHall: Int): PendingIntent =
+        broadcast(context, 700 + section.ordinal, Intent(context, VillageWidget::class.java)
+            .setAction(VillageWidget.ACTION_HIDE_MAXED)
+            .setData(Uri.parse("cocwidget://maxed/$widgetId/${section.name}"))
+            .putExtra(VillageWidget.EXTRA_ACCOUNT, tag)
+            .putExtra(VillageWidget.EXTRA_SECTION, section.name)
+            .putExtra(VillageWidget.EXTRA_TOWN_HALL, townHall))
+
+    // When something finishes, with a moon when that's while the player sleeps (Bedtime's hours).
+    internal fun finishText(context: Context, end: Long, now: Long): String {
+        val text = FinishTime.of(context, end, now)
+        return if (Bedtime.asleep(end, Store.sleep(context), ZoneId.systemDefault())) "☾ $text" else text
+    }
+
+    // How long a slot freed by [upgrade] sits idle before the player wakes, or 0. Not for the
+    // Goblin's slot, which goes when it's done, or a section with nothing left to start.
+    internal fun idleOvernightMs(context: Context, village: Village, upgrade: Upgrade): Long {
+        if (upgrade.extra || upgrade.section in village.nothingToStart) return 0
+        val end = village.endMillis(upgrade)
+        val sleep = Store.sleep(context)
+        val zone = ZoneId.systemDefault()
+        return if (Bedtime.asleep(end, sleep, zone)) Bedtime.nextWake(end, sleep, zone) - end else 0
     }
 
     private fun showSections(context: Context, views: RemoteViews, shown: Shown, view: WidgetView, ink: Ink) {
@@ -805,7 +877,7 @@ object WidgetRenderer {
         val end = village.endMillis(upgrade)
         val icon = Icons.load(context, upgrade)
         if (icon != null) views.setImageViewBitmap(R.id.hero_icon, icon) else views.setImageViewResource(R.id.hero_icon, R.drawable.ic_placeholder)
-        views.setTextViewText(R.id.hero_label, context.getString(R.string.widget_next_at, FinishTime.of(context, end, now)))
+        views.setTextViewText(R.id.hero_label, context.getString(R.string.widget_next_at, finishText(context, end, now)))
         views.setTextViewText(R.id.hero_name, upgradeName(upgrade))
         views.setProgressBar(R.id.hero_bar, 1000, (village.progress(upgrade, now) * 1000).toInt(), false)
         // A refresh is scheduled for when the chronometer reaches zero (Countdown.nextRefresh).
@@ -846,7 +918,7 @@ object WidgetRenderer {
         // The list reuses rows, so the bar is hidden here and shown only on a running upgrade.
         row.setViewVisibility(R.id.tl_bar, View.GONE)
         val waiting = item.atMillis <= now
-        row.setTextViewText(R.id.tl_at, if (waiting) "" else FinishTime.of(context, item.atMillis, now))
+        row.setTextViewText(R.id.tl_at, if (waiting) "" else finishText(context, item.atMillis, now))
         row.setTextViewText(R.id.tl_left, if (waiting) "" else Countdown.short(item.atMillis - now))
         row.setInk(R.id.tl_left, if (!waiting && item.atMillis - now < Countdown.HOUR_MS) ink.ok else ink.text)
         when (item) {
@@ -877,7 +949,11 @@ object WidgetRenderer {
                 row.setProgressBar(R.id.tl_bar, 1000, (village.progress(upgrade, now) * 1000).toInt(), false)
                 row.setTint(R.id.tl_bar, "setProgressTintList", ink.fill)
                 val kind = context.getString(UpNextLabels.kind(upgrade.section))
-                row.setTextViewText(R.id.tl_kind, if (upgrade.extra) context.getString(R.string.upnext_kind_goblin, kind) else kind)
+                val label = if (upgrade.extra) context.getString(R.string.upnext_kind_goblin, kind) else kind
+                // A slot that frees while the player sleeps says how long it will wait.
+                val overnight = if (waiting) 0 else idleOvernightMs(context, village, upgrade)
+                row.setTextViewText(R.id.tl_kind, if (overnight > 0) context.getString(R.string.widget_idle_overnight, label, Countdown.short(overnight)) else label)
+                if (overnight > 0) row.setInk(R.id.tl_kind, ink.idle)
                 when {
                     upgrade.extra -> badge(row, R.drawable.ic_face_goblin, R.drawable.chip_goblin)
                     !waiting && village.isHelped(upgrade, now) -> badge(row, helperFace(upgrade.section), R.drawable.chip_helper)
@@ -1055,6 +1131,9 @@ object WidgetRenderer {
         val running = upgrades.filter { village.endMillis(it) > now }
         val busy = village.busyIn(section, now)
         val slots = village.slotsFor(section)
+        // A maxed section the player has hidden goes, header and all, until it has rows again.
+        val maxedHidden = Store.maxedKey(section, village.townHall) in Store.maxedHidden(context, shown.tag)
+        if (village.maxed(section, now) && maxedHidden && upgrades.isEmpty()) return
 
         val label = SpannableStringBuilder(title)
         if (section == Section.BUILDERS) label.append(" $busy/$slots")
@@ -1066,6 +1145,7 @@ object WidgetRenderer {
             val text = if (section == Section.BUILDERS) "  $idle idle" else "  idle"
             label.appendIn(text, ink.idle)
         }
+        if (village.maxed(section, now) && !maxedHidden) label.appendIn("  maxed", ink.ok)
         val collapsed = section.name in Store.collapsedSections(context, shown.tag)
         val marker = if (collapsed) "  ▸ ${upgrades.size}" else "  ▾"
         label.appendIn(marker, ink.dim)
@@ -1150,7 +1230,7 @@ object WidgetRenderer {
         }
 
         row.setViewVisibility(R.id.finish, View.VISIBLE)
-        row.setTextViewText(R.id.finish, FinishTime.of(context, end, now))
+        row.setTextViewText(R.id.finish, finishText(context, end, now))
         // A refresh is scheduled for when the chronometer reaches zero or drops under an hour
         // (Countdown.nextRefresh).
         val split = Countdown.split(left)
@@ -1174,10 +1254,12 @@ object WidgetRenderer {
 
     private fun scheduleAt(context: Context, at: Long, intent: PendingIntent) = setAlarm(context, AlarmManager.RTC, at, intent)
 
-    // Wakes the phone when the next upgrade finishes, so its notification arrives on time.
+    // Wakes the phone when the next upgrade finishes, so its notification arrives on time. With
+    // quiet nights on, one that finishes in the night wakes it at wake-up instead.
     private fun scheduleNextFinish(context: Context, villages: Collection<Village>, now: Long) {
         val intent = refreshIntent(context, FINISH_REQUEST)
-        val next = villages.flatMap { village -> village.upgrades.map { village.endMillis(it) } }.filter { it > now }.minOrNull()
+        val quiet = Notifier.quiet(context)
+        val next = villages.flatMap { village -> village.upgrades.map { Notifier.postAt(village.endMillis(it), quiet) } }.filter { it > now }.minOrNull()
         if (next == null) {
             context.getSystemService(AlarmManager::class.java).cancel(intent)
             return

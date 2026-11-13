@@ -43,6 +43,8 @@ class SettingsActivity : Screen() {
             section(R.string.settings_this_account)
             content.addView(it, ui.matchWidth(8))
         }
+        section(R.string.settings_notifications)
+        content.addView(settings.quietNights(), ui.matchWidth(10))
         section(R.string.settings_events)
         content.addView(settings.eventReminders(), ui.matchWidth(8))
         content.addView(settings.eventDiscount(), ui.matchWidth(10))

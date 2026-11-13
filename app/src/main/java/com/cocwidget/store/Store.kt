@@ -60,6 +60,8 @@ object Store {
     private const val KEY_UPGRADE_IDS = "upgrade_ids"
     // The big widget's view, by WidgetView name. Newer than any 1.9.1 install, so not moved.
     private const val KEY_WIDGET_VIEW = "widget_view"
+    private const val KEY_MAXED_HIDDEN = "maxed_hidden"
+    private const val KEY_QUIET_NIGHTS = "quiet_nights"
     // When the player last cleared finished upgrades. 2.12.1 kept one time for every section,
     // later versions keep one per section, as the widget clears only its view. Newer than any
     // 1.9.1 install, so not moved.
@@ -352,6 +354,18 @@ object Store {
         editor.apply()
     }
 
+    // Maxed sections whose message the player has hidden, as "LAB:16". Kept per Town Hall, so
+    // the next one, with new levels to reach, says so again once it's maxed too.
+    fun maxedHidden(context: Context, tag: String): Set<String> =
+        account(context, tag).getStringSet(KEY_MAXED_HIDDEN, emptySet()).orEmpty()
+
+    fun hideMaxed(context: Context, tag: String, section: Section, townHall: Int) {
+        val hidden = maxedHidden(context, tag) + maxedKey(section, townHall)
+        account(context, tag).edit().putStringSet(KEY_MAXED_HIDDEN, hidden).apply()
+    }
+
+    fun maxedKey(section: Section, townHall: Int) = "${section.name}:$townHall"
+
     fun setCollapsedSections(context: Context, tag: String, sections: Set<String>) {
         account(context, tag).edit().putStringSet(KEY_COLLAPSED, sections).apply()
     }
@@ -447,6 +461,13 @@ object Store {
         prefs(context).getInt(KEY_BEDTIME, 23 * 60),
         prefs(context).getInt(KEY_WAKE, 7 * 60),
     )
+
+    // Finish notifications wait for wake-up. On until switched off.
+    fun quietNights(context: Context): Boolean = prefs(context).getBoolean(KEY_QUIET_NIGHTS, true)
+
+    fun setQuietNights(context: Context, on: Boolean) {
+        prefs(context).edit().putBoolean(KEY_QUIET_NIGHTS, on).apply()
+    }
 
     fun setSleep(context: Context, sleep: Bedtime.Sleep) {
         prefs(context).edit().putInt(KEY_BEDTIME, sleep.bedMinute).putInt(KEY_WAKE, sleep.wakeMinute).apply()

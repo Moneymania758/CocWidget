@@ -47,9 +47,23 @@ object UpNextLabels {
         if (summary.petsIdle) add(context.getString(R.string.next_pets_idle))
     }
 
-    // "2 builders idle · Lab idle", or that every builder is busy.
+    // "2 builders idle · Lab idle", or that every builder is busy. With nothing left for the
+    // builders to start, "all busy" would be wrong once they finish, so it's only that nothing is idle.
     fun idleLine(context: Context, summary: NextFinish.Summary): String =
         idleParts(context, summary).joinToString(" · ").ifEmpty {
-            context.resources.getQuantityString(R.plurals.next_all_busy, summary.builders, summary.builders)
+            if (summary.buildersDone) {
+                context.getString(R.string.next_nothing_idle)
+            } else {
+                context.resources.getQuantityString(R.plurals.next_all_busy, summary.builders, summary.builders)
+            }
         }
+
+    // "Lab maxed", for a section with nothing left at this Town Hall.
+    fun maxed(context: Context, section: Section): String = context.getString(
+        when (section) {
+            Section.BUILDERS -> R.string.maxed_builders
+            Section.LAB -> R.string.maxed_lab
+            else -> R.string.maxed_pets
+        },
+    )
 }

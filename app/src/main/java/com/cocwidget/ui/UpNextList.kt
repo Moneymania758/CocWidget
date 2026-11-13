@@ -143,6 +143,9 @@ class UpNextList(
     private fun tileText(village: Village, section: Section): Triple<String, String, Int> {
         val running = runningIn(village, section)
         val idle = village.idleIn(section, now)
+        if (village.maxed(section, now)) {
+            return Triple(activity.getString(R.string.upnext_maxed), activity.getString(R.string.upnext_maxed_for, village.townHall), ui.skin.green)
+        }
         return when (section) {
             Section.BUILDERS -> Triple(
                 activity.getString(R.string.upnext_tile_count, village.busyIn(section, now), village.slotsFor(section)),

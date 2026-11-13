@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
+import com.cocwidget.game.Section
 import com.cocwidget.store.Store
 import com.cocwidget.widget.WidgetRenderer
 import com.cocwidget.widget.WidgetView
@@ -42,6 +43,13 @@ class VillageWidget : AppWidgetProvider() {
                 val view = WidgetView.entries.firstOrNull { it.name == intent.getStringExtra(EXTRA_VIEW) }
                 val at = intent.getLongExtra(EXTRA_AT, System.currentTimeMillis())
                 if (tag != null && view != null) Store.clearFinished(context, tag, at, view.shows)
+                refreshAsync(context)
+            }
+            ACTION_HIDE_MAXED -> {
+                val tag = intent.getStringExtra(EXTRA_ACCOUNT)
+                val section = Section.entries.firstOrNull { it.name == intent.getStringExtra(EXTRA_SECTION) }
+                val townHall = intent.getIntExtra(EXTRA_TOWN_HALL, 0)
+                if (tag != null && section != null && townHall > 0) Store.hideMaxed(context, tag, section, townHall)
                 refreshAsync(context)
             }
             ACTION_SHOW_ALL_EVENTS -> {
@@ -97,6 +105,8 @@ class VillageWidget : AppWidgetProvider() {
         const val ACTION_CLEAR_FINISHED = "com.cocwidget.action.CLEAR_FINISHED"
         const val ACTION_SHOW_ALL_EVENTS = "com.cocwidget.action.SHOW_ALL_EVENTS"
         const val ACTION_SET_PAGE = "com.cocwidget.action.SET_PAGE"
+        const val ACTION_HIDE_MAXED = "com.cocwidget.action.HIDE_MAXED"
+        const val EXTRA_TOWN_HALL = "town_hall"
         const val EXTRA_PAGE = "page"
         const val EXTRA_SECTION = "section"
         const val EXTRA_VIEW = "view"
