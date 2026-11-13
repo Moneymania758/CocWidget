@@ -271,15 +271,74 @@ Open the app, tap the gear at the top right and pick a look under **Theme**:
 
 It only changes the app's own screens. The widget keeps its look.
 
-## If something's wrong
+## Questions and answers
 
-- **"The clipboard doesn't hold a village export"**: copy the export in Clash again, then import
-  straight away. Some phones clear the clipboard after about an hour.
-- **A timer looks wrong**: import again. The widget can't see upgrades started, sped up or
-  finished since your last export.
-- **The widget is slow to update, or notifications arrive late**: check the battery setting in
-  Set up, step 3.
-- **No notifications**: Settings > Apps > Clash Timers > Notifications, and switch them on.
+The same answers are in the app: tap the gear at the top right, then **Questions and answers**.
+
+### Why doesn't it update by itself when I start an upgrade?
+
+Clash of Clans doesn't share live data with other apps. The only way in is the game's Data
+Export, so Clash Timers knows what was true when you last copied it. Import again whenever you
+start an upgrade, finish one early with gems or a book, use a potion or give your helpers a job.
+
+### Can it use my player tag, or log in, instead?
+
+No. Supercell's public data has no upgrade timers, and Clash Timers never asks for your login.
+
+### Is it safe for my account?
+
+It never touches the game or your account. It only reads the export text you copy yourself.
+
+### A time shows below zero, such as 5d -17:08, the widget looks frozen, or notifications arrive late
+
+Your phone is pausing Clash Timers to save battery. Do Set up, step 3. On a Samsung, also open
+Settings > Battery > Background usage limits and take Clash Timers out of **Sleeping apps** and
+**Deep sleeping apps** (add it to **Never sleeping apps**).
+
+### It says a builder or my helpers are free, but in the game they're busy (or a timer looks wrong)
+
+Something started, sped up or finished after your last export. Import again.
+
+### My helpers are kept assigned, but only one hour is counted
+
+If you've ticked "Keep assigned until upgrade is complete" for a helper, the widget counts only
+the hour they're working at your export, not the ones on later days. Import after each new work
+day starts to pick up the next hour.
+
+### Why are its times shorter than the game's?
+
+While a potion runs, the game shows upgrade times as if it weren't running. Clash Timers shows
+when the upgrades really finish.
+
+### Why can't it show my gold, elixir, dark elixir, Clan Capital or the Forge?
+
+The export doesn't include them, so Clash Timers can't either.
+
+### Why isn't the Builder Base in Time to max?
+
+It isn't counted yet, and nor are Crafted Defences or the gear-ups some TH17+ merges need.
+
+### Will an update lose my villages or bases?
+
+No. An update installs over the old version and keeps everything. Uninstalling deletes your
+imported villages and saved bases for good.
+
+### Some pictures are blank
+
+Pictures download the first time your phone is online, and a placeholder shows until then.
+
+### "The clipboard doesn't hold a village export"
+
+Copy the export in Clash again, then import straight away. Some phones clear the clipboard after
+about an hour.
+
+### No notifications
+
+Settings > Apps > Clash Timers > Notifications, and switch them on.
+
+### Is there an iPhone version?
+
+No. It needs Android 12 or later.
 
 Still stuck? Tap the gear at the top right of the app, then **Report a problem** under **Get help**. It opens a
 short form on GitHub with your app version and phone already filled in (you need a free GitHub
@@ -294,15 +353,6 @@ tag is taken out first. It's kept private and only used for testing.
 
 For updates, questions and chat with other players, join the
 [Clash Timers Discord](https://discord.gg/XZ6bA7wCbr).
-
-## What it can't show
-
-The export doesn't include these, so the widget can't either: gold, elixir and dark elixir
-amounts, and Clan Capital Forge builders.
-
-If you've ticked "Keep assigned until upgrade is complete" for a helper, the widget counts only
-the hour they're working at your export, not the ones on later days. Import after each new work day
-starts to pick up the next hour.
 
 ---
 

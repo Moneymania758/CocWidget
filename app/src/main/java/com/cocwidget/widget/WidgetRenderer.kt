@@ -12,6 +12,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.SystemClock
 import android.text.SpannableStringBuilder
+import android.util.Log
 import android.util.SizeF
 import android.util.TypedValue
 import android.text.Spanned
@@ -76,6 +77,10 @@ object WidgetRenderer {
     private const val LIST_ICON_PX = 56
     // The strongest fill that keeps every row text at 4.5:1 or better in every theme (WidgetStylesTest).
     internal const val ROW_FILL_ALPHA = 0.12f
+    // How long one refresh spends downloading pictures, so a slow network can't hold it up for
+    // minutes. What's left over downloads next time.
+    internal const val NETWORK_BUDGET_MS = 20_000L
+    private const val TAG = "ClashTimers"
 
     fun update(context: Context, download: () -> String? = EventDates::fromGitHub) {
         // Notifications work without a widget on the home screen, so they come first.
@@ -84,7 +89,12 @@ object WidgetRenderer {
         val checkedAt = System.currentTimeMillis()
         for ((tag, village) in villages) {
             val label = if (accounts.size > 1) Store.label(context, tag) else null
-            Notifier.notifyFinished(context, tag, village, checkedAt, label)
+            // One account's notification failing mustn't stop the rest, or the widgets after it.
+            try {
+                Notifier.notifyFinished(context, tag, village, checkedAt, label)
+            } catch (e: RuntimeException) {
+                Log.e(TAG, "Notification for $tag failed", e)
+            }
         }
         scheduleNextFinish(context, villages.values, checkedAt)
         postEvents(context, checkedAt)
@@ -101,43 +111,65 @@ object WidgetRenderer {
         val accountIds = manager.getAppWidgetIds(ComponentName(context, AccountsWidget::class.java))
         if (widgetIds.isEmpty() && nextIds.isEmpty() && eventIds.isEmpty() && accountIds.isEmpty()) return
 
-        UpdateChecker.checkIfDue(context)
+        // Booked before anything that can fail or take long. Each redraw books the next, so a draw
+        // cut short would otherwise leave the widgets frozen, with countdowns running past zero.
+        val start = System.currentTimeMillis()
+        scheduleNext(context, start + Countdown.MAX_REFRESH_MS)
+        scheduleTimelines(context, widgetIds, accountIds, start)
+
         val shown = (widgetIds + nextIds).associateWith { Store.widgetAccount(context, it) }
-        for (tag in shown.values.filterNotNull().distinct()) villages[tag]?.let { Icons.fetchMissing(context, it.upgrades) }
-        // A Timeline's idle rows show the building standing idle.
-        if (shown.isNotEmpty()) Icons.fetchPaths(context, listOf(Section.BUILDERS, Section.LAB, Section.PETS).mapNotNull(::idlePicture))
-        val now = System.currentTimeMillis()
-        for (widgetId in widgetIds) {
-            val tag = shown[widgetId]
-            manager.updateAppWidget(widgetId, bigViews(context, widgetId, tag, tag?.let(villages::get), now))
-        }
-        for (widgetId in nextIds) {
-            val tag = shown[widgetId]
-            manager.updateAppWidget(widgetId, nextViews(context, widgetId, tag, tag?.let(villages::get), now))
-        }
-        val redraws = shown.values.distinct().map { Countdown.nextRefresh(it?.let(villages::get), now) }.toMutableList()
-        if (accountIds.isNotEmpty()) {
-            // A Town Hall above the bundled ones downloads like any picture.
-            Icons.fetchPaths(context, villages.values.map { Icons.townHallPath(it.townHall) })
-            for (widgetId in accountIds) manager.updateAppWidget(widgetId, buildAccounts(context, widgetId, now))
-        }
-        scheduleTimelines(context, widgetIds, accountIds, now)
-        if (eventIds.isNotEmpty()) {
-            val dates = EventDates.current(context)
-            for (widgetId in eventIds) {
-                // The launcher picks the closest that fits. A narrow widget puts each countdown under
-                // its name, and a short one drops the header so a row still fits.
-                manager.updateAppWidget(widgetId, RemoteViews(mapOf(
-                    SizeF(NARROW_MIN_DP, SHORT_MIN_DP) to buildEvents(context, widgetId, now, dates, narrow = true, short = true),
-                    SizeF(WIDE_MIN_DP, SHORT_MIN_DP) to buildEvents(context, widgetId, now, dates, narrow = false, short = true),
-                    SizeF(NARROW_MIN_DP, TALL_MIN_DP) to buildEvents(context, widgetId, now, dates, narrow = true, short = false),
-                    SizeF(WIDE_MIN_DP, TALL_MIN_DP) to buildEvents(context, widgetId, now, dates, narrow = false, short = false),
-                )))
-                redraws += Countdown.nextEventRefresh(shownEvents(context, widgetId, now, dates).map { it.target }, now)
+        fun draw(now: Long) {
+            for (widgetId in widgetIds) drawSafely(widgetId) {
+                val tag = shown[widgetId]
+                manager.updateAppWidget(widgetId, bigViews(context, widgetId, tag, tag?.let(villages::get), now))
             }
+            for (widgetId in nextIds) drawSafely(widgetId) {
+                val tag = shown[widgetId]
+                manager.updateAppWidget(widgetId, nextViews(context, widgetId, tag, tag?.let(villages::get), now))
+            }
+            val redraws = shown.values.distinct().map { Countdown.nextRefresh(it?.let(villages::get), now) }.toMutableList()
+            for (widgetId in accountIds) drawSafely(widgetId) { manager.updateAppWidget(widgetId, buildAccounts(context, widgetId, now)) }
+            if (eventIds.isNotEmpty()) {
+                val dates = EventDates.current(context)
+                for (widgetId in eventIds) drawSafely(widgetId) {
+                    // The launcher picks the closest that fits. A narrow widget puts each countdown
+                    // under its name, and a short one drops the header so a row still fits.
+                    manager.updateAppWidget(widgetId, RemoteViews(mapOf(
+                        SizeF(NARROW_MIN_DP, SHORT_MIN_DP) to buildEvents(context, widgetId, now, dates, narrow = true, short = true),
+                        SizeF(WIDE_MIN_DP, SHORT_MIN_DP) to buildEvents(context, widgetId, now, dates, narrow = false, short = true),
+                        SizeF(NARROW_MIN_DP, TALL_MIN_DP) to buildEvents(context, widgetId, now, dates, narrow = true, short = false),
+                        SizeF(WIDE_MIN_DP, TALL_MIN_DP) to buildEvents(context, widgetId, now, dates, narrow = false, short = false),
+                    )))
+                    redraws += Countdown.nextEventRefresh(shownEvents(context, widgetId, now, dates).map { it.target }, now)
+                }
+            }
+            // An Accounts widget on its own has no countdowns: the minute alarm keeps it fresh.
+            redraws.minOrNull()?.let { scheduleNext(context, it) }
         }
-        // An Accounts widget on its own has no countdowns: the minute alarm keeps it fresh.
-        redraws.minOrNull()?.let { scheduleNext(context, it) }
+
+        // Drawn first with the pictures already on the phone, as the network can take a while.
+        draw(start)
+
+        // Then new pictures and the update check, drawn again only if something new came in.
+        val deadline = System.currentTimeMillis() + NETWORK_BUDGET_MS
+        val update = UpdateChecker.availableUpdate(context)
+        UpdateChecker.checkIfDue(context)
+        var fetched = false
+        for (tag in shown.values.filterNotNull().distinct()) villages[tag]?.let { fetched = Icons.fetchMissing(context, it.upgrades, deadline) || fetched }
+        // A Timeline's idle rows show the building standing idle.
+        if (shown.isNotEmpty()) fetched = Icons.fetchPaths(context, listOf(Section.BUILDERS, Section.LAB, Section.PETS).mapNotNull(::idlePicture), deadline) || fetched
+        // A Town Hall above the bundled ones downloads like any picture.
+        if (accountIds.isNotEmpty()) fetched = Icons.fetchPaths(context, villages.values.map { Icons.townHallPath(it.townHall) }, deadline) || fetched
+        if (fetched || UpdateChecker.availableUpdate(context) != update) draw(System.currentTimeMillis())
+    }
+
+    // One widget that fails to draw mustn't stop the others, or the redraw booked after them.
+    private inline fun drawSafely(widgetId: Int, draw: () -> Unit) {
+        try {
+            draw()
+        } catch (e: RuntimeException) {
+            Log.e(TAG, "Widget $widgetId failed to draw", e)
+        }
     }
 
     // Posts any event reminders due, sets the alarm, then looks for new dates. Does network, so only
@@ -187,12 +219,13 @@ object WidgetRenderer {
         val widgetIds = manager.getAppWidgetIds(ComponentName(context, VillageWidget::class.java))
         val accountIds = manager.getAppWidgetIds(ComponentName(context, AccountsWidget::class.java))
         val now = System.currentTimeMillis()
-        for (widgetId in widgetIds.filter { Store.widgetStyle(context, it) == WidgetStyle.TIMELINE }) {
+        // Booked first, so a failed draw can't stop the minutes.
+        scheduleTimelines(context, widgetIds, accountIds, now)
+        for (widgetId in widgetIds.filter { Store.widgetStyle(context, it) == WidgetStyle.TIMELINE }) drawSafely(widgetId) {
             val tag = Store.widgetAccount(context, widgetId)
             manager.updateAppWidget(widgetId, bigViews(context, widgetId, tag, tag?.let { Store.village(context, it) }, now))
         }
-        for (widgetId in accountIds) manager.updateAppWidget(widgetId, buildAccounts(context, widgetId, now))
-        scheduleTimelines(context, widgetIds, accountIds, now)
+        for (widgetId in accountIds) drawSafely(widgetId) { manager.updateAppWidget(widgetId, buildAccounts(context, widgetId, now)) }
     }
 
     // The Accounts widget: a row per account, those with something idle first, then by which

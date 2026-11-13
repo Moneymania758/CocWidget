@@ -50,19 +50,21 @@ object Icons {
         return bitmap?.also { decoded.put(name, it) }
     }
 
-    fun fetchMissing(context: Context, upgrades: List<Upgrade>) {
-        fetchPaths(context, upgrades.mapNotNull { path(it) })
-    }
+    fun fetchMissing(context: Context, upgrades: List<Upgrade>, deadline: Long = Long.MAX_VALUE): Boolean =
+        fetchPaths(context, upgrades.mapNotNull { path(it) }, deadline)
 
-    // Returns true when anything new was downloaded.
-    fun fetchPaths(context: Context, paths: List<String>): Boolean {
+    // Returns true when anything new was downloaded. Stops at [deadline], leaving the rest for the
+    // next call, so a slow network can't hold a widget refresh up for minutes.
+    fun fetchPaths(context: Context, paths: List<String>, deadline: Long = Long.MAX_VALUE): Boolean {
         var fetched = false
         for (path in paths.distinct()) {
+            if (System.currentTimeMillis() >= deadline) break
             val name = fileName(path)
             val file = File(File(context.filesDir, "icons"), name)
             if (bundledFile(context, name) == null && !file.exists()) {
                 download(path, file)
-                fetched = true
+                // Offline leaves no file. A missing picture's empty file has nothing new to draw.
+                if (file.length() > 0) fetched = true
             }
         }
         return fetched

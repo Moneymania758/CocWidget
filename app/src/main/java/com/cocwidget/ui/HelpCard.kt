@@ -22,6 +22,9 @@ class HelpCard(
     fun build(): View = ui.card(0).apply {
         addView(fold(R.string.fold_setup, activity.getString(R.string.main_steps)))
         addView(ui.divider())
+        // What it can't do and why things happen. The questions are in bold.
+        addView(fold(R.string.fold_faq, activity.getText(R.string.faq)))
+        addView(ui.divider())
         val device = Contact.device(version, Build.VERSION.RELEASE, Build.MANUFACTURER, Build.MODEL)
         addView(linkRow(R.string.help_report, R.string.help_report_detail) {
             open(Intent(Intent.ACTION_VIEW, Uri.parse(Contact.issueUrl(device))))
@@ -41,7 +44,7 @@ class HelpCard(
     }
 
     // A row that opens to show [body] underneath, and closes again.
-    private fun fold(title: Int, body: String) = LinearLayout(activity).apply {
+    private fun fold(title: Int, body: CharSequence) = LinearLayout(activity).apply {
         orientation = LinearLayout.VERTICAL
         val chevron = ui.icon(R.drawable.ic_chevron, ui.skin.dim, 18)
         val text = ui.text(body, 14f, ui.skin.dim).apply { setPadding(ui.dp(16), 0, ui.dp(16), ui.dp(16)) }
