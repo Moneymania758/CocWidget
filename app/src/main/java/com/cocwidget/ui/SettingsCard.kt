@@ -33,6 +33,22 @@ class SettingsCard(
     // How the app looks, whichever account is selected.
     fun look(): View = ui.card(0).apply { addView(themePicker()) }
 
+    // Quiet nights: finish notifications wait for the end of Bedtime's sleeping hours.
+    fun quietNights(): View = ui.card(0).apply {
+        val sleep = Store.sleep(activity)
+        fun clock(minute: Int): String = android.text.format.DateFormat.getTimeFormat(activity).apply {
+            timeZone = java.util.TimeZone.getTimeZone("UTC")
+        }.format(java.util.Date(minute * 60_000L))
+        addView(switchRow(
+            activity.getString(R.string.quiet_nights),
+            activity.getString(R.string.quiet_nights_explain, clock(sleep.bedMinute), clock(sleep.wakeMinute)),
+            Store.quietNights(activity),
+        ) { on ->
+            Store.setQuietNights(activity, on)
+            VillageWidget.requestRefresh(activity)
+        })
+    }
+
     // The half-price switch for Hammer Jam and the like.
     fun eventDiscount(): View = ui.card(0).apply { addView(eventRow()) }
 

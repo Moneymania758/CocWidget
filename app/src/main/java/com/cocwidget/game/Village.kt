@@ -42,6 +42,9 @@ class Village(
     val builderSnack: Boost = Boost.NONE,
     // A Study Soup, which runs on its own clock beside a Research or Pet Potion.
     val labSnack: Boost = Boost.NONE,
+    // Home village sections with nothing left to start at this Town Hall (plan/Leftover). A free
+    // slot there isn't wasted, so it never counts as idle.
+    val nothingToStart: Set<Section> = emptySet(),
 ) {
     // What this village has, in the order they're shown.
     fun sections(): List<Section> = buildList {
@@ -63,7 +66,9 @@ class Village(
 
     // The Builder Base has no slot count, so it reads idle only when nothing runs there.
     fun idleIn(section: Section, nowMillis: Long): Int =
-        if (section == Section.BUILDER_BASE) {
+        if (section in nothingToStart) {
+            0
+        } else if (section == Section.BUILDER_BASE) {
             if (upgrades.any { it.section == section && endMillis(it) > nowMillis }) 0 else 1
         } else {
             maxOf(0, slotsFor(section) - busyIn(section, nowMillis))
@@ -105,7 +110,15 @@ class Village(
         Pace(boostFor(upgrade.section), upgrade.helperSec, helperLevelFor(upgrade.section), snackFor(upgrade.section))
 
     fun withUpgrades(upgrades: List<Upgrade>) =
-        Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, labBoost, petBoost, helpers, clockTowerBoost, hasBuilderBase, builderSnack, labSnack)
+        Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, labBoost, petBoost, helpers, clockTowerBoost, hasBuilderBase, builderSnack, labSnack, nothingToStart)
+
+    fun withNothingToStart(sections: Set<Section>) =
+        Village(tag, exportedAtMillis, townHall, builders, hasPetHouse, upgrades, builderBoost, labBoost, petBoost, helpers, clockTowerBoost, hasBuilderBase, builderSnack, labSnack, sections)
+
+    // Maxed for this Town Hall: nothing left to start and nothing still running, the Goblin's
+    // slot included. Only the home village is planned, so the Builder Base is never maxed here.
+    fun maxed(section: Section, nowMillis: Long): Boolean =
+        section in nothingToStart && upgrades.none { it.section == section && endMillis(it) > nowMillis }
 
     // The village less every upgrade finished by its section's clear time, for when the player
     // has cleared them.

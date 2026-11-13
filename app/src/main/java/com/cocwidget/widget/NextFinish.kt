@@ -14,21 +14,28 @@ object NextFinish {
         val idleBuilders: Int,
         val labIdle: Boolean,
         val petsIdle: Boolean,
+        // Home village sections maxed for this Town Hall, in the order shown.
+        val maxed: List<Section> = emptyList(),
+        // Builders with nothing left to start, so no count of busy builders means anything.
+        val buildersDone: Boolean = false,
     ) {
         val anyIdle get() = idleBuilders > 0 || labIdle || petsIdle
     }
 
     // Idle counts match the big widget's section headers. The Goblin's slot doesn't count, and
-    // the Builder Base is left out: a maxed one is idle for good, which isn't worth a warning.
+    // the Builder Base is left out: a maxed one is idle for good, which isn't worth a warning. Nor
+    // is a home section with nothing left to start: it shows as maxed once its last upgrade ends.
     fun of(village: Village, now: Long): Summary {
         val running = village.upgrades.filter { village.endMillis(it) > now }
-        fun busy(section: Section) = running.count { it.section == section && !it.extra }
+        val home = listOf(Section.BUILDERS, Section.LAB, Section.PETS).filter { it != Section.PETS || village.hasPetHouse }
         return Summary(
             next = running.minByOrNull { village.endMillis(it) },
             builders = village.builders,
-            idleBuilders = maxOf(0, village.builders - busy(Section.BUILDERS)),
-            labIdle = busy(Section.LAB) == 0,
-            petsIdle = village.hasPetHouse && busy(Section.PETS) == 0,
+            idleBuilders = village.idleIn(Section.BUILDERS, now),
+            labIdle = village.idleIn(Section.LAB, now) > 0,
+            petsIdle = village.hasPetHouse && village.idleIn(Section.PETS, now) > 0,
+            maxed = home.filter { village.maxed(it, now) },
+            buildersDone = Section.BUILDERS in village.nothingToStart,
         )
     }
 }

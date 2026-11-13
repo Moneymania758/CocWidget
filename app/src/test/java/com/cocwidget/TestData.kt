@@ -9,6 +9,8 @@ import com.cocwidget.game.Upgrade
 import com.cocwidget.game.Village
 import com.cocwidget.game.VillageParser
 import com.cocwidget.plan.Planner
+import com.cocwidget.game.Ids
+import org.json.JSONObject
 import java.io.File
 
 // A real village export (player tag replaced) and the bundled game data, shared by the tests.
@@ -27,6 +29,38 @@ object TestData {
     // A TH18 export (tag replaced) from a friend with seven supercharges running and a maxed
     // Builder Base with nothing upgrading.
     fun superchargingExportJson(): String = javaClass.getResource("/village_export_th18_supercharging.json")!!.readText()
+
+    // The TH18 export with every entry in [sections] at Town Hall 18's max and nothing running
+    // there. [buildings] sets those buildings to a level, or to their max when the level is null.
+    fun maxedTh18(
+        vararg sections: String,
+        buildings: Map<Int, Int?> = emptyMap(),
+        townHall: Int = 18,
+        edit: (JSONObject) -> Unit = {},
+    ): String {
+        val root = JSONObject(th18ExportJson())
+        for (section in sections) {
+            val entries = root.getJSONArray(section)
+            for (i in 0 until entries.length()) {
+                val entry = entries.getJSONObject(i)
+                val item = gameData[entry.getInt("data")] ?: continue
+                entry.put("lvl", maxOf(entry.getInt("lvl"), item.maxLevelAt(18)))
+                entry.remove("timer")
+            }
+        }
+        val list = root.getJSONArray("buildings")
+        for (i in 0 until list.length()) {
+            val entry = list.getJSONObject(i)
+            val id = entry.getInt("data")
+            if (id == Ids.TOWN_HALL) entry.put("lvl", townHall)
+            if (id in buildings) {
+                entry.put("lvl", buildings[id] ?: gameData.getValue(id).maxLevelAt(18))
+                entry.remove("timer")
+            }
+        }
+        edit(root)
+        return root.toString()
+    }
 
     fun superchargingVillage(): Village =
         VillageParser.parse(superchargingExportJson()) { gameData[it] }!!
@@ -65,6 +99,7 @@ object TestData {
         helpers: Helpers = Helpers.NONE,
         builderSnack: Boost = Boost.NONE,
         labSnack: Boost = Boost.NONE,
+        nothingToStart: Set<Section> = emptySet(),
     ) = Village(
         tag = "#TEST",
         exportedAtMillis = exportedAtMillis,
@@ -78,5 +113,6 @@ object TestData {
         helpers = helpers,
         builderSnack = builderSnack,
         labSnack = labSnack,
+        nothingToStart = nothingToStart,
     )
 }

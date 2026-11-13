@@ -12,7 +12,9 @@ import com.cocwidget.events.EventSchedule
 import com.cocwidget.game.Section
 import com.cocwidget.game.Upgrade
 import com.cocwidget.game.Village
+import com.cocwidget.plan.Bedtime
 import com.cocwidget.store.Store
+import java.time.ZoneId
 
 object Notifier {
     private const val CHANNEL_FINISHED = "finished"
@@ -22,30 +24,77 @@ object Notifier {
     private const val MAX_LATENESS_MS = 2 * 60 * 60_000L
 
     // Posts one notification for each upgrade that has finished since the last check. [account]
-    // names the village when there's more than one, so people know which one to log into.
+    // names the village when there's more than one, so people know which one to log into. With
+    // quiet nights on, what finishes while the player sleeps waits for wake-up, as one notification.
     fun notifyFinished(context: Context, tag: String, village: Village, now: Long, account: String?) {
-        val decision = decide(village, Store.notifiedUpgrades(context, tag), now)
+        val decision = decide(village, Store.notifiedUpgrades(context, tag), now, quiet(context))
         if (decision.toNotify.isNotEmpty()) {
             val manager = context.getSystemService(NotificationManager::class.java)
             createChannel(context, manager)
+            val overnight = decision.overnight.takeIf { it.size > 1 }.orEmpty()
+            if (overnight.isNotEmpty()) manager.notify("$tag:overnight".hashCode(), buildOvernight(context, overnight.map { it.second }, village, account))
             for ((key, upgrade) in decision.toNotify) {
+                if (overnight.any { it.first == key }) continue
                 manager.notify("$tag:$key".hashCode(), build(context, upgrade, village, account))
             }
         }
         Store.setNotifiedUpgrades(context, tag, decision.notified)
     }
 
-    class Decision(val toNotify: List<Pair<String, Upgrade>>, val notified: Set<String>)
+    // The player's sleeping hours, while quiet nights are on.
+    class Quiet(val sleep: Bedtime.Sleep, val zone: ZoneId)
 
-    // Which upgrades to announce now, and the keys to remember as already handled.
-    fun decide(village: Village, notified: Set<String>, now: Long): Decision {
+    fun quiet(context: Context): Quiet? = if (Store.quietNights(context)) Quiet(Store.sleep(context), ZoneId.systemDefault()) else null
+
+    // [overnight] is the part of [toNotify] that finished while the player slept.
+    class Decision(val toNotify: List<Pair<String, Upgrade>>, val notified: Set<String>, val overnight: List<Pair<String, Upgrade>> = emptyList())
+
+    // Which upgrades to announce now, and the keys to remember as already handled. While the
+    // player sleeps nothing is announced or remembered, so it all comes at wake-up. Then what
+    // finished in the night counts as on time for as long as anything else does after it ends.
+    fun decide(village: Village, notified: Set<String>, now: Long, quiet: Quiet? = null): Decision {
         val current = village.upgrades.associateBy { key(village, it) }
-        val finished = current.filterValues { village.endMillis(it) <= now }
-        val toNotify = finished.filter { (key, upgrade) ->
-            key !in notified && now - village.endMillis(upgrade) <= MAX_LATENESS_MS
-        }
         // Only keys still in the export are kept, so the set doesn't grow forever.
-        return Decision(toNotify.toList(), (notified intersect current.keys) + finished.keys)
+        val kept = notified intersect current.keys
+        if (quiet != null && Bedtime.asleep(now, quiet.sleep, quiet.zone)) return Decision(emptyList(), kept)
+        val finished = current.filterValues { village.endMillis(it) <= now }
+        fun overnight(upgrade: Upgrade): Boolean {
+            if (quiet == null) return false
+            val end = village.endMillis(upgrade)
+            if (!Bedtime.asleep(end, quiet.sleep, quiet.zone)) return false
+            val wake = Bedtime.nextWake(end, quiet.sleep, quiet.zone)
+            return wake <= now && now - wake <= MAX_LATENESS_MS
+        }
+        val toNotify = finished.filter { (key, upgrade) ->
+            key !in notified && (now - village.endMillis(upgrade) <= MAX_LATENESS_MS || overnight(upgrade))
+        }.toList()
+        return Decision(toNotify, kept + finished.keys, toNotify.filter { overnight(it.second) })
+    }
+
+    // When to wake the phone for [end]'s notification: then, or at wake-up if that's in the night.
+    fun postAt(end: Long, quiet: Quiet?): Long =
+        if (quiet == null) end else Bedtime.startAt(end, quiet.sleep, quiet.zone)
+
+    // "3 upgrades finished overnight", naming them, soonest first.
+    private fun buildOvernight(context: Context, upgrades: List<Upgrade>, village: Village, account: String?): Notification {
+        val sorted = upgrades.sortedBy { village.endMillis(it) }
+        val title = context.resources.getQuantityString(R.plurals.notify_overnight_title, sorted.size, sorted.size)
+        val names = sorted.joinToString(", ") { if (it.supercharge > 0) "${it.name} ⚡${it.supercharge}" else "${it.name} → ${it.toLevel}" }
+        val text = when {
+            account == null -> names
+            village.townHall > 0 -> context.getString(R.string.notify_account, account, village.townHall, names)
+            else -> context.getString(R.string.notify_account_no_town_hall, account, names)
+        }
+        return Notification.Builder(context, CHANNEL_FINISHED)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setStyle(Notification.BigTextStyle().bigText(text))
+            .setWhen(village.endMillis(sorted.last()))
+            .setShowWhen(true)
+            .setContentIntent(openGame(context))
+            .setAutoCancel(true)
+            .build()
     }
 
     private fun build(context: Context, upgrade: Upgrade, village: Village, account: String?): Notification {
@@ -54,9 +103,14 @@ object Notifier {
         } else {
             context.getString(R.string.notify_finished_title, upgrade.name, upgrade.toLevel)
         }
+        // The last one a section had to do says so, rather than that its slot is free.
+        val last = !upgrade.extra && upgrade.section in village.nothingToStart
         val freed = context.getString(
             when {
                 upgrade.section == Section.BUILDER_BASE -> R.string.notify_builder_base
+                last && upgrade.section == Section.BUILDERS -> R.string.notify_last_builder
+                last && upgrade.section == Section.LAB -> R.string.notify_last_lab
+                last && upgrade.section == Section.PETS -> R.string.notify_last_pets
                 upgrade.extra -> R.string.notify_goblin_free
                 upgrade.section == Section.BUILDERS -> R.string.notify_builder_free
                 upgrade.section == Section.LAB -> R.string.notify_lab_free

@@ -87,6 +87,8 @@ class BedtimeActivity : Screen() {
             val is24 = android.text.format.DateFormat.is24HourFormat(this@BedtimeActivity)
             TimePickerDialog(this@BedtimeActivity, { _, hour, picked ->
                 save(hour * 60 + picked)
+                // The widget's moons and the quiet-nights alarm follow the new hours.
+                VillageWidget.requestRefresh(this@BedtimeActivity)
                 show()
             }, minute / 60, minute % 60, is24).show()
         }
