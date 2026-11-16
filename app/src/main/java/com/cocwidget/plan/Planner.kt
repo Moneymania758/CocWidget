@@ -10,7 +10,7 @@ import com.cocwidget.game.VillageParser
 // speed: no potions, helpers or Goblins. At the highest Town Hall, buildings on their final level
 // also count the supercharge stages left.
 object Planner {
-    private val SECTIONS = listOf("buildings", "traps", "heroes", "guardians", "units", "spells", "siege_machines", "pets", "equipment")
+    internal val SECTIONS = listOf("buildings", "traps", "heroes", "guardians", "units", "spells", "siege_machines", "pets", "equipment")
 
     enum class Group(val key: String, val usesBuilders: Boolean) {
         DEFENCES("defences", true),

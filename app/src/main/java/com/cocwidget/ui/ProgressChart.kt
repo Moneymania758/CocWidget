@@ -12,16 +12,18 @@ import android.view.View
 import android.view.ViewConfiguration
 import com.cocwidget.guide.ChartTouch
 import com.cocwidget.plan.Progress
+import com.cocwidget.plan.ProgressMeasure
 import com.cocwidget.plan.ProgressPoint
 import kotlin.math.abs
 
-// Upgrade time done over time, one point a day, on the same panel as LevelChart. Points sit by
-// date, as imports come at uneven times. Each Town Hall is its own stretch of line, labelled where
-// it starts, as a new one starts lower. A tap or drag picks a point.
+// Upgrade time done, or the time to max, one point a day, on the same panel as LevelChart. Points
+// sit by date, as imports come at uneven times. Each Town Hall is its own stretch of line, labelled
+// where it starts, as a new one moves the target. A tap or drag picks a point.
 @SuppressLint("ViewConstructor")
 class ProgressChart(
     context: Context,
     private val points: List<ProgressPoint>,
+    internal val measure: ProgressMeasure,
     // The Light skin's white panel instead of the dark one.
     light: Boolean,
     private val onPick: (Int) -> Unit,
@@ -51,8 +53,8 @@ class ProgressChart(
     private val path = Path()
     private val bounds = RectF()
 
-    private val ticks = Progress.ticks(points.minOf { it.done }, points.maxOf { it.done })
-    private val tickLabels = ticks.map { "$it%" }
+    private val ticks = measure.ticks(points)
+    private val tickLabels = ticks.map { measure.label(it) }
     private val axisWidth = tickLabels.maxOf { axisText.measureText(it) }
     private val first = points.first().exportedAtMillis
     private val span = (points.last().exportedAtMillis - first).coerceAtLeast(1)
@@ -73,10 +75,8 @@ class ProgressChart(
 
     private fun x(index: Int) =
         if (points.size <= 1) (plotLeft + plotRight) / 2 else plotLeft + (plotRight - plotLeft) * (points[index].exportedAtMillis - first) / span
-    private fun y(done: Float): Float {
-        val percent = done * 100
-        return plotBottom - (plotBottom - plotTop) * (percent - ticks.first()) / (ticks.last() - ticks.first())
-    }
+    private fun y(value: Float) = plotBottom - (plotBottom - plotTop) * (value - ticks.first()) / (ticks.last() - ticks.first())
+    private fun y(index: Int) = y(measure.value(points[index]))
 
     override fun onDraw(canvas: Canvas) {
         bounds.set(0f, 0f, width.toFloat(), height.toFloat())
@@ -84,7 +84,7 @@ class ProgressChart(
 
         axisText.textAlign = Paint.Align.RIGHT
         for ((index, tick) in ticks.withIndex()) {
-            val tickY = y(tick / 100f)
+            val tickY = y(tick.toFloat())
             canvas.drawLine(plotLeft, tickY, plotRight, tickY, grid)
             canvas.drawText(tickLabels[index], plotLeft - 6 * density, tickY + axisText.textSize / 3, axisText)
         }
@@ -94,7 +94,7 @@ class ProgressChart(
         // Each stretch drawn on its own, so the drop to a new Town Hall isn't a line.
         path.reset()
         for (index in points.indices) {
-            val pointY = y(points[index].done)
+            val pointY = y(index)
             if (index == 0 || index in stretchStarts) path.moveTo(x(index), pointY) else path.lineTo(x(index), pointY)
         }
         canvas.drawPath(path, line)
@@ -123,13 +123,13 @@ class ProgressChart(
             val half = axisText.measureText(label) / 2
             val labelX = x(index).coerceIn(plotLeft + half, plotRight - half)
             canvas.drawText(label, labelX, PAD * density + axisText.textSize, axisText)
-            canvas.drawLine(x(index), plotTop - 2 * density, x(index), y(points[index].done) - 6 * density, cross)
+            canvas.drawLine(x(index), plotTop - 2 * density, x(index), y(index) - 6 * density, cross)
         }
     }
 
     // A dot with a ring in the panel's colour, so it stays clear where it crosses a line.
     private fun drawDot(canvas: Canvas, index: Int, radius: Float) {
-        val pointY = y(points[index].done)
+        val pointY = y(index)
         dot.color = panelColour
         canvas.drawCircle(x(index), pointY, (radius + 2) * density, dot)
         dot.color = LevelChart.COLOURS[0]

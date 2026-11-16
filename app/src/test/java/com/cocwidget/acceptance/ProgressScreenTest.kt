@@ -5,7 +5,10 @@ import android.view.MotionEvent
 import com.cocwidget.PlannerActivity
 import com.cocwidget.ProgressActivity
 import com.cocwidget.TestData
+import com.cocwidget.plan.PlanFormat
+import com.cocwidget.plan.Planner.Group
 import com.cocwidget.plan.Progress
+import com.cocwidget.plan.ProgressMeasure
 import com.cocwidget.store.ImportHistory
 import com.cocwidget.store.ProgressHistory
 import com.cocwidget.store.Store
@@ -15,10 +18,12 @@ import com.cocwidget.ui.Skin
 import com.cocwidget.ui.TimeText
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
@@ -34,16 +39,24 @@ class ProgressScreenTest {
     private val app get() = RuntimeEnvironment.getApplication()
     private val day = 86_400L
     private val queen = 28000001
+    private val prince = 28000006
     private val tag = "#TEST0000"
 
     // Midday, so a few hours either way stays on the same day.
     private val today = LocalDate.of(2026, 11, 10).atTime(12, 0).atZone(ZoneId.systemDefault()).toEpochSecond()
 
-    // The TH16 export taken at [seconds] with the Archer Queen at [queenLevel] (95 in the export).
-    private fun export(seconds: Long, queenLevel: Int = 95, json: String = TestData.exportJson()): String {
+    // The TH16 export taken at [seconds] with the Archer Queen at [queenLevel] (95 in the export)
+    // and the Minion Prince at [princeLevel] (47). The Prince's upgrades set the time to max.
+    private fun export(seconds: Long, queenLevel: Int = 95, princeLevel: Int = 47, json: String = TestData.exportJson()): String {
         val root = JSONObject(json).put("timestamp", seconds).put("tag", tag)
         root.optJSONArray("heroes")?.let { heroes ->
-            for (i in 0 until heroes.length()) if (heroes.getJSONObject(i).optInt("data") == queen) heroes.getJSONObject(i).put("lvl", queenLevel)
+            for (i in 0 until heroes.length()) {
+                val hero = heroes.getJSONObject(i)
+                when (hero.optInt("data")) {
+                    queen -> hero.put("lvl", queenLevel)
+                    prince -> hero.put("lvl", princeLevel)
+                }
+            }
         }
         return root.toString()
     }
@@ -125,10 +138,64 @@ class ProgressScreenTest {
         assertEquals("Upgrade time done, from $then on ${TimeText.day((today - 20 * day) * 1000)} to $now on ${TimeText.day(today * 1000)}", chart.contentDescription)
         // The last day is picked to start with.
         assertTrue(texts(screen).contains("${TimeText.day(today * 1000)} · Town Hall 16 · $now"))
-        // Heroes moved, and their row says by how much.
-        val heroes = TestData.plan(latest).group(com.cocwidget.plan.Planner.Group.HEROES)!!.done
-        val heroesThen = point(first).groups.getValue(com.cocwidget.plan.Planner.Group.HEROES)
-        assertTrue(texts(screen).contains(ProgressText.change(heroes, heroesThen)))
+    }
+
+    // Time to max already shows each group as it stands, so the page shows what moved.
+    @Test
+    fun finishedListsWhatWentUpUnderGroupsThatMoved() {
+        val first = export(today - 20 * day, 93, 45)
+        import(first)
+        val latest = export(today, 95)
+        import(latest)
+        val shown = texts(loaded())
+
+        assertTrue(shown.contains("Finished since ${TimeText.day((today - 20 * day) * 1000)}"))
+        assertTrue(shown.contains("Archer Queen"))
+        assertTrue(shown.contains("93 → 95"))
+        assertTrue(shown.contains("Minion Prince"))
+        assertTrue(shown.contains("45 → 47"))
+        // The Heroes heading says how far the group moved. Groups that didn't move aren't there.
+        val heroes = TestData.plan(latest).group(Group.HEROES)!!.done
+        val heroesThen = point(first).groups.getValue(Group.HEROES)
+        assertTrue(shown.contains(app.getString(PlannerActivity.titleOf(Group.HEROES))))
+        assertTrue(shown.contains(ProgressText.change(heroes, heroesThen)))
+        assertFalse(shown.contains(app.getString(PlannerActivity.titleOf(Group.DEFENCES))))
+
+        // Time to max then and now.
+        val then = PlanFormat.duration(point(first).maxSeconds)
+        val now = PlanFormat.duration(point(latest).maxSeconds)
+        val closer = PlanFormat.duration(point(first).maxSeconds - point(latest).maxSeconds)
+        assertTrue(shown.contains("Time to max $then → $now, $closer closer"))
+    }
+
+    @Test
+    fun twoImportsWithNothingDoneSaySo() {
+        import(export(today - 20 * day))
+        import(export(today))
+        val shown = texts(loaded())
+        assertTrue(shown.contains("Nothing finished between these two imports."))
+        assertTrue(shown.contains("Time to max ${PlanFormat.duration(point(export(today)).maxSeconds)}, the same as then"))
+    }
+
+    @Test
+    fun theSwitchPlotsTimeToMaxInstead() {
+        val first = export(today - 20 * day, 93, 45)
+        import(first)
+        val latest = export(today, 95)
+        import(latest)
+        val screen = loaded()
+        Screens.tappable(Screens.root(screen), "Time to max")!!.performClick()
+        Screens.layOut(screen)
+
+        val chart = Screens.views<ProgressChart>(Screens.root(screen)).single()
+        assertEquals(ProgressMeasure.MAX, chart.measure)
+        val then = PlanFormat.duration(point(first).maxSeconds)
+        val now = PlanFormat.duration(point(latest).maxSeconds)
+        assertEquals("Time to max, from $then on ${TimeText.day((today - 20 * day) * 1000)} to $now on ${TimeText.day(today * 1000)}", chart.contentDescription)
+        assertTrue(texts(screen).contains("${TimeText.day(today * 1000)} · Town Hall 16 · $now to max"))
+        // And back.
+        Screens.tappable(Screens.root(screen), "% done")!!.performClick()
+        assertEquals(ProgressMeasure.DONE, Screens.views<ProgressChart>(Screens.root(screen)).single().measure)
     }
 
     @Test
@@ -142,6 +209,33 @@ class ProgressScreenTest {
         Screens.touch(chart, MotionEvent.ACTION_UP, 1f, chart.height / 2f)
         assertEquals(0, chart.selected)
         assertTrue(texts(screen).contains("${TimeText.day((today - 20 * day) * 1000)} · Town Hall 16 · ${ProgressText.percent(point(first).done)}"))
+    }
+
+    // Android Claude found a rotation put the pick back on the last day.
+    @Test
+    fun aRotationKeepsThePickedDayAndWhatsPlotted() {
+        val first = export(today - 20 * day, 93, 45)
+        import(first)
+        import(export(today, 95))
+        val controller = Robolectric.buildActivity(ProgressActivity::class.java).setup()
+        fun ready(): ProgressActivity = controller.get().also {
+            it.loading!!.join()
+            shadowOf(Looper.getMainLooper()).idle()
+            Screens.layOut(it)
+        }
+        val screen = ready()
+        Screens.tappable(Screens.root(screen), "Time to max")!!.performClick()
+        Screens.layOut(screen)
+        val chart = Screens.views<ProgressChart>(Screens.root(screen)).single()
+        Screens.touch(chart, MotionEvent.ACTION_DOWN, 1f, chart.height / 2f)
+        Screens.touch(chart, MotionEvent.ACTION_UP, 1f, chart.height / 2f)
+
+        controller.recreate()
+        val again = ready()
+        val redrawn = Screens.views<ProgressChart>(Screens.root(again)).single()
+        assertEquals(0, redrawn.selected)
+        assertEquals(ProgressMeasure.MAX, redrawn.measure)
+        assertTrue(texts(again).contains("${TimeText.day((today - 20 * day) * 1000)} · Town Hall 16 · ${PlanFormat.duration(point(first).maxSeconds)} to max"))
     }
 
     @Test

@@ -741,7 +741,7 @@ object WidgetRenderer {
                 context.getString(R.string.maxed_hide, label, village.townHall),
             )
         }
-        for (section in potionNow(village, now)) chips += Chip(context.getString(potionChip(section)), ink.accent)
+        potionChipText(context, potionNow(village, now))?.let { chips += Chip(it, ink.accent) }
         val homeRunning = village.upgrades.any { it.section != Section.BUILDER_BASE && village.endMillis(it) > now }
         if (chips.isEmpty() && homeRunning) chips += Chip(context.getString(R.string.widget_all_busy), ink.ok)
         views.setViewVisibility(R.id.chips, if (chips.isEmpty()) View.GONE else View.VISIBLE)
@@ -771,10 +771,29 @@ object WidgetRenderer {
             advice.full && advice.idle == 0 && advice.savedSec > 0
         }
 
-    private fun potionChip(section: Section) = when (section) {
-        Section.BUILDERS -> R.string.potion_chip_builder
-        Section.LAB -> R.string.potion_chip_research
-        else -> R.string.potion_chip_pet
+    // One chip however many potions are due, as three side by side don't fit a narrow widget:
+    // "Builder Potion now", "Builder and Pet Potions now". Null when none is due.
+    internal fun potionChipText(context: Context, sections: List<Section>): String? {
+        if (sections.size <= 1) {
+            val section = sections.singleOrNull() ?: return null
+            return context.getString(when (section) {
+                Section.BUILDERS -> R.string.potion_chip_builder
+                Section.LAB -> R.string.potion_chip_research
+                else -> R.string.potion_chip_pet
+            })
+        }
+        val names = sections.map {
+            context.getString(when (it) {
+                Section.BUILDERS -> R.string.potion_builder_short
+                Section.LAB -> R.string.potion_research_short
+                else -> R.string.potion_pet_short
+            })
+        }
+        return if (names.size == 2) {
+            context.getString(R.string.potion_chip_two, names[0], names[1])
+        } else {
+            context.getString(R.string.potion_chip_three, names[0], names[1], names[2])
+        }
     }
 
     private fun hideMaxedIntent(context: Context, widgetId: Int, tag: String, section: Section, townHall: Int): PendingIntent =

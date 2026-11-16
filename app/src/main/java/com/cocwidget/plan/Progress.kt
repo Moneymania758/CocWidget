@@ -22,6 +22,25 @@ data class ProgressPoint(
     val maxSeconds: Long,
 )
 
+// What the Progress chart plots: the share done in percent, or the days to max.
+enum class ProgressMeasure {
+    DONE, MAX;
+
+    fun value(point: ProgressPoint): Float = if (this == DONE) point.done * 100 else point.maxSeconds / DAY_SECONDS
+
+    fun ticks(points: List<ProgressPoint>): List<Int> = if (this == DONE) {
+        Progress.ticks(points.minOf { it.done }, points.maxOf { it.done })
+    } else {
+        Progress.dayTicks(points.minOf { it.maxSeconds }, points.maxOf { it.maxSeconds })
+    }
+
+    fun label(tick: Int) = if (this == DONE) "$tick%" else "${tick}d"
+
+    private companion object {
+        const val DAY_SECONDS = 86_400f
+    }
+}
+
 // Progress over time, worked out from the imports ImportHistory keeps.
 object Progress {
     // The card compares with the first import in this many days.
@@ -88,6 +107,20 @@ object Progress {
         }
         return (bottom..top step step).toList()
     }
+
+    // The chart's day lines for time to max: a round step giving at most six lines, from just
+    // under the shortest to just over the longest.
+    fun dayTicks(lowSeconds: Long, highSeconds: Long): List<Int> {
+        val low = lowSeconds / 86_400f
+        val high = highSeconds / 86_400f
+        val step = DAY_STEPS.firstOrNull { (high - low) / it <= 5 } ?: DAY_STEPS.last()
+        val bottom = (floor(low / step) * step).toInt().coerceAtLeast(0)
+        var top = (ceil(high / step) * step).toInt()
+        if (top <= bottom) top = bottom + step
+        return (bottom..top step step).toList()
+    }
+
+    private val DAY_STEPS = listOf(1, 2, 5, 10, 20, 50, 100, 200, 500, 1000)
 
     // Kept beside the imports, so each is worked out once. [version] is the app's, as the game
     // data, and so every figure, can change with it.

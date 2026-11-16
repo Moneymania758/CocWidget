@@ -108,6 +108,15 @@ class ProgressTest {
     }
 
     @Test
+    fun timeToMaxLinesAreRoundDays() {
+        val day = 86_400L
+        assertEquals(listOf(395, 400, 405, 410, 415), Progress.dayTicks(398 * day, 412 * day))
+        assertEquals(listOf(400, 401), Progress.dayTicks(400 * day, 400 * day))
+        assertEquals(listOf(0, 100, 200, 300, 400, 500), Progress.dayTicks(10 * day, 480 * day))
+        assertEquals(listOf("81%", "398d"), listOf(ProgressMeasure.DONE.label(81), ProgressMeasure.MAX.label(398)))
+    }
+
+    @Test
     fun keptPointsComeBackOnlyForTheSameVersion() {
         val points = listOf(point(1, 16, 0.25f), point(2, 17, 0.75f))
         val text = Progress.toJson(points, 46)
