@@ -44,11 +44,14 @@ class SubUnit(
     val partOfUnit: Boolean,
 )
 
+// One kind of troop in a squad, and how many of it.
+class SquadMember(val id: Int, val count: Int)
+
 class GuideUnit(
     val id: Int,
     val name: String,
     val kind: String,
-    // Which list it's in: elixir, dark, super, siege, spell, defence, trap, hero or equipment.
+    // Which list it's in: elixir, dark, super, siege, squad, spell, defence, trap, hero or equipment.
     val group: String,
     val townHall: Int,
     val levels: IntArray,
@@ -78,6 +81,9 @@ class GuideUnit(
     val times: LongArray,
     // Defences and traps only. Each entry is a Town Hall where the count or cap changes.
     val perTownHall: List<PerTownHall>,
+    // Squads only: who is in it, and the Squad Barracks level that brings it.
+    val squadMembers: List<SquadMember> = emptyList(),
+    val squadBarracks: Int = 0,
 ) {
     // The position of the highest level [townHall] allows, or -1 if it hasn't opened yet.
     fun capIndex(townHall: Int): Int = townHalls.indexOfLast { it <= townHall }
@@ -128,6 +134,10 @@ object GuideUnits {
                 costs = longs(entry.optJSONArray("c")),
                 times = longs(entry.optJSONArray("tm")),
                 perTownHall = objects(entry.optJSONArray("byTh")).map { PerTownHall(it.getInt("h"), it.getInt("n"), it.getInt("l")) },
+                squadMembers = entry.optJSONObject("sq")?.getJSONArray("m")?.let { members ->
+                    (0 until members.length()).map { members.getJSONArray(it).let { pair -> SquadMember(pair.getInt(0), pair.getInt(1)) } }
+                }.orEmpty(),
+                squadBarracks = entry.optJSONObject("sq")?.optInt("b") ?: 0,
             )
         }
         return map

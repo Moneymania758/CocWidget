@@ -375,7 +375,7 @@
     </plurals>
     <string name="planner_step_each">each</string>
     <string name="planner_open_guide">%1$s in the guide</string>
-    <string name="planner_notes">The %% is how much of the upgrade time is done (of the levels, for walls and equipment). Running upgrades count their time left, not their cost. At the highest Town Hall, buildings on their final level also count the supercharges left. Equipment is the ore to max each piece. Not counted yet: the Builder Base, Crafted Defences, and the gear-ups some TH17+ merges need.</string>
+    <string name="planner_notes">The %% is how much of the upgrade time is done (of the levels, for walls and equipment). Running upgrades count their time left, not their cost. From Town Hall 18, buildings on their final level also count the supercharges left. Equipment is the ore to max each piece. Not counted yet: the Builder Base, Crafted Defences, and the gear-ups some TH17+ merges need.</string>
     <string name="progress_title">Progress</string>
     <string name="progress_label">Upgrade time done at Town Hall %1$d</string>
     <string name="progress_since">%1$s since %2$s</string>
@@ -542,6 +542,7 @@
     <string name="guide_group_dark">Dark troops</string>
     <string name="guide_group_super">Super Troops</string>
     <string name="guide_group_siege">Siege machines</string>
+    <string name="guide_group_squad">Squads</string>
     <string name="guide_group_spell">Spells</string>
     <string name="guide_opens_at">Opens at Town Hall %1$d</string>
     <string name="guide_cap_at">Level cap %1$d at TH%2$d</string>
@@ -554,6 +555,10 @@
     <string name="guide_prefers">Prefers %1$s</string>
     <string name="guide_super_of">Super version of the %1$s. Base troop level needed: %2$d.</string>
     <string name="guide_boost">Boost: %1$s %2$s for %3$s</string>
+    <string name="guide_squad_of">Comes with Squad Barracks level %1$d. Housing its members one by one would take %2$d.</string>
+    <string name="guide_squad_levels">Members fight at your own troop levels. Any you haven\'t unlocked come at level 1. Squads level up at Town Hall 19 only, and can\'t be donated.</string>
+    <string name="guide_squad_member">%1$d × %2$s</string>
+    <string name="guide_in_squads">In squads</string>
     <string name="guide_pick_level">Tap or drag along a chart to change level.</string>
     <string name="guide_level">Level %1$d</string>
     <string name="guide_level_short">Lv %1$d</string>

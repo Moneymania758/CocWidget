@@ -845,6 +845,16 @@
       "name": "CallMeTee's Rush Bible",
       "date": "Aug 2026",
       "url": "https://docs.google.com/document/d/1zP792qWKVN14hVX_RW4Mui65yRTqqtHaEaj_jwUY-us/edit"
+    },
+    "S19": {
+      "name": "Supercell, Clash of Titans update notes",
+      "date": "Nov 2026",
+      "url": "https://supercell.com/en/games/clashofclans/blog/release-notes/the-clash-of-titans-update-is-rolling-out/"
+    },
+    "CB": {
+      "name": "Clash Builder, Town Hall 19 is out",
+      "date": "Nov 2026",
+      "url": "https://clashbuilder.com/clash-of-clans/articles/town-hall-19-release-date"
     }
   },
   "heroes": [
@@ -2693,7 +2703,7 @@
     {
       "th": 16,
       "summary": "Merged defences arrive. Super Yetis and Root Riders lead.",
-      "note": "Picked before Town Hall 19, which Supercell says lands in mid-November 2026. Expect these to change.",
+      "note": "Picked before Town Hall 19 came out on 16 November 2026. Expect these to change.",
       "strategies": [
         {
           "name": "Fireball Super Yeti",
@@ -3013,7 +3023,7 @@
     {
       "th": 17,
       "summary": "Sneezy, Meteor Golem and the Firespitter. Check each Firespitter's cone before you pick your entry.",
-      "note": "Picked before Town Hall 19, which Supercell says lands in mid-November 2026. Expect these to change.",
+      "note": "Picked before Town Hall 19 came out on 16 November 2026. Expect these to change.",
       "strategies": [
         {
           "name": "Fireball Super Yetis",
@@ -3308,7 +3318,7 @@
     {
       "th": 18,
       "summary": "Supercell's July war data had Dragon armies and Throwers with Healers at about 40% of TH18 attacks. Both were cut afterwards.",
-      "note": "Picked before Town Hall 19, which Supercell says lands in mid-November 2026. Expect these to change.",
+      "note": "Picked before Town Hall 19 came out on 16 November 2026. Expect these to change.",
       "strategies": [
         {
           "name": "Super Yeti with RC Charge",
@@ -3789,6 +3799,11 @@
           ]
         }
       ]
+    },
+    {
+      "th": 19,
+      "summary": "Squads level up here, the Guardian moves to its own Shrine, and troops you pick live in the Town Hall and defend it.",
+      "strategies": []
     }
   ],
   "tactics": {
@@ -5820,6 +5835,343 @@
           "BPAN",
           "L"
         ]
+      },
+      "Heroic Spell": {
+        "role": "Troops in it take less damage, move faster and walk straight through Walls.",
+        "use": [
+          "Ground troops inside walk through Walls, so drop it where a push meets a wall.",
+          "Troops inside take 34% less damage at level 1, and 40% at level 4.",
+          "It covers a 5-tile radius and lasts 9.75 seconds at level 1, and 12.75 at level 4."
+        ],
+        "beware": [
+          "Heroes, pets and troops that go for buildings get a smaller speed boost: +2 to +4, against +5 to +8.",
+          "It opens with Spell Factory level 10, at Town Hall 17."
+        ],
+        "src": [
+          "S19"
+        ]
+      },
+      "Barch Squad": {
+        "role": "Fifteen Barbarians and fifteen Archers for 15 housing, half what they take one by one.",
+        "targets": "Any nearest building, like its members",
+        "use": [
+          "They fight at your own Barbarian and Archer levels.",
+          "Both members go for the nearest building, so they suit clearing the outside for a funnel.",
+          {
+            "t": "From level 2, one splash hits at most 6 of them, and 5 at level 3.",
+            "from": 19
+          }
+        ],
+        "beware": [
+          "A Mortar or Wizard Tower splash hits the whole clump, as with any Barbarians and Archers.",
+          {
+            "t": "Squads stay at level 1 below Town Hall 19, with no ability.",
+            "to": 18
+          }
+        ],
+        "with": [
+          "Giant",
+          "Wall Breaker"
+        ],
+        "src": [
+          "S19",
+          "CKD"
+        ]
+      },
+      "Giant Wizard Squad": {
+        "role": "Three Giants and five Wizards for 25 housing, against 35 one by one.",
+        "targets": "Giants go for defences first, Wizards for the nearest building",
+        "use": [
+          "The Giants walk in first and take the hits while the Wizards burn what is behind them.",
+          "Neither member jumps walls, so open a way in first.",
+          {
+            "t": "From level 2, one splash hits at most 5 of them, and 4 at level 3.",
+            "from": 19
+          }
+        ],
+        "beware": [
+          "Once the three Giants fall, the Wizards have very little health.",
+          {
+            "t": "Squads stay at level 1 below Town Hall 19, with no ability.",
+            "to": 18
+          }
+        ],
+        "with": [
+          "Wall Breaker",
+          "Healing Spell"
+        ],
+        "src": [
+          "S19",
+          "CKD"
+        ]
+      },
+      "Wall Breaker Squad": {
+        "role": "Five Wall Breakers for 8 housing, against 10 one by one.",
+        "targets": "Walls first",
+        "use": [
+          "One runs ahead of the rest, so it sets off traps and draws fire first.",
+          {
+            "t": "From level 2 they are invisible for 3 seconds after landing, and 4 at level 3.",
+            "from": 19
+          }
+        ],
+        "beware": [
+          "Each one still dies to almost anything, including a Bomb hidden by the wall.",
+          {
+            "t": "Squads stay at level 1 below Town Hall 19, with no ability.",
+            "to": 18
+          }
+        ],
+        "with": [
+          "Giant",
+          "Golem",
+          "P.E.K.K.A"
+        ],
+        "src": [
+          "S19",
+          "CKD"
+        ]
+      },
+      "Minion Squad": {
+        "role": "Eight Minions for 12 housing, against 16 one by one. Researched with Dark Elixir.",
+        "targets": "Any nearest building",
+        "use": [
+          "They fly, so walls and ground traps do not stop them.",
+          {
+            "t": "From level 2, one splash hits at most 3 of them, and 2 at level 3.",
+            "from": 19
+          }
+        ],
+        "beware": [
+          "Very fragile. Air Bombs and Wizard Towers make short work of a bunch.",
+          {
+            "t": "Squads stay at level 1 below Town Hall 19, with no ability.",
+            "to": 18
+          }
+        ],
+        "with": [
+          "Balloon",
+          "Lava Hound"
+        ],
+        "src": [
+          "S19",
+          "CKD"
+        ]
+      },
+      "Balloon Squad": {
+        "role": "Four Balloons for 16 housing, against 20 one by one.",
+        "targets": "Defences first",
+        "use": [
+          "They fly over walls straight to defences.",
+          {
+            "t": "From level 2 they take 15% less damage from traps, and 20% less at level 3.",
+            "from": 19
+          }
+        ],
+        "beware": [
+          "They are slow and cannot hit air troops, so Air Defenses get plenty of time to shoot them.",
+          {
+            "t": "Squads stay at level 1 below Town Hall 19, with no ability.",
+            "to": 18
+          }
+        ],
+        "with": [
+          "Lava Hound",
+          "Rage Spell",
+          "Haste Spell"
+        ],
+        "src": [
+          "S19",
+          "CKD"
+        ]
+      },
+      "Golem Witch Squad": {
+        "role": "A Golem and four Witches for 55 housing, against 78 one by one. Researched with Dark Elixir.",
+        "targets": "The Golem goes for defences first, Witches for the nearest building",
+        "use": [
+          "The Golem takes the hits while the Witches build up Skeletons behind it.",
+          {
+            "t": "From level 2, one splash hits at most 3 of them, and 2 at level 3.",
+            "from": 19
+          }
+        ],
+        "beware": [
+          "Once the Golem falls, the Witches are slow and fragile.",
+          {
+            "t": "Squads stay at level 1 below Town Hall 19, with no ability.",
+            "to": 18
+          }
+        ],
+        "with": [
+          "Wall Breaker",
+          "Healing Spell"
+        ],
+        "src": [
+          "S19",
+          "CKD"
+        ]
+      },
+      "Hog Rider Squad": {
+        "role": "Twelve Hog Riders for 48 housing, against 60 one by one. Researched with Dark Elixir.",
+        "targets": "Defences first",
+        "use": [
+          "Kill the Clan Castle troops first, as Hogs will not fight back.",
+          "Heal them ahead of where they are going, not where they stand.",
+          {
+            "t": "From level 2 they take 30% less damage from traps, and 40% less at level 3.",
+            "from": 19
+          }
+        ],
+        "beware": [
+          "Two Giant Bombs together can wipe out the group.",
+          {
+            "t": "Squads stay at level 1 below Town Hall 19, with no ability.",
+            "to": 18
+          }
+        ],
+        "with": [
+          "Healing Spell",
+          "Miner",
+          "Golem"
+        ],
+        "src": [
+          "S19",
+          "CKD"
+        ]
+      },
+      "Miner Squad": {
+        "role": "Ten Miners for 48 housing, against 60 one by one.",
+        "targets": "Any nearest building",
+        "use": [
+          "They tunnel under walls and only come up to hit.",
+          {
+            "t": "From level 2 they take 30% less damage from traps, and 40% less at level 3.",
+            "from": 19
+          }
+        ],
+        "beware": [
+          "They hit one target at a time.",
+          "Giant Bombs beside defences can catch them as they surface.",
+          {
+            "t": "Squads stay at level 1 below Town Hall 19, with no ability.",
+            "to": 18
+          }
+        ],
+        "with": [
+          "Healing Spell",
+          "Healer",
+          "Hog Rider"
+        ],
+        "src": [
+          "S19",
+          "CKD"
+        ]
+      },
+      "Healer Squad": {
+        "role": "Five Healers and a Balloon for 70 housing, against 75 one by one.",
+        "targets": "Healers heal the nearest ground troop or hero. The Balloon goes for defences.",
+        "use": [
+          "The Balloon flies first to set off air traps ahead of the Healers.",
+          {
+            "t": "From level 2 they cannot be hurt for 2 seconds after landing, and 3 at level 3.",
+            "from": 19
+          }
+        ],
+        "beware": [
+          "Air Defenses kill Healers, and the push collapses after that.",
+          "They cannot heal air units or Siege Machines.",
+          {
+            "t": "Squads stay at level 1 below Town Hall 19, with no ability.",
+            "to": 18
+          }
+        ],
+        "with": [
+          "Giant",
+          "Miner",
+          "Thrower"
+        ],
+        "src": [
+          "S19",
+          "CKD"
+        ]
+      },
+      "P.E.K.K.A Titan Squad": {
+        "role": "A P.E.K.K.A and an Electro Titan for 46 housing, against 57 one by one.",
+        "targets": "Any nearest building",
+        "use": [
+          "The Electro Titan's aura hurts anything that comes near the pair.",
+          {
+            "t": "From level 2 they share a target, so both hit the same building.",
+            "from": 19
+          },
+          {
+            "t": "Its housing drops to 44 at level 3.",
+            "from": 19
+          }
+        ],
+        "beware": [
+          "Both hit one target at a time, so single-target Infernos and the Monolith are the danger. Keep a Freeze for them.",
+          {
+            "t": "Squads stay at level 1 below Town Hall 19, with no ability.",
+            "to": 18
+          }
+        ],
+        "with": [
+          "Golem",
+          "Wall Breaker",
+          "Freeze Spell"
+        ],
+        "src": [
+          "S19",
+          "CKD"
+        ]
+      },
+      "Dragons Squad": {
+        "role": "Two Dragons and two Dragon Riders for 85 housing, against 90 one by one.",
+        "targets": "Dragons go for the nearest building, Dragon Riders for defences first",
+        "use": [
+          "The Dragons burn through what is nearest while the Dragon Riders head for defences.",
+          {
+            "t": "From level 2 they cannot be hurt for 2 seconds after landing, and 3 at level 3.",
+            "from": 19
+          }
+        ],
+        "beware": [
+          "Air Defenses and Seeking Air Mines, as for any Dragon army.",
+          {
+            "t": "Squads stay at level 1 below Town Hall 19, with no ability.",
+            "to": 18
+          }
+        ],
+        "with": [
+          "Balloon",
+          "Lightning Spell",
+          "Rage Spell"
+        ],
+        "src": [
+          "S19",
+          "CKD"
+        ]
+      },
+      "Baby Dragon Squad": {
+        "role": "Three Baby Dragons for 26 housing, against 30 one by one.",
+        "targets": "Any nearest building",
+        "use": [
+          "From level 2 they keep their Tantrum bonus beside each other, which loose Baby Dragons lose.",
+          "Its housing drops to 24 at level 3."
+        ],
+        "beware": [
+          "Other air troops nearby still switch off their Tantrum.",
+          "At level 1 they switch it off for each other, like any Baby Dragons."
+        ],
+        "with": [
+          "Dragon",
+          "Balloon"
+        ],
+        "src": [
+          "S19",
+          "CKD"
+        ]
       }
     },
     "heroes": {
@@ -6984,6 +7336,57 @@
           "WD",
           "BT",
           "CKD"
+        ]
+      },
+      "Spiky Tower": {
+        "role": "Never attacks. Every hit it takes sends a spike back at the attacker, worth a share of that attacker's maximum health.",
+        "use": [
+          "Spells and hero equipment abilities don't set it off, so Lightning or Earthquake can weaken it for free.",
+          "Each hit costs the attacker the same share of its health, so troops that hit hard and slowly lose the least taking it down.",
+          "Freeze does nothing to it, so spend yours elsewhere."
+        ],
+        "beware": [
+          "Heroes and tanks. A share of their large health is a big hit, so don't let them spend long on it.",
+          "Splash aimed at something else still sets it off when it catches the tower."
+        ],
+        "with": [
+          "Lightning Spell",
+          "Earthquake Spell"
+        ],
+        "src": [
+          "S19",
+          "CKD"
+        ],
+        "meet": [
+          {
+            "t": "A finished base has 2.",
+            "from": 19
+          }
+        ]
+      },
+      "Firecracker Tower": {
+        "role": "Merged tower whose rockets splash where they land and spray sparks behind their target, air or ground.",
+        "use": [
+          "Spread out. A rocket splashes where it lands, and its sparks carry on behind the troop it hit.",
+          "Freeze it as your main push comes into its 10-tile range.",
+          "It fires about every 1.8 seconds, so one strong tank copes better than a pack."
+        ],
+        "beware": [
+          "Healers or other support lined up behind a tank, right where the sparks land.",
+          "Packs of small troops, air or ground."
+        ],
+        "with": [
+          "Freeze Spell"
+        ],
+        "src": [
+          "S19",
+          "CKD"
+        ],
+        "meet": [
+          {
+            "t": "A finished base has 2, made from 2 Archer Towers and 2 Scattershots.",
+            "from": 19
+          }
         ]
       }
     }
@@ -8389,7 +8792,7 @@
       "short": "The main building of a base. TH followed by a number gives its level, as in TH13.",
       "means": [
         "Your Town Hall level decides what you can build and which troops, spells and heroes are open to you. Advice is often given by level because the same army can be strong at TH9 and useless at TH14.",
-        "It also matters in an attack. Destroying the enemy's Town Hall earns a star on its own. From TH12 to TH17 it fights back with a weapon, and at TH18 a Guardian defends it instead.",
+        "It also matters in an attack. Destroying the enemy's Town Hall earns a star on its own. From TH12 to TH17 it fights back with a weapon, and at TH18 a Guardian defends it instead. At TH19 troops the defender picks live in it and come out to defend it.",
         "At TH18 it no longer counts as a defence, so troops that target defences skip it. Plan who destroys it."
       ],
       "example": "Root Riders open at TH15, so a Root Rider plan is no use to a TH14 player.",
@@ -8406,7 +8809,8 @@
         "TW",
         "SC",
         "NG",
-        "RANKJ"
+        "RANKJ",
+        "S19"
       ]
     },
     {
@@ -8987,7 +9391,7 @@
       "group": "game",
       "short": "Extra upgrade stages for a building already at its final level.",
       "means": [
-        "When a building is fully upgraded at the top Town Hall, you can spend a builder and resources on small extra boosts. A defence usually gets two stages, each adding a bit of damage or health. They are cheaper and smaller than a normal upgrade.",
+        "When a building is fully upgraded at Town Hall 18 or higher, you can spend a builder and resources on small extra boosts. A defence usually gets two stages, each adding a bit of damage or health. They are cheaper and smaller than a normal upgrade.",
         "They do not last forever. When Supercell releases a new level for that building, its supercharges reset. For an attacker, it means a top level defence can be a little stronger than its level suggests."
       ],
       "example": "",
@@ -9081,21 +9485,22 @@
     {
       "term": "Guardian",
       "group": "game",
-      "short": "A defending unit that protects the Town Hall at TH18. Attackers cannot use them.",
+      "short": "A defending unit that protects the base from TH18. Attackers cannot use them.",
       "means": [
-        "At TH18, the Town Hall lost its own weapon and gained a Guardian. The defender picks one: the Smasher, the Longshot or the Logger. It stands on the Town Hall, then jumps down and fights once enemies come within range.",
+        "At TH18, the Town Hall lost its own weapon and gained a Guardian. The defender picks one: the Smasher, the Longshot or the Logger. It stands on the Town Hall, then jumps down and fights once enemies come within range. At TH19 it moves to its own Guardian Shrine, and the pick holds for every layout.",
         "The Smasher is melee, and it hits with splash. It rages when the Town Hall falls, and leaves Rage behind when it is defeated. The Longshot is ranged with splash and explodes when defeated. The Logger rolls slow logs through everything in their path and knocks targets back.",
-        "All of them hit both ground and air. Poison works on them at reduced damage. A Frozen Guardian does not wake, so a Freeze can hold it on the Town Hall while your troops get close.",
+        "All of them hit both ground and air. Poison works on them at reduced damage. A Frozen Guardian does not wake, so a Freeze can hold it where it stands while your troops get close.",
         "With no weapon, the TH18 Town Hall no longer counts as a defence. Troops that target defences, such as Hog Riders and Balloons, walk past it. It still earns the star, so plan who destroys it.",
         "Each Guardian has its own page under Defences and traps."
       ],
-      "example": "Check which Guardian is on the Town Hall, and keep a Freeze for when you reach it.",
+      "example": "Check which Guardian the base has and where it stands, and keep a Freeze for when you reach it.",
       "aliases": [
         "Guardian",
         "Guardians",
         "Smasher",
         "Longshot",
-        "Logger"
+        "Logger",
+        "Guardian Shrine"
       ],
       "see": [
         "Town Hall",
@@ -9115,7 +9520,8 @@
         "RANKJ",
         "NG",
         "BG2",
-        "MG"
+        "MG",
+        "S19"
       ]
     },
     {
@@ -9331,7 +9737,8 @@
         "Giga Tesla",
         "Giga Inferno",
         "Inferno Artillery",
-        "Town Hall 18"
+        "Town Hall 18",
+        "Town Hall 19"
       ],
       "see": [
         "Town Hall",
@@ -9344,16 +9751,17 @@
         "RANKJ",
         "SNH",
         "BG2",
-        "WD"
+        "WD",
+        "S19"
       ],
       "example": "The Inferno Artillery is always active, so it fires from the moment your attack starts.",
       "term": "Town Hall weapon",
       "group": "game",
-      "short": "A weapon built into the Town Hall from TH12 to TH17. TH18 has none.",
+      "short": "A weapon built into the Town Hall from TH12 to TH17. TH18 and TH19 have none.",
       "means": [
         "From TH12 the Town Hall fights back. TH12 has the Giga Tesla, TH13 to TH16 have the Giga Inferno, and TH17 has the Inferno Artillery. At TH12 to TH16 it also goes off as a death bomb when destroyed.",
-        "The TH12 to TH16 weapons have no levels of their own, so they are always at full strength.",
-        "Building the Inferno Artillery uses up the Eagle Artillery, so TH17 and TH18 bases have no Eagle.",
+        "The weapons have no levels of their own, so they are always at full strength. TH17's had levels until the TH19 update.",
+        "Building the Inferno Artillery uses up the Eagle Artillery, so bases from TH17 have no Eagle.",
         "A weapon is part of the building and goes when the Town Hall falls. A Guardian is a separate unit that moves, fights and has to be dealt with on its own.",
         "Each weapon has its own page under Defences and traps."
       ],
@@ -9884,6 +10292,35 @@
       "src": [
         "CMT"
       ]
+    },
+    {
+      "term": "Squad",
+      "group": "game",
+      "short": "A set group of troops trained as one from the Squad Barracks, for less housing than its members.",
+      "means": [
+        "Each squad holds the same troops every time, such as fifteen Barbarians and fifteen Archers in the Barch Squad. They fight at your own levels of those troops.",
+        "Squads stay at level 1 until TH19. There they level up and gain an ability, such as taking less damage from traps. They can't be donated.",
+        "Each squad has its own page under Army, with its members and what its ability does."
+      ],
+      "example": "A Barch Squad clears the outside of a base for 15 housing, half what its members take one by one.",
+      "aliases": [
+        "squad",
+        "squads",
+        "Squad Barracks"
+      ],
+      "see": [
+        "Town Hall",
+        "Funnel"
+      ],
+      "units": [
+        "Barch Squad",
+        "Hog Rider Squad",
+        "Healer Squad"
+      ],
+      "src": [
+        "S19",
+        "CKD"
+      ]
     }
   ],
   "equipmentTips": {
@@ -10350,21 +10787,62 @@
       ]
     },
     {
+      "name": "Town Hall 19",
+      "kind": "townhall",
+      "from": 19,
+      "to": 19,
+      "role": "It has no weapon. Troops the defender picks live in it and come out to defend it, and the Guardian moves to its own Guardian Shrine.",
+      "use": [
+        "Scout which troops it holds: Barbarians, Archers or Wizards. Barbarians are the default.",
+        "They fight at the defender's own levels. Archers and Wizards are always level 15, as the defender has to max them to pick them.",
+        "Bring something that splashes to the Town Hall, such as Wizards or a Baby Dragon, to clear the troops that come out.",
+        "Each layout keeps its own pick, so scout the base you are attacking, not one you met before."
+      ],
+      "beware": [
+        "Two places to plan for. The Guardian stands on its Shrine, and the Town Hall has troops of its own.",
+        "Supercell hasn't said how many troops come out, so don't send one lone troop to take it."
+      ],
+      "with": [
+        "Wizard",
+        "Baby Dragon",
+        "Valkyrie"
+      ],
+      "src": [
+        "S19",
+        "CKD",
+        "CB"
+      ]
+    },
+    {
       "name": "Smasher",
       "kind": "guardian",
       "from": 18,
-      "to": 18,
-      "role": "Melee Guardian and the toughest of the three. His splash hits ground and air, and he rages if the Town Hall falls.",
+      "to": 19,
+      "role": "Melee Guardian and the toughest of the three. His splash hits ground and air.",
       "use": [
-        "He jumps down when troops come near. Freeze stops him, and holds him on the roof until it thaws.",
+        {
+          "t": "He jumps down when troops come near. Freeze stops him, and holds him on the roof until it thaws.",
+          "to": 18
+        },
+        {
+          "t": "At TH19 he stands on his own Guardian Shrine, not the Town Hall, so scout where it is. Freeze stops him.",
+          "from": 19
+        },
         "Drop a Totem away from your army to pull his swings. He has to walk to every target.",
-        "Choose your order. Kill him first and the Town Hall falls quietly. Take the Town Hall first and he rages.",
+        {
+          "t": "Choose your order. Kill him first and the Town Hall falls quietly. Take the Town Hall first and he rages.",
+          "to": 18
+        },
         "Poison does little to Guardians, so spend that spell space elsewhere."
       ],
       "beware": [
         "His death. He leaves Rage behind, so try to finish him away from your enemy's strongest defences.",
         "Flyers are not safe from him. His swing reaches air troops as well as ground.",
-        "He moves fastest of the three, so he soon reaches a hurt hero."
+        "He moves fastest of the three, so he soon reaches a hurt hero.",
+        {
+          "t": "He goes up to level 10 at TH19, each level adding 1,000 health and 50 damage per second.",
+          "from": 19
+        }
       ],
       "with": [
         "Freeze Spell",
@@ -10376,18 +10854,26 @@
         "TRSC",
         "CKD",
         "BRC",
-        "WD"
+        "WD",
+        "S19"
       ]
     },
     {
       "name": "Longshot",
       "kind": "guardian",
       "from": 18,
-      "to": 18,
+      "to": 19,
       "role": "Ranged Guardian with the longest reach of the three. Her splash bolts hit ground or air, and she explodes when she dies.",
       "use": [
         "She notices troops from further out than the others, so expect her early.",
-        "Freeze stops her, and holds her on the roof until it thaws. Save it for your main push.",
+        {
+          "t": "Freeze stops her, and holds her on the roof until it thaws. Save it for your main push.",
+          "to": 18
+        },
+        {
+          "t": "At TH19 she stands on her own Guardian Shrine, not the Town Hall, so scout where it is. Freeze stops her, so save it for your main push.",
+          "from": 19
+        },
         "Drop a Totem away from your army to draw her bolts off it.",
         "Each bolt hits ground or air, never both, so a mixed army only loses one layer at a time."
       ],
@@ -10408,17 +10894,25 @@
         "CKD",
         "BRC",
         "WD",
-        "MG"
+        "MG",
+        "S19"
       ]
     },
     {
       "name": "Logger",
       "kind": "guardian",
       "from": 18,
-      "to": 18,
+      "to": 19,
       "role": "Ranged Guardian that rolls slow logs through everything in a line. The logs hit ground and air and push troops back.",
       "use": [
-        "He jumps down when troops come near. Freeze stops him and holds him on the roof. Poison does little.",
+        {
+          "t": "He jumps down when troops come near. Freeze stops him and holds him on the roof. Poison does little.",
+          "to": 18
+        },
+        {
+          "t": "At TH19 he stands on his own Guardian Shrine, not the Town Hall, so scout where it is. Freeze stops him. Poison does little.",
+          "from": 19
+        },
         "Come from more than one side, so one log cannot roll through your whole army.",
         "Drop a Totem off to one side, so his logs roll away from your main force.",
         "He hits softest and fires slowest of the three, so the push is the bigger danger."
@@ -10438,7 +10932,8 @@
         "NL",
         "SBW",
         "CKD",
-        "WD"
+        "WD",
+        "S19"
       ]
     }
   ],
@@ -10660,13 +11155,14 @@
         "Laboratory first, then research Yetis and Ice Golems, as your easy Fireball Super Yetis plan gains from both.",
         "Hero Hall next, then the Queen and Warden, as two heroes near their cap beat levels spread evenly.",
         "Army Camps and Clan Castle next, as both add troops to every attack from the day they finish.",
-        "Then the Inferno Artillery, Firespitters, Giga Bomb and new merges, as new defences give the biggest jump for builder time."
+        "Then Firespitters, Giga Bomb and new merges, as new defences give the biggest jump for builder time."
       ],
       "src": [
         "DU17",
         "WD",
         "UH",
-        "ST"
+        "ST",
+        "S19"
       ]
     },
     {
@@ -10683,6 +11179,20 @@
         "UH",
         "UT",
         "SC"
+      ]
+    },
+    {
+      "th": 19,
+      "lines": [
+        "Place the Guardian Shrine first. It is free and instant, and the Guardian no longer lives on the Town Hall.",
+        "Squad Barracks and Laboratory next. Squads only level past 1 at this Town Hall, and the Lab does that research.",
+        "Hero Hall, then the heroes your main attack leans on, as every hero gains levels here.",
+        "Spiky Towers and Firecracker Towers when builders free up, as new defences give the biggest jump for builder time."
+      ],
+      "src": [
+        "S19",
+        "CKD",
+        "CB"
       ]
     }
   ],
@@ -10750,12 +11260,17 @@
     "18": {
       "army": 352,
       "spells": 11
+    },
+    "19": {
+      "army": 352,
+      "spells": 11
     }
   },
   "rushing": {
-    "writtenFor": 18,
+    "writtenFor": 19,
     "src": [
-      "CMT"
+      "CMT",
+      "S19"
     ],
     "about": "Rushing means taking your Town Hall up before everything else is done. Done well, it puts offence, heroes and equipment first and leaves most defences for later, so you reach the top Town Hall sooner and spend magic items on its longest upgrades.",
     "careful": [
@@ -10822,7 +11337,15 @@
         "to": 17,
         "lines": [
           "Lots of new things to use, but magic items are still poor value here. Keep moving.",
-          "Put a builder on the Town Hall weapon early, so it is not the last thing left before Town Hall 18."
+          "Since the Town Hall 19 update its weapon comes at full power, so it no longer needs a builder."
+        ]
+      },
+      {
+        "from": 18,
+        "to": 18,
+        "lines": [
+          "Magic items start to pay off here, as most upgrades are long enough to be worth a book. Spend them on offence and keep moving.",
+          "Every hero's 8-day upgrades start here now, so the builder on your closest hero finally reaches them."
         ]
       },
       {

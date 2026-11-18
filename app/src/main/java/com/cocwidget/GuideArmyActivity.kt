@@ -3,7 +3,7 @@ package com.cocwidget
 import com.cocwidget.guide.GuideUnits
 import com.cocwidget.ui.GuideScreen
 
-// Every troop, siege machine and spell, in the order they open.
+// Every troop, siege machine, squad and spell, in the order they open.
 open class GuideArmyActivity : GuideScreen() {
     protected open val title = R.string.guide_army
     protected open val intro = R.string.guide_army_intro
@@ -12,6 +12,7 @@ open class GuideArmyActivity : GuideScreen() {
         "dark" to R.string.guide_group_dark,
         "super" to R.string.guide_group_super,
         "siege" to R.string.guide_group_siege,
+        "squad" to R.string.guide_group_squad,
         "spell" to R.string.guide_group_spell,
     )
 

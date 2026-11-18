@@ -312,6 +312,24 @@ class GuideScreensTest {
         assertTrue(Screens.texts(Screens.root(openUnit("Giant"))).contains(app.getString(com.cocwidget.R.string.guide_goes_for, targets)))
     }
 
+    // Squads have their own list. A squad's page names its members and links to them, and a
+    // member's page links back.
+    @Test
+    fun squadsHaveTheirOwnListAndLinkToTheirMembers() {
+        val army = Screens.texts(Screens.root(Screens.open<com.cocwidget.GuideArmyActivity>()))
+        assertTrue(army.contains(app.getString(com.cocwidget.R.string.guide_group_squad)))
+        assertTrue(army.contains("Baby Dragon Squad"))
+        val squad = Screens.texts(Screens.root(openUnit("Barch Squad")))
+        // 15 Barbarians and 15 Archers at 1 housing each.
+        assertTrue(squad.contains(app.getString(com.cocwidget.R.string.guide_squad_of, 1, 30)))
+        assertTrue(squad.contains(app.getString(com.cocwidget.R.string.guide_squad_member, 15, "Barbarian")))
+        assertTrue(squad.contains(app.getString(com.cocwidget.R.string.guide_squad_member, 15, "Archer")))
+        assertTrue(squad.contains("Splash Resistance, from level 2"))
+        val barbarian = Screens.texts(Screens.root(openUnit("Barbarian")))
+        assertTrue(barbarian.contains(app.getString(com.cocwidget.R.string.guide_in_squads)))
+        assertTrue(barbarian.contains("Barch Squad"))
+    }
+
     @Test
     fun everyThreatPageOpensInEverySkin() {
         for (skin in skins) {
@@ -466,11 +484,11 @@ class GuideScreensTest {
 
     @Test
     fun aDefencePageShowsWhatAnAttackerNeeds() {
-        val texts = Screens.texts(Screens.root(openUnit("Multi-Archer Tower")))
+        val texts = Screens.texts(Screens.root(openUnit("Inferno Tower")))
         assertTrue(texts.contains("How many, and how high"))
-        assertTrue(texts.any { it.startsWith("TH16: 2 × Lv ") })
+        assertTrue(texts.any { it.startsWith("TH16: 3 × Lv ") })
         assertTrue(texts.contains("Supercharges"))
-        assertFalse(texts.contains("From the Multi-Archer Tower"))
+        assertFalse(texts.contains("From the Inferno Tower"))
         assertFalse(texts.contains("Walks"))
     }
 
@@ -506,7 +524,7 @@ class GuideScreensTest {
         val root = Screens.root(page)
         val charts = Screens.views<LevelChart>(root)
         assertTrue(charts.size >= 2)
-        assertTrue(Screens.texts(root).contains("Level 13"))
+        assertTrue(Screens.texts(root).contains("Level 14"))
 
         val chart = charts.first()
         Screens.touch(chart, MotionEvent.ACTION_DOWN, 0f, 50f)

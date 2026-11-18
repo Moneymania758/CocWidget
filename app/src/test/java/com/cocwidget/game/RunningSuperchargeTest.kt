@@ -21,20 +21,24 @@ class RunningSuperchargeTest {
         assertEquals(345_600L, mortar.totalSec)
     }
 
+    // The export is from before TH19, with three X-Bows and three Multi-Archer Towers on their
+    // second stage. TH19 gave both a new level, took their supercharges away and cancelled the
+    // running ones, so nothing is running on them, and no "X-Bow → 14" either.
     @Test
-    fun xBowsAndMultiArcherTowersAreOnTheirSecondStage() {
-        val xBows = all("X-Bow")
-        assertEquals(3, xBows.size)
-        assertTrue(xBows.all { it.supercharge == 2 && it.toLevel == 13 && it.totalSec == 648_000L })
-        val towers = all("Multi-Archer Tower")
-        assertEquals(3, towers.size)
-        assertTrue(towers.all { it.supercharge == 2 && it.toLevel == 4 && it.totalSec == 604_800L })
+    fun superchargesTheUpdateCancelledShowNothingRunning() {
+        assertTrue(all("X-Bow").isEmpty())
+        assertTrue(all("Multi-Archer Tower").isEmpty())
+        val plan = TestData.plan(TestData.superchargingExportJson())
+        val xBow = plan.groups.flatMap { it.items }.single { it.name == "X-Bow" }
+        assertTrue(xBow.running.isEmpty())
+        // X-Bow 14 needs TH19.
+        assertEquals(13, xBow.maxLevel)
     }
 
     @Test
     fun progressCountsAgainstTheStageTime() {
-        val tower = all("Multi-Archer Tower").minBy { it.workSec }
-        assertEquals(1f - 75_953f / 604_800, village.progress(tower, village.exportedAtMillis), 0.001f)
+        val mortar = all("Mortar").single()
+        assertEquals(1f - 305_769f / 345_600, village.progress(mortar, village.exportedAtMillis), 0.001f)
     }
 
     @Test
@@ -46,11 +50,11 @@ class RunningSuperchargeTest {
     }
 
     @Test
-    fun allSixBuildersAndTheGoblinAreBusy() {
+    fun theCancelledSuperchargesFreeTheirBuilders() {
+        // Before TH19 all six builders and the Goblin were busy. Only the Mortar is left.
         val builders = village.upgrades.filter { it.section == Section.BUILDERS }
         assertEquals(6, village.builders)
-        assertEquals(6, builders.count { !it.extra })
-        assertEquals(1, builders.count { it.extra })
+        assertEquals(listOf("Mortar"), builders.map { it.name })
     }
 
     @Test

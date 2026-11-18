@@ -22,7 +22,7 @@ import com.cocwidget.ui.GuideScreen
 import com.cocwidget.ui.LevelChart
 import java.text.NumberFormat
 
-// One troop, siege machine, spell, defence, trap, hero or piece of equipment: how to use it, and how it
+// One troop, siege machine, squad, spell, defence, trap, hero or piece of equipment: how to use it, and how it
 // grows level by level. Picking a level on any chart moves every chart and the table with it.
 class GuideUnitActivity : GuideScreen() {
     private val units by lazy { GuideUnits.load(this) }
@@ -59,6 +59,7 @@ class GuideUnitActivity : GuideScreen() {
         content.addView(backHeader(unit.name))
         content.addView(aboutCard(unit, owned, cap), ui.matchWidth(12))
         linkCard(unit)?.let { content.addView(it, ui.matchWidth(10)) }
+        squadCard(unit)?.let { content.addView(it, ui.matchWidth(10)) }
         heroGearCard(unit)?.let { content.addView(it, ui.matchWidth(10)) }
         perTownHallCard(unit)?.let { content.addView(it, ui.matchWidth(10)) }
         content.addView(selectedCard(unit), ui.matchWidth(14))
@@ -187,6 +188,29 @@ class GuideUnitActivity : GuideScreen() {
             addView(ui.flow().apply {
                 for (linked in listOfNotNull(base) + supers) addView(unitChip(linked.id, linked.name))
             }, ui.matchWidth(if (base != null) 8 else 0))
+        }
+    }
+
+    // A squad's members, each opening its own page, or the squads a troop is in.
+    private fun squadCard(unit: GuideUnit): View? {
+        if (unit.squadMembers.isNotEmpty()) {
+            val singly = unit.squadMembers.sumOf { member -> member.count * (units[member.id]?.traits?.housing ?: 0) }
+            return ui.card().apply {
+                addView(ui.text(getString(R.string.guide_squad_of, unit.squadBarracks, singly), 14f))
+                addView(ui.text(getString(R.string.guide_squad_levels), 13f, ui.skin.dim), ui.matchWidth(4))
+                addView(ui.flow().apply {
+                    for (member in unit.squadMembers) {
+                        val name = units[member.id]?.name ?: continue
+                        addView(unitChip(member.id, getString(R.string.guide_squad_member, member.count, name)))
+                    }
+                }, ui.matchWidth(8))
+            }
+        }
+        val squads = units.values.filter { squad -> squad.squadMembers.any { it.id == unit.id } }
+        if (squads.isEmpty()) return null
+        return ui.card().apply {
+            addView(ui.heading(getString(R.string.guide_in_squads), 15f))
+            addView(ui.flow().apply { for (squad in squads) addView(unitChip(squad.id, squad.name)) }, ui.matchWidth(8))
         }
     }
 

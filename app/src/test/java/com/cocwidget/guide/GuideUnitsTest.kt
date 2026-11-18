@@ -19,6 +19,8 @@ class GuideUnitsTest {
     private fun chart(owner: List<UnitChart>, title: String) = owner.first { it.title == title }
     private fun first(chart: UnitChart) = chart.series.first().values.first()
     private fun last(chart: UnitChart) = chart.series.first().values.last()
+    private fun at(name: String, title: String, level: Int): Double? =
+        chart(unit(name).charts, title).series.first().values[unit(name).levels.indexOf(level)]
 
     // ClashKing's first level and every guide read say TH15. One source's count table says TH14.
     @Test
@@ -69,14 +71,17 @@ class GuideUnitsTest {
     }
 
     // The Ruin Knight's figures after October 2026's nerf, as the wiki's patch notes give them.
+    // Only the wiki's data has them, and it has none yet for TH19's level 5, so that stays empty.
     @Test
     fun ruinWitchHasHerRuinKnights() {
         val knight = unit("Ruin Witch").subs.single { it.name == "Ruin Knight" }
+        val four = unit("Ruin Witch").levels.indexOf(4)
         assertEquals(2900.0, first(chart(knight.charts, "Health")))
-        assertEquals(3800.0, last(chart(knight.charts, "Health")))
+        assertEquals(3800.0, chart(knight.charts, "Health").series.first().values[four])
         assertEquals(240.0, first(chart(knight.charts, "Damage per hit")))
-        assertEquals(330.0, last(chart(knight.charts, "Damage per hit")))
-        assertEquals(990.0, last(chart(knight.charts, "Damage to walls per second")))
+        assertEquals(330.0, chart(knight.charts, "Damage per hit").series.first().values[four])
+        assertEquals(990.0, chart(knight.charts, "Damage to walls per second").series.first().values[four])
+        assertEquals(null, last(chart(knight.charts, "Health")))
         assertEquals(18, knight.traits?.housing)
         assertTrue(knight.stats.any { it.name.startsWith("Ruin Knights summoned") && it.value == "10" })
     }
@@ -99,9 +104,9 @@ class GuideUnitsTest {
     // ClashKing's numbers win where the sources disagree. Dragon Rider had its July nerf there.
     @Test
     fun baseStatsComeFromTheNewerSource() {
-        assertEquals(5900.0, last(chart(unit("Dragon Rider").charts, "Health")))
-        assertEquals(490.0, last(chart(unit("Dragon Rider").charts, "Damage per second")))
-        assertEquals(580.0, last(chart(unit("Meteor Golem").charts, "Damage per second")))
+        assertEquals(5900.0, at("Dragon Rider", "Health", 6))
+        assertEquals(490.0, at("Dragon Rider", "Damage per second", 6))
+        assertEquals(580.0, at("Meteor Golem", "Damage per second", 3))
     }
 
     // Super Yeti showed "None" at levels the other source doesn't list.
@@ -112,14 +117,14 @@ class GuideUnitsTest {
             val perHit = entry.charts.firstOrNull { it.title == "Damage per hit" } ?: continue
             assertFalse(entry.name, perHit.series.first().values.contains(null))
         }
-        assertEquals(550.0, last(chart(unit("Super Yeti").charts, "Damage per hit")))
+        assertEquals(550.0, at("Super Yeti", "Damage per hit", 8))
     }
 
     // It follows ClashKing's damage, so a change only the newer source has carries through.
     @Test
     fun perHitFollowsTheNewerDamage() {
-        assertEquals(588.0, last(chart(unit("Dragon Rider").charts, "Damage per hit")))
-        assertEquals(537.5, last(chart(unit("Dragon").charts, "Damage per hit")))
+        assertEquals(588.0, at("Dragon Rider", "Damage per hit", 6))
+        assertEquals(537.5, at("Dragon", "Damage per hit", 13))
     }
 
     // Sky Wagon's Balloons sat exactly under its Baby Dragons, so a line in its legend couldn't be seen.
@@ -154,6 +159,21 @@ class GuideUnitsTest {
         assertFalse(units.values.any { it.name == "Crafting Station" })
     }
 
+    // The wiki data has no TH19 defences yet, so these two come from ClashKing and Supercell's notes.
+    @Test
+    fun theTh19DefencesHaveTheirPages() {
+        val spiky = unit("Spiky Tower")
+        assertEquals("defence", spiky.group)
+        assertEquals(listOf(19, 19), spiky.townHalls.toList())
+        assertEquals(6363.0, last(chart(spiky.charts, "Health")))
+        assertEquals(9.0, last(chart(spiky.charts, "Spike damage")))
+        val firecracker = unit("Firecracker Tower")
+        assertEquals(280.0, last(chart(firecracker.charts, "Damage per second")))
+        assertEquals(501.0, last(chart(firecracker.charts, "Damage per hit")))
+        assertEquals(385.0, last(chart(firecracker.charts, "Spark damage")))
+        assertEquals("1 × Archer Tower level 21, 1 × Scattershot level 7", firecracker.stats.single { it.name == "Merged from" }.value)
+    }
+
     @Test
     fun defenceValuesAreRight() {
         assertEquals(2250.0, last(chart(unit("Cannon").charts, "Health")))
@@ -161,7 +181,8 @@ class GuideUnitsTest {
         assertEquals(1400.0, last(chart(unit("Giga Bomb").charts, "Trap damage")))
         assertEquals(5100.0, last(chart(unit("Inferno Tower").charts, "Health")))
         assertEquals(10, unit("Inferno Tower").townHall)
-        assertEquals(26_500_000L, unit("Inferno Tower").costs.last())
+        // 26.5M before TH19 cut it.
+        assertEquals(20_000_000L, unit("Inferno Tower").costs.last())
     }
 
     // The two sources mean different things by its damage, and the peak is what matters when attacking.
@@ -196,12 +217,15 @@ class GuideUnitsTest {
 
     @Test
     fun superchargesBelongToTheDefence() {
-        val charge = unit("X-Bow").subs.single()
+        val charge = unit("Inferno Tower").subs.single()
         assertEquals("Supercharges", charge.name)
         assertTrue(charge.partOfUnit)
         assertEquals(2, charge.stats.size)
         assertTrue(charge.stats.first().value.contains("+10 damage per second"))
+        assertEquals("For a defence at its final level, from Town Hall 18.", charge.note)
         assertTrue(unit("Cannon").subs.isEmpty())
+        // TH19 gave the X-Bow a new level and took its supercharges away.
+        assertTrue(unit("X-Bow").subs.isEmpty())
     }
 
     @Test
@@ -277,7 +301,7 @@ class GuideUnitsTest {
     fun healersHealRatherThanDamage() {
         val healer = unit("Healer")
         assertFalse(healer.charts.any { it.title == "Damage per second" })
-        assertEquals(82.0, chart(healer.charts, "Healing per second").series.first().values.last())
+        assertEquals(82.0, at("Healer", "Healing per second", 11))
     }
 
     @Test
@@ -287,11 +311,13 @@ class GuideUnitsTest {
 
     @Test
     fun spellsChartWhatTheirLevelsChange() {
-        assertEquals(720.0, last(chart(unit("Lightning Spell").charts, "Spell damage")))
+        assertEquals(720.0, at("Lightning Spell", "Spell damage", 13))
         assertEquals(190.0, last(chart(unit("Rage Spell").charts, "Damage boost")))
         assertEquals(6.0, last(chart(unit("Freeze Spell").charts, "Lasts")))
         assertEquals(29.0, last(chart(unit("Earthquake Spell").charts, "Damage to buildings")))
-        assertEquals(380.0, last(chart(unit("Poison Spell").charts, "Damage per second")))
+        assertEquals(380.0, at("Poison Spell", "Damage per second", 12))
+        // Spell effects come only from the wiki's data, which has nothing yet for TH19's level 13.
+        assertEquals(null, at("Poison Spell", "Damage per second", 13))
     }
 
     @Test
@@ -311,6 +337,47 @@ class GuideUnitsTest {
         assertTrue(unit("Yeti").costs.isNotEmpty())
     }
 
+    // Squads take members at the player's own levels, so a page has the ability, not health or damage.
+    @Test
+    fun squadsHaveMembersAndTheirAbility() {
+        val squads = units.values.filter { it.kind == "squad" }
+        assertEquals(12, squads.size)
+        assertTrue(squads.all { it.group == "squad" && it.squadMembers.isNotEmpty() && it.stats.none { stat -> stat.name == "Health" } })
+        assertEquals((1..12).toList(), squads.map { it.squadBarracks }.sorted())
+        val barch = unit("Barch Squad")
+        assertEquals(listOf(4000000 to 15, 4000001 to 15), barch.squadMembers.map { it.id to it.count })
+        assertEquals(listOf(null, 6.0, 5.0), chart(barch.charts, "One splash hits at most").series.single().values)
+        assertEquals(listOf(8, 19, 19), barch.townHalls.toList())
+        // ClashKing has no housing for these two. The notes give 46 and 26, dropping at level 3.
+        assertEquals(46, unit("P.E.K.K.A Titan Squad").traits.housing)
+        assertEquals(listOf(26.0, 26.0, 24.0), chart(unit("Baby Dragon Squad").charts, "Housing").series.single().values)
+        assertEquals(listOf(null, 2.0, 3.0), chart(unit("Healer Squad").charts, "Can't be hurt after landing").series.single().values)
+    }
+
+    // Supercell's notes, as neither data source has the spell's effects yet.
+    @Test
+    fun theHeroicSpellHasTheNotesFigures() {
+        assertEquals(listOf(34.0, 36.0, 38.0, 40.0), chart(unit("Heroic Spell").charts, "Damage taken reduced").series.single().values)
+        assertEquals(12.75, at("Heroic Spell", "Lasts", 4))
+        assertEquals(listOf(17, 17, 18, 19), unit("Heroic Spell").townHalls.toList())
+    }
+
+    // TH19 numbered most Super Troops from 1. Super Barbarian 4 is what was 8: same Town Hall, health
+    // and damage. Starting at the Barbarian's level 8 left only its top three levels.
+    @Test
+    fun renumberedSuperTroopsKeepEveryLevel() {
+        val barbarian = unit("Super Barbarian")
+        assertEquals(listOf(4, 5, 6, 7, 8, 9, 10), barbarian.levels.toList())
+        assertEquals(listOf(11, 12, 14, 15, 16, 18, 19), barbarian.townHalls.toList())
+        assertEquals(180.0, at("Super Barbarian", "Damage per second", 4))
+        assertEquals(8, barbarian.baseLevel)
+        // The other source still has the old numbers (its 9 is our 5), and no TH19 level, where the
+        // chain is worked out from damage per second like the first hit.
+        val chain = chart(unit("Super Wizard").charts, "Damage per hit").series.single { it.name == "Chain" }
+        assertEquals(176.0, chain.values.first())
+        assertEquals(292.0, chain.values.last())
+    }
+
     @Test
     fun researchCostsAreForReachingEachLevel() {
         val dragon = unit("Dragon")
@@ -324,7 +391,8 @@ class GuideUnitsTest {
         val golem = unit("Golem")
         assertEquals(-1, golem.capIndex(7))
         assertEquals(1, golem.capIndex(8))
-        assertEquals(golem.levels.lastIndex, golem.capIndex(18))
+        assertEquals(golem.levels.indexOf(15), golem.capIndex(18))
+        assertEquals(golem.levels.lastIndex, golem.capIndex(19))
     }
 
     @Test

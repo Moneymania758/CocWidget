@@ -51,7 +51,7 @@ class BasesScreenTest {
     @Test
     fun withNoVillageItOpensTheTopTownHall() {
         val screen = Screens.open<BasesActivity>()
-        assertEquals("https://clashcodes.com/bases/th18", loaded(screen))
+        assertEquals("https://clashcodes.com/bases/th19", loaded(screen))
     }
 
     @Test
@@ -163,7 +163,7 @@ class BasesScreenTest {
     fun opensInEverySkin() {
         for (skin in Skin.ALL) {
             Store.setSkin(app, skin.key)
-            assertEquals("https://clashcodes.com/bases/th18", loaded(Screens.open<BasesActivity>()))
+            assertEquals("https://clashcodes.com/bases/th19", loaded(Screens.open<BasesActivity>()))
         }
     }
 

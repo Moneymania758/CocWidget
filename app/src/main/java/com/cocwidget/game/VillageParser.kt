@@ -95,7 +95,11 @@ object VillageParser {
             is JSONObject -> {
                 if (node.has("data") && node.optLong("timer") > 0) {
                     val item = lookup(node.optInt("data"))
-                    found += toUpgrade(item, sectionFor(topKey, depth, item), node)
+                    // Only a running supercharge has the key. TH19 took supercharges off buildings
+                    // that got a new level and cancelled the ones running, so an export from before
+                    // that has nothing running there, not an upgrade to the new level.
+                    val cancelled = node.has("supercharge") && item != null && item.supercharge == null
+                    if (!cancelled) found += toUpgrade(item, sectionFor(topKey, depth, item), node)
                 }
                 for (key in node.keys()) collectTimed(node.opt(key), topKey, depth + 1, lookup, found)
             }

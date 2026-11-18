@@ -194,7 +194,7 @@ class GuideTest {
 
     @Test
     fun everyTroopAndSiegeMachineSaysWhatItTargets() {
-        val needed = units.values.filter { it.kind in setOf("troop", "super", "siege") }.map { it.name }
+        val needed = units.values.filter { it.kind in setOf("troop", "super", "siege", "squad") }.map { it.name }
         assertEquals(emptyList<String>(), needed.filter { guide.content.unitTactics[it]?.targets.isNullOrBlank() })
     }
 
@@ -203,6 +203,9 @@ class GuideTest {
         val threats = guide.content.threats
         assertEquals(3, threats.count { it.kind == "guardian" })
         for (name in listOf("Smasher", "Longshot", "Logger")) assertEquals(name, 18, guide.threat(name)?.from)
+        // TH19 moves the Guardian to its own Shrine and fills the Town Hall with troops.
+        for (name in listOf("Smasher", "Longshot", "Logger")) assertEquals(name, 19, guide.threat(name)?.to)
+        for (townHall in 18..19) assertTrue("TH$townHall", threats.single { it.kind == "townhall" && it.isAt(townHall) }.name == "Town Hall $townHall")
         // A Town Hall has its own weapon from TH12 until TH18 replaces it with Guardians.
         for (townHall in 12..17) assertTrue("TH$townHall", threats.any { it.kind == "weapon" && it.isAt(townHall) })
         for (townHall in 3..11) assertTrue("TH$townHall", threats.none { it.isAt(townHall) })
@@ -279,6 +282,8 @@ class GuideTest {
     }
 
     // Checked by hand against the hero data on 10 November 2026: every hero's last levels take 8 days.
+    // Rechecked on TH19 data, 16 November: the 8-day levels moved up five and open at TH18, and the
+    // Minion Prince has 10 of them, not 15, so 75 in all instead of 78.
     @Test
     fun heroesLongestUpgradesComeFromTheData() {
         val heroes = guide.facts.heroes.map { it to items.getValue(it.id) }
@@ -286,23 +291,23 @@ class GuideTest {
         assertEquals(8 * 86_400L, longest)
         val stretches = heroes.associate { (fighter, item) -> fighter.name to Guide.stretch(fighter.id, item, fighter.name, longest)!! }
         val queen = stretches.getValue("Archer Queen")
-        assertEquals(listOf(96, 15, 17), listOf(queen.firstLevel, queen.count, queen.townHall))
+        assertEquals(listOf(101, 15, 18), listOf(queen.firstLevel, queen.count, queen.townHall))
         assertEquals(10, stretches.getValue("Royal Champion").count)
-        assertEquals(78, stretches.values.sumOf { it.count })
+        assertEquals(75, stretches.values.sumOf { it.count })
         val item = items.getValue(queen.heroId)
-        assertEquals(0L, Guide.timeToStretch(item, 95, queen))
         assertEquals(0L, Guide.timeToStretch(item, 100, queen))
-        assertEquals(item.secondsToReach(95), Guide.timeToStretch(item, 94, queen))
-        assertEquals(item.secondsToReach(94) + item.secondsToReach(95), Guide.timeToStretch(item, 93, queen))
-        // Maxed at Town Hall 16 isn't there yet, as the longest upgrades open at 17.
-        val maxed = Guide.progress(item, item.maxLevelAt(16), 16, queen)
+        assertEquals(0L, Guide.timeToStretch(item, 105, queen))
+        assertEquals(item.secondsToReach(100), Guide.timeToStretch(item, 99, queen))
+        assertEquals(item.secondsToReach(99) + item.secondsToReach(100), Guide.timeToStretch(item, 98, queen))
+        // Maxed at Town Hall 17 isn't there yet, as the longest upgrades open at 18.
+        val maxed = Guide.progress(item, item.maxLevelAt(17), 17, queen)
         assertTrue(maxed.maxedHere)
         assertEquals(0L, maxed.left)
-        assertFalse(Guide.progress(item, 95, 17, queen).maxedHere)
-        val belowCap = Guide.progress(item, item.maxLevelAt(15) - 1, 15, queen)
+        assertFalse(Guide.progress(item, 100, 18, queen).maxedHere)
+        val belowCap = Guide.progress(item, item.maxLevelAt(16) - 1, 16, queen)
         assertFalse(belowCap.maxedHere)
         assertTrue(belowCap.someLocked)
-        assertFalse(Guide.progress(item, 80, 16, queen).someLocked)
+        assertFalse(Guide.progress(item, 85, 17, queen).someLocked)
     }
 
     // Counts have to be trainable, or the plan isn't one anybody can follow.

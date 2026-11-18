@@ -68,13 +68,14 @@ class NextFinishTest {
         assertEquals(6, summary.idleBuilders)
     }
 
-    // Deval's TH18 export: six builders on supercharges plus the Goblin, research and a pet.
+    // Deval's TH18 export: six builders on supercharges plus the Goblin, research and a pet. TH19
+    // cancelled the X-Bow and Multi-Archer Tower supercharges, so only the Mortar's builder is busy.
     @Test
-    fun realExportWithEveryBuilderBusy() {
+    fun realExportWithTheUpdatesCancelledSupercharges() {
         val village = TestData.superchargingVillage()
         val summary = NextFinish.of(village, village.exportedAtMillis)
         assertEquals(6, summary.builders)
-        assertEquals(0, summary.idleBuilders)
+        assertEquals(5, summary.idleBuilders)
         assertFalse(summary.labIdle)
         assertFalse(summary.petsIdle)
         val soonest = village.upgrades.minBy { village.endMillis(it) }

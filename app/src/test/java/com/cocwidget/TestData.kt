@@ -62,6 +62,10 @@ object TestData {
         return root.toString()
     }
 
+    // A TH19 export (tag replaced) from the day TH19 came out: the first TH19 buildings going up,
+    // every Archer Tower, Cannon and Scattershot merged away, and a maxed Builder Base.
+    fun th19ExportJson(): String = javaClass.getResource("/village_export_th19.json")!!.readText()
+
     fun superchargingVillage(): Village =
         VillageParser.parse(superchargingExportJson()) { gameData[it] }!!
 
