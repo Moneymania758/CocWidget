@@ -20,8 +20,8 @@ android {
         applicationId = "com.cocwidget"
         minSdk = 31
         targetSdk = 35
-        versionCode = 46
-        versionName = "3.1.1"
+        versionCode = 47
+        versionName = "3.2"
     }
 
     signingConfigs {
