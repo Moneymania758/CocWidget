@@ -45,7 +45,7 @@ const CHARTS = [
   { title: 'Healing per pulse', series: [['healingPerPulse', 'Healing']] },
   { title: 'Total healing', series: [['totalHealing', 'Troops'], ['totalHealingOnHeroes', 'Heroes']] },
   { title: 'Damage boost', unit: '%', series: [['damageIncrease', 'Damage']] },
-  { title: 'Speed boost', series: [['speedIncrease', 'Speed'], ['movementSpeedIncrease', 'Speed']] },
+  { title: 'Speed boost', series: [['speedIncrease', 'Speed'], ['movementSpeedIncrease', 'Speed'], ['heroSpeedIncrease', 'Heroes, pets and building-targeting troops']] },
   { title: 'Damage to buildings', unit: '%', series: [['buildingDamagePercent', 'Buildings'], ['troopDamagePercent', 'Troops']] },
   { title: 'Slows movement', unit: '%', series: [['speedDecrease', 'Movement'], ['poisonSpeedDecrease', 'Movement']] },
   { title: 'Slows attacks', unit: '%', series: [['attackRateDecrease', 'Attacks'], ['poisonAttackRateDecrease', 'Attacks']] },
@@ -129,9 +129,40 @@ const HITS_NOTES = {
   'Skeleton Trap': () => 'Set to chase ground or air',
   "Builder's Hut": entry => `Hits air and ground from TH${entry.levels.find(level => level.dps > 0).required_townhall}`,
   'Air Sweeper': () => 'Pushes air troops back',
+  'Spiky Tower': () => 'Spikes whatever hits it, air or ground',
 };
 
 // Defences and traps. Their fields differ from troops', so they have their own list of charts.
+const CRAFTING_STATION = 1000097;
+// Figures neither source has yet, from Supercell's TH19 release notes (16 Nov 2026), one per level.
+const FROM_NOTES = {
+  'Heroic Spell': {
+    incomingDamageReduction: [34, 36, 38, 40],
+    speedIncrease: [5, 6, 7, 8],
+    heroSpeedIncrease: [2, 3, 3, 4],
+    spellDuration: [9.75, 10.75, 11.75, 12.75],
+    radius: [5, 5, 5, 5],
+  },
+  // ClashKing has no housing for these two, which drops at level 3.
+  'P.E.K.K.A Titan Squad': { housing: [46, 46, 44] },
+  'Baby Dragon Squad': { housing: [26, 26, 24] },
+};
+// What each squad ability is called in the notes, and the field its number comes from.
+const SQUAD_ABILITIES = {
+  SquadSplashCapAbility: { name: 'Splash Resistance', key: 'splash_damage_cap', row: 'splashCap' },
+  SquadInvisibilityAbility: { name: 'Stealthy Start', key: 'duration_ms', row: 'invisibleFor', ms: true },
+  SquadTrapShieldAbility: { name: 'Trap Sense', key: 'trap_damage_reduction_percent', row: 'trapCut' },
+  SquadDeployShieldAbility: { name: 'Shielded Start', key: 'duration_ms', row: 'shieldFor', ms: true },
+  SquadSharedTargetAbility: { name: 'Focus Attack' },
+  SquadBabyDragonRageAbility: { name: 'Tantrum' },
+};
+const SQUAD_CHARTS = [
+  { title: 'Housing', series: [['housing', 'Housing']] },
+  { title: 'One splash hits at most', series: [['splashCap', 'Members']] },
+  { title: 'Invisible after landing', unit: 's', series: [['invisibleFor', 'Invisible']] },
+  { title: 'Trap damage cut', unit: '%', series: [['trapCut', 'Trap damage']] },
+  { title: "Can't be hurt after landing", unit: 's', series: [['shieldFor', 'Shield']] },
+];
 const DEFENCE_CHARTS = [
   { title: 'Damage per second', series: [
     ['stats.normal.dps', 'Normal'], ['stats.gearedUpBurst.dps', 'Burst'], ['stats.gearedUpFastAttack.dps', 'Fast attack'],
@@ -157,6 +188,8 @@ const DEFENCE_CHARTS = [
   { title: 'Push strength', series: [['stats.normal.pushStrength', 'Push']] },
   { title: 'Repairs per second', series: [['stats.builder.repairPerSecond', 'Repairs']] },
   { title: 'Repairs per hit', series: [['stats.builder.repairPerHit', 'Repairs']] },
+  { title: 'Spark damage', series: [['sparkDamage', 'At most']] },
+  { title: 'Spike damage', unit: '%', series: [['spikeShare', "Of the attacker's health"]] },
   { title: 'Health', series: [['hp', 'Health']] },
   { title: 'Launches this much housing', series: [['springCapacity', 'Housing']] },
   { title: 'Skeletons spawned', series: [['spawnedUnits', 'Skeletons']] },
@@ -164,6 +197,20 @@ const DEFENCE_CHARTS = [
   { title: 'Damage radius', unit: ' tiles', series: [['damageRadius', 'Radius']] },
   { title: 'Lasts', unit: 's', series: [['duration', 'Lasts']] },
 ];
+// TH19's defences, which the other source doesn't have yet. ClashKing has their health, damage and
+// costs. The rest is from Supercell's release notes (16 Nov 2026), one figure per level.
+const NEW_DEFENCES = {
+  'Spiky Tower': {
+    special: "Never attacks. Each hit it takes sends a spike back at the attacker. Spells and hero equipment abilities don't set it off, and Freeze doesn't stop it.",
+    stats: [{ n: 'Wakes up within', v: '11 tiles, after a 1s spin-up' }],
+    levels: { spikeShare: [6, 9] },
+  },
+  'Firecracker Tower': {
+    special: 'Its rockets splash where they land and spray sparks behind their target.',
+    damageType: 'splash',
+    levels: { 'stats.normal.damagePerShot': [483, 501], sparkDamage: [365, 385] },
+  },
+};
 const DEFENCE_NOT_STATS = new Set([
   'level', 'hitpoints', 'buildCost', 'townHallRequired', 'xpGained', 'stats.normal.dpsInitial',
 ]);
@@ -254,6 +301,22 @@ function readNpm(root) {
 
 const seconds = time => Object.entries(SECONDS).reduce((sum, [key, size]) => sum + (time?.[key] || 0) * size, 0);
 
+// How far the other source's level numbers sit above ClashKing's, from the levels where health
+// and damage per second both agree. 0 when none do.
+function levelShift(name, levels, npmLevels) {
+  const counts = {};
+  for (const level of levels) {
+    for (const row of npmLevels) {
+      if (row.hitpoints === level.hitpoints && (row.stats?.normal?.dps ?? row.damagePerSecond) === level.dps) {
+        counts[row.level - level.level] = (counts[row.level - level.level] || 0) + 1;
+      }
+    }
+  }
+  const shifts = Object.keys(counts).map(Number);
+  if (shifts.length > 1) console.warn(`${name}: the other source's levels match at more than one shift: ${shifts.join(', ')}`);
+  return shifts.sort((a, b) => counts[b] - counts[a])[0] || 0;
+}
+
 function build(data, npm) {
   const buildingLevelTownHall = (name, level) => {
     const building = data.buildings.find(b => b.name === name && (b.village || 'home') === 'home');
@@ -274,36 +337,62 @@ function build(data, npm) {
     const superInfo = entry.super_troop && { ...entry.super_troop, original_min_level: entry.super_troop.original_min_level + 1 };
     const base = superInfo && data.troops.find(t => t._id === superInfo.original_id);
     let unlock = opens(entry);
-    let kind = isSpell ? 'spell' : (entry.production_building === 'Workshop' ? 'siege' : 'troop');
+    let kind = isSpell ? 'spell' : entry.squad ? 'squad' : (entry.production_building === 'Workshop' ? 'siege' : 'troop');
     if (superInfo) {
       const level = base.levels.find(l => l.level === superInfo.original_min_level);
       unlock = Math.max(SUPER_TROOP_TOWN_HALL, opens(base), level.required_townhall);
       kind = 'super';
     }
-    // A Super Troop's lower levels exist in the data, but its base troop must be this high first.
-    const levels = entry.levels.filter(level => !superInfo || level.level >= superInfo.original_min_level);
-    const npmLevels = Object.fromEntries((extra.levels || []).map(level => [level.level, flatten(level)]));
+    // A Super Troop's lower levels exist in the data, but its base troop must reach
+    // original_min_level first, which opens at unlock. TH19 numbered most of them from 1 (Super
+    // Barbarian 4 is the old 8), so start at the highest level unlock allows. Before TH19 this gave
+    // the same levels as starting at the base troop's level, for all 17.
+    const first = superInfo ? Math.max(0, entry.levels.findLastIndex(level => level.required_townhall <= unlock)) : 0;
+    const levels = entry.levels.slice(first);
+    // The other source still numbers Super Troops the old way (its Super Wizard starts at 9, ours at
+    // 5 since TH19), so its rows are matched to ours by health and damage.
+    const shift = superInfo ? levelShift(entry.name, levels, extra.levels || []) : 0;
+    const npmLevels = Object.fromEntries((extra.levels || []).map(level => [level.level - shift, flatten(level)]));
     // Damage per hit is damage per second times a unit's fixed attack time, and the other source
     // only has it for its own levels and figures. So take that ratio from a level where both sources
-    // agree on the damage, and work out every level from ClashKing's numbers.
+    // agree on the damage, and work out every level from ClashKing's numbers. A chain's hit is a
+    // fixed share of the first, so it's worked out the same way.
+    const ratioFor = (key, label) => {
+      const ratios = levels.flatMap(level => {
+        const row = npmLevels[level.level];
+        if (!row || !key || row[key] === undefined) return [];
+        const dps = row['stats.normal.dps'] ?? row.damagePerSecond;
+        return dps > 0 && dps === level.dps ? [row[key] / dps] : [];
+      });
+      if (new Set(ratios.map(r => r.toFixed(2))).size > 1) console.warn(`${entry.name}: ${label} ratios differ: ${[...new Set(ratios.map(r => r.toFixed(2)))].join(', ')}`);
+      return ratios[0];
+    };
     const hitKey = ['stats.normal.damagePerShot', 'damagePerHit'].find(key => Object.values(npmLevels).some(row => row[key] !== undefined));
-    const ratios = levels.flatMap(level => {
-      const row = npmLevels[level.level];
-      if (!row || !hitKey || row[hitKey] === undefined) return [];
-      const dps = row['stats.normal.dps'] ?? row.damagePerSecond;
-      return dps > 0 && dps === level.dps ? [row[hitKey] / dps] : [];
-    });
-    if (new Set(ratios.map(r => r.toFixed(2))).size > 1) console.warn(`${entry.name}: damage per hit ratios differ: ${[...new Set(ratios.map(r => r.toFixed(2)))].join(', ')}`);
-    const ratio = ratios[0];
-    const rows = levels.map(level => {
+    const ratio = ratioFor(hitKey, 'damage per hit');
+    const chainKey = 'stats.normal.chainDamagePerShot';
+    const chainRatio = ratioFor(chainKey, 'chain damage per hit');
+    const rows = levels.map((level, index) => {
       const row = { ...(npmLevels[level.level] || {}) };
       for (const key of Object.keys(row)) {
         if (!knownKeys.has(key)) throw new Error(`No label for ${entry.name}'s level field ${key}`);
+      }
+      for (const [key, values] of Object.entries(FROM_NOTES[entry.name] || {})) if (row[key] === undefined) row[key] = values[index];
+      // A squad has no health or damage of its own: its members fight at the player's levels.
+      if (entry.squad) {
+        const own = entry.squad.levels.find(l => l.level === level.level) || {};
+        const ability = SQUAD_ABILITIES[own.ability];
+        if (own.ability && !ability) throw new Error(`No name for ${entry.name}'s ability ${own.ability}`);
+        if (ability?.key) row[ability.row] = own[ability.key] / (ability.ms ? 1000 : 1);
+        return row;
       }
       const npmDps = row['stats.normal.dps'] ?? row.damagePerSecond;
       if (hitKey) {
         delete row[hitKey];
         if (ratio && level.dps > 0) row[hitKey] = level.dps * ratio;
+      }
+      if (chainRatio) {
+        delete row[chainKey];
+        if (level.dps > 0) row[chainKey] = level.dps * chainRatio;
       }
       if (entry.name === 'Ruin Witch') {
         for (const key of ['stats.normal.damagePerShot', 'damagePerHit', 'stats.normal.dps']) delete row[key];
@@ -322,7 +411,7 @@ function build(data, npm) {
       return row;
     });
 
-    const { charts, stats } = chartsAndStats(CHARTS, rows);
+    const { charts, stats } = chartsAndStats(entry.squad ? SQUAD_CHARTS : CHARTS, rows);
     for (const [key, label, unit] of TOP_STATS) {
       if (typeof extra[key] === 'number' && !stats.some(s => s.n === label) && !charts.some(c => c.t === label)) {
         stats.push({ n: label, v: `${extra[key]}${unit}` });
@@ -368,7 +457,7 @@ function build(data, npm) {
       k: kind,
       g: kind === 'troop' ? (entry.production_building === 'Dark Barracks' ? 'dark' : 'elixir') : kind,
       h: unlock,
-      hs: entry.housing_space,
+      hs: entry.housing_space ?? FROM_NOTES[entry.name]?.housing?.[0],
       lv: levels.map(level => level.level),
       // A unit's first level comes with it, whatever the data's level 1 says (Barbarian's says 3).
       th: levels.map((level, index) => (index === 0 ? unlock : Math.max(unlock, level.required_townhall))),
@@ -376,7 +465,12 @@ function build(data, npm) {
     };
     if (stats.length) unit.stats = stats;
     if (subs.length) unit.subs = subs;
-    if (!isSpell) {
+    if (entry.squad) {
+      const first = entry.squad.levels.find(l => l.ability);
+      if (first) unit.ab = `${SQUAD_ABILITIES[first.ability].name}, from level ${first.level}`;
+      // Members as [id, count], and the Squad Barracks level that brings the squad.
+      unit.sq = { m: entry.squad.members.map(m => [m.troop_id, m.count]), b: entry.production_building_level };
+    } else if (!isSpell) {
       unit.f = entry.is_flying ? 1 : 0;
       unit.a = entry.is_air_targeting ? 1 : 0;
       unit.gr = entry.is_ground_targeting ? 1 : 0;
@@ -488,12 +582,21 @@ function buildDefences(data, root) {
   const read = dir => fs.readdirSync(path.join(root, 'data', 'home', dir)).map(file => JSON.parse(fs.readFileSync(path.join(root, 'data', 'home', dir, file), 'utf8')));
   const known = new Set([...DEFENCE_NOT_STATS, ...usedKeys(DEFENCE_CHARTS)]);
   const out = [];
-  for (const npm of [...read('defenses'), ...read('traps')]) {
+  const fromWiki = [...read('defenses'), ...read('traps')];
+  const wikiNames = new Set(fromWiki.map(npm => npm.name));
+  const newOnes = data.buildings.filter(b => b.type === 'Defense' && (b.village || 'home') === 'home' && !wikiNames.has(b.name) && b._id !== CRAFTING_STATION);
+  for (const entry of newOnes) {
+    if (!NEW_DEFENCES[entry.name]) throw new Error(`${entry.name} is in neither NEW_DEFENCES nor the other source`);
+  }
+  for (const npm of [...fromWiki, ...newOnes.map(entry => newDefence(entry, data))]) {
     const isTrap = npm.category === 'trap';
     const entry = (isTrap ? data.traps : data.buildings).find(b => b.name === npm.name && (b.village || 'home') === 'home');
-    // No levels to chart: it's a home for seasonal defences, whose modules change every season.
-    if (!entry || !entry.levels?.length) continue;
-    const npmLevels = Object.fromEntries((npm.levels || []).filter(level => !level.supercharge).map(level => [level.level, flatten(level)]));
+    // The Crafting Station is a home for seasonal defences, whose modules change every season.
+    // ClashKing gave it one level in assets 2.5.0, but there is still nothing to chart.
+    if (!entry || !entry.levels?.length || entry._id === CRAFTING_STATION) continue;
+    const npmLevels = npm.extraStats
+      ? Object.fromEntries(npm.levels.map((level, index) => [entry.levels[index].level, level]))
+      : Object.fromEntries((npm.levels || []).filter(level => !level.supercharge).map(level => [level.level, flatten(level)]));
     const rows = entry.levels.map(level => {
       const row = { ...(npmLevels[level.level] || {}) };
       for (const key of Object.keys(row)) {
@@ -529,7 +632,7 @@ function buildDefences(data, root) {
       lv: entry.levels.map(level => level.level),
       th: townHalls,
       charts,
-      stats: [...defenceFacts(npm, entry), ...stats],
+      stats: [...defenceFacts(npm, entry), ...(npm.extraStats || []), ...stats],
       byTh: perTownHall,
       r: entry.upgrade_resource || npm.levels?.[0]?.buildCostResource || '',
       c: entry.levels.map(level => level.build_cost || 0),
@@ -551,7 +654,7 @@ function buildDefences(data, root) {
       unit.subs = [{
         n: 'Supercharges',
         plain: 1,
-        note: 'For a defence at its final level, at the top Town Hall.',
+        note: `For a defence at its final level, from Town Hall ${Math.max(entry.levels[entry.levels.length - 1].required_townhall, charge.required_townhall)}.`,
         stats: charge.levels.map(stage => ({
           n: `Stage ${stage.level}`,
           v: [
@@ -566,6 +669,33 @@ function buildDefences(data, root) {
     out.push(unit);
   }
   return out;
+}
+
+// A defence the other source doesn't have yet, shaped as if it did. Its count per Town Hall comes from
+// what each Town Hall level unlocks.
+function newDefence(entry, data) {
+  const notes = NEW_DEFENCES[entry.name];
+  const townHall = data.buildings.find(b => b.type === 'Town Hall');
+  const availablePerTownHall = [];
+  let count = 0;
+  for (const level of townHall.levels) {
+    count += (level.unlocks || []).filter(unlock => unlock._id === entry._id).reduce((sum, unlock) => sum + unlock.quantity, 0);
+    if (count > 0) availablePerTownHall.push({ townHallLevel: level.level, count });
+  }
+  const first = entry.levels[0];
+  return {
+    name: entry.name,
+    size: `${entry.width}x${entry.width}`,
+    specialAbility: notes.special,
+    damageType: notes.damageType,
+    modes: { normal: {
+      ...(first.attack_range ? { range: first.attack_range / 100 } : {}),
+      ...(first.attack_speed ? { attackSpeed: first.attack_speed / 1000 } : {}),
+    } },
+    availablePerTownHall,
+    extraStats: notes.stats || [],
+    levels: entry.levels.map((level, index) => Object.fromEntries(Object.entries(notes.levels).map(([key, values]) => [key, values[index]]))),
+  };
 }
 
 // Mistakes in the other source. It has the Flame Blower at 2,700 at level 15, but ClashKing puts levels 15
@@ -753,12 +883,31 @@ function buildEquipment(data, root) {
   });
 }
 
-const [staticPath, npmPath] = process.argv.slice(2);
+// ClashKing's TH19 data (assets 2.5.0) moved equipment abilities out of each level
+// into a separate file under new field names. Until that format is settled, an older static_data.json
+// can lend its abilities, matched by piece and level. The update changed no ability values.
+function borrowAbilities(data, olderPath) {
+  const older = JSON.parse(fs.readFileSync(olderPath, 'utf8'));
+  const byName = Object.fromEntries(older.equipment.map(piece => [piece.name, piece]));
+  for (const piece of data.equipment) {
+    for (const level of piece.levels) {
+      if (level.abilities) continue;
+      level.abilities = byName[piece.name]?.levels.find(old => old.level === level.level)?.abilities || [];
+    }
+  }
+}
+
+const [staticPath, npmPath, abilitiesPath] = process.argv.slice(2);
 if (!staticPath || !npmPath) {
-  console.error('Usage: node tools/build-guide-units.js path/to/static_data.json path/to/clash-of-clans-data/package');
+  console.error('Usage: node tools/build-guide-units.js path/to/static_data.json path/to/clash-of-clans-data/package [older static_data.json for equipment abilities]');
   process.exit(1);
 }
 const staticData = JSON.parse(fs.readFileSync(staticPath, 'utf8'));
+if (abilitiesPath) borrowAbilities(staticData, abilitiesPath);
+if (staticData.equipment.some(piece => piece.levels.some(level => !level.abilities))) {
+  console.error('This static_data.json has no equipment abilities. Pass an older copy that does as the third argument.');
+  process.exit(1);
+}
 const units = [
   ...build(staticData, readNpm(npmPath)),
   ...buildDefences(staticData, npmPath),

@@ -60,9 +60,11 @@ class VillageParserTest {
     // tools/build-coc-data.js normalises both, and these totals break if it stops doing so.
     @Test
     fun totalsAreTheTimeToReachTheTargetLevel() {
-        assertEquals(432_000L, named("Bomb Tower", Section.BUILDERS).totalSec)
+        // Bomb Tower 11 was 5 days before TH19 cut it to 4.
+        assertEquals(345_600L, named("Bomb Tower", Section.BUILDERS).totalSec)
         assertEquals(345_600L, named("Barbarian King", Section.BUILDERS).totalSec)
-        assertEquals(345_600L, named("Giant", Section.LAB).totalSec)
+        // Giant 11 was 4 days before TH19 cut it to 3d 12h.
+        assertEquals(302_400L, named("Giant", Section.LAB).totalSec)
         assertEquals(259_200L, named("Angry Jelly", Section.PETS).totalSec)
         assertEquals(950_400L, named("Multi Mortar", Section.BUILDER_BASE).totalSec)
     }

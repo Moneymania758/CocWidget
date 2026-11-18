@@ -215,8 +215,8 @@ class HeroChartsTest {
         assertEquals("1", Screens.texts(picked.single()).first())
 
         pickAcross(screen, 1f)
-        assertTrue(Screens.texts(root).contains(app.getString(R.string.guide_level, 110)))
-        for (chart in Screens.views<LevelChart>(root)) assertEquals(109, chart.selected)
+        assertTrue(Screens.texts(root).contains(app.getString(R.string.guide_level, 115)))
+        for (chart in Screens.views<LevelChart>(root)) assertEquals(114, chart.selected)
     }
 
     @Test
@@ -271,8 +271,8 @@ class HeroChartsTest {
     fun aScreenReaderHearsWhatAChartShows() {
         val root = Screens.root(open(unit("Barbarian King")))
         val descriptions = Screens.views<LevelChart>(root).map { it.contentDescription.toString() }
-        assertTrue(descriptions.toString(), descriptions.any { it.startsWith("Health.") && it.contains("13,350") && it.contains("1,445") })
-        assertTrue(descriptions.toString(), descriptions.any { it.startsWith("Damage per second.") && it.contains("713") })
+        assertTrue(descriptions.toString(), descriptions.any { it.startsWith("Health.") && it.contains("13,975") && it.contains("1,445") })
+        assertTrue(descriptions.toString(), descriptions.any { it.startsWith("Damage per second.") && it.contains("748") })
     }
 
     @Test

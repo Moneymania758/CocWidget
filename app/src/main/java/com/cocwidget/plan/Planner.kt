@@ -2,13 +2,14 @@ package com.cocwidget.plan
 
 import com.cocwidget.game.GameItem
 import com.cocwidget.game.Ids
+import com.cocwidget.game.Supercharge
 import com.cocwidget.game.VillageParser
 
 // Time and resources left to max everything the current Town Hall allows, worked out from a
 // village export and the bundled game data. As in Clash Ninja's "Remaining" panel, a running
 // upgrade counts its time left but not its cost, which is already paid. Times are at normal
-// speed: no potions, helpers or Goblins. At the highest Town Hall, buildings on their final level
-// also count the supercharge stages left.
+// speed: no potions, helpers or Goblins. From the Town Hall that opens them, buildings on their
+// final level also count the supercharge stages left.
 object Planner {
     private val SECTIONS = listOf("buildings", "traps", "heroes", "guardians", "units", "spells", "siege_machines", "pets", "equipment")
 
@@ -150,7 +151,6 @@ object Planner {
         val townHall: Int,
         val copies: HashMap<Int, MutableList<Copy>>,
         val built: Map<Int, Int>,
-        val topTownHall: Boolean,
         val unknownEpics: Int,
     )
 
@@ -176,8 +176,12 @@ object Planner {
                     if (item.epic) unknownEpics++
                     continue
                 }
+                // A supercharge on a building that no longer has them was cancelled (see VillageParser).
+                val cancelled = entry.has("supercharge") && item.supercharge == null
+                val timer = if (cancelled) 0L else entry.optLong("timer")
+                val stages = if (cancelled) 0 else entry.optInt("supercharge")
                 repeat(entry.optInt("cnt", 1)) {
-                    copies.getOrPut(id) { mutableListOf() } += Copy(entry.optInt("lvl"), entry.optLong("timer"), entry.optInt("supercharge"))
+                    copies.getOrPut(id) { mutableListOf() } += Copy(entry.optInt("lvl"), timer, stages)
                 }
             }
         }
@@ -187,8 +191,7 @@ object Planner {
             val max = items.getValue(id).maxLevelAt(townHall)
             for (copy in list) copy.target = maxOf(copy.level, if (copy.target > 0) minOf(copy.target, max) else max)
         }
-        val top = items[Ids.TOWN_HALL]?.levelCount ?: 0
-        return Export(townHall, copies, built, top > 0 && townHall >= top, unknownEpics)
+        return Export(townHall, copies, built, unknownEpics)
     }
 
     // Exports list every piece of equipment, owned or not, the ones not owned at level 1. The
@@ -201,13 +204,16 @@ object Planner {
             (built[item.requires] ?: 0) >= item.requiredLevelFor(1) && (built[item.hero] ?: 0) > 0
         }
 
-    // The supercharge stages [copy] has left: only at the highest Town Hall, on a building whose
+    // The supercharge stages [copy] has left: from the supercharge's Town Hall, on a building whose
     // final level is the copy's target.
     private fun stagesLeft(item: GameItem, copy: Copy, export: Export): IntRange {
         val supercharge = item.supercharge ?: return IntRange.EMPTY
-        if (!export.topTownHall || copy.target != supercharge.level) return IntRange.EMPTY
+        if (!charges(supercharge, copy, export)) return IntRange.EMPTY
         return copy.supercharge + 1..supercharge.times.size
     }
+
+    private fun charges(supercharge: Supercharge, copy: Copy, export: Export) =
+        export.townHall >= supercharge.townHall && copy.target == supercharge.level
 
     // What reaching [level] costs, under the planner's resource names ("Gold or Elixir" for walls).
     private fun levelCosts(item: GameItem, level: Int, pricePercent: Int): Map<String, Long> {
@@ -325,7 +331,7 @@ object Planner {
                     val running = if (copy.timer > 0 && copy.level < copy.target) maxOf(0L, item.secondsToReach(copy.level + 1) - copy.timer) else 0L
                     done[0] += (1..copy.level).sumOf { item.secondsToReach(it) } + running
                     done[1] += (1..copy.target).sumOf { item.secondsToReach(it) }
-                    if (supercharge != null && export.topTownHall && copy.target == supercharge.level) {
+                    if (supercharge != null && charges(supercharge, copy, export)) {
                         done[0] += (1..copy.supercharge).sumOf { supercharge.times[it - 1].toLong() }
                         done[1] += supercharge.times.sum().toLong()
                     }

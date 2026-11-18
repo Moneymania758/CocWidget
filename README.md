@@ -171,9 +171,9 @@ is maxed. It uses your last import, so import first for an up-to-date answer.
 - Buildings that merge (two Cannons into a Ricochet Cannon, for example) count as the merged
   building. The copies still to be merged only need the level the merge asks for.
 
-- At the highest Town Hall (TH18 now), buildings on their final level also count the
-  supercharges left, shown as a chip such as **+2 supercharges**. Supercharges only open at the
-  highest Town Hall, so below it they aren't counted.
+- From Town Hall 18, buildings on their final level also count the supercharges left, shown as
+  a chip such as **+2 supercharges**. Each supercharge opens at a Town Hall set in the game data
+  (TH18 for all of them since TH19), so below it they aren't counted.
 - **Hero equipment** lists the Shiny, Glowy and Starry Ore left to max each piece. Equipment
   upgrades are instant, so it adds no time, and events don't discount it. The export lists
   pieces you don't own at level 1. Common pieces come from the Blacksmith, so those count once

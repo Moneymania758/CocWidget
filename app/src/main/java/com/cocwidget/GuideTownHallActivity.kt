@@ -49,7 +49,7 @@ class GuideTownHallActivity : GuideScreen() {
         fighterCard(R.string.guide_heroes, guide.facts.heroes, GuideHeroesActivity::class.java)?.let { content.addView(it, ui.matchWidth(14)) }
         fighterCard(R.string.guide_pets, petsInUnlockOrder(), GuidePetsActivity::class.java)?.let { content.addView(it, ui.matchWidth(14)) }
         content.addView(sectionTitle(getString(R.string.guide_strategies)), ui.matchWidth(18).apply { marginStart = ui.dp(4) })
-        if (page == null) {
+        if (page == null || page.strategies.isEmpty()) {
             addNote(getString(R.string.guide_no_strategies), 14f)
         } else {
             if (page.note.isNotEmpty()) addTermNote(page.note, 13f)

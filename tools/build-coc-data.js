@@ -42,9 +42,11 @@ const BUILDING_GROUPS = {
   Helper: 'resources',
   Wall: 'walls',
 };
-// Levels ClashKing lists none for, from the Clash of Clans wiki. Reinforcement Camps can't be
-// upgraded: level 1 is building the second camp (the first comes with Builder Hall 6).
-const MISSING_LEVELS = {
+// Levels from the Clash of Clans wiki, used over ClashKing's. Reinforcement Camps can't be
+// upgraded: level 1 is building the second camp (the first comes with Builder Hall 6). ClashKing
+// listed no levels until assets 2.5.0, which gives the free first camp (1.5M, no time, Builder Hall
+// 1), but an export had one building with 274,417 s left.
+const WIKI_LEVELS = {
   1000049: { t: [864000], c: [4000000], h: [9] },
 };
 // Supercharges ClashKing lists that the game doesn't appear to offer. Plain Wizard Towers aren't on
@@ -65,6 +67,30 @@ const REQUIRED_BUILDINGS = {
   required_hero_tavern_level: 1000071,
   required_blacksmith_level: 1000070,
 };
+
+// Builder Base troops and the Battle Copter that unlock later start above level 1, and exports
+// give those game levels (a Power P.E.K.K.A at 14 of 20). ClashKing's TH19 data (assets 2.5.0)
+// numbers them from 1, but a maxed TH19 export still has 20 and 35, so their levels are moved back
+// up. A source that already starts them at the right level is left alone.
+const BUILDER_BASE_FIRST_LEVEL = {
+  4000033: 3, // Beta Minion
+  4000034: 3, // Boxer Giant
+  4000035: 5, // Bomber
+  4000036: 13, // Power P.E.K.K.A
+  4000037: 7, // Cannon Cart
+  4000038: 11, // Drop Ship
+  4000041: 5, // Baby Dragon
+  4000042: 9, // Night Witch
+  4000070: 15, // Hog Glider
+  4000106: 17, // Electrofire Wizard
+  28000005: 15, // Battle Copter
+};
+
+function withGameLevels(entry) {
+  const first = BUILDER_BASE_FIRST_LEVEL[entry._id];
+  if (!first || entry.levels?.[0]?.level !== 1) return entry;
+  return { ...entry, levels: entry.levels.map(level => ({ ...level, level: level.level + first - 1 })) };
+}
 
 // Super Troops open at this Town Hall, whatever their base troop's level allows.
 const SUPER_TROOP_TOWN_HALL = 11;
@@ -151,11 +177,12 @@ function itemFor(entry, kind, group = '') {
   let supercharge;
   for (const level of entry.levels || []) {
     if (typeof level.upgrade_cost === 'object') ores[level.level] = level.upgrade_cost;
-    // Extra stages on a building's final level, open only at the highest Town Hall.
+    // Extra stages on a building's final level, from the Town Hall h (17 or 18 in TH19's data).
     if (level.supercharge) {
       const stages = level.supercharge.levels;
       supercharge = {
         l: level.level,
+        h: level.supercharge.required_townhall,
         r: level.supercharge.upgrade_resource,
         t: stages.map(stage => stage.build_time),
         c: stages.map(stage => stage.build_cost),
@@ -218,15 +245,25 @@ async function main() {
 
   const out = {};
   for (const [category, kind] of Object.entries(KINDS)) {
-    for (const entry of data[category] || []) {
+    for (const sourceEntry of data[category] || []) {
+      const entry = withGameLevels(sourceEntry);
       const item = itemFor(entry, kind, groupFor(category, entry));
-      if (item.t.length === 0 && MISSING_LEVELS[entry._id]) Object.assign(item, MISSING_LEVELS[entry._id]);
+      if (WIKI_LEVELS[entry._id]) Object.assign(item, WIKI_LEVELS[entry._id]);
       // The Town Hall lists what each of its levels adds: u[n - 1] is [[id, quantity], ...].
       if (category === 'buildings' && entry._id === TOWN_HALL) {
         item.u = entry.levels.map(level => (level.unlocks || []).map(u => [u._id, u.quantity]));
       }
       out[entry._id] = item;
     }
+  }
+  // Firecracker Tower (TH19) has no Town Hall on its levels, so they need the one that unlocks it.
+  const town = out[TOWN_HALL];
+  for (const entry of data.buildings) {
+    entry.levels?.forEach(level => {
+      if (level.required_townhall != null) return;
+      const opens = town.u.findIndex(unlocks => unlocks.some(([id]) => id === entry._id)) + 1;
+      if (opens > 0) out[entry._id].h[level.level - 1] = opens;
+    });
   }
   // Crafted defences are upgraded one module at a time, and the export names the module. d is the
   // defence it belongs to, which is what the icon shows.

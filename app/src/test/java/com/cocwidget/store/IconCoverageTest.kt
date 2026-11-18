@@ -24,9 +24,7 @@ class IconCoverageTest {
 
     // No source has a picture for these yet. Each shows the placeholder. Remove one once it has a
     // picture, and the test below makes sure the list doesn't go stale.
-    private val knownBlank = setOf(
-        "buildings/builder-base/botos_shack/level_1.webp",
-    )
+    private val knownBlank = emptySet<String>()
 
     private fun exists(path: String) = path in clashKing || Icons.load(app, path) != null
 

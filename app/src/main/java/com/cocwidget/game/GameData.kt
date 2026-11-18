@@ -4,9 +4,9 @@ import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
 
-// Extra stages on a building's final [level], open only at the highest Town Hall. Stage n takes
+// Extra stages on a building's final [level], open from [townHall] on. Stage n takes
 // times[n - 1] seconds and costs[n - 1] of [resource].
-class Supercharge(val level: Int, val resource: String, val times: IntArray, val costs: IntArray)
+class Supercharge(val level: Int, val townHall: Int, val resource: String, val times: IntArray, val costs: IntArray)
 
 // A building merged from others from [level] on. [sources] lists each building used up, as
 // (id, level it must have reached).
@@ -112,7 +112,7 @@ object GameData {
                 requiredLevels = entry.optJSONArray("q").toIntArray(),
                 extraCosts = entry.optJSONObject("x")?.let { x -> x.keys().asSequence().associateWith { x.getJSONArray(it).toIntArray() } }.orEmpty(),
                 supercharge = entry.optJSONObject("s")?.let {
-                    Supercharge(it.getInt("l"), it.getString("r"), it.getJSONArray("t").toIntArray(), it.getJSONArray("c").toIntArray())
+                    Supercharge(it.getInt("l"), it.getInt("h"), it.getString("r"), it.getJSONArray("t").toIntArray(), it.getJSONArray("c").toIntArray())
                 },
                 hero = entry.optInt("o"),
                 epic = entry.optInt("e") == 1,

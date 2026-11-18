@@ -42,25 +42,29 @@ class PlannerTest {
         assertEquals(2_991_500L, king.costs["Dark Elixir"])
         assertEquals(79 * day, king.seconds - (39 * 60 + 22) * 60L)
 
-        // Clash Ninja: "With 2 builders: 2mo 28d 6h". The Minion Prince's 33 levels in a row are
-        // the longest stretch, so two builders can't beat them.
+        // Clash Ninja before TH19: "With 2 builders: 2mo 28d 6h". The Minion Prince's 33 levels in
+        // a row are the longest stretch, so two builders can't beat them. TH19 cut his levels from
+        // 76, and ClashKing's raw data now sums to 174 days, halved by the event to 87.
         val longest = heroes.items.maxOf { it.seconds }
-        assertEquals(88 * day + 6 * 3_600, maxOf(longest, (heroes.seconds + 1) / 2))
+        assertEquals(87 * day, maxOf(longest, (heroes.seconds + 1) / 2))
         // The screen names whose levels set the pace for all six builders.
         val plan = TestData.plan(clashNinjaHeroState(), eventPercent = 50)
         assertEquals("Minion Prince", plan.longestName)
-        assertEquals(88 * day + 6 * 3_600, plan.builderEstimateSeconds())
+        assertEquals(87 * day, plan.builderEstimateSeconds())
     }
 
     @Test
     fun countsMatchWhatTheTownHallAllows() {
         // Seven Cannons and eight Archer Towers allowed at TH16, four of each merged into two
-        // Ricochet Cannons and two Multi-Archer Towers. Everything allowed is built.
+        // Ricochet Cannons and two Multi-Archer Towers. Everything allowed is built, apart from
+        // the Squad Barracks, which TH19 added from TH8 after this export was made.
         val plan = TestData.plan()
         assertEquals(3, plan.item("Cannon")!!.levels.size)
         assertEquals(4, plan.item("Archer Tower")!!.levels.size)
         assertEquals(2, plan.item("Ricochet Cannon")!!.levels.size)
-        assertTrue(plan.groups.flatMap { it.items }.none { 0 in it.levels })
+        assertEquals(listOf("Squad Barracks"), plan.groups.flatMap { it.items }.filter { 0 in it.levels }.map { it.name })
+        assertEquals(listOf(0), plan.item("Squad Barracks")!!.levels)
+        assertEquals(9, plan.item("Squad Barracks")!!.maxLevel)
     }
 
     @Test
@@ -72,7 +76,7 @@ class PlannerTest {
         assertNull(plan.item("Eagle Artillery"))
         assertEquals(2, plan.item("Archer Tower")!!.levels.size)
         assertEquals(2, plan.item("Wizard Tower")!!.levels.size)
-        assertTrue(plan.groups.flatMap { it.items }.none { 0 in it.levels })
+        assertEquals(listOf("Squad Barracks"), plan.groups.flatMap { it.items }.filter { 0 in it.levels }.map { it.name })
 
         // Every defence is on its highest level, so all that's left is supercharges.
         val defences = plan.group(Group.DEFENCES)!!
@@ -93,9 +97,10 @@ class PlannerTest {
     @Test
     fun labAndPetTotalsMatchAnIndependentSum() {
         // Summed separately from ClashKing's raw data, running research counted by time left.
+        // TH19 cut research and pet times: before it these were 30,845,304 and 32,116,327.
         val plan = TestData.plan()
-        assertEquals(30_845_304L, plan.group(Group.LAB)!!.seconds)
-        assertEquals(32_116_327L, plan.group(Group.PETS)!!.seconds)
+        assertEquals(28_094_904L, plan.group(Group.LAB)!!.seconds)
+        assertEquals(31_641_127L, plan.group(Group.PETS)!!.seconds)
     }
 
     @Test
