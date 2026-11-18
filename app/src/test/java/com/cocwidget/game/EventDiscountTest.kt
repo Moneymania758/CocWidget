@@ -29,7 +29,7 @@ class EventDiscountTest {
     @Test
     fun newUpgradeDuringTheEventIsHalved() {
         val before = village(t0, airDefense(80 * hour))
-        val first = EventDiscount.track(null, emptyList(), emptySet(), before, eventOn = true)
+        val first = EventDiscount.track(null, emptyList(), emptyMap(), before, eventOn = true)
 
         // An hour later the old one has 79 h left and a new one started at half time.
         val after = village(t0 + hour * 1000, airDefense(79 * hour), airDefense(47 * hour))
@@ -41,7 +41,7 @@ class EventDiscountTest {
     fun aNewDiscountedUpgradeCanFinishBeforeAnOldOne() {
         // The new one has less time left than the old one, so finishing order can't identify them.
         val before = village(t0, airDefense(60 * hour))
-        val first = EventDiscount.track(null, emptyList(), emptySet(), before, eventOn = true)
+        val first = EventDiscount.track(null, emptyList(), emptyMap(), before, eventOn = true)
 
         val after = village(t0 + hour * 1000, airDefense(20 * hour), airDefense(59 * hour))
         val tracked = EventDiscount.track(before, first.ids, first.discounted, after, eventOn = true)
@@ -51,7 +51,7 @@ class EventDiscountTest {
     @Test
     fun staysDiscountedAfterTheSwitchIsTurnedOff() {
         val before = village(t0, airDefense(47 * hour))
-        val start = EventDiscount.track(village(t0 - hour * 1000), emptyList(), emptySet(), before, eventOn = true)
+        val start = EventDiscount.track(village(t0 - hour * 1000), emptyList(), emptyMap(), before, eventOn = true)
         assertEquals(listOf(true), halved(before, start))
 
         val later = village(t0 + 10 * hour * 1000, airDefense(37 * hour))
@@ -63,13 +63,13 @@ class EventDiscountTest {
     fun switchOffMeansNothingNewIsHalved() {
         val before = village(t0)
         val after = village(t0 + hour * 1000, airDefense(47 * hour))
-        val tracked = EventDiscount.track(before, emptyList(), emptySet(), after, eventOn = false)
+        val tracked = EventDiscount.track(before, emptyList(), emptyMap(), after, eventOn = false)
         assertTrue(tracked.discounted.isEmpty())
     }
 
     @Test
     fun firstSyncTreatsEverythingAsAlreadyRunning() {
-        val tracked = EventDiscount.track(null, emptyList(), emptySet(), village(t0, airDefense(10 * hour)), eventOn = true)
+        val tracked = EventDiscount.track(null, emptyList(), emptyMap(), village(t0, airDefense(10 * hour)), eventOn = true)
         assertTrue(tracked.discounted.isEmpty())
     }
 
@@ -78,16 +78,16 @@ class EventDiscountTest {
         // Switch left on after the event: a full-price upgrade has more than half its time left.
         val before = village(t0)
         val after = village(t0 + hour * 1000, airDefense(90 * hour))
-        val tracked = EventDiscount.track(before, emptyList(), emptySet(), after, eventOn = true)
+        val tracked = EventDiscount.track(before, emptyList(), emptyMap(), after, eventOn = true)
         assertTrue(tracked.discounted.isEmpty())
     }
 
     // Started during the event with under half its time left, so only the kind of upgrade can
     // rule it out.
-    private fun discountedAfterSync(upgrade: Upgrade): Set<String> {
+    private fun discountedAfterSync(upgrade: Upgrade): Map<String, Int> {
         val before = village(t0)
         val after = village(t0 + hour * 1000, upgrade)
-        return EventDiscount.track(before, emptyList(), emptySet(), after, eventOn = true).discounted
+        return EventDiscount.track(before, emptyList(), emptyMap(), after, eventOn = true).discounted
     }
 
     // Supercell's Hammer Jam post (1 Nov 2026) leaves these out of the discount.
@@ -109,7 +109,7 @@ class EventDiscountTest {
     @Test
     fun aSuperchargeSavedAsDiscountedBeforeThisFixShowsItsFullTime() {
         val charging = village(t0, airDefense(47 * hour).copy(supercharge = 1))
-        val shown = EventDiscount.apply(charging, listOf("saved"), setOf("saved"))
+        val shown = EventDiscount.apply(charging, listOf("saved"), mapOf("saved" to 50))
         assertEquals(96 * hour, shown.upgrades.single().totalSec)
     }
 
@@ -118,8 +118,37 @@ class EventDiscountTest {
         // 1.3 saved no ids, so the previous export's ids are missing.
         val before = village(t0, airDefense(80 * hour))
         val after = village(t0 + hour * 1000, airDefense(79 * hour), airDefense(47 * hour))
-        val tracked = EventDiscount.track(before, emptyList(), emptySet(), after, eventOn = true)
+        val tracked = EventDiscount.track(before, emptyList(), emptyMap(), after, eventOn = true)
         assertEquals(listOf(false, true), halved(after, tracked))
+    }
+
+    // Started with a 20% Gold Pass boost: its bar runs over 80% of the full time.
+    @Test
+    fun aGoldPassUpgradeGetsItsShorterTotal() {
+        val before = village(t0)
+        val after = village(t0 + hour * 1000, airDefense(76 * hour))
+        val tracked = EventDiscount.track(before, emptyList(), emptyMap(), after, eventOn = false, goldPass = 20)
+        assertEquals(mapOf(tracked.ids.single() to 80), tracked.discounted)
+        assertEquals(76.8 * hour, EventDiscount.apply(after, tracked.ids, tracked.discounted).upgrades.single().totalSec!!.toDouble(), 1.0)
+        // Kept at 80 after the season ends.
+        val later = village(t0 + 2 * hour * 1000, airDefense(75 * hour))
+        assertEquals(tracked.discounted.values.toList(), EventDiscount.track(after, tracked.ids, tracked.discounted, later, eventOn = false).discounted.values.toList())
+    }
+
+    @Test
+    fun hammerJamAndTheGoldPassTogetherAndPetsWithoutIt() {
+        val lab = airDefense(30 * hour).copy(section = Section.LAB)
+        assertEquals(40, EventDiscount.pricePercent(lab, eventOn = true, goldPass = 20))
+        assertEquals(50, EventDiscount.pricePercent(lab.copy(section = Section.PETS), eventOn = true, goldPass = 20))
+        assertEquals(100, EventDiscount.pricePercent(lab.copy(section = Section.PETS), eventOn = false, goldPass = 20))
+        assertEquals(100, EventDiscount.pricePercent(lab.copy(supercharge = 1), eventOn = true, goldPass = 20))
+    }
+
+    // More time left than 80% of the total can't have been started with a 20% boost.
+    @Test
+    fun anUpgradeTooLongForTheBoostIsLeftAtFullTime() {
+        val tracked = EventDiscount.track(village(t0), emptyList(), emptyMap(), village(t0 + hour * 1000, airDefense(90 * hour)), eventOn = false, goldPass = 20)
+        assertTrue(tracked.discounted.isEmpty())
     }
 
     @Test
@@ -130,7 +159,7 @@ class EventDiscountTest {
         val helpers = Helpers(8, 0, 82_800)
         val before = TestData.villageOf(t0, TestData.upgrade(20_000, helperSec = 3600), TestData.upgrade(6_000), helpers = helpers)
         val after = TestData.villageOf(t0 + 1_800_000, TestData.upgrade(3_800, helperSec = 1800), TestData.upgrade(4_200), helpers = helpers)
-        val tracked = EventDiscount.track(before, listOf("helped", "plain"), emptySet(), after, eventOn = false)
+        val tracked = EventDiscount.track(before, listOf("helped", "plain"), emptyMap(), after, eventOn = false)
         assertEquals(listOf("helped", "plain"), tracked.ids)
     }
 }

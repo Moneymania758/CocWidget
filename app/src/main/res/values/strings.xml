@@ -183,8 +183,6 @@
     <string name="tile_never">Not imported yet</string>
 
     <string name="main_steps">SET UP (ONCE)\n1. Add the widget: long-press the home screen, tap Widgets and drag Clash Timers on. Make it tall. If it doesn\'t all fit, tap a section title on the widget to fold it. Tap anywhere else on it to open the app and see every upgrade. There\'s also a small Next to finish widget showing only the next upgrade.\n2. Add the import tile: pull the notification shade all the way down, tap edit (pencil, or ⋮ then Edit) and drag Import my village into your tiles.\n3. Settings &gt; Apps &gt; Clash Timers &gt; Battery &gt; Unrestricted, so the widget keeps updating.\n\nIMPORT YOUR VILLAGE\n1. In Clash: Settings &gt; More Settings &gt; Data Export &gt; Copy.\n2. Pull down and tap Import my village. You stay in the game. (Or tap Import on the widget, or Import my village in the app.)\n\nImport again whenever you start an upgrade, finish one early or use a potion. The widget only knows what was true at your last export.\n\nMORE THAN ONE ACCOUNT\nExport and import each account the same way. Each one is added by itself. When you add a widget, you pick which account it shows.</string>
-    <string name="event_switch">Event: 50% off upgrade times</string>
-    <string name="event_explain">Turn on while Hammer Jam (or another event that halves upgrade times) is running, and off when it ends. Upgrades you start while it\'s on then get the right progress bar. Supercharges, crafted defences and the Builder Base aren\'t discounted. Timers and notifications are right either way.</string>
     <string name="name_hint">Name</string>
     <string name="save_name">Save name</string>
     <string name="name_saved">Name saved</string>
@@ -343,8 +341,12 @@
     </plurals>
     <string name="planner_pace">%1$s sets the pace: its levels can\'t run side by side.</string>
     <string name="planner_source">Export %1$s · normal speed, without potions, helpers or Goblins.</string>
-    <string name="planner_event">The event switch is on, so upgrades not started yet are %1$d%% off. Supercharges stay at full price.</string>
+    <string name="planner_event">Hammer Jam is on, so upgrades not started yet are %1$d%% off. Supercharges stay at full price.</string>
     <string name="planner_percent">%1$d%%</string>
+    <string name="planner_gold_pass_label">Gold Pass boost</string>
+    <string name="planner_gold_pass_off">Off</string>
+    <string name="planner_gold_pass_option">Gold Pass boost %1$s</string>
+    <string name="planner_gold_pass">Gold Pass boost %1$d%%: builder and lab upgrades not started yet take %1$d%% less time and cost. It goes back to Off when the season ends.</string>
     <string name="planner_group_done">Done</string>
     <string name="planner_count">×%1$d</string>
     <string name="planner_max">Max %1$d</string>
@@ -399,7 +401,18 @@
     <string name="progress_built">New, level %1$d</string>
     <string name="progress_supercharge">Supercharge %1$d → %2$d</string>
     <string name="progress_copies">%1$s ×%2$d</string>
-    <string name="progress_notes">Worked out from every import since this page was added, one point a day, each against its own Town Hall with today\'s game data. A new Town Hall adds more to do, so the line starts again lower. Time to max is with every builder busy, at full price. Walls and equipment take no time, so they\'re left out of the share done. Finished compares the levels in the two imports, so an upgrade shows there once it\'s done, not when it starts.</string>
+    <string name="progress_upgrades_title">Upgrades per week</string>
+    <string name="progress_idle_title">Idle time per week</string>
+    <string name="progress_week">Week of %1$s</string>
+    <string name="progress_week_none">Week of %1$s · No two imports span it</string>
+    <string name="progress_idle_none">none</string>
+    <string name="progress_hours">%1$dh</string>
+    <string name="progress_section_builders">Builders</string>
+    <string name="progress_section_lab">Lab</string>
+    <string name="progress_section_pets">Pets</string>
+    <string name="progress_upgrades_description">Upgrade levels finished each week: %1$s</string>
+    <string name="progress_idle_description">Builder time idle each week: %1$s</string>
+    <string name="progress_notes">Worked out from every import since this page was added, one point a day, each against its own Town Hall with today\'s game data. A new Town Hall adds more to do, so the line starts again lower. Time to max is with every builder busy, at full price. Walls and equipment take no time, so they\'re left out of the share done. Finished compares the levels in the two imports, so an upgrade shows there once it\'s done, not when it starts. Upgrades per week counts levels finished, walls and equipment left out, in the week of the import that first shows them. Idle time is worked out from each two imports in a row and adds up every builder, so two builders idle for an hour is 2h. Upgrades are taken at normal speed, so potions, helpers and the Gold Pass make idle time read lower than it was, never higher.</string>
     <string name="bedtime_open">Bedtime planner</string>
     <string name="bedtime_sleep">You sleep from</string>
     <string name="bedtime_to">to</string>

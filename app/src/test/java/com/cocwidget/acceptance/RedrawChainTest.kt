@@ -31,8 +31,11 @@ class RedrawChainTest {
     private val app get() = RuntimeEnvironment.getApplication()
     private val manager get() = AppWidgetManager.getInstance(app)
 
+    // Placing starts a redraw on another thread. It's waited for, as it would otherwise swap the
+    // widget's views while the test reads them.
     private fun placed(tag: String): Int {
         val id = shadowOf(manager).createWidget(VillageWidget::class.java, R.layout.widget)
+        VillageWidget.lastRefresh?.join()
         Store.setWidgetAccount(app, id, tag)
         return id
     }
@@ -51,10 +54,11 @@ class RedrawChainTest {
         val tag = Store.saveExport(app, TestData.th18ExportJson())
         broken(tag)
         val good = placed(tag)
-        val before = Screens.texts(shadowOf(manager).getViewFor(good))
+        // A new name shows only if this redraw reaches the healthy widget after the broken one.
+        Store.setDisplayName(app, tag, "Redrawn")
+        assertFalse(Screens.texts(shadowOf(manager).getViewFor(good)).contains("Redrawn"))
         WidgetRenderer.update(app) { null }
-        val after = Screens.texts(shadowOf(manager).getViewFor(good))
-        assertTrue("the healthy widget was drawn", after != before && after.contains(Store.label(app, tag)))
+        assertTrue("the healthy widget was drawn", Screens.texts(shadowOf(manager).getViewFor(good)).contains("Redrawn"))
     }
 
     @Test

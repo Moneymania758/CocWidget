@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.TextView
 import com.cocwidget.game.GameData
 import com.cocwidget.game.GameItem
+import com.cocwidget.game.Section
 import com.cocwidget.plan.Finished
 import com.cocwidget.plan.FinishedUpgrade
 import com.cocwidget.plan.PlanFormat
@@ -13,6 +15,7 @@ import com.cocwidget.plan.Planner
 import com.cocwidget.plan.Progress
 import com.cocwidget.plan.ProgressMeasure
 import com.cocwidget.plan.ProgressPoint
+import com.cocwidget.plan.Week
 import com.cocwidget.store.Icons
 import com.cocwidget.store.ImportHistory
 import com.cocwidget.store.ProgressHistory
@@ -23,6 +26,7 @@ import com.cocwidget.ui.ProgressText
 import com.cocwidget.ui.Screen
 import com.cocwidget.ui.Skin
 import com.cocwidget.ui.TimeText
+import com.cocwidget.ui.WeekChart
 import java.time.ZoneId
 import kotlin.concurrent.thread
 
@@ -41,6 +45,8 @@ class ProgressActivity : Screen() {
     // The day picked on the chart, by its import's time, so it survives the page being made again.
     private var pickedAt: Long? = null
     private var measure = ProgressMeasure.DONE
+    // The week picked on the weekly charts, by its Monday's day number. Both charts share it.
+    private var pickedWeek: Long? = null
     private val pictures = Pictures(this)
 
     // A rotation makes the page again, so the day picked and what the chart plots are kept.
@@ -49,12 +55,14 @@ class ProgressActivity : Screen() {
         if (savedInstanceState == null) return
         pickedAt = savedInstanceState.getLong(STATE_PICKED, -1).takeIf { it >= 0 }
         measure = ProgressMeasure.entries.getOrNull(savedInstanceState.getInt(STATE_MEASURE)) ?: ProgressMeasure.DONE
+        pickedWeek = savedInstanceState.getLong(STATE_WEEK, Long.MIN_VALUE).takeIf { it != Long.MIN_VALUE }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         pickedAt?.let { outState.putLong(STATE_PICKED, it) }
         outState.putInt(STATE_MEASURE, measure.ordinal)
+        pickedWeek?.let { outState.putLong(STATE_WEEK, it) }
     }
 
     override fun build() {
@@ -80,6 +88,7 @@ class ProgressActivity : Screen() {
         content.addView(ui.card().also { fillChart(it, all) }, ui.matchWidth(12))
         val finished = loaded?.finished
         if (earlier != null && finished != null) content.addView(finishedCard(plan, latest, earlier, finished, items), ui.matchWidth(12))
+        if (all != null && all.any { it.since != null }) addWeekCards(Progress.weekly(all, ZoneId.systemDefault()))
         addNote(getString(R.string.progress_notes))
         pictures.load()
     }
@@ -87,7 +96,10 @@ class ProgressActivity : Screen() {
     private fun load(tag: String, json: String, latestAt: Long, key: String) {
         // A new import or account starts on its last day. The first load keeps a day kept over a
         // rotation.
-        if (loadedFor != null) pickedAt = null
+        if (loadedFor != null) {
+            pickedAt = null
+            pickedWeek = null
+        }
         loaded = null
         loadedFor = key
         val app = applicationContext
@@ -246,10 +258,72 @@ class ProgressActivity : Screen() {
         addView(ui.text(levels, 14f, ui.skin.accent, bold = true).apply { gravity = Gravity.END }, ui.wrap().apply { marginStart = ui.dp(10) })
     }
 
+    // Upgrades finished and idle time, a bar a week. Picking a week on either picks it on both.
+    private fun addWeekCards(weeks: List<Week>) {
+        val start = weeks.indexOfFirst { it.start.toEpochDay() == pickedWeek }.takeIf { it >= 0 } ?: weeks.lastIndex
+        val upgradesLine = ui.text(levelsText(weeks[start]), 13f, ui.skin.dim)
+        val idleLine = ui.text(idleText(weeks[start]), 13f, ui.skin.dim)
+        val charts = ArrayList<WeekChart>()
+        val pick = { index: Int ->
+            pickedWeek = weeks[index].start.toEpochDay()
+            for (chart in charts) chart.selected = index
+            upgradesLine.text = levelsText(weeks[index])
+            idleLine.text = idleText(weeks[index])
+        }
+        val light = ui.skin == Skin.LIGHT
+        val upgrades = weeks.map { week -> if (week.covered) week.levels.values.sum().toFloat() else null }
+        val idle = weeks.map { week -> if (week.covered) (week.idleSeconds[Section.BUILDERS] ?: 0) / 3_600f else null }
+        charts += WeekChart(this, weeks, upgrades, { "$it" }, light, pick).apply {
+            contentDescription = getString(R.string.progress_upgrades_description, describe(weeks, upgrades) { "${it.toInt()}" })
+        }
+        charts += WeekChart(this, weeks, idle, { getString(R.string.progress_hours, it) }, light, pick).apply {
+            contentDescription = getString(R.string.progress_idle_description, describe(weeks, idle) { PlanFormat.duration((it * 3_600).toLong()) })
+        }
+        for (chart in charts) chart.selected = start
+        content.addView(weekCard(R.string.progress_upgrades_title, upgradesLine, charts[0]), ui.matchWidth(12))
+        content.addView(weekCard(R.string.progress_idle_title, idleLine, charts[1]), ui.matchWidth(12))
+    }
+
+    private fun weekCard(title: Int, line: TextView, chart: WeekChart) = ui.card().apply {
+        addView(ui.heading(getString(title), headingSize()))
+        addView(line, ui.matchWidth(8))
+        addView(chart, ui.matchWidth(8))
+    }
+
+    // "Week of 9 Nov · Builders 7 · Lab 4 · Pets 1"
+    private fun levelsText(week: Week): String = weekLine(week) { section -> "${week.levels[section] ?: 0}" }
+
+    // "Week of 9 Nov · Builders 14h · Lab 3h · Pets none"
+    private fun idleText(week: Week): String = weekLine(week) { section ->
+        val seconds = week.idleSeconds[section] ?: 0
+        if (seconds < 60) getString(R.string.progress_idle_none) else PlanFormat.duration(seconds)
+    }
+
+    private fun weekLine(week: Week, value: (Section) -> String): String {
+        val day = TimeText.day(week.start.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli())
+        if (!week.covered) return getString(R.string.progress_week_none, day)
+        val parts = week.idleSeconds.keys.sortedBy { it.ordinal }.map { section -> getString(sectionName(section)) + " " + value(section) }
+        return (listOf(getString(R.string.progress_week, day)) + parts).joinToString(" · ")
+    }
+
+    private fun sectionName(section: Section) = when (section) {
+        Section.LAB -> R.string.progress_section_lab
+        Section.PETS -> R.string.progress_section_pets
+        else -> R.string.progress_section_builders
+    }
+
+    // "2 Nov 5, 9 Nov 12", leaving out weeks no imports span.
+    private fun describe(weeks: List<Week>, values: List<Float?>, format: (Float) -> String) =
+        weeks.indices.mapNotNull { index ->
+            val value = values[index] ?: return@mapNotNull null
+            TimeText.day(weeks[index].start.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()) + " " + format(value)
+        }.joinToString(", ")
+
     private fun headingSize() = if (ui.skin.headingFont != null) 18f else 15f
 
     private companion object {
         const val STATE_PICKED = "picked_at"
         const val STATE_MEASURE = "measure"
+        const val STATE_WEEK = "week"
     }
 }

@@ -101,6 +101,17 @@ object EventSchedule {
         }.sortedBy { it.target }
     }
 
+    // When the season holding [now] started: the 1st of the month at the season hour, UTC.
+    fun seasonStart(now: Long): Long {
+        val today = Instant.ofEpochMilli(now).atZone(ZoneOffset.UTC).toLocalDate()
+        val start = at(today.withDayOfMonth(1), SEASON_HOUR)
+        return if (now >= start) start else at(today.withDayOfMonth(1).minusMonths(1), SEASON_HOUR)
+    }
+
+    // Whether an event of [kind] is on at [now], from the dates downloaded or bundled.
+    fun running(kind: EventKind, now: Long, dates: EventDates.Dates): Boolean =
+        occurrences(now, dates).any { it.kind == kind && it.start <= now && it.end != null && it.end > now }
+
     private fun occurrences(now: Long, dates: EventDates.Dates): List<Occurrence> {
         val replaced = dates.events.map { it.id }.toSet() + dates.cancelled
         return rules(now).filter { it.id !in replaced } + dates.events

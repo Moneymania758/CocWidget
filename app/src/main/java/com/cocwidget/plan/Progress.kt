@@ -1,26 +1,36 @@
 package com.cocwidget.plan
 
 import com.cocwidget.game.GameItem
+import com.cocwidget.game.Section
 import com.cocwidget.game.VillageParser
 import com.cocwidget.plan.Planner.Group
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.time.DayOfWeek
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import kotlin.math.ceil
 import kotlin.math.floor
 
 // How far one import was towards max at its own Town Hall. [done] is the share of upgrade time
 // done (see Planner.Plan.timeDone), [groups] each group's share as Time to max shows it, and
-// [maxSeconds] the time to max with every builder busy, at full price.
+// [maxSeconds] the time to max with every builder busy, at full price. [since] is what happened
+// after the import before it, null for the first.
 data class ProgressPoint(
     val exportedAtMillis: Long,
     val townHall: Int,
     val done: Float,
     val groups: Map<Group, Float>,
     val maxSeconds: Long,
+    val since: Between? = null,
 )
+
+// One week, Monday first: upgrade levels finished in each section, counted in the week of the
+// import that first shows them, and idle time, shared over the weeks between two imports by how
+// much of the gap fell in each. [covered] is false when no two imports span any of it.
+class Week(val start: LocalDate, val levels: Map<Section, Int>, val idleSeconds: Map<Section, Long>, val covered: Boolean)
 
 // What the Progress chart plots: the share done in percent, or the days to max.
 enum class ProgressMeasure {
@@ -88,6 +98,47 @@ object Progress {
         return runs
     }
 
+    // The [count] weeks up to the latest import's, oldest first.
+    fun weekly(points: List<ProgressPoint>, zone: ZoneId, count: Int = WEEKS): List<Week> {
+        val latest = points.maxOfOrNull { it.exportedAtMillis } ?: return emptyList()
+        val last = weekOf(latest, zone)
+        val starts = (count - 1 downTo 0).map { last.minusWeeks(it.toLong()) }
+        val levels = starts.associateWith { HashMap<Section, Int>() }
+        val idle = starts.associateWith { HashMap<Section, Double>() }
+        val covered = HashSet<LocalDate>()
+        for (point in points) {
+            val since = point.since ?: continue
+            levels[weekOf(point.exportedAtMillis, zone)]?.let { week -> for ((section, n) in since.levels) week.merge(section, n, Int::plus) }
+            val span = (point.exportedAtMillis - since.previousAt).toDouble()
+            if (span <= 0) continue
+            for (start in starts) {
+                val from = start.atStartOfDay(zone).toInstant().toEpochMilli()
+                val to = start.plusWeeks(1).atStartOfDay(zone).toInstant().toEpochMilli()
+                val overlap = minOf(to, point.exportedAtMillis) - maxOf(from, since.previousAt)
+                if (overlap <= 0) continue
+                covered += start
+                val week = idle.getValue(start)
+                for ((section, seconds) in since.idleSeconds) week.merge(section, seconds * overlap / span, Double::plus)
+            }
+        }
+        return starts.map { start ->
+            Week(start, levels.getValue(start), idle.getValue(start).mapValues { Math.round(it.value) }, start in covered)
+        }
+    }
+
+    private fun weekOf(millis: Long, zone: ZoneId): LocalDate =
+        Instant.ofEpochMilli(millis).atZone(zone).toLocalDate().with(DayOfWeek.MONDAY)
+
+    // Nice round lines for a bar chart starting at 0: at most five steps up to just over [high].
+    fun barTicks(high: Float): List<Int> {
+        val step = BAR_STEPS.firstOrNull { high / it <= 4 } ?: BAR_STEPS.last()
+        val top = maxOf(step, (ceil(high / step) * step).toInt())
+        return (0..top step step).toList()
+    }
+
+    private val BAR_STEPS = listOf(1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000)
+    const val WEEKS = 8
+
     // The chart's percent lines: a round step from just under the lowest share to just over the
     // highest, within 0 to 100. A line that barely moves still fills the chart.
     fun ticks(low: Float, high: Float): List<Int> {
@@ -133,7 +184,14 @@ object Progress {
                     .put("th", point.townHall)
                     .put("done", point.done.toDouble())
                     .put("max", point.maxSeconds)
-                    .put("groups", JSONObject().apply { for ((group, done) in point.groups) put(group.key, done.toDouble()) }))
+                    .put("groups", JSONObject().apply { for ((group, done) in point.groups) put(group.key, done.toDouble()) })
+                    .apply {
+                        val since = point.since ?: return@apply
+                        put("since", JSONObject()
+                            .put("prev", since.previousAt)
+                            .put("levels", JSONObject().apply { for ((section, n) in since.levels) put(section.name, n) })
+                            .put("idle", JSONObject().apply { for ((section, seconds) in since.idleSeconds) put(section.name, seconds) }))
+                    })
             }
         })
         .toString()
@@ -154,10 +212,21 @@ object Progress {
                     done = entry.getDouble("done").toFloat(),
                     groups = groups.keys().asSequence().mapNotNull { key -> Group.of(key)?.let { it to groups.getDouble(key).toFloat() } }.toMap(),
                     maxSeconds = entry.getLong("max"),
+                    since = entry.optJSONObject("since")?.let { since ->
+                        val levels = since.getJSONObject("levels")
+                        val idle = since.getJSONObject("idle")
+                        Between(
+                            previousAt = since.getLong("prev"),
+                            levels = levels.keys().asSequence().mapNotNull { key -> sectionOf(key)?.let { it to levels.getInt(key) } }.toMap(),
+                            idleSeconds = idle.keys().asSequence().mapNotNull { key -> sectionOf(key)?.let { it to idle.getLong(key) } }.toMap(),
+                        )
+                    },
                 )
             }.associateBy { it.exportedAtMillis }
         }
     } catch (_: JSONException) {
         emptyMap()
     }
+
+    private fun sectionOf(name: String) = Section.entries.firstOrNull { it.name == name }
 }

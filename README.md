@@ -73,16 +73,23 @@ which account it was, such as **Main imported** (or the tag, until you name it).
   anywhere else opens the app on the account it's showing.
 - **Notifications** carry the account's name when you have more than one.
 
-## During Hammer Jam (or any event that halves upgrade times)
+## During Hammer Jam
 
-Open the app and turn on **Event: 50% off upgrade times** when the event starts, and turn it off
-when it ends. Upgrades you start while it's on then get the right progress bar. Without it,
-their bar starts half full, because the widget expects the normal upgrade time. Supercharges,
-crafted defences and the Builder Base aren't discounted, so the app keeps those at full time.
+Nothing to switch on. The app knows Hammer Jam's dates (the same ones its reminders use), so
+while it runs, upgrades you start get the right progress bar, and Time to max and Bedtime count
+upgrades not started yet at half time and half cost. Supercharges, crafted defences and the
+Builder Base aren't discounted, so the app keeps those at full time.
 
 Timers and notifications are right either way: they use the real time left from your export.
-Leaving the switch on by mistake does no harm, because a full-price upgrade has more time left
-than a discounted one could, so it's never halved.
+
+## Gold Pass boost
+
+The export doesn't say whether an account has the Gold Pass, so pick its boost on Time to max:
+**Off**, **10%**, **15%** or **20%**. Each account has its own, and it goes back to Off when the
+season ends. Time to max and Bedtime then count builder and lab upgrades not started yet at
+that much less time and cost (after Hammer Jam's half, when both apply), and builder and lab
+upgrades you start with it get the right progress bar. Pets and equipment stay at full price.
+Pick it before you import, so the upgrades in that import are counted with it.
 
 ## Event countdowns and reminders
 
@@ -167,7 +174,8 @@ is maxed. It uses your last import, so import first for an up-to-date answer.
   as **Lv 10 → 11**. **Max 6** on the right is the highest level your Town Hall allows.
 - Times are at normal speed, without potions, helpers or the Goblin. An upgrade that's already
   running counts the time it has left, and not its cost, which you've paid.
-- With the event switch on, upgrades you haven't started are counted at half time and half cost.
+- During Hammer Jam, upgrades you haven't started are counted at half time and half cost, and the
+  Gold Pass boost you pick takes its share off builder and lab upgrades.
 - Buildings that merge (two Cannons into a Ricochet Cannon, for example) count as the merged
   building. The copies still to be merged only need the level the merge asks for.
 
@@ -182,6 +190,28 @@ is maxed. It uses your last import, so import first for an up-to-date answer.
 
 Not counted yet: the Builder Base, Crafted Defences, and the gear-ups some TH17 and TH18 merges
 need.
+
+## Progress
+
+Every import is kept, so the app can show how an account moves. Under the summary on Time to
+max, a card gives the share of upgrade time done at your Town Hall and how much it moved since
+the first import in the last 30 days (or the one before, if none is that recent). Tap it for the
+Progress page:
+
+- **Summary:** the share done, the change, and time to max then and now.
+- **Over time:** a line with one point a day, switchable between % done and time to max. A new
+  Town Hall starts a new stretch, labelled where it starts. Tap or drag to pick a day.
+- **Finished since:** every upgrade done between the earlier import and the latest, by group.
+- **Upgrades per week:** levels finished each week, walls and equipment left out, counted in
+  the week of the import that first shows them.
+- **Idle time per week:** about how long builders sat with nothing to do, added up over every
+  builder, worked out from each two imports in a row. Upgrades are taken at normal speed, so
+  potions, helpers and the Gold Pass make it read lower than it was, never higher. Picking a
+  week on either chart picks it on both, with the lab and pets in the line above.
+
+History starts with the first import on a version that has it (an account's last import from
+before then is kept too). Imports are kept gzipped, about 1.5 KB each, and go with the account
+when you remove it.
 
 ## Bedtime planner
 
@@ -395,8 +425,15 @@ For updates, questions and chat with other players, join the
   the installed `versionName`.
 - Event discount: each upgrade gets an id that carries over between syncs, matched by predicting
   its time left from the previous export (time left only ever goes down). Unmatched upgrades are
-  new, and with the switch on their progress bar total is halved, unless they have more time
-  left than half the total.
+  new, and their progress bar total is cut to what they'd have cost when started: half while
+  Hammer Jam's dates say it's on, less the account's Gold Pass boost for builder and lab
+  upgrades. One with more time left than that total keeps the full time. The percent is kept
+  with each upgrade's id (`discounted_upgrades`, "id=percent", an id alone being Hammer Jam's
+  half from before).
+- History: `ImportHistory` keeps each export at `files/history/<account>/<timestamp>.json.gz`.
+  `ProgressHistory` works out each import's figures once (share done, groups, time to max at
+  full price, and `Between` against the import before it) and keeps them in `progress.json`
+  beside them, worked out again when the app's versionCode changes, as the game data may have.
 - Progress bars use per-level upgrade times bundled in `app/src/main/assets/coc_data.json`.
 - App screens (not the widget) are built in code by `Ui` in the chosen `Skin`, because the three
   looks differ in borders, raised edges and fonts, not only colours. The Game look uses the Lilita
@@ -418,7 +455,8 @@ For updates, questions and chat with other players, join the
   three colours checked for colour blindness and contrast against it.
 - Accounts: each export is filed under its `tag` in its own preferences file
   (`account_<tag>`), holding the export, boost answers, name, folded sections and notification
-  record. Theme, event switch and update check stay app-wide in `village`. Each widget's account
+  record, and the Gold Pass boost with the season it was picked in. Theme and update check stay
+  app-wide in `village`. Each widget's account
   is stored by widget id, and a widget with none (or a removed one) shows the first account
   synced. Up to 1.9.1 the single account lived in `village`. It's moved on first use after the
   update (`Store.migrate`, tested in `AccountsTest`).

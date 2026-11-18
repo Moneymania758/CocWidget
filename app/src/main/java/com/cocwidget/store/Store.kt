@@ -6,7 +6,9 @@ import android.content.SharedPreferences
 import com.cocwidget.bases.BasePictures
 import com.cocwidget.bases.MyBases
 import com.cocwidget.bases.SavedBase
+import com.cocwidget.events.EventDates
 import com.cocwidget.events.EventKind
+import com.cocwidget.events.EventSchedule
 import com.cocwidget.game.EventDiscount
 import com.cocwidget.game.Section
 import com.cocwidget.game.Village
@@ -33,7 +35,6 @@ object Store {
     private const val KEY_LAST_UPDATE_CHECK = "last_update_check"
     private const val KEY_LATEST_VERSION = "latest_version"
     private const val KEY_ASKED_NOTIFICATIONS = "asked_notifications"
-    private const val KEY_EVENT_ON = "event_discount_on"
     private const val KEY_REMINDER = "event_reminder_"
     private const val KEY_REMINDER_SINCE = "event_reminder_since_"
     private const val KEY_REMINDERS_STARTED = "event_reminders_started"
@@ -61,6 +62,8 @@ object Store {
     // The big widget's view, by WidgetView name. Newer than any 1.9.1 install, so not moved.
     private const val KEY_WIDGET_VIEW = "widget_view"
     private const val KEY_MAXED_HIDDEN = "maxed_hidden"
+    private const val KEY_GOLD_PASS = "gold_pass"
+    private const val KEY_GOLD_PASS_SEASON = "gold_pass_season"
     private const val KEY_QUIET_NIGHTS = "quiet_nights"
     // When the player last cleared finished upgrades. 2.12.1 kept one time for every section,
     // later versions keep one per section, as the widget clears only its view. Newer than any
@@ -238,12 +241,13 @@ object Store {
         val previous = rawVillage(context, tag)
         val current = VillageParser.parse(context, json)
         val tracked = current?.let {
-            EventDiscount.track(previous, upgradeIds(context, tag), discountedUpgrades(context, tag), it, eventOn(context))
+            val at = it.exportedAtMillis
+            EventDiscount.track(previous, upgradeIds(context, tag), discountedUpgrades(context, tag), it, eventOn(context, at), goldPass(context, tag, at))
         }
         account(context, tag).edit()
             .putString(KEY_EXPORT, json)
             .putString(KEY_UPGRADE_IDS, tracked?.ids.orEmpty().joinToString("\n"))
-            .putStringSet(KEY_DISCOUNTED, tracked?.discounted.orEmpty())
+            .putStringSet(KEY_DISCOUNTED, tracked?.discounted.orEmpty().map { (id, percent) -> "$id=$percent" }.toSet())
             .remove(KEY_CLEARED_AT)
             .apply { Section.entries.forEach { remove(KEY_CLEARED_AT_SECTION + it.name) } }
             .apply()
@@ -298,13 +302,27 @@ object Store {
     private fun upgradeIds(context: Context, tag: String): List<String> =
         account(context, tag).getString(KEY_UPGRADE_IDS, null)?.takeIf { it.isNotEmpty() }?.split("\n").orEmpty()
 
-    private fun discountedUpgrades(context: Context, tag: String): Set<String> =
-        account(context, tag).getStringSet(KEY_DISCOUNTED, emptySet()).orEmpty()
+    // Each as "id=percent". Before the Gold Pass boost only Hammer Jam's half was kept, as the id
+    // alone.
+    private fun discountedUpgrades(context: Context, tag: String): Map<String, Int> =
+        account(context, tag).getStringSet(KEY_DISCOUNTED, emptySet()).orEmpty().associate { entry ->
+            val split = entry.lastIndexOf('=')
+            if (split < 0) entry to 100 - EventDiscount.PERCENT else entry.substring(0, split) to (entry.substring(split + 1).toIntOrNull() ?: 100)
+        }
 
-    fun eventOn(context: Context): Boolean = prefs(context).getBoolean(KEY_EVENT_ON, false)
+    // Hammer Jam's half price, while the event dates say one is on.
+    fun eventOn(context: Context, now: Long = System.currentTimeMillis()): Boolean =
+        EventSchedule.running(EventKind.HAMMER_JAM, now, EventDates.current(context))
 
-    fun setEventOn(context: Context, on: Boolean) {
-        prefs(context).edit().putBoolean(KEY_EVENT_ON, on).apply()
+    // The account's Gold Pass boost this season: 0, 10, 15 or 20. Each account buys and levels
+    // its own pass, and a new season starts it again at 0.
+    fun goldPass(context: Context, tag: String, now: Long = System.currentTimeMillis()): Int {
+        val stored = account(context, tag)
+        return if (stored.getLong(KEY_GOLD_PASS_SEASON, -1) == EventSchedule.seasonStart(now)) stored.getInt(KEY_GOLD_PASS, 0) else 0
+    }
+
+    fun setGoldPass(context: Context, tag: String, percent: Int, now: Long = System.currentTimeMillis()) {
+        account(context, tag).edit().putInt(KEY_GOLD_PASS, percent).putLong(KEY_GOLD_PASS_SEASON, EventSchedule.seasonStart(now)).apply()
     }
 
     fun eventReminderOn(context: Context, kind: EventKind): Boolean =

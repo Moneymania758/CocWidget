@@ -47,7 +47,6 @@ class SettingsActivity : Screen() {
         content.addView(settings.quietNights(), ui.matchWidth(10))
         section(R.string.settings_events)
         content.addView(settings.eventReminders(), ui.matchWidth(8))
-        content.addView(settings.eventDiscount(), ui.matchWidth(10))
         section(R.string.help_title)
         content.addView(HelpCard(this, ui, installedVersion(), open).build(), ui.matchWidth(8))
         ShareCard(this, ui, installedVersion()).build()?.let { content.addView(it, ui.matchWidth(10)) }

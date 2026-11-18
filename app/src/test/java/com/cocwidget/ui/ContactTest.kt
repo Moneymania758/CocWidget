@@ -13,7 +13,7 @@ class ContactTest {
         val json = TestData.exportJson()
         val body = Contact.exportBody("Clash Timers 2.5, Android 15, Pixel 8", true, Store.withoutTag(json))
         assertTrue("Clash Timers 2.5, Android 15, Pixel 8" in body)
-        assertTrue("Hammer Jam switch on" in body)
+        assertTrue("Hammer Jam on" in body)
         assertTrue(body.endsWith(Store.withoutTag(json)))
         assertFalse(Store.tagOf(json) in body)
     }

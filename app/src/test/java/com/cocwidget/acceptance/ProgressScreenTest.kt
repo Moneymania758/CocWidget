@@ -16,10 +16,12 @@ import com.cocwidget.ui.ProgressChart
 import com.cocwidget.ui.ProgressText
 import com.cocwidget.ui.Skin
 import com.cocwidget.ui.TimeText
+import com.cocwidget.ui.WeekChart
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -211,6 +213,48 @@ class ProgressScreenTest {
         assertTrue(texts(screen).contains("${TimeText.day((today - 20 * day) * 1000)} · Town Hall 16 · ${ProgressText.percent(point(first).done)}"))
     }
 
+    // Upgrades per week and idle time, from the two imports a few weeks apart.
+    @Test
+    fun theWeeksShowUpgradesAndIdleTime() {
+        import(export(today - 20 * day, 93, 45))
+        import(export(today, 95))
+        val screen = loaded()
+        val monday = java.time.LocalDate.of(2026, 11, 9).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val shown = texts(screen)
+        assertTrue(shown.contains("Upgrades per week"))
+        assertTrue(shown.contains("Idle time per week"))
+        // Two Queen and two Prince levels, both builder jobs, in the week of the later import.
+        assertTrue(shown.contains("Week of ${TimeText.day(monday)} · Builders 4 · Lab 0 · Pets 0"))
+        assertTrue(shown.any { it.startsWith("Week of ${TimeText.day(monday)} · Builders ") && it != "Week of ${TimeText.day(monday)} · Builders 4 · Lab 0 · Pets 0" })
+
+        // Picking the first week on one chart picks it on both. No two imports span it.
+        val charts = Screens.views<WeekChart>(Screens.root(screen))
+        assertEquals(2, charts.size)
+        Screens.touch(charts[0], MotionEvent.ACTION_DOWN, 1f, charts[0].height / 2f)
+        Screens.touch(charts[0], MotionEvent.ACTION_UP, 1f, charts[0].height / 2f)
+        assertEquals(listOf(0, 0), charts.map { it.selected })
+        val first = java.time.LocalDate.of(2026, 9, 21).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        assertEquals(2, texts(screen).count { it == "Week of ${TimeText.day(first)} · No two imports span it" })
+        assertNull(charts[0].values[0])
+    }
+
+    // Each import is against the one before it, so an older one imported late moves the next one's.
+    @Test
+    fun anOlderExportImportedLateIsWorkedIn() {
+        import(export(today))
+        assertNull(ProgressHistory.all(app, tag).single().since)
+        Store.saveExport(app, export(today - 20 * day, 93))
+        val points = ProgressHistory.all(app, tag)
+        assertEquals((today - 20 * day) * 1000, points.last().since!!.previousAt)
+        assertEquals(2, points.last().since!!.levels.getValue(com.cocwidget.game.Section.BUILDERS))
+    }
+
+    @Test
+    fun oneImportHasNoWeeks() {
+        import(export(today))
+        assertFalse(texts(loaded()).contains("Upgrades per week"))
+    }
+
     // Android Claude found a rotation put the pick back on the last day.
     @Test
     fun aRotationKeepsThePickedDayAndWhatsPlotted() {
@@ -230,8 +274,13 @@ class ProgressScreenTest {
         Screens.touch(chart, MotionEvent.ACTION_DOWN, 1f, chart.height / 2f)
         Screens.touch(chart, MotionEvent.ACTION_UP, 1f, chart.height / 2f)
 
+        val week = Screens.views<WeekChart>(Screens.root(screen)).first()
+        Screens.touch(week, MotionEvent.ACTION_DOWN, 1f, week.height / 2f)
+        Screens.touch(week, MotionEvent.ACTION_UP, 1f, week.height / 2f)
+
         controller.recreate()
         val again = ready()
+        assertEquals(listOf(0, 0), Screens.views<WeekChart>(Screens.root(again)).map { it.selected })
         val redrawn = Screens.views<ProgressChart>(Screens.root(again)).single()
         assertEquals(0, redrawn.selected)
         assertEquals(ProgressMeasure.MAX, redrawn.measure)

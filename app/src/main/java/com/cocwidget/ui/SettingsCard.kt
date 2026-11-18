@@ -49,9 +49,6 @@ class SettingsCard(
         })
     }
 
-    // The half-price switch for Hammer Jam and the like.
-    fun eventDiscount(): View = ui.card(0).apply { addView(eventRow()) }
-
     // A switch for each game event, with when its next reminder is due.
     fun eventReminders(): View = ui.card(0).apply {
         addView(ui.heading(activity.getString(R.string.event_reminders_title), 16f, ui.skin.accent).apply {
@@ -144,12 +141,6 @@ class SettingsCard(
             }
         }, ui.matchWidth(10))
     }
-
-    private fun eventRow() = switchRow(
-        activity.getString(R.string.event_switch),
-        activity.getString(R.string.event_explain),
-        Store.eventOn(activity),
-    ) { on -> Store.setEventOn(activity, on) }
 
     private fun switchRow(title: String, detail: String, checked: Boolean, onChange: (Boolean) -> Unit) = LinearLayout(activity).apply {
         orientation = LinearLayout.HORIZONTAL

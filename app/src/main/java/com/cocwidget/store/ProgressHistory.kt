@@ -2,6 +2,7 @@ package com.cocwidget.store
 
 import android.content.Context
 import com.cocwidget.game.GameData
+import com.cocwidget.plan.Betweens
 import com.cocwidget.plan.Progress
 import com.cocwidget.plan.ProgressPoint
 import java.io.File
@@ -23,10 +24,24 @@ object ProgressHistory {
         val version = appVersion(context)
         val kept = Progress.parse(file.takeIf { it.exists() }?.readText(), version)
         val items = GameData.all(context)
-        val points = ImportHistory.entries(dir).mapNotNull { entry ->
-            kept[entry.exportedAtMillis] ?: ImportHistory.read(entry)?.let { Progress.point(it, items) }
+        val points = ArrayList<ProgressPoint>()
+        // Each against the import before it, so an older export imported late is worked in.
+        var previous: ImportHistory.Entry? = null
+        for (entry in ImportHistory.entries(dir)) {
+            val keptPoint = kept[entry.exportedAtMillis]
+            val point = if (keptPoint != null && keptPoint.since?.previousAt == previous?.exportedAtMillis) {
+                keptPoint
+            } else {
+                val json = ImportHistory.read(entry)
+                val base = keptPoint ?: json?.let { Progress.point(it, items) }
+                val before = previous?.let(ImportHistory::read)
+                base?.copy(since = if (json != null && before != null) Betweens.of(before, json, items) else null)
+            }
+            if (point == null) continue
+            points += point
+            previous = entry
         }
-        if (points.map { it.exportedAtMillis }.toSet() != kept.keys) write(dir, file, Progress.toJson(points, version))
+        if (points != kept.values.sortedBy { it.exportedAtMillis }) write(dir, file, Progress.toJson(points, version))
         return points
     }
 

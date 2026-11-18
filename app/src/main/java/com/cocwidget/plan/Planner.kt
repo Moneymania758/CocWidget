@@ -121,23 +121,35 @@ object Planner {
         val supercharge: Int = 0,
     )
 
-    // Returns null when [text] isn't a village export. [eventPercent] comes off the time and cost
-    // of every upgrade not started yet, as during Hammer Jam. Supercharges stay at full price.
-    fun plan(text: String, items: Map<Int, GameItem>, builders: Int, eventPercent: Int = 0): Plan? {
+    // What an upgrade not started yet costs in time and resources, as a percent of full price.
+    // [eventPercent] comes off everything but equipment, as during Hammer Jam. The Gold Pass
+    // boost, [goldPassPercent], comes off builder and lab upgrades, after any event's cut.
+    // Supercharges stay at full price.
+    class Prices(private val eventPercent: Int = 0, private val goldPassPercent: Int = 0) {
+        fun percentFor(group: Group): Int {
+            if (group == Group.EQUIPMENT) return 100
+            val event = 100 - eventPercent
+            return if (group.usesBuilders || group == Group.LAB) event * (100 - goldPassPercent) / 100 else event
+        }
+    }
+
+    // Returns null when [text] isn't a village export.
+    fun plan(text: String, items: Map<Int, GameItem>, builders: Int, eventPercent: Int = 0, goldPassPercent: Int = 0): Plan? {
         val export = read(text, items) ?: return null
-        return summarise(items, export, builders, 100 - eventPercent)
+        return summarise(items, export, builders, Prices(eventPercent, goldPassPercent))
     }
 
     // What could start next: each copy's next level, leaving out copies being upgraded, instant
     // levels (walls), which keep nobody busy, and levels the Lab, Pet House or Hero Hall isn't
     // high enough for yet.
-    fun nextSteps(text: String, items: Map<Int, GameItem>, eventPercent: Int = 0): List<Step>? {
+    fun nextSteps(text: String, items: Map<Int, GameItem>, eventPercent: Int = 0, goldPassPercent: Int = 0): List<Step>? {
         val export = read(text, items) ?: return null
-        val pricePercent = 100 - eventPercent
+        val prices = Prices(eventPercent, goldPassPercent)
         val steps = ArrayList<Step>()
         for ((id, list) in export.copies) {
             val item = items.getValue(id)
             val group = Group.of(item.group) ?: continue
+            val pricePercent = prices.percentFor(group)
             val waiting = list.filter { it.timer == 0L && it.level < it.target }
             for ((level, same) in waiting.groupBy { it.level }) {
                 if ((export.built[item.requires] ?: 0) < item.requiredLevelFor(level + 1)) continue
@@ -270,7 +282,7 @@ object Planner {
         }
     }
 
-    private fun summarise(items: Map<Int, GameItem>, export: Export, builders: Int, pricePercent: Int): Plan {
+    private fun summarise(items: Map<Int, GameItem>, export: Export, builders: Int, prices: Prices): Plan {
         val townHall = export.townHall
         var builderSeconds = 0L
         var longestSeconds = 0L
@@ -283,6 +295,7 @@ object Planner {
             if (list.isEmpty()) continue
             val item = items.getValue(id)
             val group = Group.of(item.group) ?: continue
+            val pricePercent = prices.percentFor(group)
             var seconds = 0L
             val costs = HashMap<String, Long>()
             var supercharges = 0

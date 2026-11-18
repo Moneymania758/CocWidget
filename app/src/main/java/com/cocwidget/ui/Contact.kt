@@ -29,7 +29,7 @@ object Contact {
     // What the export can't say for itself, then the export. [export] must already have the
     // player tag taken out, and the account's name stays out for the same reason.
     fun exportBody(device: String, hammerJam: Boolean, export: String) =
-        "Here's my village export.\n\n$device\nHammer Jam switch ${if (hammerJam) "on" else "off"}\n\n$export"
+        "Here's my village export.\n\n$device\nHammer Jam ${if (hammerJam) "on" else "off"}\n\n$export"
 
     // URLEncoder writes a space as +, which mail apps show as a plus sign. %20 works everywhere.
     private fun encode(text: String) = URLEncoder.encode(text, "UTF-8").replace("+", "%20")

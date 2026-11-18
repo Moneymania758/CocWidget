@@ -38,14 +38,15 @@ class PlannerActivity : Screen() {
         val current = Store.current(this)
         items = GameData.all(this)
         val eventPercent = Store.eventPercent(this)
-        val plan = current?.let { Planner.plan(it.json, items, it.village.builders, eventPercent) }
+        val goldPass = current?.let { Store.goldPass(this, it.tag) } ?: 0
+        val plan = current?.let { Planner.plan(it.json, items, it.village.builders, eventPercent, goldPass) }
 
         addTabTop(TabChrome.PLAN)
         if (current == null || plan == null) {
             addNothingSynced()
             return
         }
-        content.addView(summary(plan, current.village.exportedAtMillis, eventPercent), ui.matchWidth(16))
+        content.addView(summary(plan, current, eventPercent, goldPass), ui.matchWidth(16))
         content.addView(progressCard(plan, current), ui.matchWidth(12))
         addNote(getString(R.string.planner_tap), 13f)
         content.addView(ui.card(0).apply {
@@ -60,7 +61,7 @@ class PlannerActivity : Screen() {
         pictures.load()
     }
 
-    private fun summary(plan: Planner.Plan, exportedAt: Long, eventPercent: Int) = ui.card().apply {
+    private fun summary(plan: Planner.Plan, current: Store.Current, eventPercent: Int, goldPass: Int) = ui.card().apply {
         val estimate = plan.builderEstimateSeconds()
         addView(ui.text(getString(R.string.planner_could_finish), 13f, ui.skin.dim))
         addView(ui.heading(PlanFormat.duration(estimate), 36f), ui.matchWidth(2))
@@ -87,9 +88,32 @@ class PlannerActivity : Screen() {
             }, ui.matchWidth(14))
         }
 
-        val exported = TimeText.exported(exportedAt, System.currentTimeMillis())
-        addView(ui.text(getString(R.string.planner_source, exported), 12f, ui.skin.dim), ui.matchWidth(14))
+        addView(goldPassRow(current.tag, goldPass), ui.matchWidth(14))
+        val exported = TimeText.exported(current.village.exportedAtMillis, System.currentTimeMillis())
+        addView(ui.text(getString(R.string.planner_source, exported), 12f, ui.skin.dim), ui.matchWidth(12))
         if (eventPercent > 0) addView(ui.text(getString(R.string.planner_event, eventPercent), 12f, ui.skin.dim), ui.matchWidth(2))
+        if (goldPass > 0) addView(ui.text(getString(R.string.planner_gold_pass, goldPass), 12f, ui.skin.dim), ui.matchWidth(2))
+    }
+
+    // The account's Gold Pass boost this season, picked here as the export doesn't say.
+    private fun goldPassRow(tag: String, chosen: Int) = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        addView(ui.text(getString(R.string.planner_gold_pass_label), 13f, ui.skin.dim), ui.weighted())
+        for (percent in GOLD_PASS_LEVELS) {
+            val picked = percent == chosen
+            val label = if (percent == 0) getString(R.string.planner_gold_pass_off) else getString(R.string.planner_percent, percent)
+            addView(ui.chip(label, if (picked) ui.skin.accent else ui.skin.chip, if (picked) ui.skin.onAccent else ui.skin.text).apply {
+                isSelected = picked
+                contentDescription = getString(R.string.planner_gold_pass_option, label)
+                ui.pressable(this, 8f) {
+                    if (!picked) {
+                        Store.setGoldPass(this@PlannerActivity, tag, percent)
+                        show()
+                    }
+                }
+            }, ui.wrap().apply { marginStart = ui.dp(6) })
+        }
     }
 
     // Upgrade time done, and how far it moved since the first import in the last month. Opens the
@@ -307,6 +331,9 @@ class PlannerActivity : Screen() {
     }
 
     companion object {
+        // Off, then the Gold Pass boost's three steps through a season.
+        val GOLD_PASS_LEVELS = listOf(0, 10, 15, 20)
+
         fun titleOf(group: Group): Int = when (group) {
             Group.DEFENCES -> R.string.group_defences
             Group.TRAPS -> R.string.group_traps

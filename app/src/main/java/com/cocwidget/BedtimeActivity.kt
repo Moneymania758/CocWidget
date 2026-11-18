@@ -41,7 +41,8 @@ class BedtimeActivity : Screen() {
         val current = Store.current(this)
         val items = GameData.all(this)
         val eventPercent = Store.eventPercent(this)
-        val steps = current?.let { Planner.nextSteps(it.json, items, eventPercent) }
+        val goldPass = current?.let { Store.goldPass(this, it.tag) } ?: 0
+        val steps = current?.let { Planner.nextSteps(it.json, items, eventPercent, goldPass) }
         if (current == null || steps == null) {
             addNothingSynced()
             return
@@ -61,6 +62,7 @@ class BedtimeActivity : Screen() {
         }
         var notes = getString(R.string.bedtime_notes)
         if (eventPercent > 0) notes += " " + getString(R.string.planner_event, eventPercent)
+        if (goldPass > 0) notes += " " + getString(R.string.planner_gold_pass, goldPass)
         addNote(notes)
         pictures.load()
     }

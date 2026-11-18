@@ -87,7 +87,7 @@ class VillageWidget : AppWidgetProvider() {
     private fun refreshAsync(context: Context) {
         val appContext = context.applicationContext
         val pending = goAsync()
-        thread {
+        lastRefresh = thread {
             try {
                 WidgetRenderer.update(appContext)
             } finally {
@@ -97,6 +97,10 @@ class VillageWidget : AppWidgetProvider() {
     }
 
     companion object {
+        // The latest redraw started by the launcher, so a test can wait for it before looking.
+        @Volatile
+        internal var lastRefresh: Thread? = null
+
         const val ACTION_REFRESH = "com.cocwidget.action.REFRESH"
         const val ACTION_TIMELINE_MINUTE = "com.cocwidget.action.TIMELINE_MINUTE"
         const val ACTION_TOGGLE_SECTION = "com.cocwidget.action.TOGGLE_SECTION"
